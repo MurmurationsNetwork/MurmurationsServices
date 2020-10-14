@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/index-api/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/indexer/domain/nodes"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 )
 

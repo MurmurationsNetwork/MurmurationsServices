@@ -1,8 +1,6 @@
 package nodes
 
-import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
-)
+import "github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 
 type Node struct {
 	ID            string   `json:"nodeId"`

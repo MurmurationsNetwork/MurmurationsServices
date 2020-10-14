@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexer-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: indexer
+  template:
+    metadata:
+      labels:
+        app: indexer
+    spec:
+      containers:
+        - name: indexer
+          # image: maxlivinci/indexer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: indexer-srv
+spec:
+  selector:
+    app: indexer
+  ports:
+    - name: indexer
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
