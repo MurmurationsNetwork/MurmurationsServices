@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexer-mongo-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: indexer-mongo
+  template:
+    metadata:
+      labels:
+        app: indexer-mongo
+    spec:
+      containers:
+        - name: indexer-mongo
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: indexer-mongo-srv
+spec:
+  selector:
+    app: indexer-mongo
+  ports:
+    - name: db
+      protocol: TCP
+      port: 27017
+      targetPort: 27017

@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/indexer/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/domain/nodes"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 )
 
@@ -27,9 +27,5 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 }
 
 func (s *nodesService) GetNode(nodeId string) (*nodes.Node, rest_errors.RestErr) {
-	result := nodes.Node{ID: nodeId}
-	if err := result.Get(); err != nil {
-		return nil, err
-	}
-	return &result, nil
+	return nil, nil
 }
