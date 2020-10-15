@@ -2,6 +2,7 @@ package nodes_db
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,12 +12,14 @@ import (
 
 var (
 	Collection *mongo.Collection
+	client     *mongo.Client
 )
 
 func init() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	var err error
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		panic(err)
 	}
@@ -24,6 +27,15 @@ func init() {
 	ping(client)
 
 	Collection = client.Database("murmurations").Collection("nodes")
+}
+
+func Disconnect() {
+	log.Println("Disconnecting mongodb...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := client.Disconnect(ctx); err != nil {
+		panic(err)
+	}
 }
 
 func ping(client *mongo.Client) {
