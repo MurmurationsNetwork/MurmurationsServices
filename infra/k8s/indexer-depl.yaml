@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: indexer
-          # image: maxlivinci/indexer
+          image: murmurations/indexer
 ---
 apiVersion: v1
 kind: Service

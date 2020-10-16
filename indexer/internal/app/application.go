@@ -15,6 +15,7 @@ var (
 func StartApplication() {
 	mapUrls()
 	go listen(server)
+
 	waitForShutdown()
 	cleanup()
 	log.Println("Server exiting successfully")

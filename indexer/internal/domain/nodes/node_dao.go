@@ -3,7 +3,7 @@ package nodes
 import (
 	"context"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/datasources/mongo/nodes_db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/datasources/mongo/nodes_db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/mongo_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"go.mongodb.org/mongo-driver/bson"
