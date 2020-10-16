@@ -28,10 +28,11 @@ func NewBadRequestError(message string) RestErr {
 }
 
 func NewInternalServerError(message string) RestErr {
-	return restErr{
+	result := restErr{
 		ErrMessage: message,
 		ErrStatus:  http.StatusInternalServerError,
 	}
+	return result
 }
 
 func NewNotFoundError(message string) RestErr {

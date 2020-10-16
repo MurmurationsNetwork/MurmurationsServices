@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/datasources/mongo/nodes_db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/date_utils"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/hash_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/mongo_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,9 +11,6 @@ import (
 )
 
 func (node *Node) Add() rest_errors.RestErr {
-	node.NodeID = hash_utils.SHA256(node.ProfileUrl)
-	node.LastValidated = date_utils.GetNowUnix()
-
 	filter := bson.M{"nodeId": node.NodeID}
 	update := bson.M{"$set": node}
 	opts := options.Update().SetUpsert(true)
@@ -29,13 +24,50 @@ func (node *Node) Add() rest_errors.RestErr {
 }
 
 func (node *Node) Get() rest_errors.RestErr {
+	filter := bson.M{"nodeId": node.NodeID}
+
+	err := nodes_db.Collection.FindOne(context.Background(), filter).Decode(node)
+	if err != nil {
+		return mongo_utils.ParseError(err)
+	}
+
 	return nil
 }
 
-func (node *Node) Search() rest_errors.RestErr {
-	return nil
+func (node *Node) Search(query *NodeQuery) (Nodes, rest_errors.RestErr) {
+	filter := bson.M{
+		"linkedSchemas": query.Schema,
+		"lastValidated": bson.M{
+			"$gte": query.LastValidated,
+		},
+	}
+
+	cursor, err := nodes_db.Collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, mongo_utils.ParseError(err)
+	}
+	defer cursor.Close(context.Background())
+
+	results := make([]Node, 0)
+	for cursor.Next(context.Background()) {
+		var node Node
+		err := cursor.Decode(&node)
+		if err != nil {
+			return nil, rest_errors.NewInternalServerError("error when trying to get nodes")
+		}
+		results = append(results, node)
+	}
+
+	return results, nil
 }
 
 func (node *Node) Delete() rest_errors.RestErr {
+	filter := bson.M{"nodeId": node.NodeID}
+
+	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return mongo_utils.ParseError(err)
+	}
+
 	return nil
 }

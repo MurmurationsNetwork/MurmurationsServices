@@ -8,7 +8,7 @@ import (
 
 func ParseError(err error) rest_errors.RestErr {
 	errString := err.Error()
-	if strings.Contains(errString, "document is nil") {
+	if strings.Contains(errString, "no documents") {
 		return rest_errors.NewBadRequestError("Cannot find the document.")
 	}
 	return rest_errors.NewBadRequestError(err.Error())

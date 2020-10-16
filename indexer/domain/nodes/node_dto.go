@@ -24,3 +24,10 @@ func (node *Node) Validate() rest_errors.RestErr {
 
 	return nil
 }
+
+type Nodes []Node
+
+type NodeQuery struct {
+	Schema        string `form:"schema"`
+	LastValidated int64  `form:"lastValidated"`
+}
