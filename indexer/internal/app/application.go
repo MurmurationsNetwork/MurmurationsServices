@@ -1,9 +1,9 @@
 package app
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/utils/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ func StartApplication() {
 
 	waitForShutdown()
 	cleanup()
-	log.Println("Server exiting successfully")
+	logger.Info("the server exited successfully")
 }
 
 func getServer() *http.Server {
@@ -31,6 +31,6 @@ func getServer() *http.Server {
 
 func listen(srv *http.Server) {
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		panic(err)
+		logger.Panic("error when trying to start the app", err)
 	}
 }

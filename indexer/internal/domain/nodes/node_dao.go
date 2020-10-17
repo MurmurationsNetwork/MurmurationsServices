@@ -2,9 +2,10 @@ package nodes
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/datasources/mongo/nodes_db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/mongo_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/utils/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -17,7 +18,8 @@ func (node *Node) Add() rest_errors.RestErr {
 
 	_, err := nodes_db.Collection.UpdateOne(context.Background(), filter, update, opts)
 	if err != nil {
-		return mongo_utils.ParseError(err)
+		logger.Error("error when trying to add a node", err)
+		return rest_errors.NewInternalServerError("error when tying to add a node", errors.New("database error"))
 	}
 
 	return nil
@@ -33,7 +35,8 @@ func (node *Node) Search(query *NodeQuery) (Nodes, rest_errors.RestErr) {
 
 	cursor, err := nodes_db.Collection.Find(context.Background(), filter)
 	if err != nil {
-		return nil, mongo_utils.ParseError(err)
+		logger.Error("error when trying to search nodes", err)
+		return nil, rest_errors.NewInternalServerError("error when trying to search nodes", errors.New("database error"))
 	}
 	defer cursor.Close(context.Background())
 
@@ -42,7 +45,8 @@ func (node *Node) Search(query *NodeQuery) (Nodes, rest_errors.RestErr) {
 		var node Node
 		err := cursor.Decode(&node)
 		if err != nil {
-			return nil, rest_errors.NewInternalServerError("error when trying to get nodes")
+			logger.Error("error when trying to decode node indo a node struct", err)
+			return nil, rest_errors.NewInternalServerError("error when trying to search nodes", errors.New("database error"))
 		}
 		results = append(results, node)
 	}
@@ -55,7 +59,8 @@ func (node *Node) Delete() rest_errors.RestErr {
 
 	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
 	if err != nil {
-		return mongo_utils.ParseError(err)
+		logger.Error("error when trying to delete a node", err)
+		return rest_errors.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
 	}
 
 	return nil

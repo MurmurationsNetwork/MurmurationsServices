@@ -2,9 +2,9 @@ package nodes_db
 
 import (
 	"context"
-	"log"
 	"time"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/utils/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -21,7 +21,7 @@ func init() {
 	var err error
 	client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://indexer-mongo-srv:27017"))
 	if err != nil {
-		panic(err)
+		logger.Panic("error when trying to connect to MongoDB", err)
 	}
 
 	ping(client)
@@ -30,11 +30,11 @@ func init() {
 }
 
 func Disconnect() {
-	log.Println("Disconnecting mongodb...")
+	logger.Info("trying to disconnect from MongoDB")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := client.Disconnect(ctx); err != nil {
-		panic(err)
+		logger.Panic("error when trying to disconnect from MongoDB", err)
 	}
 }
 
@@ -43,6 +43,6 @@ func ping(client *mongo.Client) {
 	defer cancel()
 	err := client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		panic(err)
+		logger.Panic("error when trying to ping the MongoDB", err)
 	}
 }

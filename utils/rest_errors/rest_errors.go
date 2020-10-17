@@ -8,8 +8,9 @@ type RestErr interface {
 }
 
 type restErr struct {
-	ErrMessage string `json:"message"`
-	ErrStatus  int    `json:"status"`
+	ErrMessage string        `json:"message"`
+	ErrStatus  int           `json:"status"`
+	ErrCauses  []interface{} `json:"causes"`
 }
 
 func (e restErr) Message() string {
@@ -27,10 +28,13 @@ func NewBadRequestError(message string) RestErr {
 	}
 }
 
-func NewInternalServerError(message string) RestErr {
+func NewInternalServerError(message string, err error) RestErr {
 	result := restErr{
 		ErrMessage: message,
 		ErrStatus:  http.StatusInternalServerError,
+	}
+	if err != nil {
+		result.ErrCauses = append(result.ErrCauses, err.Error())
 	}
 	return result
 }
