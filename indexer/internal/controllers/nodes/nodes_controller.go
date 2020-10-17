@@ -31,23 +31,7 @@ func Add(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result.AddNodeRespond())
-}
-
-func Get(c *gin.Context) {
-	nodeId, err := getNodeId(c.Params)
-	if err != nil {
-		c.JSON(err.Status(), err)
-		return
-	}
-
-	node, err := services.NodeService.GetNode(nodeId)
-	if err != nil {
-		c.JSON(err.Status(), err)
-		return
-	}
-
-	c.JSON(http.StatusOK, node)
+	c.JSON(http.StatusOK, result.Marshall())
 }
 
 func Search(c *gin.Context) {
@@ -58,13 +42,13 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	result, err := services.NodeService.SearchNode(&query)
+	searchRes, err := services.NodeService.SearchNode(&query)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, searchRes.Marshall())
 }
 
 func Delete(c *gin.Context) {

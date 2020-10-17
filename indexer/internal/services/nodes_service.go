@@ -2,8 +2,8 @@ package services
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/utils/crypto_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/date_utils"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/hash_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 )
 
@@ -13,7 +13,6 @@ var (
 
 type nodesServiceInterface interface {
 	AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestErr)
-	GetNode(nodeId string) (*nodes.Node, rest_errors.RestErr)
 	SearchNode(query *nodes.NodeQuery) (nodes.Nodes, rest_errors.RestErr)
 	DeleteNode(nodeId string) rest_errors.RestErr
 }
@@ -25,21 +24,13 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 		return nil, err
 	}
 
-	node.NodeID = hash_utils.GetSHA256(node.ProfileUrl)
+	node.NodeID = crypto_utils.GetSHA256(node.ProfileUrl)
 	node.LastValidated = date_utils.GetNowUnix()
 
 	if err := node.Add(); err != nil {
 		return nil, err
 	}
 	return &node, nil
-}
-
-func (s *nodesService) GetNode(nodeId string) (*nodes.Node, rest_errors.RestErr) {
-	node := &nodes.Node{NodeID: nodeId}
-	if err := node.Get(); err != nil {
-		return nil, err
-	}
-	return node, nil
 }
 
 func (s *nodesService) SearchNode(query *nodes.NodeQuery) (nodes.Nodes, rest_errors.RestErr) {

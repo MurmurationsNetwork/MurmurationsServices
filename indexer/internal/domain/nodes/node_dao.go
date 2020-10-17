@@ -23,17 +23,6 @@ func (node *Node) Add() rest_errors.RestErr {
 	return nil
 }
 
-func (node *Node) Get() rest_errors.RestErr {
-	filter := bson.M{"nodeId": node.NodeID}
-
-	err := nodes_db.Collection.FindOne(context.Background(), filter).Decode(node)
-	if err != nil {
-		return mongo_utils.ParseError(err)
-	}
-
-	return nil
-}
-
 func (node *Node) Search(query *NodeQuery) (Nodes, rest_errors.RestErr) {
 	filter := bson.M{
 		"linkedSchemas": query.Schema,
