@@ -25,7 +25,7 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 		return nil, err
 	}
 
-	node.NodeID = hash_utils.SHA256(node.ProfileUrl)
+	node.NodeID = hash_utils.GetSHA256(node.ProfileUrl)
 	node.LastValidated = date_utils.GetNowUnix()
 
 	if err := node.Add(); err != nil {

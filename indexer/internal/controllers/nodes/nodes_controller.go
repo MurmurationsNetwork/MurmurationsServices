@@ -31,7 +31,7 @@ func Add(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, result.AddNodeRespond())
 }
 
 func Get(c *gin.Context) {

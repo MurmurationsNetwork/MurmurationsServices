@@ -14,5 +14,5 @@ build:
         dockerfile: indexer/docker/Dockerfile
       sync:
         manual:
-          - src: '**/*.go'
+          - src: 'indexer/**/*.go'
             dest: .
