@@ -21,10 +21,12 @@ kind: Service
 metadata:
   name: indexer-mongo-srv
 spec:
+  type: NodePort
   selector:
     app: indexer-mongo
   ports:
     - name: db
       protocol: TCP
-      port: 27017
-      targetPort: 27017
+      port: 27017       # service port
+      targetPort: 27017 # pod port
+      nodePort: 30994   # node port, range from 30000 to 32767, inclusive.
