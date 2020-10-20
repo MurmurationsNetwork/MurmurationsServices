@@ -4,6 +4,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/nodes"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/crypto_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/date_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/utils/http_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 )
 
@@ -24,7 +25,11 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 		return nil, err
 	}
 
-	node.NodeID = crypto_utils.GetSHA256(node.ProfileUrl)
+	jsonStr, err := http_utils.GetStr(node.ProfileUrl)
+	if err != nil {
+		return nil, rest_errors.NewBadRequestError(err.Error())
+	}
+	node.NodeID = crypto_utils.GetSHA256(jsonStr)
 	node.LastValidated = date_utils.GetNowUnix()
 
 	if err := node.Add(); err != nil {
