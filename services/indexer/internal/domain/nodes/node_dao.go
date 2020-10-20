@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/datasources/mongo/nodes_db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/indexer/internal/datasources/mongo/nodes_db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"go.mongodb.org/mongo-driver/bson"

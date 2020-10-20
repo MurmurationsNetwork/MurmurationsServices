@@ -3,8 +3,8 @@ package nodes
 import (
 	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/domain/nodes"
-	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/services"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/indexer/internal/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/indexer/internal/services"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"github.com/gin-gonic/gin"
 )

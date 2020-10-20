@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/indexer/internal/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/indexer/internal/domain/nodes"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/crypto_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/date_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"

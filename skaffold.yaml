@@ -11,8 +11,8 @@ build:
     - image: murmurations/indexer
       context: .
       docker:
-        dockerfile: indexer/docker/Dockerfile
+        dockerfile: services/indexer/docker/Dockerfile-dev
       sync:
         manual:
-          - src: 'indexer/**/*.go'
+          - src: 'services/indexer/**/*.go'
             dest: .
