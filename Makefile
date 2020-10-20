@@ -1,2 +1,5 @@
-indexer-dev:
-	$(MAKE) -C services/indexer/ docker-build-dev
+index-dev:
+	$(MAKE) -C services/index/ docker-build-dev
+
+validation-dev:
+	$(MAKE) -C services/validation/ docker-build-dev

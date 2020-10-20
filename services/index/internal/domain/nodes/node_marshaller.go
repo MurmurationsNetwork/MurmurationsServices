@@ -5,17 +5,17 @@ import (
 )
 
 type respond struct {
-	Data interface{} `json:"data"`
+	Data interface{} `json:"data,omitempty"`
 }
 
 type addNodeRespond struct {
-	NodeID        string `json:"nodeId"`
-	LastValidated int64  `json:"lastValidated"`
+	NodeID        string `json:"nodeId,omitempty"`
+	LastValidated int64  `json:"lastValidated,omitempty"`
 }
 
 type searchNodeRespond struct {
-	ProfileUrl    string `json:"profileUrl"`
-	LastValidated int64  `json:"lastValidated"`
+	ProfileUrl    string `json:"profileUrl,omitempty"`
+	LastValidated int64  `json:"lastValidated,omitempty"`
 }
 
 func (node *Node) Marshall() interface{} {

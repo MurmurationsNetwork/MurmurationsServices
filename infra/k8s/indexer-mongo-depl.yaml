@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: indexer-mongo-depl
+  name: index-mongo-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: indexer-mongo
+      app: index-mongo
   template:
     metadata:
       labels:
-        app: indexer-mongo
+        app: index-mongo
     spec:
       containers:
-        - name: indexer-mongo
+        - name: index-mongo
           image: mongo
           # resources:
           #   requests:
@@ -26,11 +26,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: indexer-mongo-srv
+  name: index-mongo-srv
 spec:
   type: NodePort
   selector:
-    app: indexer-mongo
+    app: index-mongo
   ports:
     - name: db
       protocol: TCP

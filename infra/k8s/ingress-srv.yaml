@@ -12,5 +12,5 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: indexer-srv
+              serviceName: index-srv
               servicePort: 8080

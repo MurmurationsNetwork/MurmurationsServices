@@ -52,6 +52,7 @@ spec:
       protocol: TCP
       port: 4222
       targetPort: 4222
+      nodePort: 30996   # node port, range from 30000 to 32767, inclusive.
     - name: monitoring
       protocol: TCP
       port: 8222

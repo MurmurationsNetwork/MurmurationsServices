@@ -8,11 +8,11 @@ build:
   local:
     push: false
   artifacts:
-    - image: murmurations/indexer
+    - image: murmurations/index
       context: .
       docker:
-        dockerfile: services/indexer/docker/Dockerfile-dev
+        dockerfile: services/index/docker/Dockerfile-dev
       sync:
         manual:
-          - src: 'services/indexer/**/*.go'
+          - src: 'services/index/**/*.go'
             dest: .

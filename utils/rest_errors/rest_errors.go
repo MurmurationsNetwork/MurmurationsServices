@@ -8,9 +8,9 @@ type RestErr interface {
 }
 
 type restErr struct {
-	ErrMessage string        `json:"message"`
-	ErrStatus  int           `json:"status"`
-	ErrCauses  []interface{} `json:"causes"`
+	ErrMessage string        `json:"message,omitempty"`
+	ErrStatus  int           `json:"status,omitempty"`
+	ErrCauses  []interface{} `json:"causes,omitempty"`
 }
 
 func (e restErr) Message() string {
