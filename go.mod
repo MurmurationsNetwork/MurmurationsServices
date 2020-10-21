@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/federicoleon/bookstore_users-api v0.0.0-20200406070935-c8e352aed46b
 	github.com/gin-gonic/gin v1.6.3
 	github.com/nats-io/nats-server/v2 v2.1.8 // indirect
 	github.com/nats-io/nats-streaming-server v0.18.0 // indirect
