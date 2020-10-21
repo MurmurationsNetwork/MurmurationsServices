@@ -3,8 +3,13 @@ module github.com/MurmurationsNetwork/MurmurationsServices
 go 1.15
 
 require (
+	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/federicoleon/bookstore_users-api v0.0.0-20200406070935-c8e352aed46b
 	github.com/gin-gonic/gin v1.6.3
+	github.com/nats-io/nats-server/v2 v2.1.8 // indirect
+	github.com/nats-io/nats-streaming-server v0.18.0 // indirect
+	github.com/nats-io/stan.go v0.7.0
 	go.mongodb.org/mongo-driver v1.4.2
 	go.uber.org/zap v1.16.0
-	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59 // indirect
+	google.golang.org/protobuf v1.25.0 // indirect
 )

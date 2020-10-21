@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: index
+  template:
+    metadata:
+      labels:
+        app: index
+    spec:
+      containers:
+        - name: index
+          image: murmurations/index
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "250m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: index-svc
+spec:
+  selector:
+    app: index
+  ports:
+    - name: index
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

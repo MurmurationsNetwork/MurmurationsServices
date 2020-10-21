@@ -1,7 +1,7 @@
 package nodes
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

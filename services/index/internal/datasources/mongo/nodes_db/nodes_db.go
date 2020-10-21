@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/cenkalti/backoff"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -19,7 +20,7 @@ func init() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var err error
-	client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://index-mongo-srv:27017"))
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://index-mongo-svc:27017"))
 	if err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 	}
@@ -39,9 +40,19 @@ func Disconnect() {
 }
 
 func ping(client *mongo.Client) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	err := client.Ping(ctx, readpref.Primary())
+	op := func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		err := client.Ping(ctx, readpref.Primary())
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	b := backoff.NewExponentialBackOff()
+	b.MaxElapsedTime = 2 * time.Minute
+	err := backoff.Retry(op, b)
 	if err != nil {
 		logger.Panic("error when trying to ping the MongoDB", err)
 	}

@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: index-depl
+  name: index-mongo-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: index
+      app: index-mongo
   template:
     metadata:
       labels:
-        app: index
+        app: index-mongo
     spec:
       containers:
-        - name: index
-          image: murmurations/index
+        - name: index-mongo
+          image: mongo
           # resources:
           #   requests:
           #     memory: "64Mi"
@@ -26,12 +26,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: index-srv
+  name: index-mongo-svc
 spec:
   selector:
-    app: index
+    app: index-mongo
   ports:
-    - name: index
+    - name: db
       protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 27017       # service port
+      targetPort: 27017 # pod port

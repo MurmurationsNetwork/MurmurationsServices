@@ -3,9 +3,9 @@ package nodes
 import (
 	"net/http"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/nodes"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/services"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"github.com/gin-gonic/gin"
 )
 

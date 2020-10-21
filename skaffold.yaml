@@ -14,5 +14,23 @@ build:
         dockerfile: services/index/docker/Dockerfile-dev
       sync:
         manual:
-          - src: 'services/index/**/*.go'
+          - src: './services/index/**/*.go'
             dest: .
+    - image: murmurations/validation
+      context: .
+      docker:
+        dockerfile: services/validation/docker/Dockerfile-dev
+      sync:
+        manual:
+          - src: './services/validation/**/*.go'
+            dest: .
+portForward:
+  - resourceType: service
+    resourceName: index-mongo-svc
+    port: 27017
+  - resourceType: service
+    resourceName: nats-svc
+    port: 4222
+  - resourceType: service
+    resourceName: nats-svc
+    port: 8222

@@ -1,11 +1,11 @@
 package services
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/crypto_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/date_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/http_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/nodes"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/crypto_utils"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/date_utils"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/http_utils"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 )
 
 var (

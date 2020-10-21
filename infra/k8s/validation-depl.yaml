@@ -1,20 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: index-mongo-depl
+  name: validation-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: index-mongo
+      app: validation
   template:
     metadata:
       labels:
-        app: index-mongo
+        app: validation
     spec:
       containers:
-        - name: index-mongo
-          image: mongo
+        - name: validation
+          image: murmurations/validation
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
           # resources:
           #   requests:
           #     memory: "64Mi"
@@ -26,14 +33,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: index-mongo-srv
+  name: validation-svc
 spec:
-  type: NodePort
   selector:
-    app: index-mongo
+    app: validation
   ports:
-    - name: db
+    - name: validation
       protocol: TCP
-      port: 27017       # service port
-      targetPort: 27017 # pod port
-      nodePort: 30994   # node port, range from 30000 to 32767, inclusive.
+      port: 8080
+      targetPort: 8080

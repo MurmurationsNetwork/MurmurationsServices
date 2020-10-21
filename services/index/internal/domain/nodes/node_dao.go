@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/mongo/nodes_db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/utils/rest_errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
