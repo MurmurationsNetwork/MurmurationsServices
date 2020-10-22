@@ -1,4 +1,4 @@
-package nats_utils
+package events
 
 import (
 	"fmt"
@@ -17,27 +17,34 @@ type Listener interface {
 	UpdateOptions(opts ...stan.SubscriptionOption)
 }
 
+type ListenerConfig struct {
+	Client    stan.Conn
+	Subject   Subject
+	QGroup    string
+	OnMessage stan.MsgHandler
+}
+
 type listener struct {
 	client    stan.Conn
-	subject   string
+	subject   Subject
 	qgroup    string
 	onMessage stan.MsgHandler
 	opts      []stan.SubscriptionOption
 }
 
-func NewListener(client stan.Conn, subject string, qgroup string) Listener {
+func NewListener(config *ListenerConfig) Listener {
 	return &listener{
-		client:    client,
-		subject:   subject,
-		qgroup:    qgroup,
-		onMessage: defaultOnMessage(),
-		opts:      defaultSubscriptionOptions(qgroup),
+		client:    config.Client,
+		subject:   config.Subject,
+		qgroup:    config.QGroup,
+		onMessage: config.OnMessage,
+		opts:      defaultSubscriptionOptions(config.QGroup),
 	}
 }
 
-func defaultOnMessage() stan.MsgHandler {
+func DefaultOnMessage() stan.MsgHandler {
 	return func(msg *stan.Msg) {
-		fmt.Println("receiving message", msg.Sequence, string(msg.Data))
+		fmt.Println("receiving message: ", msg.Sequence, string(msg.Data))
 		msg.Ack()
 	}
 }
@@ -52,14 +59,15 @@ func defaultSubscriptionOptions(qgroup string) []stan.SubscriptionOption {
 	}
 }
 
+// UpdateOptions overrides the default options.
+func (l *listener) UpdateOptions(opts ...stan.SubscriptionOption) {
+	l.opts = append(l.opts, opts...)
+}
+
 func (l *listener) Listen() error {
-	_, err := l.client.QueueSubscribe(l.subject, l.qgroup, l.onMessage, l.opts...)
+	_, err := l.client.QueueSubscribe(string(l.subject), l.qgroup, l.onMessage, l.opts...)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (l *listener) UpdateOptions(opts ...stan.SubscriptionOption) {
-	l.opts = append(l.opts, opts...)
 }

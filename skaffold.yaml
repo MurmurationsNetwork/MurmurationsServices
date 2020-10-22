@@ -24,13 +24,3 @@ build:
         manual:
           - src: './services/validation/**/*.go'
             dest: .
-portForward:
-  - resourceType: service
-    resourceName: index-mongo-svc
-    port: 27017
-  - resourceType: service
-    resourceName: nats-svc
-    port: 4222
-  - resourceType: service
-    resourceName: nats-svc
-    port: 8222

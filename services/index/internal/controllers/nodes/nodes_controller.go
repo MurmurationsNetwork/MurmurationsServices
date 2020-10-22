@@ -3,8 +3,10 @@ package nodes
 import (
 	"net/http"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/events"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/events/publishers"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +32,11 @@ func Add(c *gin.Context) {
 		c.JSON(err.Status(), err)
 		return
 	}
+
+	publishers.NodeCreated.Publish(events.NodeCreatedData{
+		ProfileUrl:    node.ProfileUrl,
+		LinkedSchemas: node.LinkedSchemas,
+	})
 
 	c.JSON(http.StatusOK, result.Marshall())
 }

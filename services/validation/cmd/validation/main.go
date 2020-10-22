@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/app"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/queue"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/events/listeners"
 )
 
 type Node struct {
@@ -11,6 +11,6 @@ type Node struct {
 }
 
 func main() {
-	go queue.Listen()
+	go listeners.NodeCreated.Listen()
 	app.StartApplication()
 }
