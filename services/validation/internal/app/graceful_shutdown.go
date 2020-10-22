@@ -15,8 +15,9 @@ func waitForShutdown() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Info("trying to shut down the server")
+	cleanup()
 
+	logger.Info("trying to shut down the server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {

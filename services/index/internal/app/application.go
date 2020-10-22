@@ -17,7 +17,6 @@ func StartApplication() {
 	go listen(server)
 
 	waitForShutdown()
-	cleanup()
 	logger.Info("the server exited successfully")
 }
 
