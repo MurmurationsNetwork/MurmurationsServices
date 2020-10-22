@@ -18,7 +18,7 @@ var NodeCreated = events.NewListener(&events.ListenerConfig{
 	OnMessage: func(msg *stan.Msg) {
 		var data events.NodeCreatedData
 		json.Unmarshal(msg.Data, &data)
-		fmt.Printf("%+v \n", data)
+		fmt.Printf("%+v %+v \n", msg.Sequence, data)
 		msg.Ack()
 	},
 })

@@ -3,9 +3,12 @@ package services
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/crypto_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/date_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/events"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/http_utils"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/events/publishers"
 )
 
 var (
@@ -35,6 +38,13 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 	if err := node.Add(); err != nil {
 		return nil, err
 	}
+
+	publishErr := publishers.NodeCreated.Publish(&events.NodeCreatedData{
+		ProfileUrl:    node.ProfileUrl,
+		LinkedSchemas: node.LinkedSchemas,
+	})
+	logger.Error("error when trying to publish the node:created event", publishErr)
+
 	return &node, nil
 }
 
