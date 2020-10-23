@@ -15,6 +15,17 @@ spec:
       containers:
         - name: index
           image: murmurations/index
+          env:
+            - name: NATS_CLUSTER_ID
+              value: murmurations
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-svc:4222'
+            - name: MONGO_URI
+              value: 'mongodb://index-mongo-svc:27017'
           livenessProbe:
             httpGet:
               path: /ping

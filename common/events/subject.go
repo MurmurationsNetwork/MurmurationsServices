@@ -2,7 +2,6 @@ package events
 
 type Subject string
 
-// Enum Subject
 const (
-	NodeCreated Subject = "node:created"
+	nodeCreated Subject = "node:created"
 )

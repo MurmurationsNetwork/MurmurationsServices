@@ -2,6 +2,7 @@ package nodes_db
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -20,7 +21,7 @@ func init() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var err error
-	client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://index-mongo-svc:27017"))
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
 	if err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 	}

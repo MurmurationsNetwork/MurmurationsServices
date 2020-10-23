@@ -15,6 +15,15 @@ spec:
       containers:
         - name: validation
           image: murmurations/validation
+          env:
+            - name: NATS_CLUSTER_ID
+              value: murmurations
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-svc:4222'
           livenessProbe:
             httpGet:
               path: /ping
