@@ -8,6 +8,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.1.8 // indirect
 	github.com/nats-io/nats-streaming-server v0.18.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
+	github.com/xeipuuv/gojsonschema v1.2.0
 	go.mongodb.org/mongo-driver v1.4.2
 	go.uber.org/zap v1.16.0
 	google.golang.org/protobuf v1.25.0 // indirect
