@@ -1,37 +1,37 @@
 package events
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/crypto_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/events"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/datasources/nats"
 	"github.com/nats-io/stan.go"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 const qgroup = "validation-svc-qgroup"
 
 var HandleNodeCreated = events.NewNodeCreatedListener(nats.Client(), qgroup, func(msg *stan.Msg) {
 	var nodeCreatedData events.NodeCreatedData
-	err := json.Unmarshal(msg.Data, &nodeCreatedData)
-	if err != nil {
-		fmt.Printf("%v \n", err)
-		return
+
+	document := gojsonschema.NewReferenceLoader(nodeCreatedData.ProfileUrl)
+
+	for _, schemaURL := range nodeCreatedData.LinkedSchemas {
+		schemaLoader := gojsonschema.NewReferenceLoader(schemaURL)
+		result, err := gojsonschema.Validate(schemaLoader, document)
+		if err != nil {
+			// Internet error retry
+			panic(err.Error())
+		}
+		if !result.Valid() {
+			fmt.Printf("The document is not valid. see errors :\n")
+			for _, desc := range result.Errors() {
+				fmt.Printf("- %s\n", desc)
+			}
+			// Invalid document.
+		}
 	}
-	resp, err := http.Get(nodeCreatedData.ProfileUrl)
-	if err != nil {
-		fmt.Printf("%v \n", err)
-		return
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println()
-	fmt.Printf("Receiving Node Created Event: ")
-	fmt.Printf("Hashed profile: %v \n", crypto_utils.GetSHA256(string(body)))
-	fmt.Printf("String profile content %v \n", string(body))
-	fmt.Println()
+
+	// Valid document.
 	msg.Ack()
 })
