@@ -20,13 +20,14 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		if result.Valid() {
-			fmt.Printf("The document is valid \n")
-		} else {
-			fmt.Printf("The document is not valid. see errors :\n")
+		if !result.Valid() {
+			reasons := make([]string, 0)
 			for _, desc := range result.Errors() {
-				fmt.Printf("- %s\n", desc)
+				reasons = append(reasons, desc.String())
 			}
+			fmt.Println("==================================")
+			fmt.Printf("2. reasons %+v \n", reasons)
+			fmt.Println("==================================")
 		}
 	}
 }

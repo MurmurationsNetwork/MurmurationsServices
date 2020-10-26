@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controllers/nodes"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controllers/ping"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controllers/http/nodes"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controllers/http/ping"
 )
 
 func mapUrls() {

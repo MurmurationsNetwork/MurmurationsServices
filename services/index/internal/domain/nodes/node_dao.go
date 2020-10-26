@@ -11,6 +11,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var (
+	ErrUpdate = errors.New("update error")
+)
+
 func (node *Node) Add() rest_errors.RestErr {
 	filter := bson.M{"nodeId": node.NodeID}
 	update := bson.M{"$set": node}
@@ -18,8 +22,22 @@ func (node *Node) Add() rest_errors.RestErr {
 
 	_, err := nodes_db.Collection.UpdateOne(context.Background(), filter, update, opts)
 	if err != nil {
-		logger.Error("error when trying to add a node", err)
+		logger.Error("error when trying to create a node", err)
 		return rest_errors.NewInternalServerError("error when tying to add a node", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (node *Node) Update() error {
+	filter := bson.M{"nodeId": node.NodeID}
+	update := bson.M{"$set": node}
+	opts := options.Update()
+
+	_, err := nodes_db.Collection.UpdateOne(context.Background(), filter, update, opts)
+	if err != nil {
+		logger.Error("error when trying to update a node", err)
+		return ErrUpdate
 	}
 
 	return nil

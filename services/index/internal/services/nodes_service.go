@@ -1,10 +1,10 @@
 package services
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constants"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/crypto_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/date_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/events"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/http_utils"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/nodes"
@@ -16,6 +16,8 @@ var (
 
 type nodesServiceInterface interface {
 	AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestErr)
+	SetNodeValid(node nodes.Node) error
+	SetNodeInValid(node nodes.Node) error
 	SearchNode(query *nodes.NodeQuery) (nodes.Nodes, rest_errors.RestErr)
 	DeleteNode(nodeId string) rest_errors.RestErr
 }
@@ -27,13 +29,8 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 		return nil, err
 	}
 
-	jsonStr, err := http_utils.GetStr(node.ProfileUrl)
-	if err != nil {
-		return nil, rest_errors.NewBadRequestError(err.Error())
-	}
-	node.NodeID = crypto_utils.GetSHA256(jsonStr)
-	node.LastValidated = date_utils.GetNowUnix()
-
+	node.NodeID = crypto_utils.GetSHA256(node.ProfileUrl)
+	node.Status = constants.Received
 	if err := node.Add(); err != nil {
 		return nil, err
 	}
@@ -44,6 +41,26 @@ func (s *nodesService) AddNode(node nodes.Node) (*nodes.Node, rest_errors.RestEr
 	})
 
 	return &node, nil
+}
+
+func (s *nodesService) SetNodeValid(node nodes.Node) error {
+	node.NodeID = crypto_utils.GetSHA256(node.ProfileUrl)
+	node.Status = constants.Validated
+	node.FailedReasons = &[]string{}
+	if err := node.Update(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *nodesService) SetNodeInValid(node nodes.Node) error {
+	node.NodeID = crypto_utils.GetSHA256(node.ProfileUrl)
+	node.Status = constants.ValidationFailed
+	node.LastValidated = date_utils.GetZeroValueUnix()
+	if err := node.Update(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *nodesService) SearchNode(query *nodes.NodeQuery) (nodes.Nodes, rest_errors.RestErr) {

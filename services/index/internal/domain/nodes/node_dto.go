@@ -1,16 +1,20 @@
 package nodes
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constants"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/rest_errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Node struct {
-	ID            primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
-	NodeID        string             `json:"nodeId" bson:"nodeId,omitempty"`
-	ProfileUrl    string             `json:"profileUrl" bson:"profileUrl,omitempty"`
-	LinkedSchemas []string           `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
-	LastValidated int64              `json:"lastValidated" bson:"lastValidated,omitempty"`
+	// DISCUSS (2020/10/27): Should we use the hashed nodeID as the mongodb ID?
+	ID            primitive.ObjectID   `json:"_id" bson:"_id,omitempty"`
+	NodeID        string               `json:"nodeId" bson:"nodeId,omitempty"`
+	ProfileUrl    string               `json:"profileUrl" bson:"profileUrl,omitempty"`
+	LinkedSchemas []string             `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
+	Status        constants.NodeStatus `json:"status" bson:"status,omitempty"`
+	LastValidated int64                `json:"lastValidated" bson:"lastValidated,omitempty"`
+	FailedReasons *[]string            `json:"failedReasons" bson:"failedReasons,omitempty"`
 }
 
 func (node *Node) Validate() rest_errors.RestErr {
