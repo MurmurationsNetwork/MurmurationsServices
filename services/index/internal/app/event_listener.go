@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controllers/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/event"
 )
 
 func listenToEvents() {
