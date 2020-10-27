@@ -32,10 +32,6 @@ var HandleNodeValidated = event.NewNodeValidatedListener(nats.Client(), qgroup, 
 		return
 	}
 
-	fmt.Println("==================================")
-	fmt.Printf("nodeValidatedData OK ")
-	fmt.Println("==================================")
-
 	msg.Ack()
 })
 
@@ -58,10 +54,6 @@ var HandleNodeValidationFailed = event.NewNodeValidationFailedListener(nats.Clie
 	if err != nil {
 		return
 	}
-
-	fmt.Println("==================================")
-	fmt.Printf("nodeValidationFailedData OK ")
-	fmt.Println("==================================")
 
 	msg.Ack()
 })

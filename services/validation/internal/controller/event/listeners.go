@@ -18,10 +18,7 @@ var HandleNodeCreated = event.NewNodeCreatedListener(nats.Client(), qgroup, func
 		return
 	}
 
-	err = service.ValidationService.ValidateNode(nodeCreatedData.ProfileUrl, nodeCreatedData.LinkedSchemas)
-	if err != nil {
-		return
-	}
+	service.ValidationService.ValidateNode(nodeCreatedData.ProfileUrl, nodeCreatedData.LinkedSchemas)
 
 	msg.Ack()
 })

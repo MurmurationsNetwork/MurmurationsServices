@@ -12,12 +12,12 @@ var (
 )
 
 type validationServiceInterface interface {
-	ValidateNode(profileUrl string, linkedSchemas []string) error
+	ValidateNode(profileUrl string, linkedSchemas []string)
 }
 
 type validationService struct{}
 
-func (v *validationService) ValidateNode(profileUrl string, linkedSchemas []string) error {
+func (v *validationService) ValidateNode(profileUrl string, linkedSchemas []string) {
 	// DISCUSS (2020/10/27): When will we have multiple schemas against a single profile url?
 	// 						 They only provide one schema validate multiple documents.
 	document := gojsonschema.NewReferenceLoader(profileUrl)
@@ -26,19 +26,19 @@ func (v *validationService) ValidateNode(profileUrl string, linkedSchemas []stri
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
 			sendNodeValidationFailedEvent(profileUrl, []string{"Could not read from schema: " + schemaURL})
-			return err
+			return
 		}
 
 		result, err := schema.Validate(document)
 		if err != nil {
 			sendNodeValidationFailedEvent(profileUrl, []string{"Could not read from profile url: " + profileUrl})
-			return err
+			return
 		}
 
 		if !result.Valid() {
 			failedReasons := parseResultError(result.Errors())
 			sendNodeValidationFailedEvent(profileUrl, failedReasons)
-			return err
+			return
 		}
 	}
 
@@ -46,8 +46,6 @@ func (v *validationService) ValidateNode(profileUrl string, linkedSchemas []stri
 		ProfileUrl:    profileUrl,
 		LastValidated: dateutil.GetNowUnix(),
 	})
-
-	return nil
 }
 
 func parseResultError(resultErrors []gojsonschema.ResultError) []string {
