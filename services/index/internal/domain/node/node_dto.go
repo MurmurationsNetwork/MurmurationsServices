@@ -7,7 +7,6 @@ import (
 )
 
 type Node struct {
-	// DISCUSS (2020/10/27): Should we use the hashed nodeID as the mongodb ID?
 	ID            primitive.ObjectID  `json:"_id" bson:"_id,omitempty"`
 	NodeID        string              `json:"nodeId" bson:"nodeId,omitempty"`
 	ProfileUrl    string              `json:"profileUrl" bson:"profileUrl,omitempty"`
@@ -15,6 +14,7 @@ type Node struct {
 	Status        constant.NodeStatus `json:"status" bson:"status,omitempty"`
 	LastValidated int64               `json:"lastValidated" bson:"lastValidated,omitempty"`
 	FailedReasons *[]string           `json:"failedReasons" bson:"failedReasons,omitempty"`
+	Version       *int32              `json:"version" bson:"version,omitempty"`
 }
 
 func (node *Node) Validate() resterr.RestErr {

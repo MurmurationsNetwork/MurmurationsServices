@@ -5,9 +5,11 @@ import (
 	"errors"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/mongo/nodes_db"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -18,24 +20,34 @@ var (
 func (node *Node) Add() resterr.RestErr {
 	filter := bson.M{"nodeId": node.NodeID}
 	update := bson.M{"$set": node}
-	opts := options.Update().SetUpsert(true)
+	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	_, err := nodes_db.Collection.UpdateOne(context.Background(), filter, update, opts)
+	result, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update, opt)
 	if err != nil {
 		logger.Error("error when trying to create a node", err)
 		return resterr.NewInternalServerError("error when tying to add a node", errors.New("database error"))
 	}
 
+	var updated Node
+	result.Decode(&updated)
+	node.Version = updated.Version
+
 	return nil
 }
 
 func (node *Node) Update() error {
-	filter := bson.M{"nodeId": node.NodeID}
+	filter := bson.M{"nodeId": node.NodeID, "version": node.Version}
+	// Unset the version to prevent setting it.
+	node.Version = nil
 	update := bson.M{"$set": node}
-	opts := options.Update()
 
-	_, err := nodes_db.Collection.UpdateOne(context.Background(), filter, update, opts)
+	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
 	if err != nil {
+		// Update the document only if the version matches.
+		// If the version does not match, it's an expected concurrent issue.
+		if err == mongo.ErrNoDocuments {
+			return nil
+		}
 		logger.Error("error when trying to update a node", err)
 		return ErrUpdate
 	}

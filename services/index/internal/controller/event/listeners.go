@@ -27,6 +27,7 @@ var HandleNodeValidated = event.NewNodeValidatedListener(nats.Client(), qgroup, 
 	err = service.NodeService.SetNodeValid(node.Node{
 		ProfileUrl:    nodeValidatedData.ProfileUrl,
 		LastValidated: nodeValidatedData.LastValidated,
+		Version:       &nodeValidatedData.Version,
 	})
 	if err != nil {
 		return
@@ -50,6 +51,7 @@ var HandleNodeValidationFailed = event.NewNodeValidationFailedListener(nats.Clie
 	err = service.NodeService.SetNodeInValid(node.Node{
 		ProfileUrl:    nodeValidationFailedData.ProfileUrl,
 		FailedReasons: &nodeValidationFailedData.FailedReasons,
+		Version:       &nodeValidationFailedData.Version,
 	})
 	if err != nil {
 		return

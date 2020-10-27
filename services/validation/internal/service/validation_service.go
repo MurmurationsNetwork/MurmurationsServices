@@ -4,6 +4,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/datasource/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -12,39 +13,38 @@ var (
 )
 
 type validationServiceInterface interface {
-	ValidateNode(profileUrl string, linkedSchemas []string)
+	ValidateNode(node *node.Node)
 }
 
 type validationService struct{}
 
-func (v *validationService) ValidateNode(profileUrl string, linkedSchemas []string) {
-	// DISCUSS (2020/10/27): When will we have multiple schemas against a single profile url?
-	// 						 They only provide one schema validate multiple documents.
-	document := gojsonschema.NewReferenceLoader(profileUrl)
+func (v *validationService) ValidateNode(node *node.Node) {
+	document := gojsonschema.NewReferenceLoader(node.ProfileUrl)
 
-	for _, schemaURL := range linkedSchemas {
+	for _, schemaURL := range node.LinkedSchemas {
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
-			sendNodeValidationFailedEvent(profileUrl, []string{"Could not read from schema: " + schemaURL})
+			sendNodeValidationFailedEvent(node, []string{"Could not read from schema: " + schemaURL})
 			return
 		}
 
 		result, err := schema.Validate(document)
 		if err != nil {
-			sendNodeValidationFailedEvent(profileUrl, []string{"Could not read from profile url: " + profileUrl})
+			sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileUrl})
 			return
 		}
 
 		if !result.Valid() {
 			failedReasons := parseResultError(result.Errors())
-			sendNodeValidationFailedEvent(profileUrl, failedReasons)
+			sendNodeValidationFailedEvent(node, failedReasons)
 			return
 		}
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
-		ProfileUrl:    profileUrl,
+		ProfileUrl:    node.ProfileUrl,
 		LastValidated: dateutil.GetNowUnix(),
+		Version:       node.Version,
 	})
 }
 
@@ -56,9 +56,10 @@ func parseResultError(resultErrors []gojsonschema.ResultError) []string {
 	return failedReasons
 }
 
-func sendNodeValidationFailedEvent(profileUrl string, failedReasons []string) {
+func sendNodeValidationFailedEvent(node *node.Node, failedReasons []string) {
 	event.NewNodeValidationFailedPublisher(nats.Client()).Publish(event.NodeValidationFailedData{
-		ProfileUrl:    profileUrl,
+		ProfileUrl:    node.ProfileUrl,
 		FailedReasons: failedReasons,
+		Version:       node.Version,
 	})
 }

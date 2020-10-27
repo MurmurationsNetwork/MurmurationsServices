@@ -38,6 +38,7 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 	event.NewNodeCreatedPublisher(nats.Client()).Publish(event.NodeCreatedData{
 		ProfileUrl:    node.ProfileUrl,
 		LinkedSchemas: node.LinkedSchemas,
+		Version:       *node.Version,
 	})
 
 	return &node, nil
