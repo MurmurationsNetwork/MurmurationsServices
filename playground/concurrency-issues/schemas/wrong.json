@@ -6,25 +6,25 @@
     "type": "object",
     "properties": {
         "profileUrl": {
-            "$ref": "exp/concurrency-issues/fields/wrong/profileurl-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/profileurl-v1.json"
         },
         "linkedSchemas": {
-            "$ref": "exp/concurrency-issues/fields/wrong/linkedschemas-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/linkedschemas-v1.json"
         },
         "name": {
-            "$ref": "exp/concurrency-issues/fields/wrong/name-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/name-v1.json"
         },
         "url": {
-            "$ref": "exp/concurrency-issues/fields/wrong/url-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/url-v1.json"
         },
         "mission": {
-            "$ref": "exp/concurrency-issues/fields/wrong/mission-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/mission-v1.json"
         },
         "geolocation": {
-            "$ref": "exp/concurrency-issues/fields/wrong/geolocation-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/geolocation-v1.json"
         },
         "keywords": {
-            "$ref": "exp/concurrency-issues/fields/wrong/keywords-v1.json"
+            "$ref": "playground/concurrency-issues/fields/wrong/keywords-v1.json"
         }
     },
     "required": [

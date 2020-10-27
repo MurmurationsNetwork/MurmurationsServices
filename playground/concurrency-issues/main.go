@@ -14,10 +14,10 @@ func main() {
 }
 
 func wrongSchemaFormat() {
-	url := "http://index.murmurations.network/nodes"
+	url := "http://index.murmurations.network/v1/nodes"
 	method := "POST"
 
-	payload := strings.NewReader("{\n    \"profileUrl\": \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/exp/concurrency-issues/document.json\",\n    \"linkedSchemas\": [\n      \"455521A0657FB351689770EF3F51240C404A32F8B4026A42F056CB6A18533249\"\n    ]\n}")
+	payload := strings.NewReader("{\n    \"profileUrl\": \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/playground/concurrency-issues/document.json\",\n    \"linkedSchemas\": [\n      \"455521A0657FB351689770EF3F51240C404A32F8B4026A42F056CB6A18533249\"\n    ]\n}")
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
@@ -41,10 +41,10 @@ func wrongSchemaFormat() {
 }
 
 func correctSchema() {
-	url := "http://index.murmurations.network/nodes"
+	url := "http://index.murmurations.network/v1/nodes"
 	method := "POST"
 
-	payload := strings.NewReader("{\n    \"profileUrl\": \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/exp/concurrency-issues/document.json\",\n    \"linkedSchemas\": [\n      \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/exp/concurrency-issues/schemas/correct.json\"\n    ]\n}")
+	payload := strings.NewReader("{\n    \"profileUrl\": \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/playground/concurrency-issues/document.json\",\n    \"linkedSchemas\": [\n      \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/playground/concurrency-issues/schemas/correct.json\"\n    ]\n}")
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
@@ -68,10 +68,10 @@ func correctSchema() {
 }
 
 func wrongSchema() {
-	url := "http://index.murmurations.network/nodes"
+	url := "http://index.murmurations.network/v1/nodes"
 	method := "POST"
 
-	payload := strings.NewReader("{\n    \"profileUrl\": \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/exp/concurrency-issues/document.json\",\n    \"linkedSchemas\": [\n      \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/exp/concurrency-issues/schemas/wrong.json\"\n    ]\n}")
+	payload := strings.NewReader("{\n    \"profileUrl\": \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/playground/concurrency-issues/document.json\",\n    \"linkedSchemas\": [\n      \"https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/playground/concurrency-issues/schemas/wrong.json\"\n    ]\n}")
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
