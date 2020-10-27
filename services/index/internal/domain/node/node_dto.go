@@ -10,6 +10,7 @@ type Node struct {
 	ID            primitive.ObjectID  `json:"_id" bson:"_id,omitempty"`
 	NodeID        string              `json:"nodeId" bson:"nodeId,omitempty"`
 	ProfileUrl    string              `json:"profileUrl" bson:"profileUrl,omitempty"`
+	ProfileHash   string              `json:"profileHash" bson:"profileHash,omitempty"`
 	LinkedSchemas []string            `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
 	Status        constant.NodeStatus `json:"status" bson:"status,omitempty"`
 	LastValidated int64               `json:"lastValidated" bson:"lastValidated,omitempty"`
