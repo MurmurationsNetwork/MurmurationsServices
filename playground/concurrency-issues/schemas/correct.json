@@ -1,0 +1,42 @@
+{
+    "$schema": "https://json-schema.org/draft-04/schema#",
+    "id": "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/indexAPI/",
+    "title": "Demo Schema",
+    "description": "A demo schema that is to be used only for testing purposes.",
+    "type": "object",
+    "properties": {
+        "profileUrl": {
+            "$ref": "exp/concurrency-issues/fields/correct/profileurl-v1.json"
+        },
+        "linkedSchemas": {
+            "$ref": "exp/concurrency-issues/fields/correct/linkedschemas-v1.json"
+        },
+        "name": {
+            "$ref": "exp/concurrency-issues/fields/correct/name-v1.json"
+        },
+        "url": {
+            "$ref": "exp/concurrency-issues/fields/correct/url-v1.json"
+        },
+        "mission": {
+            "$ref": "exp/concurrency-issues/fields/correct/mission-v1.json"
+        },
+        "geolocation": {
+            "$ref": "exp/concurrency-issues/fields/correct/geolocation-v1.json"
+        },
+        "keywords": {
+            "$ref": "exp/concurrency-issues/fields/correct/keywords-v1.json"
+        }
+    },
+    "required": [
+        "profileUrl",
+        "linkedSchemas",
+        "name",
+        "url"
+    ],
+    "metadata": {
+        "owner": {
+            "name": "Murmurations Network",
+            "url": "https://murmurations.network"
+        }
+    }
+}
