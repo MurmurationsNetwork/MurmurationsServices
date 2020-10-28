@@ -48,6 +48,7 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.Validated
 	node.FailedReasons = &[]string{}
+
 	if err := node.Update(); err != nil {
 		return err
 	}
@@ -60,6 +61,7 @@ func (s *nodesService) SetNodeInValid(node node.Node) error {
 	emptystr := ""
 	node.ProfileHash = &emptystr
 	node.LastValidated = dateutil.GetZeroValueUnix()
+
 	if err := node.Update(); err != nil {
 		return err
 	}
