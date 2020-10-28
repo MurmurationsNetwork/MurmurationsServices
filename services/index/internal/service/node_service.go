@@ -29,7 +29,7 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 		return nil, err
 	}
 
-	node.NodeID = cryptoutil.GetSHA256(node.ProfileUrl)
+	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.Received
 	if err := node.Add(); err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 }
 
 func (s *nodesService) SetNodeValid(node node.Node) error {
-	node.NodeID = cryptoutil.GetSHA256(node.ProfileUrl)
+	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.Validated
 	node.FailedReasons = &[]string{}
 	if err := node.Update(); err != nil {
@@ -55,8 +55,10 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 }
 
 func (s *nodesService) SetNodeInValid(node node.Node) error {
-	node.NodeID = cryptoutil.GetSHA256(node.ProfileUrl)
+	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.ValidationFailed
+	emptystr := ""
+	node.ProfileHash = &emptystr
 	node.LastValidated = dateutil.GetZeroValueUnix()
 	if err := node.Update(); err != nil {
 		return err
@@ -74,7 +76,7 @@ func (s *nodesService) SearchNode(query *node.NodeQuery) (node.Nodes, resterr.Re
 }
 
 func (s *nodesService) DeleteNode(nodeId string) resterr.RestErr {
-	node := &node.Node{NodeID: nodeId}
+	node := &node.Node{ID: nodeId}
 	if err := node.Delete(); err != nil {
 		return err
 	}

@@ -19,9 +19,10 @@ type searchNodeRespond struct {
 }
 
 func (node *Node) Marshall() interface{} {
-	nodeJson, _ := json.Marshal(node)
-	var res addNodeRespond
-	json.Unmarshal(nodeJson, &res)
+	res := addNodeRespond{
+		NodeID:        node.ID,
+		LastValidated: node.LastValidated,
+	}
 	return respond{Data: res}
 }
 

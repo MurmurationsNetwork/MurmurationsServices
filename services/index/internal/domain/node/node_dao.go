@@ -18,7 +18,7 @@ var (
 )
 
 func (node *Node) Add() resterr.RestErr {
-	filter := bson.M{"nodeId": node.NodeID}
+	filter := bson.M{"_id": node.ID}
 	update := bson.M{"$set": node}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
@@ -36,7 +36,7 @@ func (node *Node) Add() resterr.RestErr {
 }
 
 func (node *Node) Update() error {
-	filter := bson.M{"nodeId": node.NodeID, "version": node.Version}
+	filter := bson.M{"_id": node.ID, "version": node.Version}
 	// Unset the version to prevent setting it.
 	node.Version = nil
 	update := bson.M{"$set": node}
@@ -85,7 +85,7 @@ func (node *Node) Search(query *NodeQuery) (Nodes, resterr.RestErr) {
 }
 
 func (node *Node) Delete() resterr.RestErr {
-	filter := bson.M{"nodeId": node.NodeID}
+	filter := bson.M{"_id": node.ID}
 
 	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
 	if err != nil {
