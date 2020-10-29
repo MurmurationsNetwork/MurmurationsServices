@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nats-depl
+  name: nats
 spec:
   replicas: 1
   selector:
@@ -15,6 +15,10 @@ spec:
       containers:
         - name: nats
           image: nats-streaming:0.18.0
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
           args:
             [
               '-p',
@@ -31,18 +35,11 @@ spec:
               '-cid', # Cluster ID
               'murmurations',
             ]
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: nats-svc
+  name: nats
 spec:
   selector:
     app: nats
@@ -50,8 +47,6 @@ spec:
     - name: client
       protocol: TCP
       port: 4222
-      targetPort: 4222
     - name: monitoring
       protocol: TCP
       port: 8222
-      targetPort: 8222

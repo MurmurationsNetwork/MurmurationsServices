@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: index-mongo-depl
+  name: index-mongo
 spec:
   replicas: 1
   selector:
@@ -15,23 +15,19 @@ spec:
       containers:
         - name: index-mongo
           image: mongo
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: index-mongo-svc
+  name: index-mongo
 spec:
   selector:
     app: index-mongo
   ports:
     - name: db
       protocol: TCP
-      port: 27017       # service port
-      targetPort: 27017 # pod port
+      port: 27017

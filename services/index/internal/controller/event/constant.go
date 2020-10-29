@@ -1,3 +1,3 @@
 package event
 
-const qgroup = "index-svc-qgroup"
+const qgroup = "index-qgroup"

@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: validation-depl
+  name: validation
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: validation
@@ -15,6 +15,13 @@ spec:
       containers:
         - name: validation
           image: murmurations/validation
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: 2000m
+            requests:
+              memory: 1Gi
+              cpu: 1000m
           env:
             - name: NATS_CLUSTER_ID
               value: murmurations
@@ -23,7 +30,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: NATS_URL
-              value: 'http://nats-svc:4222'
+              value: 'http://nats:4222'
           livenessProbe:
             httpGet:
               path: /ping
@@ -31,18 +38,11 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 20
             failureThreshold: 3
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: validation-svc
+  name: validation
 spec:
   selector:
     app: validation
@@ -50,4 +50,3 @@ spec:
     - name: validation
       protocol: TCP
       port: 8080
-      targetPort: 8080

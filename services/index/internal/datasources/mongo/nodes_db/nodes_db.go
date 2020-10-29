@@ -50,10 +50,13 @@ func ping(client *mongo.Client) {
 		}
 		return nil
 	}
+	notify := func(err error, time time.Duration) {
+		logger.Error("trying to re-connect MongoDB %s \n", err)
+	}
 
 	b := backoff.NewExponentialBackOff()
 	b.MaxElapsedTime = 2 * time.Minute
-	err := backoff.Retry(op, b)
+	err := backoff.RetryNotify(op, b, notify)
 	if err != nil {
 		logger.Panic("error when trying to ping the MongoDB", err)
 	}

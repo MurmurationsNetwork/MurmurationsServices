@@ -1,3 +1,3 @@
 package event
 
-const qgroup = "validation-svc-qgroup"
+const qgroup = "validation-qgroup"

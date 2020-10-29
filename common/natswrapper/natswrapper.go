@@ -2,7 +2,6 @@ package natswrapper
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -29,7 +28,6 @@ func Connect(stanClusterID, clientID, natsURL string) (stan.Conn, error) {
 	}
 	notify := func(err error, time time.Duration) {
 		logger.Error("trying to re-connect NATS %s \n", err)
-		logger.Info(fmt.Sprintf("trying to re-connect NATS %s \n", err))
 	}
 
 	b := backoff.NewExponentialBackOff()
