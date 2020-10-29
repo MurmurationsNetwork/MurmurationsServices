@@ -20,9 +20,6 @@ spec:
             limits:
               memory: 2Gi
               cpu: 1000m
-            requests:
-              memory: 512Mi
-              cpu: 100m
           env:
             - name: ELASTICSEARCH_HOSTS
               value: http://index-es:9200

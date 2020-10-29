@@ -19,9 +19,6 @@ spec:
             limits:
               memory: 2Gi
               cpu: 2000m
-            requests:
-              memory: 1Gi
-              cpu: 1000m
           env:
             - name: NATS_CLUSTER_ID
               value: murmurations
