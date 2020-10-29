@@ -11,7 +11,7 @@ type Node struct {
 	ProfileHash   *string             `json:"profileHash" bson:"profileHash,omitempty"`
 	LinkedSchemas []string            `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
 	Status        constant.NodeStatus `json:"status" bson:"status,omitempty"`
-	LastValidated int64               `json:"lastValidated" bson:"lastValidated,omitempty"`
+	LastChecked int64               `json:"lastChecked" bson:"lastChecked,omitempty"`
 	FailedReasons *[]string           `json:"failedReasons" bson:"failedReasons,omitempty"`
 	Version       *int32              `json:"-" bson:"version,omitempty"`
 }
@@ -32,5 +32,5 @@ type Nodes []Node
 
 type NodeQuery struct {
 	Schema        string `form:"schema"`
-	LastValidated int64  `form:"lastValidated"`
+	LastChecked int64  `form:"lastChecked"`
 }
