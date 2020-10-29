@@ -17,7 +17,7 @@ var (
 type nodesServiceInterface interface {
 	AddNode(node node.Node) (*node.Node, resterr.RestErr)
 	SetNodeValid(node node.Node) error
-	SetNodeInValid(node node.Node) error
+	SetNodeInvalid(node node.Node) error
 	SearchNode(query *node.NodeQuery) (node.Nodes, resterr.RestErr)
 	DeleteNode(nodeId string) resterr.RestErr
 }
@@ -55,7 +55,7 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 	return nil
 }
 
-func (s *nodesService) SetNodeInValid(node node.Node) error {
+func (s *nodesService) SetNodeInvalid(node node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.ValidationFailed
 	emptystr := ""
