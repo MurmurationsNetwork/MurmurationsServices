@@ -9,7 +9,7 @@ type NodeCreatedData struct {
 type NodeValidatedData struct {
 	ProfileUrl    string `json:"profileUrl"`
 	ProfileHash   string `json:"profileHash"`
-	LastValidated int64  `json:"lastValidated"`
+	LastChecked int64  `json:"lastChecked"`
 	Version       int32  `json:"version"`
 }
 

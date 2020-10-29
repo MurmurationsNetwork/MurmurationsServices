@@ -10,18 +10,18 @@ type respond struct {
 
 type addNodeRespond struct {
 	NodeID        string `json:"nodeId,omitempty"`
-	LastValidated int64  `json:"lastValidated,omitempty"`
+	LastChecked int64  `json:"lastChecked,omitempty"`
 }
 
 type searchNodeRespond struct {
 	ProfileUrl    string `json:"profileUrl,omitempty"`
-	LastValidated int64  `json:"lastValidated,omitempty"`
+	LastChecked int64  `json:"lastChecked,omitempty"`
 }
 
 func (node *Node) Marshall() interface{} {
 	res := addNodeRespond{
 		NodeID:        node.ID,
-		LastValidated: node.LastValidated,
+		LastChecked: node.LastChecked,
 	}
 	return respond{Data: res}
 }

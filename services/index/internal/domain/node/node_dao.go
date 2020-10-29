@@ -58,8 +58,8 @@ func (node *Node) Update() error {
 func (node *Node) Search(query *NodeQuery) (Nodes, resterr.RestErr) {
 	filter := bson.M{
 		"linkedSchemas": query.Schema,
-		"lastValidated": bson.M{
-			"$gte": query.LastValidated,
+		"lastChecked": bson.M{
+			"$gte": query.LastChecked,
 		},
 	}
 

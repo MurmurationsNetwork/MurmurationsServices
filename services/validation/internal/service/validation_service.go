@@ -52,7 +52,7 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
 		ProfileUrl:    node.ProfileUrl,
 		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
-		LastValidated: dateutil.GetNowUnix(),
+		LastChecked: dateutil.GetNowUnix(),
 		Version:       node.Version,
 	})
 }
