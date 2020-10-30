@@ -2,6 +2,8 @@ package node
 
 import (
 	"encoding/json"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 )
 
 type respond struct {
@@ -9,20 +11,40 @@ type respond struct {
 }
 
 type addNodeRespond struct {
-	NodeID        string `json:"nodeId,omitempty"`
+	NodeID      string `json:"nodeId,omitempty"`
 	LastChecked int64  `json:"lastChecked,omitempty"`
+}
+
+type getNodeRespond struct {
+	ID            string              `json:"_id,omitempty"`
+	ProfileUrl    string              `json:"profileUrl,omitempty"`
+	ProfileHash   *string             `json:"profileHash,omitempty"`
+	LinkedSchemas []string            `json:"linkedSchemas,omitempty"`
+	Status        constant.NodeStatus `json:"status,omitempty"`
+	LastChecked   int64               `json:"lastChecked,omitempty"`
+	FailedReasons *[]string           `json:"failedReasons,omitempty"`
 }
 
 type searchNodeRespond struct {
-	ProfileUrl    string `json:"profileUrl,omitempty"`
+	ProfileUrl  string `json:"profileUrl,omitempty"`
 	LastChecked int64  `json:"lastChecked,omitempty"`
 }
 
-func (node *Node) Marshall() interface{} {
+func (node *Node) AddNodeRespond() interface{} {
 	res := addNodeRespond{
-		NodeID:        node.ID,
+		NodeID:      node.ID,
 		LastChecked: node.LastChecked,
 	}
+	return respond{Data: res}
+}
+
+func (node *Node) GetNodeRespond() interface{} {
+	if node.Status != constant.ValidationFailed {
+		node.FailedReasons = nil
+	}
+	nodeJson, _ := json.Marshal(node)
+	var res getNodeRespond
+	json.Unmarshal(nodeJson, &res)
 	return respond{Data: res}
 }
 

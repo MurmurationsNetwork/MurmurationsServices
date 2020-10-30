@@ -35,6 +35,24 @@ func (node *Node) Add() resterr.RestErr {
 	return nil
 }
 
+func (node *Node) Get() resterr.RestErr {
+	filter := bson.M{"_id": node.ID}
+
+	result := nodes_db.Collection.FindOne(context.Background(), filter)
+	if result.Err() != nil {
+		logger.Error("error when trying to find a node", result.Err())
+		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
+	}
+
+	err := result.Decode(&node)
+	if err != nil {
+		logger.Error("error when trying to parse database response", result.Err())
+		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
+	}
+
+	return nil
+}
+
 func (node *Node) Update() error {
 	filter := bson.M{"_id": node.ID, "version": node.Version}
 	// Unset the version to prevent setting it.

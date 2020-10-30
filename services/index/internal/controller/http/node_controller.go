@@ -44,10 +44,23 @@ func (cont *nodeController) Add(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result.Marshall())
+	c.JSON(http.StatusOK, result.AddNodeRespond())
 }
 
 func (cont *nodeController) Get(c *gin.Context) {
+	nodeId, err := cont.getNodeId(c.Params)
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	node, err := service.NodeService.GetNode(nodeId)
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	c.JSON(http.StatusOK, node.GetNodeRespond())
 }
 
 func (cont *nodeController) Search(c *gin.Context) {

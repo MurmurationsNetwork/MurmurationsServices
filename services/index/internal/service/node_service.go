@@ -16,6 +16,7 @@ var (
 
 type nodesServiceInterface interface {
 	AddNode(node node.Node) (*node.Node, resterr.RestErr)
+	GetNode(nodeId string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node node.Node) error
 	SetNodeInvalid(node node.Node) error
 	SearchNode(query *node.NodeQuery) (node.Nodes, resterr.RestErr)
@@ -44,10 +45,19 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 	return &node, nil
 }
 
+func (s *nodesService) GetNode(nodeId string) (*node.Node, resterr.RestErr) {
+	node := node.Node{ID: nodeId}
+	err := node.Get()
+	if err != nil {
+		return nil, err
+	}
+	return &node, nil
+}
+
 func (s *nodesService) SetNodeValid(node node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.Validated
-	node.FailedReasons = &[]string{}
+	node.FailedReasons = nil
 
 	if err := node.Update(); err != nil {
 		return err
