@@ -1,7 +1,7 @@
 package app
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/http/ping"
+import "github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/http"
 
 func mapUrls() {
-	router.GET("/ping", ping.Ping)
+	router.GET("/ping", http.PingController.Ping)
 }

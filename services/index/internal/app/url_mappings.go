@@ -1,14 +1,14 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/http/node"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/http/ping"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/http"
 )
 
 func mapUrls() {
-	router.GET("/ping", ping.Ping)
+	router.GET("/ping", http.PingController.Ping)
 
-	router.POST("/nodes", node.Add)
-	router.GET("/nodes", node.Search)
-	router.DELETE("/nodes/:node_id", node.Delete)
+	router.POST("/nodes", http.NodeController.Add)
+	router.GET("/nodes/:nodeId", http.NodeController.Get)
+	router.GET("/nodes", http.NodeController.Search)
+	router.DELETE("/nodes/:nodeId", http.NodeController.Delete)
 }
