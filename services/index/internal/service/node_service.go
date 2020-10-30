@@ -57,7 +57,7 @@ func (s *nodesService) GetNode(nodeId string) (*node.Node, resterr.RestErr) {
 func (s *nodesService) SetNodeValid(node node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
 	node.Status = constant.Validated
-	node.FailedReasons = nil
+	node.FailedReasons = &[]string{}
 
 	if err := node.Update(); err != nil {
 		return err

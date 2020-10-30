@@ -16,16 +16,16 @@ func init() {
 	}
 }
 
-func GetStr(url string) (string, error) {
+func GetByte(url string) ([]byte, error) {
 	resp, err := client.Get(url)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
-	return string(data), nil
+	return data, nil
 }

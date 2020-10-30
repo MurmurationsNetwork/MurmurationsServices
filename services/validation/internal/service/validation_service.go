@@ -1,6 +1,9 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
@@ -43,17 +46,19 @@ func (v *validationService) ValidateNode(node *node.Node) {
 		}
 	}
 
-	jsonStr, err := httputil.GetStr(node.ProfileUrl)
+	jsonByte, err := httputil.GetByte(node.ProfileUrl)
+	buffer := bytes.Buffer{}
+	json.Compact(&buffer, jsonByte)
 	if err != nil {
 		sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileUrl})
 		return
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
-		ProfileUrl:    node.ProfileUrl,
-		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
+		ProfileUrl:  node.ProfileUrl,
+		ProfileHash: cryptoutil.GetSHA256(buffer.String()),
 		LastChecked: dateutil.GetNowUnix(),
-		Version:       node.Version,
+		Version:     node.Version,
 	})
 }
 
