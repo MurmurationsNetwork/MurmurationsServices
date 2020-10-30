@@ -49,7 +49,7 @@ var HandleNodeValidationFailed = event.NewNodeValidationFailedListener(nats.Clie
 	fmt.Printf("nodeValidationFailedData %+v \n", nodeValidationFailedData)
 	fmt.Println("==================================")
 
-	err = service.NodeService.SetNodeInValid(node.Node{
+	err = service.NodeService.SetNodeInvalid(node.Node{
 		ProfileUrl:    nodeValidationFailedData.ProfileUrl,
 		FailedReasons: &nodeValidationFailedData.FailedReasons,
 		Version:       &nodeValidationFailedData.Version,
