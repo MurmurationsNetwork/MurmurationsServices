@@ -1,17 +1,24 @@
 package logger
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var (
-	log *zap.Logger
+	log logger
 )
+
+type commonLogger interface {
+	Print(v ...interface{})
+	Printf(format string, v ...interface{})
+}
 
 func init() {
 	var err error
-	if log, err = newConfig().Build(); err != nil {
+	if log.log, err = newConfig().Build(); err != nil {
 		panic(err)
 	}
 }
@@ -33,25 +40,48 @@ func newConfig() zap.Config {
 	}
 }
 
+// logger implements commonLogger interface.
+type logger struct {
+	log *zap.Logger
+}
+
+func GetLogger() commonLogger {
+	return log
+}
+
+func (l logger) Printf(format string, v ...interface{}) {
+	if len(v) == 0 {
+		Info(format)
+	} else {
+		Info(fmt.Sprintf(format, v...))
+	}
+}
+
+func (l logger) Print(v ...interface{}) {
+	Info(fmt.Sprintf("%v", v))
+}
+
 func Info(msg string, tags ...zap.Field) {
-	log.Info(msg, tags...)
-	log.Sync()
+	log.log.Info(msg, tags...)
+	log.log.Sync()
 }
 
 func Error(msg string, err error, tags ...zap.Field) {
-	tags = append(tags, zap.NamedError("error", err))
-	log.Error(msg, tags...)
-	log.Sync()
+	if err != nil {
+		tags = append(tags, zap.NamedError("error", err))
+	}
+	log.log.Error(msg, tags...)
+	log.log.Sync()
 }
 
 func Panic(msg string, err error, tags ...zap.Field) {
 	tags = append(tags, zap.NamedError("error", err))
-	log.Panic(msg, tags...)
-	log.Sync()
+	log.log.Panic(msg, tags...)
+	log.log.Sync()
 }
 
 func Fatal(msg string, err error, tags ...zap.Field) {
 	tags = append(tags, zap.NamedError("error", err))
-	log.Fatal(msg, tags...)
-	log.Sync()
+	log.log.Fatal(msg, tags...)
+	log.log.Sync()
 }

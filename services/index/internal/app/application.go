@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/elasticsearch"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +14,8 @@ var (
 )
 
 func StartApplication() {
+	elasticsearch.Init()
+
 	mapUrls()
 	go listen(server)
 	listenToEvents()

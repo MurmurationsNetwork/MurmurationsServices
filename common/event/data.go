@@ -7,10 +7,11 @@ type NodeCreatedData struct {
 }
 
 type NodeValidatedData struct {
-	ProfileUrl    string `json:"profileUrl"`
-	ProfileHash   string `json:"profileHash"`
+	ProfileUrl  string `json:"profileUrl"`
+	ProfileHash string `json:"profileHash"`
+	ProfileStr  string `json:"profileStr"`
 	LastChecked int64  `json:"lastChecked"`
-	Version       int32  `json:"version"`
+	Version     int32  `json:"version"`
 }
 
 type NodeValidationFailedData struct {

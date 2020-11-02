@@ -5,6 +5,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,6 @@ type nodeControllerInterface interface {
 	Add(c *gin.Context)
 	Get(c *gin.Context)
 	Search(c *gin.Context)
-	Delete(c *gin.Context)
 }
 
 type nodeController struct{}
@@ -64,9 +64,9 @@ func (cont *nodeController) Get(c *gin.Context) {
 }
 
 func (cont *nodeController) Search(c *gin.Context) {
-	var query node.NodeQuery
+	var query query.EsQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
-		restErr := resterr.NewBadRequestError(err.Error())
+		restErr := resterr.NewBadRequestError("invalid json body")
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
@@ -78,20 +78,4 @@ func (cont *nodeController) Search(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, searchRes.Marshall())
-}
-
-func (cont *nodeController) Delete(c *gin.Context) {
-	nodeId, err := cont.getNodeId(c.Params)
-	if err != nil {
-		c.JSON(err.Status(), err)
-		return
-	}
-
-	err = service.NodeService.DeleteNode(nodeId)
-	if err != nil {
-		c.JSON(err.Status(), err)
-		return
-	}
-
-	c.JSON(http.StatusOK, nil)
 }

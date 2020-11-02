@@ -2,15 +2,25 @@ package node
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/elasticsearch"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/mongo/nodes_db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+const (
+	indexNodes = "nodes"
 )
 
 var (
@@ -70,46 +80,46 @@ func (node *Node) Update() error {
 		return ErrUpdate
 	}
 
-	return nil
-}
+	if node.Status == constant.Validated {
+		profileJson := jsonutil.ToJSON(node.ProfileStr)
+		profileJson["lastChecked"] = node.LastChecked
 
-func (node *Node) Search(query *NodeQuery) (Nodes, resterr.RestErr) {
-	filter := bson.M{
-		"linkedSchemas": query.Schema,
-		"lastChecked": bson.M{
-			"$gte": query.LastChecked,
-		},
-	}
+		fmt.Println("==================================")
+		fmt.Printf("profileJson %+v \n", profileJson)
+		fmt.Println("==================================")
 
-	cursor, err := nodes_db.Collection.Find(context.Background(), filter)
-	if err != nil {
-		logger.Error("error when trying to search nodes", err)
-		return nil, resterr.NewInternalServerError("error when trying to search nodes", errors.New("database error"))
-	}
-	defer cursor.Close(context.Background())
-
-	results := make([]Node, 0)
-	for cursor.Next(context.Background()) {
-		var node Node
-		err := cursor.Decode(&node)
+		result, err := elasticsearch.Client.IndexWithID(indexNodes, node.ID, profileJson)
 		if err != nil {
-			logger.Error("error when trying to decode node indo a node struct", err)
-			return nil, resterr.NewInternalServerError("error when trying to search nodes", errors.New("database error"))
+			return err
 		}
-		results = append(results, node)
-	}
 
-	return results, nil
-}
-
-func (node *Node) Delete() resterr.RestErr {
-	filter := bson.M{"_id": node.ID}
-
-	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
-	if err != nil {
-		logger.Error("error when trying to delete a node", err)
-		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+		fmt.Println("==================================")
+		fmt.Printf("result %+v \n", result)
+		fmt.Println("==================================")
 	}
 
 	return nil
+}
+
+func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr) {
+	result, err := elasticsearch.Client.Search(indexNodes, q.Build())
+	if err != nil {
+		return nil, resterr.NewInternalServerError("error when trying to search documents", errors.New("database error"))
+	}
+
+	queryResults := make(query.QueryResults, result.TotalHits())
+	for index, hit := range result.Hits.Hits {
+		bytes, _ := hit.Source.MarshalJSON()
+		var result query.QueryResult
+		if err := json.Unmarshal(bytes, &result); err != nil {
+			return nil, resterr.NewInternalServerError("error when trying to parse response", errors.New("database error"))
+		}
+		queryResults[index] = result
+	}
+
+	if len(queryResults) == 0 {
+		return nil, resterr.NewNotFoundError("no items found matching given criteria")
+	}
+
+	return queryResults, nil
 }

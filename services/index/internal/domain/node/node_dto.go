@@ -11,9 +11,11 @@ type Node struct {
 	ProfileHash   *string             `json:"profileHash" bson:"profileHash,omitempty"`
 	LinkedSchemas []string            `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
 	Status        constant.NodeStatus `json:"status" bson:"status,omitempty"`
-	LastChecked int64               `json:"lastChecked" bson:"lastChecked,omitempty"`
+	LastChecked   int64               `json:"lastChecked" bson:"lastChecked,omitempty"`
 	FailedReasons *[]string           `json:"failedReasons" bson:"failedReasons,omitempty"`
 	Version       *int32              `json:"-" bson:"version,omitempty"`
+
+	ProfileStr string `json:"-"`
 }
 
 func (node *Node) Validate() resterr.RestErr {
@@ -29,8 +31,3 @@ func (node *Node) Validate() resterr.RestErr {
 }
 
 type Nodes []Node
-
-type NodeQuery struct {
-	Schema        string `form:"schema"`
-	LastChecked int64  `form:"lastChecked"`
-}

@@ -8,6 +8,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 )
 
 var (
@@ -19,8 +20,7 @@ type nodesServiceInterface interface {
 	GetNode(nodeId string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node node.Node) error
 	SetNodeInvalid(node node.Node) error
-	SearchNode(query *node.NodeQuery) (node.Nodes, resterr.RestErr)
-	DeleteNode(nodeId string) resterr.RestErr
+	SearchNode(query *query.EsQuery) (query.QueryResults, resterr.RestErr)
 }
 
 type nodesService struct{}
@@ -78,19 +78,11 @@ func (s *nodesService) SetNodeInvalid(node node.Node) error {
 	return nil
 }
 
-func (s *nodesService) SearchNode(query *node.NodeQuery) (node.Nodes, resterr.RestErr) {
-	node := &node.Node{}
-	result, err := node.Search(query)
+func (s *nodesService) SearchNode(query *query.EsQuery) (query.QueryResults, resterr.RestErr) {
+	dao := node.Node{}
+	result, err := dao.Search(query)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
-}
-
-func (s *nodesService) DeleteNode(nodeId string) resterr.RestErr {
-	node := &node.Node{ID: nodeId}
-	if err := node.Delete(); err != nil {
-		return err
-	}
-	return nil
 }

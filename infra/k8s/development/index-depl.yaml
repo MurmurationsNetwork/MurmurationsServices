@@ -22,10 +22,12 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: NATS_URL
-              value: 'http://nats:4222'
             - name: MONGO_URI
               value: 'mongodb://index-mongo:27017'
+            - name: ELASTICSEARCH_URL
+              value: 'http://index-es:9200'
+            - name: NATS_URL
+              value: 'http://nats:4222'
           livenessProbe:
             httpGet:
               path: /ping
