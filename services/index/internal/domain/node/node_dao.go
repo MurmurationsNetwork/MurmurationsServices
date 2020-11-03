@@ -19,10 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const (
-	indexNodes = "nodes"
-)
-
 var (
 	ErrUpdate = errors.New("update error")
 )
@@ -80,7 +76,7 @@ func (node *Node) Update() error {
 		return ErrUpdate
 	}
 
-	if node.Status == constant.Validated {
+	if node.Status == constant.NodeStatus().Validated {
 		profileJson := jsonutil.ToJSON(node.ProfileStr)
 		profileJson["lastChecked"] = node.LastChecked
 
@@ -88,8 +84,9 @@ func (node *Node) Update() error {
 		fmt.Printf("profileJson %+v \n", profileJson)
 		fmt.Println("==================================")
 
-		result, err := elasticsearch.Client.IndexWithID(indexNodes, node.ID, profileJson)
+		result, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJson)
 		if err != nil {
+			// TODO(max) Handle schema error
 			return err
 		}
 
@@ -102,7 +99,7 @@ func (node *Node) Update() error {
 }
 
 func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr) {
-	result, err := elasticsearch.Client.Search(indexNodes, q.Build())
+	result, err := elasticsearch.Client.Search(string(constant.ESIndex().Node), q.Build())
 	if err != nil {
 		return nil, resterr.NewInternalServerError("error when trying to search documents", errors.New("database error"))
 	}

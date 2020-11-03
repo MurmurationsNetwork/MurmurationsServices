@@ -6,14 +6,14 @@ import (
 )
 
 type Node struct {
-	ID            string              `json:"_id" bson:"_id,omitempty"`
-	ProfileUrl    string              `json:"profileUrl" bson:"profileUrl,omitempty"`
-	ProfileHash   *string             `json:"profileHash" bson:"profileHash,omitempty"`
-	LinkedSchemas []string            `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
-	Status        constant.NodeStatus `json:"status" bson:"status,omitempty"`
-	LastChecked   int64               `json:"lastChecked" bson:"lastChecked,omitempty"`
-	FailedReasons *[]string           `json:"failedReasons" bson:"failedReasons,omitempty"`
-	Version       *int32              `json:"-" bson:"version,omitempty"`
+	ID            string                  `json:"_id" bson:"_id,omitempty"`
+	ProfileUrl    string                  `json:"profileUrl" bson:"profileUrl,omitempty"`
+	ProfileHash   *string                 `json:"profileHash" bson:"profileHash,omitempty"`
+	LinkedSchemas []string                `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
+	Status        constant.NodeStatusType `json:"status" bson:"status,omitempty"`
+	LastChecked   int64                   `json:"lastChecked" bson:"lastChecked,omitempty"`
+	FailedReasons *[]string               `json:"failedReasons" bson:"failedReasons,omitempty"`
+	Version       *int32                  `json:"-" bson:"version,omitempty"`
 
 	ProfileStr string `json:"-"`
 }

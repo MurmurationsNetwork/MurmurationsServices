@@ -16,13 +16,13 @@ type addNodeRespond struct {
 }
 
 type getNodeRespond struct {
-	ID            string              `json:"_id,omitempty"`
-	ProfileUrl    string              `json:"profileUrl,omitempty"`
-	ProfileHash   *string             `json:"profileHash,omitempty"`
-	LinkedSchemas []string            `json:"linkedSchemas,omitempty"`
-	Status        constant.NodeStatus `json:"status,omitempty"`
-	LastChecked   int64               `json:"lastChecked,omitempty"`
-	FailedReasons *[]string           `json:"failedReasons,omitempty"`
+	ID            string                  `json:"_id,omitempty"`
+	ProfileUrl    string                  `json:"profileUrl,omitempty"`
+	ProfileHash   *string                 `json:"profileHash,omitempty"`
+	LinkedSchemas []string                `json:"linkedSchemas,omitempty"`
+	Status        constant.NodeStatusType `json:"status,omitempty"`
+	LastChecked   int64                   `json:"lastChecked,omitempty"`
+	FailedReasons *[]string               `json:"failedReasons,omitempty"`
 }
 
 type searchNodeRespond struct {
@@ -39,7 +39,7 @@ func (node *Node) AddNodeRespond() interface{} {
 }
 
 func (node *Node) GetNodeRespond() interface{} {
-	if node.Status != constant.ValidationFailed {
+	if node.Status != constant.NodeStatus().ValidationFailed {
 		node.FailedReasons = nil
 	}
 	nodeJson, _ := json.Marshal(node)

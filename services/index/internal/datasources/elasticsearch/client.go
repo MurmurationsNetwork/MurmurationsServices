@@ -29,10 +29,13 @@ type esClient struct {
 }
 
 func Init() {
+	var client *elastic.Client
+
 	op := func() error {
 		log := logger.GetLogger()
 
-		client, err := elastic.NewClient(
+		var err error
+		client, err = elastic.NewClient(
 			elastic.SetURL(os.Getenv("ELASTICSEARCH_URL")),
 			elastic.SetHealthcheckInterval(10*time.Second),
 			elastic.SetErrorLog(log),
@@ -42,7 +45,6 @@ func Init() {
 			return err
 		}
 
-		Client.setClient(client)
 		return nil
 	}
 	notify := func(err error, time time.Duration) {
@@ -55,6 +57,14 @@ func Init() {
 	if err != nil {
 		logger.Panic("error when trying to ping the ElasticSearch", err)
 	}
+
+	err = createMappings(client)
+	if err != nil {
+		logger.Panic("error when trying to create index for ElasticSearch", err)
+		return
+	}
+
+	Client.setClient(client)
 }
 
 func (c *esClient) setClient(client *elastic.Client) {

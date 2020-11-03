@@ -31,7 +31,7 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 	}
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
-	node.Status = constant.Received
+	node.Status = constant.NodeStatus().Received
 	if err := node.Add(); err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *nodesService) GetNode(nodeId string) (*node.Node, resterr.RestErr) {
 
 func (s *nodesService) SetNodeValid(node node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
-	node.Status = constant.Validated
+	node.Status = constant.NodeStatus().Validated
 	node.FailedReasons = &[]string{}
 
 	if err := node.Update(); err != nil {
@@ -67,7 +67,7 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 
 func (s *nodesService) SetNodeInvalid(node node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
-	node.Status = constant.ValidationFailed
+	node.Status = constant.NodeStatus().ValidationFailed
 	emptystr := ""
 	node.ProfileHash = &emptystr
 	node.LastChecked = dateutil.GetZeroValueUnix()
