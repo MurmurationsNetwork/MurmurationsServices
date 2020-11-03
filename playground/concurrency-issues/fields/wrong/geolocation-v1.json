@@ -3,18 +3,18 @@
     "description": "The geo-coordinates (latitude & longitude) of the primary location of the entity",
     "type": "object",
     "properties": {
-        "latitude": {
+        "lat": {
             "type": "string",
             "context": "https://schema.org/latitude"
         },
-        "longitude": {
+        "lon": {
             "type": "string",
             "context": "https://schema.org/longitude"
         }
     },
     "required": [
-        "latitude",
-        "longitude"
+        "lat",
+        "lon"
     ],
     "context": "https://schema.org/geo"
 }

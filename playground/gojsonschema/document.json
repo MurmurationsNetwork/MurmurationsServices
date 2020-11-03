@@ -7,8 +7,8 @@
     "url":"https://ic3.dev",
     "mission":"We make stuff...",
     "geolocation":{
-       "latitude": 12.121212,
-       "longitude": 13.131313
+       "lat": 12.121212,
+       "lon": 13.131313
     },
     "keywords":[
        "open-source",
