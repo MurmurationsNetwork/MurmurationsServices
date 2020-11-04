@@ -8,9 +8,13 @@ func (q *EsQuery) Build() elastic.Query {
 	query := elastic.NewBoolQuery()
 
 	subQueries := make([]elastic.Query, 0)
-	subQueries = append(subQueries, elastic.NewMatchQuery("linkedSchemas", q.Schema))
-	subQueries = append(subQueries, elastic.NewRangeQuery("lastChecked").Gte(q.LastChecked))
 
+	if q.Schema != nil {
+		subQueries = append(subQueries, elastic.NewMatchQuery("linkedSchemas", q.Schema))
+	}
+	if q.LastChecked != nil {
+		subQueries = append(subQueries, elastic.NewRangeQuery("lastChecked").Gte(q.LastChecked))
+	}
 	if q.Locality != nil {
 		subQueries = append(subQueries, elastic.NewMatchQuery("locality", *q.Locality))
 	}

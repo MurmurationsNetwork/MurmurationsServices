@@ -15,7 +15,7 @@ type Node struct {
 	FailedReasons *[]string               `json:"failedReasons" bson:"failedReasons,omitempty"`
 	Version       *int32                  `json:"-" bson:"version,omitempty"`
 
-	ProfileStr string `json:"-"`
+	ProfileStr string `json:"-" bson:"-"`
 }
 
 func (node *Node) Validate() resterr.RestErr {
