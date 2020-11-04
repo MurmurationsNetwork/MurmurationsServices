@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
@@ -26,7 +27,17 @@ type validationService struct{}
 func (v *validationService) ValidateNode(node *node.Node) {
 	document := gojsonschema.NewReferenceLoader(node.ProfileUrl)
 
-	for _, schemaURL := range node.LinkedSchemas {
+	data, err := document.LoadJSON()
+	linkedSchemas := data.(map[string]interface{})["linkedSchemas"].([]interface{})
+
+	for _, linkedSchema := range linkedSchemas {
+		// TODO: Wait for library.
+		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema.(string) + ".json"
+
+		fmt.Println("==================================")
+		fmt.Printf("schemaURL %+v \n", schemaURL)
+		fmt.Println("==================================")
+
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
 			sendNodeValidationFailedEvent(node, []string{"Could not read from schema: " + schemaURL})

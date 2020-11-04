@@ -25,9 +25,8 @@ var HandleNodeCreated = event.NewNodeCreatedListener(nats.Client(), qgroup, func
 	fmt.Println("==================================")
 
 	service.ValidationService.ValidateNode(&node.Node{
-		ProfileUrl:    nodeCreatedData.ProfileUrl,
-		LinkedSchemas: nodeCreatedData.LinkedSchemas,
-		Version:       nodeCreatedData.Version,
+		ProfileUrl: nodeCreatedData.ProfileUrl,
+		Version:    nodeCreatedData.Version,
 	})
 
 	msg.Ack()

@@ -9,7 +9,6 @@ type Node struct {
 	ID            string                  `json:"_id" bson:"_id,omitempty"`
 	ProfileUrl    string                  `json:"profileUrl" bson:"profileUrl,omitempty"`
 	ProfileHash   *string                 `json:"profileHash" bson:"profileHash,omitempty"`
-	LinkedSchemas []string                `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
 	Status        constant.NodeStatusType `json:"status" bson:"status,omitempty"`
 	LastChecked   int64                   `json:"lastChecked" bson:"lastChecked,omitempty"`
 	FailedReasons *[]string               `json:"failedReasons" bson:"failedReasons,omitempty"`
@@ -22,11 +21,6 @@ func (node *Node) Validate() resterr.RestErr {
 	if node.ProfileUrl == "" {
 		return resterr.NewBadRequestError("profileUrl parameter is missing.")
 	}
-
-	if len(node.LinkedSchemas) == 0 {
-		return resterr.NewBadRequestError("linkedSchemas parameter is missing.")
-	}
-
 	return nil
 }
 

@@ -19,7 +19,6 @@ type getNodeRespond struct {
 	ID            string                  `json:"_id,omitempty"`
 	ProfileUrl    string                  `json:"profileUrl,omitempty"`
 	ProfileHash   *string                 `json:"profileHash,omitempty"`
-	LinkedSchemas []string                `json:"linkedSchemas,omitempty"`
 	Status        constant.NodeStatusType `json:"status,omitempty"`
 	LastChecked   int64                   `json:"lastChecked,omitempty"`
 	FailedReasons *[]string               `json:"failedReasons,omitempty"`

@@ -13,21 +13,9 @@ var (
 
 func main() {
 	document := gojsonschema.NewReferenceLoader(documentURL)
-
-	for _, schemaURL := range schemaURLs {
-		schemaLoader := gojsonschema.NewReferenceLoader(schemaURL)
-		result, err := gojsonschema.Validate(schemaLoader, document)
-		if err != nil {
-			panic(err.Error())
-		}
-		if !result.Valid() {
-			reasons := make([]string, 0)
-			for _, desc := range result.Errors() {
-				reasons = append(reasons, desc.String())
-			}
-			fmt.Println("==================================")
-			fmt.Printf("2. reasons %+v \n", reasons)
-			fmt.Println("==================================")
-		}
+	data, _ := document.LoadJSON()
+	linkedSchemas := data.(map[string]interface{})["linkedSchemas"].([]interface{})
+	for _, schema := range linkedSchemas {
+		fmt.Printf("%+v \n", schema.(string))
 	}
 }

@@ -1,9 +1,8 @@
 package event
 
 type NodeCreatedData struct {
-	ProfileUrl    string   `json:"profileUrl"`
-	LinkedSchemas []string `json:"linkedSchemas"`
-	Version       int32    `json:"version"`
+	ProfileUrl string `json:"profileUrl"`
+	Version    int32  `json:"version"`
 }
 
 type NodeValidatedData struct {
