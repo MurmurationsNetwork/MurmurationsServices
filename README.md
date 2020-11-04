@@ -5,6 +5,10 @@
 
 ## Run locally
 
+1. Make sure you have installed [ingress controller](https://kubernetes.github.io/ingress-nginx/deploy/)
+
+2. Start the services
+
 ```
 make dev
 ```
