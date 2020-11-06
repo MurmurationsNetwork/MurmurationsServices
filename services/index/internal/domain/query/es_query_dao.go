@@ -16,13 +16,13 @@ func (q *EsQuery) Build() elastic.Query {
 		subQueries = append(subQueries, elastic.NewRangeQuery("lastChecked").Gte(q.LastChecked))
 	}
 	if q.Locality != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("locality", *q.Locality))
+		subQueries = append(subQueries, elastic.NewMatchQuery("maplocation.locality", *q.Locality))
 	}
 	if q.Region != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("region", *q.Region))
+		subQueries = append(subQueries, elastic.NewMatchQuery("maplocation.region", *q.Region))
 	}
 	if q.Country != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("country", *q.Country))
+		subQueries = append(subQueries, elastic.NewMatchQuery("maplocation.country", *q.Country))
 	}
 
 	filters := make([]elastic.Query, 0)

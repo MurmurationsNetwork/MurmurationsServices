@@ -40,8 +40,7 @@ func (node *Node) GetNodeRespond() interface{} {
 		node.ProfileHash = nil
 		node.LastChecked = nil
 	}
-	if node.Status != constant.NodeStatus().ValidationFailed ||
-		node.Status != constant.NodeStatus().PostFailed {
+	if node.Status != constant.NodeStatus().ValidationFailed && node.Status != constant.NodeStatus().PostFailed {
 		node.FailedReasons = nil
 	}
 

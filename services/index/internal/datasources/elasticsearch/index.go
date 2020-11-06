@@ -16,36 +16,49 @@ var indices = []index{
 	{
 		name: constant.ESIndex().Node,
 		body: `{
-			"mappings":{
-			   "properties":{
-				  "name":{
-					 "type":"keyword"
-				  },
-				  "profileUrl":{
-					 "type":"keyword"
-				  },
-				  "linkedSchemas":{
-					 "type":"keyword"
-				  },
-				  "url":{
-					 "type":"keyword"
-				  },
-				  "keywords":{
-					 "type":"keyword"
-				  },
-				  "mission":{
-					 "type":"text"
-				  },
-				  "geolocation":{
-					 "type":"geo_point"
-				  },
-				  "lastChecked":{
-					 "type":"date",
-					 "format":"epoch_second"
-				  }
-			   }
+			"mappings": {
+				"properties": {
+					"profileUrl": {
+						"type": "keyword"
+					},
+					"linkedSchemas": {
+						"type": "keyword"
+					},
+					"name": {
+						"type": "keyword"
+					},
+					"url": {
+						"type": "keyword"
+					},
+					"mission": {
+						"type": "text"
+					},
+					"keywords": {
+						"type": "keyword"
+					},
+					"geolocation": {
+						"type": "geo_point"
+					},
+					"maplocation": {
+						"properties": {
+							"locality": {
+								"type": "keyword"
+							},
+							"region": {
+								"type": "keyword"
+							},
+							"country": {
+								"type": "keyword"
+							}
+						}
+					},
+					"lastChecked": {
+						"type": "date",
+						"format": "epoch_second"
+					}
+				}
 			}
-		 }`,
+		}`,
 	},
 }
 
