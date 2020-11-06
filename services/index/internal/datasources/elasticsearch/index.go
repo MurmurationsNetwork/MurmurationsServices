@@ -16,49 +16,63 @@ var indices = []index{
 	{
 		name: constant.ESIndex().Node,
 		body: `{
-			"mappings": {
-				"properties": {
-					"profileUrl": {
-						"type": "keyword"
-					},
-					"linkedSchemas": {
-						"type": "keyword"
-					},
-					"name": {
-						"type": "keyword"
-					},
-					"url": {
-						"type": "keyword"
-					},
-					"mission": {
-						"type": "text"
-					},
-					"keywords": {
-						"type": "keyword"
-					},
-					"geolocation": {
-						"type": "geo_point"
-					},
-					"maplocation": {
-						"properties": {
-							"locality": {
-								"type": "keyword"
-							},
-							"region": {
-								"type": "keyword"
-							},
-							"country": {
-								"type": "keyword"
-							}
+			"mappings":{
+			   "dynamic":"false",
+			   "_source":{
+				  "includes":[
+					 "profileUrl",
+					 "linkedSchemas",
+					 "name",
+					 "url",
+					 "mission",
+					 "keywords",
+					 "geolocation",
+					 "maplocation",
+					 "lastChecked"
+				  ]
+			   },
+			   "properties":{
+				  "geolocation":{
+					 "type":"geo_point"
+				  },
+				  "keywords":{
+					 "type":"keyword"
+				  },
+				  "lastChecked":{
+					 "type":"date",
+					 "format":"epoch_second"
+				  },
+				  "linkedSchemas":{
+					 "type":"keyword"
+				  },
+				  "maplocation":{
+					 "properties":{
+						"country":{
+						   "type":"keyword"
+						},
+						"locality":{
+						   "type":"keyword"
+						},
+						"region":{
+						   "type":"keyword"
 						}
-					},
-					"lastChecked": {
-						"type": "date",
-						"format": "epoch_second"
-					}
-				}
+					 }
+				  },
+				  "mission":{
+					 "type":"text"
+				  },
+				  "name":{
+					 "type":"keyword"
+				  },
+				  "profileUrl":{
+					 "type":"keyword"
+				  },
+				  "url":{
+					 "type":"keyword"
+				  }
+			   }
 			}
-		}`,
+		 }`,
 	},
 }
 
