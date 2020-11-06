@@ -85,15 +85,22 @@ func (node *Node) Update() error {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
 			err = node.setPostFailed()
 			if err != nil {
-				return nil
+				return err
 			}
+		}
+
+		// Successfully parse into ElasticSearch, set the statue to 'posted'.
+		err = node.setPosted()
+		if err != nil {
+			return err
 		}
 	}
 
-	// Successfully parse into ElasticSearch, set the statue to 'posted'.
-	err = node.setPosted()
-	if err != nil {
-		return nil
+	if node.Status == constant.NodeStatus().ValidationFailed {
+		err := elasticsearch.Client.Delete(string(constant.ESIndex().Node), node.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

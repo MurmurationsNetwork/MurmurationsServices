@@ -18,10 +18,12 @@ var (
 )
 
 type esClientInterface interface {
+	setClient(*elastic.Client)
+
 	Index(string, interface{}) (*elastic.IndexResponse, error)
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
 	Search(string, elastic.Query) (*elastic.SearchResult, error)
-	setClient(*elastic.Client)
+	Delete(string, string) error
 }
 
 type esClient struct {
@@ -95,22 +97,7 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to index document in index %s", index), err)
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (c *esClient) Get(index string, id string) (*elastic.GetResult, error) {
-	ctx := context.Background()
-	result, err := c.client.Get().
-		Index(index).
-		Type(docType).
-		Id(id).
-		Do(ctx)
-	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to get id %s", id), err)
+		logger.Error(fmt.Sprintf("error when trying to index a document in index %s", index), err)
 		return nil, err
 	}
 
@@ -129,4 +116,18 @@ func (c *esClient) Search(index string, query elastic.Query) (*elastic.SearchRes
 	}
 
 	return result, nil
+}
+
+func (c *esClient) Delete(index string, id string) error {
+	ctx := context.Background()
+	_, err := c.client.Delete().
+		Index(index).
+		Type(docType).
+		Id(id).
+		Do(ctx)
+	if err != nil {
+		logger.Error(fmt.Sprintf("error when trying to delete a document in index %s", index), err)
+		return err
+	}
+	return nil
 }
