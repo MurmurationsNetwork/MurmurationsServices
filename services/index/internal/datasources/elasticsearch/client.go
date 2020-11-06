@@ -126,6 +126,10 @@ func (c *esClient) Delete(index string, id string) error {
 		Id(id).
 		Do(ctx)
 	if err != nil {
+		// Don't need to tell the client data doesn't exist.
+		if elastic.IsNotFound(err) {
+			return nil
+		}
 		logger.Error(fmt.Sprintf("error when trying to delete a document in index %s", index), err)
 		return err
 	}

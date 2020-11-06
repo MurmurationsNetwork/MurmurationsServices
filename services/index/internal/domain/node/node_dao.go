@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
@@ -45,6 +46,9 @@ func (node *Node) Get() resterr.RestErr {
 
 	result := nodes_db.Collection.FindOne(context.Background(), filter)
 	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return resterr.NewNotFoundError(fmt.Sprintf("Cannot find node with id %s", node.ID))
+		}
 		logger.Error("error when trying to find a node", result.Err())
 		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
 	}
@@ -159,4 +163,20 @@ func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr)
 	}
 
 	return queryResults, nil
+}
+
+func (node *Node) Delete() resterr.RestErr {
+	filter := bson.M{"_id": node.ID}
+
+	// TODO: Abstract MongoDB operations.
+	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+	}
+	err = elasticsearch.Client.Delete(string(constant.ESIndex().Node), node.ID)
+	if err != nil {
+		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+	}
+
+	return nil
 }
