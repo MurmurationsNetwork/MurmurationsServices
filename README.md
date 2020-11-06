@@ -5,13 +5,12 @@
 
 ## Run locally
 
-1. Make sure you have installed [ingress controller](https://kubernetes.github.io/ingress-nginx/deploy/)
 
-2. Start the services
+1. Make sure you have installed [Docker Desktop](https://www.docker.com/products/docker-desktop) and enable Kubernetes.
 
-```
-make dev
-```
+2. Make sure you have installed [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/).
+
+3. Run `make dev` to start services.
 
 ## Directory Layout
 
