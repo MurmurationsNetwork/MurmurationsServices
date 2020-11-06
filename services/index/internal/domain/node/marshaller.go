@@ -11,8 +11,7 @@ type respond struct {
 }
 
 type addNodeRespond struct {
-	NodeID      string `json:"nodeId,omitempty"`
-	LastChecked int64  `json:"lastChecked,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 }
 
 type getNodeRespond struct {
@@ -20,27 +19,32 @@ type getNodeRespond struct {
 	ProfileUrl    string                  `json:"profileUrl,omitempty"`
 	ProfileHash   *string                 `json:"profileHash,omitempty"`
 	Status        constant.NodeStatusType `json:"status,omitempty"`
-	LastChecked   int64                   `json:"lastChecked,omitempty"`
+	LastChecked   *int64                  `json:"lastChecked,omitempty"`
 	FailedReasons *[]string               `json:"failedReasons,omitempty"`
 }
 
 type searchNodeRespond struct {
 	ProfileUrl  string `json:"profileUrl,omitempty"`
-	LastChecked int64  `json:"lastChecked,omitempty"`
+	LastChecked *int64 `json:"lastChecked,omitempty"`
 }
 
 func (node *Node) AddNodeRespond() interface{} {
 	res := addNodeRespond{
-		NodeID:      node.ID,
-		LastChecked: node.LastChecked,
+		NodeID: node.ID,
 	}
 	return respond{Data: res}
 }
 
 func (node *Node) GetNodeRespond() interface{} {
-	if node.Status != constant.NodeStatus().ValidationFailed {
+	if node.Status != constant.NodeStatus().Posted {
+		node.ProfileHash = nil
+		node.LastChecked = nil
+	}
+	if node.Status != constant.NodeStatus().ValidationFailed ||
+		node.Status != constant.NodeStatus().PostFailed {
 		node.FailedReasons = nil
 	}
+
 	nodeJson, _ := json.Marshal(node)
 	var res getNodeRespond
 	json.Unmarshal(nodeJson, &res)

@@ -10,9 +10,10 @@ type Node struct {
 	ProfileUrl    string                  `json:"profileUrl" bson:"profileUrl,omitempty"`
 	ProfileHash   *string                 `json:"profileHash" bson:"profileHash,omitempty"`
 	Status        constant.NodeStatusType `json:"status" bson:"status,omitempty"`
-	LastChecked   int64                   `json:"lastChecked" bson:"lastChecked,omitempty"`
+	LastChecked   *int64                  `json:"lastChecked" bson:"lastChecked,omitempty"`
 	FailedReasons *[]string               `json:"failedReasons" bson:"failedReasons,omitempty"`
-	Version       *int32                  `json:"-" bson:"version,omitempty"`
+
+	Version *int32 `json:"-" bson:"version,omitempty"`
 
 	ProfileStr string `json:"-" bson:"-"`
 }

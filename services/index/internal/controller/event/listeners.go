@@ -28,7 +28,7 @@ var HandleNodeValidated = event.NewNodeValidatedListener(nats.Client(), qgroup, 
 		ProfileUrl:  nodeValidatedData.ProfileUrl,
 		ProfileHash: &nodeValidatedData.ProfileHash,
 		ProfileStr:  nodeValidatedData.ProfileStr,
-		LastChecked: nodeValidatedData.LastChecked,
+		LastChecked: &nodeValidatedData.LastChecked,
 		Version:     &nodeValidatedData.Version,
 	})
 	if err != nil {
