@@ -20,15 +20,15 @@ var indices = []index{
 			   "dynamic":"false",
 			   "_source":{
 				  "includes":[
-					 "profileUrl",
-					 "linkedSchemas",
-					 "name",
-					 "url",
-					 "mission",
-					 "keywords",
 					 "geolocation",
+					 "keywords",
+					 "lastChecked",
+					 "linkedSchemas",
 					 "maplocation",
-					 "lastChecked"
+					 "mission",
+					 "name",
+					 "profileUrl",
+					 "url"
 				  ]
 			   },
 			   "properties":{
