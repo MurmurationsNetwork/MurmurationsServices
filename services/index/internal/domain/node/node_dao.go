@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
@@ -76,23 +75,57 @@ func (node *Node) Update() error {
 		return ErrUpdate
 	}
 
+	// NOTE: Maybe it's better to conver into another event?
 	if node.Status == constant.NodeStatus().Validated {
 		profileJson := jsonutil.ToJSON(node.ProfileStr)
 		profileJson["lastChecked"] = node.LastChecked
 
-		fmt.Println("==================================")
-		fmt.Printf("profileJson %+v \n", profileJson)
-		fmt.Println("==================================")
-
-		result, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJson)
+		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJson)
 		if err != nil {
-			// TODO(max) Handle schema error
-			return err
+			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
+			err = node.setPostFailed()
+			if err != nil {
+				return nil
+			}
 		}
+	}
 
-		fmt.Println("==================================")
-		fmt.Printf("result %+v \n", result)
-		fmt.Println("==================================")
+	// Successfully parse into ElasticSearch, set the statue to 'posted'.
+	err = node.setPosted()
+	if err != nil {
+		return nil
+	}
+
+	return nil
+}
+
+func (node *Node) setPostFailed() error {
+	node.Version = nil
+	node.Status = constant.NodeStatus().PostFailed
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": node}
+
+	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	if err != nil {
+		logger.Error("error when trying to update a node", err)
+		return err
+	}
+
+	return nil
+}
+
+func (node *Node) setPosted() error {
+	node.Version = nil
+	node.Status = constant.NodeStatus().Posted
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": node}
+
+	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	if err != nil {
+		logger.Error("error when trying to update a node", err)
+		return err
 	}
 
 	return nil
