@@ -15,5 +15,6 @@ make dev
 
 ## Directory Layout
 
-* **services** contains packages that compile to applications that are long-running processes (such as API servers).
 * **common** contains packages that shared across different services.
+* **infra** contains Kubernetes configuration files.
+* **services** contains packages that compile to applications that are long-running processes (such as API servers).
