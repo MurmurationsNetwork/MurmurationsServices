@@ -16,7 +16,7 @@ deploy:
   helm:
     releases:
     - name: development
-      chartPath: charts
+      chartPath: murmurations
       artifactOverrides:
         indexServiceImage: murmurations/index
         validationServiceImage: murmurations/validation

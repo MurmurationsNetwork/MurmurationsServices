@@ -18,6 +18,6 @@
 
 ## Directory Layout
 
-* **charts** contains Helm configuration files.
+* **murmurations** contains the Helm chart.
 * **common** contains packages that shared across different services.
 * **services** contains packages that compile to applications that are long-running processes (such as API servers).
