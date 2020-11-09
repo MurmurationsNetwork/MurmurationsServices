@@ -33,27 +33,10 @@ func (v *validationService) ValidateNode(node *node.Node) {
 
 	linkedSchemas := data.(map[string]interface{})["linkedSchemas"].([]interface{})
 
-	for _, linkedSchema := range linkedSchemas {
-		// TODO: Wait for library.
-		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema.(string) + ".json"
-
-		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
-		if err != nil {
-			sendNodeValidationFailedEvent(node, []string{"Could not read from schema: " + schemaURL})
-			return
-		}
-
-		result, err := schema.Validate(document)
-		if err != nil {
-			sendNodeValidationFailedEvent(node, []string{"error when trying to validate document: ", err.Error()})
-			return
-		}
-
-		if !result.Valid() {
-			failedReasons := parseResultError(result.Errors())
-			sendNodeValidationFailedEvent(node, failedReasons)
-			return
-		}
+	failedReasons := validateAgainstSchemas(linkedSchemas, document)
+	if len(failedReasons) != 0 {
+		sendNodeValidationFailedEvent(node, failedReasons)
+		return
 	}
 
 	jsonStr, err := getJSONStr(node.ProfileUrl)
@@ -71,8 +54,34 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	})
 }
 
-// Parse the error messages when the profile failed to validate against the schema.
-func parseResultError(resultErrors []gojsonschema.ResultError) []string {
+func validateAgainstSchemas(linkedSchemas []interface{}, document gojsonschema.JSONLoader) []string {
+	failedReasons := []string{}
+
+	for _, linkedSchema := range linkedSchemas {
+		// TODO: Wait for library.
+		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema.(string) + ".json"
+
+		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
+		if err != nil {
+			failedReasons = append(failedReasons, "Could not read from schema: "+schemaURL)
+			continue
+		}
+
+		result, err := schema.Validate(document)
+		if err != nil {
+			failedReasons = append(failedReasons, "error when trying to validate document: ", err.Error())
+			continue
+		}
+
+		if !result.Valid() {
+			failedReasons = append(failedReasons, parseInValidError(result.Errors())...)
+		}
+	}
+
+	return failedReasons
+}
+
+func parseInValidError(resultErrors []gojsonschema.ResultError) []string {
 	failedReasons := make([]string, 0)
 	for _, desc := range resultErrors {
 		failedReasons = append(failedReasons, desc.String())
