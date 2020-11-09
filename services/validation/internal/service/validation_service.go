@@ -74,17 +74,18 @@ func validateAgainstSchemas(linkedSchemas []interface{}, document gojsonschema.J
 		}
 
 		if !result.Valid() {
-			failedReasons = append(failedReasons, parseValidateError(result.Errors())...)
+			failedReasons = append(failedReasons, parseValidateError(linkedSchema.(string), result.Errors())...)
 		}
 	}
 
 	return failedReasons
 }
 
-func parseValidateError(resultErrors []gojsonschema.ResultError) []string {
+func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) []string {
 	failedReasons := make([]string, 0)
 	for _, desc := range resultErrors {
-		failedReasons = append(failedReasons, desc.String())
+		// Output string: "demo-v1.(root): url is required"
+		failedReasons = append(failedReasons, schema+"."+desc.String())
 	}
 	return failedReasons
 }
