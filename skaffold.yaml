@@ -12,15 +12,7 @@ build:
       context: .
       docker:
         dockerfile: services/index/docker/Dockerfile-dev
-      sync:
-        manual:
-          - src: './services/index/**/*.go'
-            dest: .
     - image: murmurations/validation
       context: .
       docker:
         dockerfile: services/validation/docker/Dockerfile-dev
-      sync:
-        manual:
-          - src: './services/validation/**/*.go'
-            dest: .

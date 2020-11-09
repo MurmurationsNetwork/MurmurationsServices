@@ -15,6 +15,9 @@ spec:
       containers:
         - name: index
           image: murmurations/index
+          # volumeMounts:
+          #   - mountPath: /src/index
+          #     name: source-code
           env:
             - name: NATS_CLUSTER_ID
               value: murmurations
@@ -35,6 +38,10 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 20
             failureThreshold: 3
+      # volumes:
+      #   - name: source-code
+      #     hostPath:
+      #       path: /Users/max/Desktop/MurmurationsServices
 ---
 apiVersion: v1
 kind: Service
