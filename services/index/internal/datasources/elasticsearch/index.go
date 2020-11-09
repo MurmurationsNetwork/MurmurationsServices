@@ -21,22 +21,15 @@ var indices = []index{
 			   "_source":{
 				  "includes":[
 					 "geolocation",
-					 "keywords",
 					 "lastChecked",
 					 "linkedSchemas",
 					 "maplocation",
-					 "mission",
-					 "name",
-					 "profileUrl",
-					 "url"
+					 "profileUrl"
 				  ]
 			   },
 			   "properties":{
 				  "geolocation":{
 					 "type":"geo_point"
-				  },
-				  "keywords":{
-					 "type":"keyword"
 				  },
 				  "lastChecked":{
 					 "type":"date",
@@ -58,16 +51,7 @@ var indices = []index{
 						}
 					 }
 				  },
-				  "mission":{
-					 "type":"text"
-				  },
-				  "name":{
-					 "type":"keyword"
-				  },
 				  "profileUrl":{
-					 "type":"keyword"
-				  },
-				  "url":{
 					 "type":"keyword"
 				  }
 			   }
