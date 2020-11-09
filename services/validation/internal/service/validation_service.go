@@ -74,14 +74,14 @@ func validateAgainstSchemas(linkedSchemas []interface{}, document gojsonschema.J
 		}
 
 		if !result.Valid() {
-			failedReasons = append(failedReasons, parseInValidError(result.Errors())...)
+			failedReasons = append(failedReasons, parseValidateError(result.Errors())...)
 		}
 	}
 
 	return failedReasons
 }
 
-func parseInValidError(resultErrors []gojsonschema.ResultError) []string {
+func parseValidateError(resultErrors []gojsonschema.ResultError) []string {
 	failedReasons := make([]string, 0)
 	for _, desc := range resultErrors {
 		failedReasons = append(failedReasons, desc.String())
