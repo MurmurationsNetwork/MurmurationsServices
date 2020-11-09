@@ -10,7 +10,11 @@
 
 2. Make sure you have installed [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/).
 
-3. Run `make dev` to start services.
+3. Make sure you have installed [Skaffold](https://skaffold.dev/).
+
+4. Make sure you have installed [Helm](https://helm.sh/).
+
+5. Run `make dev` to start services.
 
 ## Directory Layout
 
