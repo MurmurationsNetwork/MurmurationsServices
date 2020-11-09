@@ -18,6 +18,6 @@
 
 ## Directory Layout
 
+* **charts** contains Helm configuration files.
 * **common** contains packages that shared across different services.
-* **infra** contains Kubernetes configuration files.
 * **services** contains packages that compile to applications that are long-running processes (such as API servers).
