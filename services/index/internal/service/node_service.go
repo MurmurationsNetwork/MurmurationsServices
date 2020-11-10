@@ -70,8 +70,8 @@ func (s *nodesService) SetNodeInvalid(node node.Node) error {
 	node.Status = constant.NodeStatus().ValidationFailed
 	emptystr := ""
 	node.ProfileHash = &emptystr
-	lastChecked := dateutil.GetZeroValueUnix()
-	node.LastChecked = &lastChecked
+	lastValidated := dateutil.GetZeroValueUnix()
+	node.LastValidated = &lastValidated
 
 	if err := node.Update(); err != nil {
 		return err

@@ -6,12 +6,12 @@ import (
 )
 
 type Node struct {
-	ID            string                  `json:"nodeId" bson:"_id,omitempty"`
-	ProfileURL    string                  `json:"profileUrl" bson:"profileUrl,omitempty"`
-	ProfileHash   *string                 `json:"profileHash" bson:"profileHash,omitempty"`
+	ID            string                  `json:"node_id" bson:"_id,omitempty"`
+	ProfileURL    string                  `json:"profile_url" bson:"profile_url,omitempty"`
+	ProfileHash   *string                 `json:"profile_hash" bson:"profile_hash,omitempty"`
 	Status        constant.NodeStatusType `json:"status" bson:"status,omitempty"`
-	LastChecked   *int64                  `json:"lastChecked" bson:"lastChecked,omitempty"`
-	FailedReasons *[]string               `json:"failedReasons" bson:"failedReasons,omitempty"`
+	LastValidated *int64                  `json:"last_validated" bson:"last_validated,omitempty"`
+	FailedReasons *[]string               `json:"failure_reasons" bson:"failure_reasons,omitempty"`
 
 	Version *int32 `json:"-" bson:"version,omitempty"`
 
@@ -20,7 +20,7 @@ type Node struct {
 
 func (node *Node) Validate() resterr.RestErr {
 	if node.ProfileURL == "" {
-		return resterr.NewBadRequestError("profileUrl parameter is missing.")
+		return resterr.NewBadRequestError("The profile_url parameter is missing.")
 	}
 	return nil
 }

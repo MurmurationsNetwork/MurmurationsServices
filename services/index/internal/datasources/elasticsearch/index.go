@@ -21,24 +21,24 @@ var indices = []index{
 			   "_source":{
 				  "includes":[
 					 "geolocation",
-					 "lastChecked",
-					 "linkedSchemas",
-					 "maplocation",
-					 "profileUrl"
+					 "last_validated",
+					 "linked_schemas",
+					 "location",
+					 "profile_url"
 				  ]
 			   },
 			   "properties":{
 				  "geolocation":{
 					 "type":"geo_point"
 				  },
-				  "lastChecked":{
+				  "last_validated":{
 					 "type":"date",
 					 "format":"epoch_second"
 				  },
-				  "linkedSchemas":{
+				  "linked_schemas":{
 					 "type":"keyword"
 				  },
-				  "maplocation":{
+				  "location":{
 					 "properties":{
 						"country":{
 						   "type":"keyword"
@@ -51,7 +51,7 @@ var indices = []index{
 						}
 					 }
 				  },
-				  "profileUrl":{
+				  "profile_url":{
 					 "type":"keyword"
 				  }
 			   }

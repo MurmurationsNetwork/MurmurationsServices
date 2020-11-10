@@ -47,7 +47,7 @@ func (node *Node) Get() resterr.RestErr {
 	result := nodes_db.Collection.FindOne(context.Background(), filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
-			return resterr.NewNotFoundError(fmt.Sprintf("Cannot find node with id %s", node.ID))
+			return resterr.NewNotFoundError(fmt.Sprintf("Could not find node_id: %s", node.ID))
 		}
 		logger.Error("error when trying to find a node", result.Err())
 		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
@@ -82,8 +82,8 @@ func (node *Node) Update() error {
 	// NOTE: Maybe it's better to conver into another event?
 	if node.Status == constant.NodeStatus().Validated {
 		profileJSON := jsonutil.ToJSON(node.ProfileStr)
-		profileJSON["profileUrl"] = node.ProfileURL
-		profileJSON["lastChecked"] = node.LastChecked
+		profileJSON["profile_url"] = node.ProfileURL
+		profileJSON["last_validated"] = node.LastValidated
 
 		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJSON)
 		if err != nil {

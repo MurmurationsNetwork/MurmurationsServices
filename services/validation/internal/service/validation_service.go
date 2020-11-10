@@ -27,7 +27,7 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	document := gojsonschema.NewReferenceLoader(node.ProfileURL)
 	data, err := document.LoadJSON()
 	if err != nil {
-		sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileURL})
+		sendNodeValidationFailedEvent(node, []string{"Could not read from profile_url: " + node.ProfileURL})
 		return
 	}
 
@@ -40,7 +40,7 @@ func (v *validationService) ValidateNode(node *node.Node) {
 
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
-		sendNodeValidationFailedEvent(node, []string{"Could not read linkedSchemas from profile url: " + node.ProfileURL})
+		sendNodeValidationFailedEvent(node, []string{"Could not read linked_schemas from profile_url: " + node.ProfileURL})
 		return
 	}
 
@@ -53,16 +53,16 @@ func (v *validationService) ValidateNode(node *node.Node) {
 
 	jsonStr, err := getJSONStr(node.ProfileURL)
 	if err != nil {
-		sendNodeValidationFailedEvent(node, []string{"Could not get JSON string from profile url: " + node.ProfileURL})
+		sendNodeValidationFailedEvent(node, []string{"Could not get JSON string from profile_url: " + node.ProfileURL})
 		return
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
-		ProfileURL:  node.ProfileURL,
-		ProfileHash: cryptoutil.GetSHA256(jsonStr),
-		ProfileStr:  jsonStr,
-		LastChecked: dateutil.GetNowUnix(),
-		Version:     node.Version,
+		ProfileURL:    node.ProfileURL,
+		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
+		ProfileStr:    jsonStr,
+		LastValidated: dateutil.GetNowUnix(),
+		Version:       node.Version,
 	})
 }
 
@@ -71,11 +71,11 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 	if !ok {
 		return nil, false
 	}
-	_, ok = json["linkedSchemas"]
+	_, ok = json["linked_schemas"]
 	if !ok {
 		return nil, false
 	}
-	arrInterface, ok := json["linkedSchemas"].([]interface{})
+	arrInterface, ok := json["linked_schemas"].([]interface{})
 	if !ok {
 		return nil, false
 	}
@@ -108,7 +108,7 @@ func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLo
 
 		result, err := schema.Validate(document)
 		if err != nil {
-			failedReasons = append(failedReasons, "error when trying to validate document: ", err.Error())
+			failedReasons = append(failedReasons, "Error when trying to validate document: ", err.Error())
 			continue
 		}
 
