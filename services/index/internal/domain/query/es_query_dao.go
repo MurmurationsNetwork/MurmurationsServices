@@ -26,8 +26,8 @@ func (q *EsQuery) Build() elastic.Query {
 	}
 
 	filters := make([]elastic.Query, 0)
-	if q.Lat != nil && q.Lon != nil && q.Radius != nil {
-		filters = append(filters, elastic.NewGeoDistanceQuery("geolocation").Lat(*q.Lat).Lon(*q.Lon).Distance(*q.Radius))
+	if q.Lat != nil && q.Lon != nil && q.Range != nil {
+		filters = append(filters, elastic.NewGeoDistanceQuery("geolocation").Lat(*q.Lat).Lon(*q.Lon).Distance(*q.Range))
 	}
 
 	query.Must(subQueries...).Filter(filters...)

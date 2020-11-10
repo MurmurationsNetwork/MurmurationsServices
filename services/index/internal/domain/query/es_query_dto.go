@@ -6,7 +6,7 @@ type EsQuery struct {
 
 	Lat    *float64 `form:"lat"`
 	Lon    *float64 `form:"lon"`
-	Radius *string  `form:"radius"`
+	Range *string  `form:"range"`
 
 	Locality *string `form:"locality"`
 	Region   *string `form:"region"`
