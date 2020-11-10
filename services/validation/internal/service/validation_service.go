@@ -24,16 +24,16 @@ type validationServiceInterface interface {
 type validationService struct{}
 
 func (v *validationService) ValidateNode(node *node.Node) {
-	document := gojsonschema.NewReferenceLoader(node.ProfileUrl)
+	document := gojsonschema.NewReferenceLoader(node.ProfileURL)
 	data, err := document.LoadJSON()
 	if err != nil {
-		sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileUrl})
+		sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileURL})
 		return
 	}
 
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
-		sendNodeValidationFailedEvent(node, []string{"Could not read linkedSchemas from profile url: " + node.ProfileUrl})
+		sendNodeValidationFailedEvent(node, []string{"Could not read linkedSchemas from profile url: " + node.ProfileURL})
 		return
 	}
 
@@ -43,14 +43,14 @@ func (v *validationService) ValidateNode(node *node.Node) {
 		return
 	}
 
-	jsonStr, err := getJSONStr(node.ProfileUrl)
+	jsonStr, err := getJSONStr(node.ProfileURL)
 	if err != nil {
-		sendNodeValidationFailedEvent(node, []string{"Could not get JSON string from profile url: " + node.ProfileUrl})
+		sendNodeValidationFailedEvent(node, []string{"Could not get JSON string from profile url: " + node.ProfileURL})
 		return
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
-		ProfileUrl:  node.ProfileUrl,
+		ProfileURL:  node.ProfileURL,
 		ProfileHash: cryptoutil.GetSHA256(jsonStr),
 		ProfileStr:  jsonStr,
 		LastChecked: dateutil.GetNowUnix(),
@@ -136,7 +136,7 @@ func getJSONStr(source string) (string, error) {
 
 func sendNodeValidationFailedEvent(node *node.Node, failedReasons []string) {
 	event.NewNodeValidationFailedPublisher(nats.Client()).Publish(event.NodeValidationFailedData{
-		ProfileUrl:    node.ProfileUrl,
+		ProfileURL:    node.ProfileURL,
 		FailedReasons: failedReasons,
 		Version:       node.Version,
 	})

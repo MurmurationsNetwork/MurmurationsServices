@@ -82,7 +82,7 @@ func (node *Node) Update() error {
 	// NOTE: Maybe it's better to conver into another event?
 	if node.Status == constant.NodeStatus().Validated {
 		profileJSON := jsonutil.ToJSON(node.ProfileStr)
-		profileJSON["profileUrl"] = node.ProfileUrl
+		profileJSON["profileUrl"] = node.ProfileURL
 		profileJSON["lastChecked"] = node.LastChecked
 
 		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJSON)
