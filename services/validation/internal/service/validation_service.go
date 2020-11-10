@@ -31,13 +31,21 @@ func (v *validationService) ValidateNode(node *node.Node) {
 		return
 	}
 
+	// Validate against the default schema.
+	failedReasons := validateAgainstSchemas([]string{"default-v1"}, document)
+	if len(failedReasons) != 0 {
+		sendNodeValidationFailedEvent(node, failedReasons)
+		return
+	}
+
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
 		sendNodeValidationFailedEvent(node, []string{"Could not read linkedSchemas from profile url: " + node.ProfileURL})
 		return
 	}
 
-	failedReasons := validateAgainstSchemas(linkedSchemas, document)
+	// Validate against schemes specify inside the profile data.
+	failedReasons = validateAgainstSchemas(linkedSchemas, document)
 	if len(failedReasons) != 0 {
 		sendNodeValidationFailedEvent(node, failedReasons)
 		return
