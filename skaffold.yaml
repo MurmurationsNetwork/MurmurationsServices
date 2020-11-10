@@ -22,4 +22,4 @@ deploy:
         validationServiceImage: murmurations/validation
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
-        sourcepath: "{{.SOURCEPAH}}"
+        sourcepath: "{{.SOURCEPATH}}"
