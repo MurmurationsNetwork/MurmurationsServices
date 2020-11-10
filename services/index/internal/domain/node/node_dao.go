@@ -81,10 +81,11 @@ func (node *Node) Update() error {
 
 	// NOTE: Maybe it's better to conver into another event?
 	if node.Status == constant.NodeStatus().Validated {
-		profileJson := jsonutil.ToJSON(node.ProfileStr)
-		profileJson["lastChecked"] = node.LastChecked
+		profileJSON := jsonutil.ToJSON(node.ProfileStr)
+		profileJSON["profileUrl"] = node.ProfileUrl
+		profileJSON["lastChecked"] = node.LastChecked
 
-		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJson)
+		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
 			err = node.setPostFailed()
