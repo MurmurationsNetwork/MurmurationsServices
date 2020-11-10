@@ -15,7 +15,7 @@ type addNodeRespond struct {
 }
 
 type getNodeRespond struct {
-	ID            string                  `json:"_id,omitempty"`
+	ID            string                  `json:"nodeId,omitempty"`
 	ProfileUrl    string                  `json:"profileUrl,omitempty"`
 	ProfileHash   *string                 `json:"profileHash,omitempty"`
 	Status        constant.NodeStatusType `json:"status,omitempty"`

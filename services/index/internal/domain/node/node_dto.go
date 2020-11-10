@@ -6,7 +6,7 @@ import (
 )
 
 type Node struct {
-	ID            string                  `json:"_id" bson:"_id,omitempty"`
+	ID            string                  `json:"nodeId" bson:"_id,omitempty"`
 	ProfileUrl    string                  `json:"profileUrl" bson:"profileUrl,omitempty"`
 	ProfileHash   *string                 `json:"profileHash" bson:"profileHash,omitempty"`
 	Status        constant.NodeStatusType `json:"status" bson:"status,omitempty"`
