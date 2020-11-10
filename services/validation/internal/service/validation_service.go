@@ -31,7 +31,11 @@ func (v *validationService) ValidateNode(node *node.Node) {
 		return
 	}
 
-	linkedSchemas := data.(map[string]interface{})["linkedSchemas"].([]interface{})
+	linkedSchemas, ok := getLinkedSchemas(data)
+	if !ok {
+		sendNodeValidationFailedEvent(node, []string{"Could not read linkedSchemas from profile url: " + node.ProfileUrl})
+		return
+	}
 
 	failedReasons := validateAgainstSchemas(linkedSchemas, document)
 	if len(failedReasons) != 0 {
@@ -54,12 +58,39 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	})
 }
 
-func validateAgainstSchemas(linkedSchemas []interface{}, document gojsonschema.JSONLoader) []string {
+func getLinkedSchemas(data interface{}) ([]string, bool) {
+	json, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, false
+	}
+	_, ok = json["linkedSchemas"]
+	if !ok {
+		return nil, false
+	}
+	arrInterface, ok := json["linkedSchemas"].([]interface{})
+	if !ok {
+		return nil, false
+	}
+
+	var linkedSchemas = make([]string, 0)
+
+	for _, data := range arrInterface {
+		linkedSchema, ok := data.(string)
+		if !ok {
+			return nil, false
+		}
+		linkedSchemas = append(linkedSchemas, linkedSchema)
+	}
+
+	return linkedSchemas, true
+}
+
+func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLoader) []string {
 	failedReasons := []string{}
 
 	for _, linkedSchema := range linkedSchemas {
 		// TODO: Wait for library.
-		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema.(string) + ".json"
+		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema + ".json"
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
@@ -74,7 +105,7 @@ func validateAgainstSchemas(linkedSchemas []interface{}, document gojsonschema.J
 		}
 
 		if !result.Valid() {
-			failedReasons = append(failedReasons, parseValidateError(linkedSchema.(string), result.Errors())...)
+			failedReasons = append(failedReasons, parseValidateError(linkedSchema, result.Errors())...)
 		}
 	}
 
