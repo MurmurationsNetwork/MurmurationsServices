@@ -18,10 +18,12 @@ var (
 )
 
 type esClientInterface interface {
+	setClient(*elastic.Client)
+
 	Index(string, interface{}) (*elastic.IndexResponse, error)
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
 	Search(string, elastic.Query) (*elastic.SearchResult, error)
-	setClient(*elastic.Client)
+	Delete(string, string) error
 }
 
 type esClient struct {
@@ -29,10 +31,13 @@ type esClient struct {
 }
 
 func Init() {
+	var client *elastic.Client
+
 	op := func() error {
 		log := logger.GetLogger()
 
-		client, err := elastic.NewClient(
+		var err error
+		client, err = elastic.NewClient(
 			elastic.SetURL(os.Getenv("ELASTICSEARCH_URL")),
 			elastic.SetHealthcheckInterval(10*time.Second),
 			elastic.SetErrorLog(log),
@@ -42,7 +47,6 @@ func Init() {
 			return err
 		}
 
-		Client.setClient(client)
 		return nil
 	}
 	notify := func(err error, time time.Duration) {
@@ -55,6 +59,14 @@ func Init() {
 	if err != nil {
 		logger.Panic("error when trying to ping the ElasticSearch", err)
 	}
+
+	err = createMappings(client)
+	if err != nil {
+		logger.Panic("error when trying to create index for ElasticSearch", err)
+		return
+	}
+
+	Client.setClient(client)
 }
 
 func (c *esClient) setClient(client *elastic.Client) {
@@ -85,22 +97,7 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to index document in index %s", index), err)
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (c *esClient) Get(index string, id string) (*elastic.GetResult, error) {
-	ctx := context.Background()
-	result, err := c.client.Get().
-		Index(index).
-		Type(docType).
-		Id(id).
-		Do(ctx)
-	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to get id %s", id), err)
+		logger.Error(fmt.Sprintf("error when trying to index a document in index %s", index), err)
 		return nil, err
 	}
 
@@ -119,4 +116,22 @@ func (c *esClient) Search(index string, query elastic.Query) (*elastic.SearchRes
 	}
 
 	return result, nil
+}
+
+func (c *esClient) Delete(index string, id string) error {
+	ctx := context.Background()
+	_, err := c.client.Delete().
+		Index(index).
+		Type(docType).
+		Id(id).
+		Do(ctx)
+	if err != nil {
+		// Don't need to tell the client data doesn't exist.
+		if elastic.IsNotFound(err) {
+			return nil
+		}
+		logger.Error(fmt.Sprintf("error when trying to delete a document in index %s", index), err)
+		return err
+	}
+	return nil
 }

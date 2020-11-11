@@ -1,9 +1,5 @@
-apiVersion: skaffold/v2beta6
+apiVersion: skaffold/v2beta9
 kind: Config
-deploy:
-  kubectl:
-    manifests:
-      - ./infra/k8s/development/*
 build:
   local:
     push: false
@@ -12,15 +8,18 @@ build:
       context: .
       docker:
         dockerfile: services/index/docker/Dockerfile-dev
-      sync:
-        manual:
-          - src: './services/index/**/*.go'
-            dest: .
     - image: murmurations/validation
       context: .
       docker:
         dockerfile: services/validation/docker/Dockerfile-dev
-      sync:
-        manual:
-          - src: './services/validation/**/*.go'
-            dest: .
+deploy:
+  helm:
+    releases:
+    - name: development
+      chartPath: murmurations
+      artifactOverrides:
+        indexServiceImage: murmurations/index
+        validationServiceImage: murmurations/validation
+      # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
+      setValueTemplates:
+        sourcepath: "{{.SOURCEPATH}}"

@@ -24,57 +24,128 @@ type validationServiceInterface interface {
 type validationService struct{}
 
 func (v *validationService) ValidateNode(node *node.Node) {
-	document := gojsonschema.NewReferenceLoader(node.ProfileUrl)
-
-	for _, schemaURL := range node.LinkedSchemas {
-		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
-		if err != nil {
-			sendNodeValidationFailedEvent(node, []string{"Could not read from schema: " + schemaURL})
-			return
-		}
-
-		result, err := schema.Validate(document)
-		if err != nil {
-			sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileUrl})
-			return
-		}
-
-		if !result.Valid() {
-			failedReasons := parseResultError(result.Errors())
-			sendNodeValidationFailedEvent(node, failedReasons)
-			return
-		}
+	document := gojsonschema.NewReferenceLoader(node.ProfileURL)
+	data, err := document.LoadJSON()
+	if err != nil {
+		sendNodeValidationFailedEvent(node, []string{"Could not read from profile_url: " + node.ProfileURL})
+		return
 	}
 
-	jsonByte, err := httputil.GetByte(node.ProfileUrl)
-	buffer := bytes.Buffer{}
-	json.Compact(&buffer, jsonByte)
+	// Validate against the default schema.
+	FailureReasons := validateAgainstSchemas([]string{"default-v1"}, document)
+	if len(FailureReasons) != 0 {
+		sendNodeValidationFailedEvent(node, FailureReasons)
+		return
+	}
+
+	linkedSchemas, ok := getLinkedSchemas(data)
+	if !ok {
+		sendNodeValidationFailedEvent(node, []string{"Could not read linked_schemas from profile_url: " + node.ProfileURL})
+		return
+	}
+
+	// Validate against schemes specify inside the profile data.
+	FailureReasons = validateAgainstSchemas(linkedSchemas, document)
+	if len(FailureReasons) != 0 {
+		sendNodeValidationFailedEvent(node, FailureReasons)
+		return
+	}
+
+	jsonStr, err := getJSONStr(node.ProfileURL)
 	if err != nil {
-		sendNodeValidationFailedEvent(node, []string{"Could not read from profile url: " + node.ProfileUrl})
+		sendNodeValidationFailedEvent(node, []string{"Could not get JSON string from profile_url: " + node.ProfileURL})
 		return
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
-		ProfileUrl:  node.ProfileUrl,
-		ProfileHash: cryptoutil.GetSHA256(buffer.String()),
-		ProfileStr:  buffer.String(),
-		LastChecked: dateutil.GetNowUnix(),
-		Version:     node.Version,
+		ProfileURL:    node.ProfileURL,
+		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
+		ProfileStr:    jsonStr,
+		LastValidated: dateutil.GetNowUnix(),
+		Version:       node.Version,
 	})
 }
 
-func parseResultError(resultErrors []gojsonschema.ResultError) []string {
-	failedReasons := make([]string, 0)
-	for _, desc := range resultErrors {
-		failedReasons = append(failedReasons, desc.String())
+func getLinkedSchemas(data interface{}) ([]string, bool) {
+	json, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, false
 	}
-	return failedReasons
+	_, ok = json["linked_schemas"]
+	if !ok {
+		return nil, false
+	}
+	arrInterface, ok := json["linked_schemas"].([]interface{})
+	if !ok {
+		return nil, false
+	}
+
+	var linkedSchemas = make([]string, 0)
+
+	for _, data := range arrInterface {
+		linkedSchema, ok := data.(string)
+		if !ok {
+			return nil, false
+		}
+		linkedSchemas = append(linkedSchemas, linkedSchema)
+	}
+
+	return linkedSchemas, true
 }
 
-func sendNodeValidationFailedEvent(node *node.Node, failedReasons []string) {
+func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLoader) []string {
+	FailureReasons := []string{}
+
+	for _, linkedSchema := range linkedSchemas {
+		// TODO: Wait for library.
+		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema + ".json"
+
+		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
+		if err != nil {
+			FailureReasons = append(FailureReasons, "Could not read from schema: "+schemaURL)
+			continue
+		}
+
+		result, err := schema.Validate(document)
+		if err != nil {
+			FailureReasons = append(FailureReasons, "Error when trying to validate document: ", err.Error())
+			continue
+		}
+
+		if !result.Valid() {
+			FailureReasons = append(FailureReasons, parseValidateError(linkedSchema, result.Errors())...)
+		}
+	}
+
+	return FailureReasons
+}
+
+func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) []string {
+	FailureReasons := make([]string, 0)
+	for _, desc := range resultErrors {
+		// Output string: "demo-v1.(root): url is required"
+		FailureReasons = append(FailureReasons, schema+"."+desc.String())
+	}
+	return FailureReasons
+}
+
+func getJSONStr(source string) (string, error) {
+	jsonByte, err := httputil.GetByte(source)
+	if err != nil {
+		return "", err
+	}
+	buffer := bytes.Buffer{}
+	err = json.Compact(&buffer, jsonByte)
+	if err != nil {
+		return "", err
+	}
+	return buffer.String(), nil
+}
+
+func sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
 	event.NewNodeValidationFailedPublisher(nats.Client()).Publish(event.NodeValidationFailedData{
-		ProfileUrl:    node.ProfileUrl,
-		FailedReasons: failedReasons,
-		Version:       node.Version,
+		ProfileURL:     node.ProfileURL,
+		FailureReasons: FailureReasons,
+		Version:        node.Version,
 	})
 }

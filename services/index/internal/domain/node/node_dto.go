@@ -6,27 +6,22 @@ import (
 )
 
 type Node struct {
-	ID            string              `json:"_id" bson:"_id,omitempty"`
-	ProfileUrl    string              `json:"profileUrl" bson:"profileUrl,omitempty"`
-	ProfileHash   *string             `json:"profileHash" bson:"profileHash,omitempty"`
-	LinkedSchemas []string            `json:"linkedSchemas" bson:"linkedSchemas,omitempty"`
-	Status        constant.NodeStatus `json:"status" bson:"status,omitempty"`
-	LastChecked   int64               `json:"lastChecked" bson:"lastChecked,omitempty"`
-	FailedReasons *[]string           `json:"failedReasons" bson:"failedReasons,omitempty"`
-	Version       *int32              `json:"-" bson:"version,omitempty"`
+	ID             string                  `json:"node_id" bson:"_id,omitempty"`
+	ProfileURL     string                  `json:"profile_url" bson:"profile_url,omitempty"`
+	ProfileHash    *string                 `json:"profile_hash" bson:"profile_hash,omitempty"`
+	Status         constant.NodeStatusType `json:"status" bson:"status,omitempty"`
+	LastValidated  *int64                  `json:"last_validated" bson:"last_validated,omitempty"`
+	FailureReasons *[]string               `json:"failure_reasons" bson:"failure_reasons,omitempty"`
 
-	ProfileStr string `json:"-"`
+	Version *int32 `json:"-" bson:"version,omitempty"`
+
+	ProfileStr string `json:"-" bson:"-"`
 }
 
 func (node *Node) Validate() resterr.RestErr {
-	if node.ProfileUrl == "" {
-		return resterr.NewBadRequestError("profileUrl parameter is missing.")
+	if node.ProfileURL == "" {
+		return resterr.NewBadRequestError("The profile_url parameter is missing.")
 	}
-
-	if len(node.LinkedSchemas) == 0 {
-		return resterr.NewBadRequestError("linkedSchemas parameter is missing.")
-	}
-
 	return nil
 }
 

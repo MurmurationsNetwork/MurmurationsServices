@@ -20,7 +20,8 @@ type nodesServiceInterface interface {
 	GetNode(nodeId string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node node.Node) error
 	SetNodeInvalid(node node.Node) error
-	SearchNode(query *query.EsQuery) (query.QueryResults, resterr.RestErr)
+	Search(query *query.EsQuery) (query.QueryResults, resterr.RestErr)
+	Delete(nodeId string) resterr.RestErr
 }
 
 type nodesService struct{}
@@ -30,16 +31,15 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 		return nil, err
 	}
 
-	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
-	node.Status = constant.Received
+	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+	node.Status = constant.NodeStatus().Received
 	if err := node.Add(); err != nil {
 		return nil, err
 	}
 
 	event.NewNodeCreatedPublisher(nats.Client()).Publish(event.NodeCreatedData{
-		ProfileUrl:    node.ProfileUrl,
-		LinkedSchemas: node.LinkedSchemas,
-		Version:       *node.Version,
+		ProfileURL: node.ProfileURL,
+		Version:    *node.Version,
 	})
 
 	return &node, nil
@@ -55,9 +55,9 @@ func (s *nodesService) GetNode(nodeId string) (*node.Node, resterr.RestErr) {
 }
 
 func (s *nodesService) SetNodeValid(node node.Node) error {
-	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
-	node.Status = constant.Validated
-	node.FailedReasons = &[]string{}
+	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+	node.Status = constant.NodeStatus().Validated
+	node.FailureReasons = &[]string{}
 
 	if err := node.Update(); err != nil {
 		return err
@@ -66,11 +66,12 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 }
 
 func (s *nodesService) SetNodeInvalid(node node.Node) error {
-	node.ID = cryptoutil.GetSHA256(node.ProfileUrl)
-	node.Status = constant.ValidationFailed
+	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+	node.Status = constant.NodeStatus().ValidationFailed
 	emptystr := ""
 	node.ProfileHash = &emptystr
-	node.LastChecked = dateutil.GetZeroValueUnix()
+	lastValidated := dateutil.GetZeroValueUnix()
+	node.LastValidated = &lastValidated
 
 	if err := node.Update(); err != nil {
 		return err
@@ -78,11 +79,20 @@ func (s *nodesService) SetNodeInvalid(node node.Node) error {
 	return nil
 }
 
-func (s *nodesService) SearchNode(query *query.EsQuery) (query.QueryResults, resterr.RestErr) {
+func (s *nodesService) Search(query *query.EsQuery) (query.QueryResults, resterr.RestErr) {
 	dao := node.Node{}
 	result, err := dao.Search(query)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (s *nodesService) Delete(nodeId string) resterr.RestErr {
+	dao := node.Node{ID: nodeId}
+	err := dao.Delete()
+	if err != nil {
+		return err
+	}
+	return nil
 }

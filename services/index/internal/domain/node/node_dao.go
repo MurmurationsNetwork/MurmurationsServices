@@ -19,10 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const (
-	indexNodes = "nodes"
-)
-
 var (
 	ErrUpdate = errors.New("update error")
 )
@@ -50,6 +46,9 @@ func (node *Node) Get() resterr.RestErr {
 
 	result := nodes_db.Collection.FindOne(context.Background(), filter)
 	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return resterr.NewNotFoundError(fmt.Sprintf("Could not find node_id: %s", node.ID))
+		}
 		logger.Error("error when trying to find a node", result.Err())
 		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
 	}
@@ -80,29 +79,72 @@ func (node *Node) Update() error {
 		return ErrUpdate
 	}
 
-	if node.Status == constant.Validated {
-		profileJson := jsonutil.ToJSON(node.ProfileStr)
-		profileJson["lastChecked"] = node.LastChecked
+	// NOTE: Maybe it's better to conver into another event?
+	if node.Status == constant.NodeStatus().Validated {
+		profileJSON := jsonutil.ToJSON(node.ProfileStr)
+		profileJSON["profile_url"] = node.ProfileURL
+		profileJSON["last_validated"] = node.LastValidated
 
-		fmt.Println("==================================")
-		fmt.Printf("profileJson %+v \n", profileJson)
-		fmt.Println("==================================")
+		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJSON)
+		if err != nil {
+			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
+			err = node.setPostFailed()
+			if err != nil {
+				return err
+			}
+		}
 
-		result, err := elasticsearch.Client.IndexWithID(indexNodes, node.ID, profileJson)
+		// Successfully parse into ElasticSearch, set the statue to 'posted'.
+		err = node.setPosted()
 		if err != nil {
 			return err
 		}
+	}
 
-		fmt.Println("==================================")
-		fmt.Printf("result %+v \n", result)
-		fmt.Println("==================================")
+	if node.Status == constant.NodeStatus().ValidationFailed {
+		err := elasticsearch.Client.Delete(string(constant.ESIndex().Node), node.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (node *Node) setPostFailed() error {
+	node.Version = nil
+	node.Status = constant.NodeStatus().PostFailed
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": node}
+
+	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	if err != nil {
+		logger.Error("error when trying to update a node", err)
+		return err
+	}
+
+	return nil
+}
+
+func (node *Node) setPosted() error {
+	node.Version = nil
+	node.Status = constant.NodeStatus().Posted
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": node}
+
+	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	if err != nil {
+		logger.Error("error when trying to update a node", err)
+		return err
 	}
 
 	return nil
 }
 
 func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr) {
-	result, err := elasticsearch.Client.Search(indexNodes, q.Build())
+	result, err := elasticsearch.Client.Search(string(constant.ESIndex().Node), q.Build())
 	if err != nil {
 		return nil, resterr.NewInternalServerError("error when trying to search documents", errors.New("database error"))
 	}
@@ -122,4 +164,20 @@ func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr)
 	}
 
 	return queryResults, nil
+}
+
+func (node *Node) Delete() resterr.RestErr {
+	filter := bson.M{"_id": node.ID}
+
+	// TODO: Abstract MongoDB operations.
+	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+	}
+	err = elasticsearch.Client.Delete(string(constant.ESIndex().Node), node.ID)
+	if err != nil {
+		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+	}
+
+	return nil
 }

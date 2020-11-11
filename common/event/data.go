@@ -1,21 +1,20 @@
 package event
 
 type NodeCreatedData struct {
-	ProfileUrl    string   `json:"profileUrl"`
-	LinkedSchemas []string `json:"linkedSchemas"`
-	Version       int32    `json:"version"`
+	ProfileURL string `json:"profile_url"`
+	Version    int32  `json:"version"`
 }
 
 type NodeValidatedData struct {
-	ProfileUrl  string `json:"profileUrl"`
-	ProfileHash string `json:"profileHash"`
-	ProfileStr  string `json:"profileStr"`
-	LastChecked int64  `json:"lastChecked"`
-	Version     int32  `json:"version"`
+	ProfileURL    string `json:"profile_url"`
+	ProfileHash   string `json:"profile_hash"`
+	ProfileStr    string `json:"profile_str"`
+	LastValidated int64  `json:"last_validated"`
+	Version       int32  `json:"version"`
 }
 
 type NodeValidationFailedData struct {
-	ProfileUrl    string   `json:"profileUrl"`
-	FailedReasons []string `json:"failedReasons"`
-	Version       int32    `json:"version"`
+	ProfileURL     string   `json:"profile_url"`
+	FailureReasons []string `json:"failure_reasons"`
+	Version        int32    `json:"version"`
 }

@@ -18,6 +18,7 @@ type nodeControllerInterface interface {
 	Add(c *gin.Context)
 	Get(c *gin.Context)
 	Search(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type nodeController struct{}
@@ -71,11 +72,27 @@ func (cont *nodeController) Search(c *gin.Context) {
 		return
 	}
 
-	searchRes, err := service.NodeService.SearchNode(&query)
+	searchRes, err := service.NodeService.Search(&query)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
 	c.JSON(http.StatusOK, searchRes.Marshall())
+}
+
+func (cont *nodeController) Delete(c *gin.Context) {
+	nodeId, err := cont.getNodeId(c.Params)
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	err = service.NodeService.Delete(nodeId)
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

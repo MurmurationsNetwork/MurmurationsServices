@@ -11,37 +11,39 @@ type respond struct {
 }
 
 type addNodeRespond struct {
-	NodeID      string `json:"nodeId,omitempty"`
-	LastChecked int64  `json:"lastChecked,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 }
 
 type getNodeRespond struct {
-	ID            string              `json:"_id,omitempty"`
-	ProfileUrl    string              `json:"profileUrl,omitempty"`
-	ProfileHash   *string             `json:"profileHash,omitempty"`
-	LinkedSchemas []string            `json:"linkedSchemas,omitempty"`
-	Status        constant.NodeStatus `json:"status,omitempty"`
-	LastChecked   int64               `json:"lastChecked,omitempty"`
-	FailedReasons *[]string           `json:"failedReasons,omitempty"`
+	ID             string                  `json:"node_id,omitempty"`
+	ProfileURL     string                  `json:"profile_url,omitempty"`
+	ProfileHash    *string                 `json:"profile_hash,omitempty"`
+	Status         constant.NodeStatusType `json:"status,omitempty"`
+	LastValidated  *int64                  `json:"last_validated,omitempty"`
+	FailureReasons *[]string               `json:"failure_reasons,omitempty"`
 }
 
 type searchNodeRespond struct {
-	ProfileUrl  string `json:"profileUrl,omitempty"`
-	LastChecked int64  `json:"lastChecked,omitempty"`
+	ProfileURL    string `json:"profile_url,omitempty"`
+	LastValidated *int64 `json:"last_validated,omitempty"`
 }
 
 func (node *Node) AddNodeRespond() interface{} {
 	res := addNodeRespond{
-		NodeID:      node.ID,
-		LastChecked: node.LastChecked,
+		NodeID: node.ID,
 	}
 	return respond{Data: res}
 }
 
 func (node *Node) GetNodeRespond() interface{} {
-	if node.Status != constant.ValidationFailed {
-		node.FailedReasons = nil
+	if node.Status != constant.NodeStatus().Posted {
+		node.ProfileHash = nil
+		node.LastValidated = nil
 	}
+	if node.Status != constant.NodeStatus().ValidationFailed && node.Status != constant.NodeStatus().PostFailed {
+		node.FailureReasons = nil
+	}
+
 	nodeJson, _ := json.Marshal(node)
 	var res getNodeRespond
 	json.Unmarshal(nodeJson, &res)

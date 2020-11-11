@@ -1,7 +1,6 @@
 package node
 
 type Node struct {
-	ProfileUrl    string   `json:"profileUrl"`
-	LinkedSchemas []string `json:"linkedSchemas"`
-	Version       int32    `json:"version"`
+	ProfileURL string `json:"profile_url"`
+	Version    int32  `json:"version"`
 }
