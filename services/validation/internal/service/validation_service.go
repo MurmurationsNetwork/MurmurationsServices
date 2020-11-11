@@ -32,9 +32,9 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	}
 
 	// Validate against the default schema.
-	failedReasons := validateAgainstSchemas([]string{"default-v1"}, document)
-	if len(failedReasons) != 0 {
-		sendNodeValidationFailedEvent(node, failedReasons)
+	FailureReasons := validateAgainstSchemas([]string{"default-v1"}, document)
+	if len(FailureReasons) != 0 {
+		sendNodeValidationFailedEvent(node, FailureReasons)
 		return
 	}
 
@@ -45,9 +45,9 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	}
 
 	// Validate against schemes specify inside the profile data.
-	failedReasons = validateAgainstSchemas(linkedSchemas, document)
-	if len(failedReasons) != 0 {
-		sendNodeValidationFailedEvent(node, failedReasons)
+	FailureReasons = validateAgainstSchemas(linkedSchemas, document)
+	if len(FailureReasons) != 0 {
+		sendNodeValidationFailedEvent(node, FailureReasons)
 		return
 	}
 
@@ -94,7 +94,7 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 }
 
 func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLoader) []string {
-	failedReasons := []string{}
+	FailureReasons := []string{}
 
 	for _, linkedSchema := range linkedSchemas {
 		// TODO: Wait for library.
@@ -102,31 +102,31 @@ func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLo
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
-			failedReasons = append(failedReasons, "Could not read from schema: "+schemaURL)
+			FailureReasons = append(FailureReasons, "Could not read from schema: "+schemaURL)
 			continue
 		}
 
 		result, err := schema.Validate(document)
 		if err != nil {
-			failedReasons = append(failedReasons, "Error when trying to validate document: ", err.Error())
+			FailureReasons = append(FailureReasons, "Error when trying to validate document: ", err.Error())
 			continue
 		}
 
 		if !result.Valid() {
-			failedReasons = append(failedReasons, parseValidateError(linkedSchema, result.Errors())...)
+			FailureReasons = append(FailureReasons, parseValidateError(linkedSchema, result.Errors())...)
 		}
 	}
 
-	return failedReasons
+	return FailureReasons
 }
 
 func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) []string {
-	failedReasons := make([]string, 0)
+	FailureReasons := make([]string, 0)
 	for _, desc := range resultErrors {
 		// Output string: "demo-v1.(root): url is required"
-		failedReasons = append(failedReasons, schema+"."+desc.String())
+		FailureReasons = append(FailureReasons, schema+"."+desc.String())
 	}
-	return failedReasons
+	return FailureReasons
 }
 
 func getJSONStr(source string) (string, error) {
@@ -142,10 +142,10 @@ func getJSONStr(source string) (string, error) {
 	return buffer.String(), nil
 }
 
-func sendNodeValidationFailedEvent(node *node.Node, failedReasons []string) {
+func sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
 	event.NewNodeValidationFailedPublisher(nats.Client()).Publish(event.NodeValidationFailedData{
-		ProfileURL:    node.ProfileURL,
-		FailedReasons: failedReasons,
-		Version:       node.Version,
+		ProfileURL:     node.ProfileURL,
+		FailureReasons: FailureReasons,
+		Version:        node.Version,
 	})
 }

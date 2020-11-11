@@ -14,7 +14,7 @@ type NodeValidatedData struct {
 }
 
 type NodeValidationFailedData struct {
-	ProfileURL    string   `json:"profile_url"`
-	FailedReasons []string `json:"failure_reasons"`
-	Version       int32    `json:"version"`
+	ProfileURL     string   `json:"profile_url"`
+	FailureReasons []string `json:"failure_reasons"`
+	Version        int32    `json:"version"`
 }
