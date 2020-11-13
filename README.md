@@ -3,6 +3,8 @@
 <h1>Murmurations Services</h1>
 </div>
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/MurmurationsNetwork/MurmurationsServices)](https://goreportcard.com/report/github.com/MurmurationsNetwork/MurmurationsServices)
+
 ## Run locally
 
 *Prerequisite*
