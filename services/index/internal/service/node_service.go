@@ -1,10 +1,13 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
@@ -90,7 +93,20 @@ func (s *nodesService) Search(query *query.EsQuery) (query.QueryResults, resterr
 
 func (s *nodesService) Delete(nodeId string) resterr.RestErr {
 	dao := node.Node{ID: nodeId}
-	err := dao.Delete()
+
+	err := dao.Get()
+	if err != nil {
+		return err
+	}
+
+	// TODO: Maybe we should avoid network requests in the index server?
+	var networkErr error
+	_, networkErr = httputil.GetByte(*&dao.ProfileURL)
+	if networkErr == nil {
+		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists."))
+	}
+
+	err = dao.Delete()
 	if err != nil {
 		return err
 	}
