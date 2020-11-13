@@ -4,7 +4,7 @@ metadata:
   name: index-es-cluster
 spec:
   serviceName: index-es
-  replicas: 1
+  replicas: {{ .Values.indexES.replicas }}
   selector:
     matchLabels:
       app: index-es
@@ -47,20 +47,3 @@ spec:
         command: ["sh", "-c", "ulimit -n 65536"]
         securityContext:
           privileged: true
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: index-es
-spec:
-  selector:
-    app: index-es
-  # Headless service
-  clusterIP: None
-  ports:
-    - name: rest
-      protocol: TCP
-      port: 9200
-    - name: inter-node
-      protocol: TCP
-      port: 9300

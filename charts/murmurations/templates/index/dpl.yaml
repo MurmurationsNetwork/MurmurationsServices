@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: validation
+  name: {{ template "murmurations.index" . }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.index.replicas }}
   selector:
     matchLabels:
-      app: validation
+      app: index
   template:
     metadata:
       labels:
-        app: validation
+        app: index
     spec:
       containers:
-        - name: validation
-          image: {{ .Values.validationServiceImage }}
+        - name: index
+          image: {{ .Values.indexServiceImage }}
           volumeMounts:
-            - mountPath: /src/validation
+            - mountPath: /src/index
               name: source-path
           env:
             - name: NATS_CLUSTER_ID
@@ -25,6 +25,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: MONGO_URI
+              value: 'mongodb://index-mongo:27017'
+            - name: ELASTICSEARCH_URL
+              value: 'http://index-es:9200'
             - name: NATS_URL
               value: 'http://nats:4222'
           livenessProbe:
@@ -38,15 +42,3 @@ spec:
         - name: source-path
           hostPath:
             path: {{ .Values.sourcepath }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: validation
-spec:
-  selector:
-    app: validation
-  ports:
-    - name: validation
-      protocol: TCP
-      port: 8080
