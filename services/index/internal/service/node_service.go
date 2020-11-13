@@ -103,7 +103,7 @@ func (s *nodesService) Delete(nodeId string) resterr.RestErr {
 	var networkErr error
 	_, networkErr = httputil.GetByte(*&dao.ProfileURL)
 	if networkErr == nil {
-		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists."))
+		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists for node_id: %s", nodeId))
 	}
 
 	err = dao.Delete()
