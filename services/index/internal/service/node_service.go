@@ -100,9 +100,8 @@ func (s *nodesService) Delete(nodeId string) resterr.RestErr {
 	}
 
 	// TODO: Maybe we should avoid network requests in the index server?
-	var networkErr error
-	_, networkErr = httputil.GetByte(*&dao.ProfileURL)
-	if networkErr == nil {
+	isValid := httputil.IsValidURL(*&dao.ProfileURL)
+	if isValid {
 		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists for node_id: %s", nodeId))
 	}
 

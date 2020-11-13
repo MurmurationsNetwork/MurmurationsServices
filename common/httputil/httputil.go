@@ -21,6 +21,7 @@ func GetByte(url string) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
+	defer resp.Body.Close()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -28,4 +29,18 @@ func GetByte(url string) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func IsValidURL(url string) bool {
+	resp, err := client.Get(url)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false
+	}
+
+	return true
 }
