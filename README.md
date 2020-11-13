@@ -16,6 +16,14 @@
 
 5. Run `make dev` to start services.
 
+Note:
+
+If you keep getting `503 Service Temporarily Unavailable`. Please run the following command and install NGINX Ingress Controller again.
+
+```
+kubectl delete deploy ingress-nginx-controller -n ingress-nginx
+```
+
 ## Directory Layout
 
 * **common** contains packages that shared across different services.

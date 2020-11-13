@@ -1,5 +1,7 @@
 index:
   replicas: 1
+  service:
+    port: 8080
 
 indexES:
   replicas: 1
@@ -15,3 +17,6 @@ nats:
 
 validation:
   replicas: 1
+  service:
+    port: 8080
+
