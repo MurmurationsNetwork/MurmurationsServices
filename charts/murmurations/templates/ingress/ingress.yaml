@@ -13,5 +13,5 @@ spec:
         paths:
           - path: /v1(/|$)(.*)
             backend:
-              serviceName: index
+              serviceName: {{ template "murmurations.index" . }}
               servicePort: 8080

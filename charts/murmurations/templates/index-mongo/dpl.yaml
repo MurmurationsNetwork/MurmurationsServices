@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: index-mongo
 spec:
-  replicas: 1
+  replicas: {{ .Values.indexMongo.replicas }}
   selector:
     matchLabels:
       app: index-mongo
@@ -15,15 +15,3 @@ spec:
       containers:
         - name: index-mongo
           image: mongo
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: index-mongo
-spec:
-  selector:
-    app: index-mongo
-  ports:
-    - name: db
-      protocol: TCP
-      port: 27017
