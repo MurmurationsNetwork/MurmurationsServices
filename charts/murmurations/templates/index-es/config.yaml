@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-es-config
+data:
+  cluster.name: index-service-es
+  discovery.seed_hosts: "index-es-cluster-0.index-es"
+  cluster.initial_master_nodes: "index-es-cluster-0"
+  ES_JAVA_OPTS: "-Xms512m -Xmx512m"

@@ -1,4 +1,3 @@
-# Ref: https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,9 +14,9 @@ spec:
     spec:
       containers:
         - name: index-kibana
-          image: docker.elastic.co/kibana/kibana:7.9.3
-          env:
-            - name: ELASTICSEARCH_HOSTS
-              value: http://index-es:9200
+          image: 'docker.elastic.co/kibana/kibana:7.9.3'
           ports:
-          - containerPort: 5601
+            - containerPort: 5601
+          envFrom:
+            - configMapRef:
+                name: index-kibana-config
