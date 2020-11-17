@@ -30,7 +30,7 @@ func NewGeoDistanceQuery(name string) *elastic.GeoDistanceQuery {
 
 func NewTextQuery(name, text string) *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
-	q.Should(elastic.NewMatchQuery(name, text))
+	q.Should(elastic.NewMatchQuery(name, text).Fuzziness("AUTO"))
 	q.Should(elastic.NewRegexpQuery(name, ".*"+strings.ToLower(text)+".*"))
 	return q
 }
