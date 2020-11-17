@@ -18,19 +18,6 @@ spec:
           volumeMounts:
             - mountPath: /src/index
               name: source-path
-          env:
-            - name: NATS_CLUSTER_ID
-              value: murmurations
-            - name: NATS_CLIENT_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: MONGO_URI
-              value: 'mongodb://index-mongo:27017'
-            - name: ELASTICSEARCH_URL
-              value: 'http://index-es:9200'
-            - name: NATS_URL
-              value: 'http://nats:4222'
           livenessProbe:
             httpGet:
               path: /ping
@@ -38,6 +25,14 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 20
             failureThreshold: 3
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: index-config
       volumes:
         - name: source-path
           hostPath:
