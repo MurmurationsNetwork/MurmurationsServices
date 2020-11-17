@@ -1,10 +1,13 @@
 package elasticsearch
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+)
 
 var indices = []elastic.Index{
 	{
-		Name: "nodes",
+		Name: constant.ESIndex.Node,
 		Body: `{
 			"mappings":{
 			   "dynamic":"false",
