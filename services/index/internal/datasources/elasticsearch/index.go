@@ -1,21 +1,11 @@
 package elasticsearch
 
-import (
-	"context"
+import "github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/olivere/elastic"
-)
-
-type index struct {
-	name constant.ESIndexType
-	body string
-}
-
-var indices = []index{
+var indices = []elastic.Index{
 	{
-		name: constant.ESIndex().Node,
-		body: `{
+		Name: "nodes",
+		Body: `{
 			"mappings":{
 			   "dynamic":"false",
 			   "_source":{
@@ -58,23 +48,4 @@ var indices = []index{
 			}
 		 }`,
 	},
-}
-
-func createMappings(client *elastic.Client) error {
-	for _, index := range indices {
-		exists, err := client.IndexExists(string(index.name)).Do(context.Background())
-		if err != nil {
-			return err
-		}
-		if !exists {
-			createIndex, err := client.CreateIndex(string(index.name)).BodyString(index.body).Do(context.Background())
-			if err != nil {
-				return err
-			}
-			if !createIndex.Acknowledged {
-				return err
-			}
-		}
-	}
-	return nil
 }

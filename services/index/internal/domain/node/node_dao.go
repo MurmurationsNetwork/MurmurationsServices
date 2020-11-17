@@ -7,11 +7,11 @@ import (
 	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/elasticsearch"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/mongo/nodes_db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 	"go.mongodb.org/mongo-driver/bson"
@@ -85,7 +85,7 @@ func (node *Node) Update() error {
 		profileJSON["profile_url"] = node.ProfileURL
 		profileJSON["last_validated"] = node.LastValidated
 
-		_, err := elasticsearch.Client.IndexWithID(string(constant.ESIndex().Node), node.ID, profileJSON)
+		_, err := elastic.Client.IndexWithID(constant.ESIndex().Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
 			err = node.setPostFailed()
@@ -102,7 +102,7 @@ func (node *Node) Update() error {
 	}
 
 	if node.Status == constant.NodeStatus().ValidationFailed {
-		err := elasticsearch.Client.Delete(string(constant.ESIndex().Node), node.ID)
+		err := elastic.Client.Delete(constant.ESIndex().Node, node.ID)
 		if err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func (node *Node) setPosted() error {
 }
 
 func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr) {
-	result, err := elasticsearch.Client.Search(string(constant.ESIndex().Node), q.Build())
+	result, err := elastic.Client.Search(constant.ESIndex().Node, q.Build())
 	if err != nil {
 		return nil, resterr.NewInternalServerError("error when trying to search documents", errors.New("database error"))
 	}
@@ -174,7 +174,7 @@ func (node *Node) Delete() resterr.RestErr {
 	if err != nil {
 		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
 	}
-	err = elasticsearch.Client.Delete(string(constant.ESIndex().Node), node.ID)
+	err = elastic.Client.Delete(constant.ESIndex().Node, node.ID)
 	if err != nil {
 		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
 	}

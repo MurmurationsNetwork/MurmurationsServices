@@ -20,10 +20,8 @@ func NodeStatus() *nodeStatus {
 	}
 }
 
-type ESIndexType string
-
 type esIndex struct {
-	Node ESIndexType
+	Node string
 }
 
 func ESIndex() *esIndex {
