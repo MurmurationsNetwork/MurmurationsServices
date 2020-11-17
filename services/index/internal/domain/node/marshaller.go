@@ -15,12 +15,12 @@ type addNodeRespond struct {
 }
 
 type getNodeRespond struct {
-	ID             string                  `json:"node_id,omitempty"`
-	ProfileURL     string                  `json:"profile_url,omitempty"`
-	ProfileHash    *string                 `json:"profile_hash,omitempty"`
-	Status         constant.NodeStatusType `json:"status,omitempty"`
-	LastValidated  *int64                  `json:"last_validated,omitempty"`
-	FailureReasons *[]string               `json:"failure_reasons,omitempty"`
+	ID             string    `json:"node_id,omitempty"`
+	ProfileURL     string    `json:"profile_url,omitempty"`
+	ProfileHash    *string   `json:"profile_hash,omitempty"`
+	Status         string    `json:"status,omitempty"`
+	LastValidated  *int64    `json:"last_validated,omitempty"`
+	FailureReasons *[]string `json:"failure_reasons,omitempty"`
 }
 
 type searchNodeRespond struct {
@@ -36,11 +36,11 @@ func (node *Node) AddNodeRespond() interface{} {
 }
 
 func (node *Node) GetNodeRespond() interface{} {
-	if node.Status != constant.NodeStatus().Posted {
+	if node.Status != constant.NodeStatus.Posted {
 		node.ProfileHash = nil
 		node.LastValidated = nil
 	}
-	if node.Status != constant.NodeStatus().ValidationFailed && node.Status != constant.NodeStatus().PostFailed {
+	if node.Status != constant.NodeStatus.ValidationFailed && node.Status != constant.NodeStatus.PostFailed {
 		node.FailureReasons = nil
 	}
 

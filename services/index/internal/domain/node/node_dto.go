@@ -1,17 +1,16 @@
 package node
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 )
 
 type Node struct {
-	ID             string                  `json:"node_id" bson:"_id,omitempty"`
-	ProfileURL     string                  `json:"profile_url" bson:"profile_url,omitempty"`
-	ProfileHash    *string                 `json:"profile_hash" bson:"profile_hash,omitempty"`
-	Status         constant.NodeStatusType `json:"status" bson:"status,omitempty"`
-	LastValidated  *int64                  `json:"last_validated" bson:"last_validated,omitempty"`
-	FailureReasons *[]string               `json:"failure_reasons" bson:"failure_reasons,omitempty"`
+	ID             string    `json:"node_id" bson:"_id,omitempty"`
+	ProfileURL     string    `json:"profile_url" bson:"profile_url,omitempty"`
+	ProfileHash    *string   `json:"profile_hash" bson:"profile_hash,omitempty"`
+	Status         string    `json:"status" bson:"status,omitempty"`
+	LastValidated  *int64    `json:"last_validated" bson:"last_validated,omitempty"`
+	FailureReasons *[]string `json:"failure_reasons" bson:"failure_reasons,omitempty"`
 
 	Version *int32 `json:"-" bson:"version,omitempty"`
 
