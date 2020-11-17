@@ -26,7 +26,7 @@ type nodeController struct{}
 func (cont *nodeController) getNodeId(params gin.Params) (string, resterr.RestErr) {
 	nodeId, found := params.Get("nodeId")
 	if !found {
-		return "", resterr.NewBadRequestError("invalid node id")
+		return "", resterr.NewBadRequestError("Invalid node_id.")
 	}
 	return nodeId, nil
 }
@@ -34,7 +34,7 @@ func (cont *nodeController) getNodeId(params gin.Params) (string, resterr.RestEr
 func (cont *nodeController) Add(c *gin.Context) {
 	var node node.Node
 	if err := c.ShouldBindJSON(&node); err != nil {
-		restErr := resterr.NewBadRequestError("invalid json body")
+		restErr := resterr.NewBadRequestError("Invalid JSON body.")
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
@@ -67,7 +67,7 @@ func (cont *nodeController) Get(c *gin.Context) {
 func (cont *nodeController) Search(c *gin.Context) {
 	var query query.EsQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
-		restErr := resterr.NewBadRequestError("invalid json body")
+		restErr := resterr.NewBadRequestError("Invalid JSON body.")
 		c.JSON(restErr.Status(), restErr)
 		return
 	}

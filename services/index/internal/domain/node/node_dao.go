@@ -30,8 +30,8 @@ func (node *Node) Add() resterr.RestErr {
 
 	result, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update, opt)
 	if err != nil {
-		logger.Error("error when trying to create a node", err)
-		return resterr.NewInternalServerError("error when tying to add a node", errors.New("database error"))
+		logger.Error("Error when trying to create a node", err)
+		return resterr.NewInternalServerError("Error when trying to add a node.", errors.New("database error"))
 	}
 
 	var updated Node
@@ -49,14 +49,14 @@ func (node *Node) Get() resterr.RestErr {
 		if result.Err() == mongo.ErrNoDocuments {
 			return resterr.NewNotFoundError(fmt.Sprintf("Could not find node_id: %s", node.ID))
 		}
-		logger.Error("error when trying to find a node", result.Err())
-		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
+		logger.Error("Error when trying to find a node", result.Err())
+		return resterr.NewInternalServerError("Error when trying to find a node.", errors.New("database error"))
 	}
 
 	err := result.Decode(&node)
 	if err != nil {
-		logger.Error("error when trying to parse database response", result.Err())
-		return resterr.NewInternalServerError("error when tying to find a node", errors.New("database error"))
+		logger.Error("Error when trying to parse database response", result.Err())
+		return resterr.NewInternalServerError("Error when trying to find a node.", errors.New("database error"))
 	}
 
 	return nil
@@ -146,7 +146,7 @@ func (node *Node) setPosted() error {
 func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr) {
 	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build())
 	if err != nil {
-		return nil, resterr.NewInternalServerError("error when trying to search documents", errors.New("database error"))
+		return nil, resterr.NewInternalServerError("Error when trying to search documents.", errors.New("database error"))
 	}
 
 	queryResults := make(query.QueryResults, result.TotalHits())
@@ -154,13 +154,13 @@ func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr)
 		bytes, _ := hit.Source.MarshalJSON()
 		var result query.QueryResult
 		if err := json.Unmarshal(bytes, &result); err != nil {
-			return nil, resterr.NewInternalServerError("error when trying to parse response", errors.New("database error"))
+			return nil, resterr.NewInternalServerError("Error when trying to parse response.", errors.New("database error"))
 		}
 		queryResults[index] = result
 	}
 
 	if len(queryResults) == 0 {
-		return nil, resterr.NewNotFoundError("no items found matching given criteria")
+		return nil, resterr.NewNotFoundError("No items found matching given criteria.")
 	}
 
 	return queryResults, nil
@@ -172,11 +172,11 @@ func (node *Node) Delete() resterr.RestErr {
 	// TODO: Abstract MongoDB operations.
 	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
 	if err != nil {
-		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
 	}
 	err = elastic.Client.Delete(constant.ESIndex.Node, node.ID)
 	if err != nil {
-		return resterr.NewInternalServerError("error when trying to delete a node", errors.New("database error"))
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
 	}
 
 	return nil
