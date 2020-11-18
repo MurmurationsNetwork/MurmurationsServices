@@ -8,7 +8,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/datasource/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
 	"github.com/xeipuuv/gojsonschema"
 )

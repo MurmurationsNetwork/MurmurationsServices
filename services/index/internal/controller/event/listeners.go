@@ -5,7 +5,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 	"github.com/nats-io/stan.go"

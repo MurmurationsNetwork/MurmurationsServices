@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/elasticsearch"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/elasticsearch"
 	"github.com/gin-gonic/gin"
 )
 
