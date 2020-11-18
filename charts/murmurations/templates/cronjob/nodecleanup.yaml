@@ -10,9 +10,9 @@ spec:
         spec:
           containers:
             - name: nodecleanup
-              image: {{ .Values.cronjobImage }}
+              image: {{ .Values.cronjobServiceImage }}
               imagePullPolicy: Never
-              command : ["go", "run", "./services/cronjob/cmd/nodecleanup"]
+              args : ["./services/cronjob/cmd/nodecleanup"]
               volumeMounts:
                 - mountPath: /src/cronjob
                   name: source-path

@@ -1,4 +1,4 @@
-FROM golang:1.15-buster
+FROM golang:alpine
 
 WORKDIR /src/cronjob
 
@@ -7,4 +7,4 @@ COPY go.sum .
 
 RUN go get -v -t -d ./...
 
-CMD []
+ENTRYPOINT ["go", "run"]
