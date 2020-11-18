@@ -1,0 +1,10 @@
+FROM golang:1.15-buster
+
+WORKDIR /src/cronjob
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go get -v -t -d ./...
+
+CMD []

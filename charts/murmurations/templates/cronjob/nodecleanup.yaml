@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleanup
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleanup
+              image: {{ .Values.cronjobImage }}
+              imagePullPolicy: Never
+              command : ["go", "run", "./services/cronjob/cmd/nodecleanup"]
+              volumeMounts:
+                - mountPath: /src/cronjob
+                  name: source-path
+              envFrom:
+                - configMapRef:
+                    name: cronjob-config
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.sourcepath }}
+          restartPolicy: Never
