@@ -12,15 +12,8 @@ spec:
             - name: nodecleanup
               image: {{ .Values.cronjobServiceImage }}
               imagePullPolicy: Never
-              args : ["./services/cronjob/cmd/nodecleanup"]
-              volumeMounts:
-                - mountPath: /src/cronjob
-                  name: source-path
+              command: ["/bin/nodecleanup"]
               envFrom:
                 - configMapRef:
                     name: cronjob-config
-          volumes:
-            - name: source-path
-              hostPath:
-                path: {{ .Values.sourcepath }}
           restartPolicy: Never
