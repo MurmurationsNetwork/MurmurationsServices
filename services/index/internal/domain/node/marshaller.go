@@ -36,11 +36,11 @@ func (node *Node) AddNodeRespond() interface{} {
 }
 
 func (node *Node) GetNodeRespond() interface{} {
-	if node.Status != constant.NodeStatus.Posted {
+	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted {
 		node.ProfileHash = nil
 		node.LastValidated = nil
 	}
-	if node.Status != constant.NodeStatus.ValidationFailed && node.Status != constant.NodeStatus.PostFailed {
+	if node.Status != constant.NodeStatus.ValidationFailed {
 		node.FailureReasons = nil
 	}
 

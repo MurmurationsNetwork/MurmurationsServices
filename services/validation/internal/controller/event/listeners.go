@@ -2,7 +2,6 @@ package event
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -19,10 +18,6 @@ var HandleNodeCreated = event.NewNodeCreatedListener(nats.Client(), qgroup, func
 		logger.Error("error when trying to parsing nodeCreatedData", err)
 		return
 	}
-
-	fmt.Println("==================================")
-	fmt.Printf("nodeCreatedData %+v \n", nodeCreatedData)
-	fmt.Println("==================================")
 
 	service.ValidationService.ValidateNode(&node.Node{
 		ProfileURL: nodeCreatedData.ProfileURL,

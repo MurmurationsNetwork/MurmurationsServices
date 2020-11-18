@@ -2,7 +2,6 @@ package event
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -19,10 +18,6 @@ var HandleNodeValidated = event.NewNodeValidatedListener(nats.Client(), qgroup, 
 		logger.Error("error when trying to parse nodeValidatedData", err)
 		return
 	}
-
-	fmt.Println("==================================")
-	fmt.Printf("nodeValidatedData %+v \n", nodeValidatedData)
-	fmt.Println("==================================")
 
 	err = service.NodeService.SetNodeValid(node.Node{
 		ProfileURL:    nodeValidatedData.ProfileURL,
@@ -45,10 +40,6 @@ var HandleNodeValidationFailed = event.NewNodeValidationFailedListener(nats.Clie
 		logger.Error("error when trying to parse nodeValidationFailedData", err)
 		return
 	}
-
-	fmt.Println("==================================")
-	fmt.Printf("nodeValidationFailedData %+v \n", nodeValidationFailedData)
-	fmt.Println("==================================")
 
 	err = service.NodeService.SetNodeInvalid(node.Node{
 		ProfileURL:     nodeValidationFailedData.ProfileURL,
