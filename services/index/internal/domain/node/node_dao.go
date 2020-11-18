@@ -92,13 +92,12 @@ func (node *Node) Update() error {
 			if err != nil {
 				return err
 			}
-			return nil
-		}
-
-		// Successfully parse into ElasticSearch, set the statue to 'posted'.
-		err = node.setPosted()
-		if err != nil {
-			return err
+		} else {
+			// Successfully parse into ElasticSearch, set the statue to 'posted'.
+			err = node.setPosted()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
