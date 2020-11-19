@@ -9,7 +9,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/datasources/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 )

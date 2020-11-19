@@ -1,0 +1,19 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleanup
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleanup
+              image: {{ .Values.cronjobServiceImage }}
+              imagePullPolicy: Never
+              command: ["/bin/nodecleanup"]
+              envFrom:
+                - configMapRef:
+                    name: cronjob-config
+          restartPolicy: Never

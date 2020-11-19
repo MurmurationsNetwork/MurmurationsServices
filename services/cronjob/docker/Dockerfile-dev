@@ -1,0 +1,10 @@
+FROM golang:alpine AS build
+
+WORKDIR /src
+ADD . /src
+RUN CGO_ENABLED=0 go build -o /bin/nodecleanup ./services/cronjob/cmd/nodecleanup
+
+FROM scratch
+COPY --from=build /bin/nodecleanup /bin/nodecleanup
+
+ENTRYPOINT ["/bin/nodecleanup"]
