@@ -1,8 +1,12 @@
 package query
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+import (
+	"math"
 
-func (q *EsQuery) Build() elastic.Query {
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+)
+
+func (q *EsQuery) Build() *elastic.Query {
 	query := elastic.NewBoolQuery()
 
 	subQueries := elastic.NewQueries()
@@ -30,5 +34,9 @@ func (q *EsQuery) Build() elastic.Query {
 
 	query.Must(subQueries...).Filter(filters...)
 
-	return query
+	return &elastic.Query{
+		Query: query,
+		From:  math.Max(0, q.PageSize*(q.Page-1)),
+		Size:  math.Min(500, math.Max(1, q.PageSize)),
+	}
 }

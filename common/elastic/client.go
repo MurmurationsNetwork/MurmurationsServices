@@ -66,10 +66,12 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 	return result, nil
 }
 
-func (c *esClient) Search(index string, query elastic.Query) (*elastic.SearchResult, error) {
+func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 	result, err := c.client.Search(index).
-		Query(query).
+		Query(q.Query).
+		From(int(q.From)).
+		Size(int(q.Size)).
 		RestTotalHitsAsInt(true).
 		Do(ctx)
 	if err != nil {
