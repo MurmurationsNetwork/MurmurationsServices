@@ -8,8 +8,8 @@ import (
 
 type Query struct {
 	Query elastic.Query
-	From  float64
-	Size  float64
+	From  int64
+	Size  int64
 }
 
 func NewQueries() []elastic.Query {

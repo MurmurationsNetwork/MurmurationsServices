@@ -12,8 +12,8 @@ type EsQuery struct {
 	Region   *string `form:"region"`
 	Country  *string `form:"country"`
 
-	Page     float64 `form:"page,default=0"`
-	PageSize float64 `form:"page_size,default=30"`
+	Page     int64 `form:"page,default=0"`
+	PageSize int64 `form:"page_size,default=30"`
 }
 
 type QueryResult map[string]interface{}

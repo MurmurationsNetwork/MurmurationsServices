@@ -1,9 +1,8 @@
 package query
 
 import (
-	"math"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 )
 
 func (q *EsQuery) Build() *elastic.Query {
@@ -36,7 +35,7 @@ func (q *EsQuery) Build() *elastic.Query {
 
 	return &elastic.Query{
 		Query: query,
-		From:  math.Max(0, q.PageSize*(q.Page-1)),
-		Size:  math.Min(500, math.Max(1, q.PageSize)),
+		From:  pagination.From(q.Page, q.PageSize),
+		Size:  pagination.Size(q.PageSize),
 	}
 }

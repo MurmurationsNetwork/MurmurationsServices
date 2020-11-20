@@ -167,7 +167,7 @@ func (node *Node) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr
 	return &query.QueryResults{
 		Result:          queryResults,
 		NumberOfResults: result.Hits.TotalHits,
-		TotalPages:      pagination.GetTotalPages(result.Hits.TotalHits, q.PageSize),
+		TotalPages:      pagination.TotalPages(result.Hits.TotalHits, q.PageSize),
 	}, nil
 }
 
