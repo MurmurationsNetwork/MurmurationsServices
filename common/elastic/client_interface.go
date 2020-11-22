@@ -19,7 +19,7 @@ type esClientInterface interface {
 	CreateMappings([]Index) error
 	Index(string, interface{}) (*elastic.IndexResponse, error)
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
-	Search(string, elastic.Query) (*elastic.SearchResult, error)
+	Search(string, *Query) (*elastic.SearchResult, error)
 	Delete(string, string) error
 }
 

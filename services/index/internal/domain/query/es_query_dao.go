@@ -1,8 +1,11 @@
 package query
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
+)
 
-func (q *EsQuery) Build() elastic.Query {
+func (q *EsQuery) Build() *elastic.Query {
 	query := elastic.NewBoolQuery()
 
 	subQueries := elastic.NewQueries()
@@ -30,5 +33,9 @@ func (q *EsQuery) Build() elastic.Query {
 
 	query.Must(subQueries...).Filter(filters...)
 
-	return query
+	return &elastic.Query{
+		Query: query,
+		From:  pagination.From(q.Page, q.PageSize),
+		Size:  pagination.Size(q.PageSize),
+	}
 }

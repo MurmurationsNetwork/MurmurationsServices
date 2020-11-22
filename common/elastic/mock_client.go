@@ -22,7 +22,7 @@ func (c *mockClient) IndexWithID(index string, id string, doc interface{}) (*ela
 	return nil, nil
 }
 
-func (c *mockClient) Search(index string, query elastic.Query) (*elastic.SearchResult, error) {
+func (c *mockClient) Search(index string, query *Query) (*elastic.SearchResult, error) {
 	return nil, nil
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongoutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/mongo/nodes_db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
@@ -143,27 +144,31 @@ func (node *Node) setPosted() error {
 	return nil
 }
 
-func (node *Node) Search(q *query.EsQuery) (query.QueryResults, resterr.RestErr) {
+func (node *Node) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
 	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build())
 	if err != nil {
 		return nil, resterr.NewInternalServerError("Error when trying to search documents.", errors.New("database error"))
 	}
 
-	queryResults := make(query.QueryResults, result.TotalHits())
-	for index, hit := range result.Hits.Hits {
+	queryResults := make([]query.QueryResult, 0)
+	for _, hit := range result.Hits.Hits {
 		bytes, _ := hit.Source.MarshalJSON()
 		var result query.QueryResult
 		if err := json.Unmarshal(bytes, &result); err != nil {
 			return nil, resterr.NewInternalServerError("Error when trying to parse response.", errors.New("database error"))
 		}
-		queryResults[index] = result
+		queryResults = append(queryResults, result)
 	}
 
 	if len(queryResults) == 0 {
 		return nil, resterr.NewNotFoundError("No items found matching given criteria.")
 	}
 
-	return queryResults, nil
+	return &query.QueryResults{
+		Result:          queryResults,
+		NumberOfResults: result.Hits.TotalHits,
+		TotalPages:      pagination.TotalPages(result.Hits.TotalHits, q.PageSize),
+	}, nil
 }
 
 func (node *Node) Delete() resterr.RestErr {

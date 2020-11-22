@@ -23,7 +23,7 @@ type nodesServiceInterface interface {
 	GetNode(nodeId string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node node.Node) error
 	SetNodeInvalid(node node.Node) error
-	Search(query *query.EsQuery) (query.QueryResults, resterr.RestErr)
+	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
 	Delete(nodeId string) resterr.RestErr
 }
 
@@ -82,7 +82,7 @@ func (s *nodesService) SetNodeInvalid(node node.Node) error {
 	return nil
 }
 
-func (s *nodesService) Search(query *query.EsQuery) (query.QueryResults, resterr.RestErr) {
+func (s *nodesService) Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
 	dao := node.Node{}
 	result, err := dao.Search(query)
 	if err != nil {

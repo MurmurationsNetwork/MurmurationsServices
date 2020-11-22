@@ -6,7 +6,11 @@ import (
 	"github.com/olivere/elastic"
 )
 
-type Query elastic.Query
+type Query struct {
+	Query elastic.Query
+	From  int64
+	Size  int64
+}
 
 func NewQueries() []elastic.Query {
 	return make([]elastic.Query, 0)
