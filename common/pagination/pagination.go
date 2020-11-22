@@ -11,7 +11,7 @@ func Size(pageSize int64) int64 {
 }
 
 func TotalPages(numberOfResults int64, pageSize int64) int64 {
-	pages := math.Ceil(float64(numberOfResults / pageSize))
+	pages := math.Ceil(float64(numberOfResults) / float64(pageSize))
 	if pages == 0.0 {
 		return 1
 	}
