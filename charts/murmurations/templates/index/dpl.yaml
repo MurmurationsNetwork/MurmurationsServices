@@ -15,6 +15,13 @@ spec:
       containers:
         - name: index
           image: {{ .Values.indexServiceImage }}
+          # resources:
+          #   requests:
+          #     memory: "256Mi"
+          #     cpu: "16m"
+          #   # limits:
+          #   #   memory: "512Mi"
+          #   #   cpu: "32m"
           volumeMounts:
             - mountPath: /src/index
               name: source-path
