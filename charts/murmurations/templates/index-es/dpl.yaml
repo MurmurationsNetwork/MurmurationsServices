@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: index-es
-          image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.3'
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
           ports:
             - containerPort: 9200
               name: rest

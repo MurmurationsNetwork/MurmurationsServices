@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: cronjob-config
 data:
-  MONGO_URI: 'mongodb://index-mongo:27017'
+  MONGO_URI: mongodb://index-mongo:27017
