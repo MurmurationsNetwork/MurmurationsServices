@@ -98,7 +98,7 @@ func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLo
 	FailureReasons := []string{}
 
 	for _, linkedSchema := range linkedSchemas {
-		schemaURL := os.Getenv("SCHEMAS_URL") + "/" + linkedSchema + ".json"
+		schemaURL := getSchemaURL(linkedSchema)
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
@@ -148,4 +148,8 @@ func sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
 		FailureReasons: FailureReasons,
 		Version:        node.Version,
 	})
+}
+
+func getSchemaURL(linkedSchema string) string {
+	return os.Getenv("LIBRARY_URL") + "/schemas/" + linkedSchema + ".json"
 }
