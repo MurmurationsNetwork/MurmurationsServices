@@ -1,7 +1,6 @@
 package node
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,13 +9,11 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongoutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/mongo/nodes_db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -29,7 +26,7 @@ func (node *Node) Add() resterr.RestErr {
 	update := bson.M{"$set": node}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update, opt)
+	result, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update, opt)
 	if err != nil {
 		logger.Error("Error when trying to create a node", err)
 		return resterr.NewInternalServerError("Error when trying to add a node.", errors.New("database error"))
@@ -45,7 +42,7 @@ func (node *Node) Add() resterr.RestErr {
 func (node *Node) Get() resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
 
-	result := nodes_db.Collection.FindOne(context.Background(), filter)
+	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
 			return resterr.NewNotFoundError(fmt.Sprintf("Could not find node_id: %s", node.ID))
@@ -69,7 +66,7 @@ func (node *Node) Update() error {
 	node.Version = nil
 	update := bson.M{"$set": node}
 
-	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
 		// Update the document only if the version matches.
 		// If the version does not match, it's an expected concurrent issue.
@@ -119,7 +116,7 @@ func (node *Node) setPostFailed() error {
 	filter := bson.M{"_id": node.ID}
 	update := bson.M{"$set": node}
 
-	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
 		logger.Error("error when trying to update a node", err)
 		return err
@@ -135,7 +132,7 @@ func (node *Node) setPosted() error {
 	filter := bson.M{"_id": node.ID}
 	update := bson.M{"$set": node}
 
-	_, err := mongoutil.FindOneAndUpdate(nodes_db.Collection, filter, update)
+	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
 		logger.Error("error when trying to update a node", err)
 		return err
@@ -174,8 +171,7 @@ func (node *Node) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr
 func (node *Node) Delete() resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
 
-	// TODO: Abstract MongoDB operations.
-	_, err := nodes_db.Collection.DeleteOne(context.Background(), filter)
+	err := mongo.Client.DeleteOne(constant.MongoIndex.Node, filter)
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
 	}

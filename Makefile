@@ -1,3 +1,6 @@
+test:
+	export ENV=test && go test -v ./...
+
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
