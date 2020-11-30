@@ -1,7 +1,9 @@
 package app
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/nats"
+import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
+)
 
 func cleanup() {
-	nats.Disconnect()
+	nats.Client.Disconnect()
 }

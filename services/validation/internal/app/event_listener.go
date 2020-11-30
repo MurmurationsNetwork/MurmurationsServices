@@ -6,7 +6,7 @@ import (
 )
 
 func listenToEvents() {
-	err := event.HandleNodeCreated.Listen()
+	err := event.HandleNodeCreated().Listen()
 	if err != nil {
 		logger.Panic("error when trying to listen an event", err)
 	}

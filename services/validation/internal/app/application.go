@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/nats"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,9 +13,14 @@ var (
 	server = getServer()
 )
 
+func init() {
+	nats.Init()
+}
+
 func StartApplication() {
 	mapUrls()
 	go listen(server)
+
 	listenToEvents()
 
 	waitForShutdown()

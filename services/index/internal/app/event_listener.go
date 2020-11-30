@@ -6,11 +6,11 @@ import (
 )
 
 func listenToEvents() {
-	err := event.HandleNodeValidationFailed.Listen()
+	err := event.HandleNodeValidationFailed().Listen()
 	if err != nil {
 		logger.Panic("error when trying to listen an event", err)
 	}
-	err = event.HandleNodeValidated.Listen()
+	err = event.HandleNodeValidated().Listen()
 	if err != nil {
 		logger.Panic("error when trying to listen an event", err)
 	}

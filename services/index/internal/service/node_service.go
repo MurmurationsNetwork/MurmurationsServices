@@ -8,8 +8,8 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 )
@@ -40,7 +40,7 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 		return nil, err
 	}
 
-	event.NewNodeCreatedPublisher(nats.Client()).Publish(event.NodeCreatedData{
+	event.NewNodeCreatedPublisher(nats.Client.Client()).Publish(event.NodeCreatedData{
 		ProfileURL: node.ProfileURL,
 		Version:    *node.Version,
 	})
