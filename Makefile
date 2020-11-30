@@ -1,5 +1,5 @@
 test:
-	export ENV=test && go test -v ./...
+	export ENV=test && go test ./...
 
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward

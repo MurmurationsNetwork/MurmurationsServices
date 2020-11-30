@@ -1,7 +1,6 @@
 package nats
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -53,8 +52,6 @@ func NewClient(stanClusterID, clientID, natsURL string) error {
 		if err != nil {
 			return ErrConnectReqTimeout
 		}
-
-		fmt.Println(client)
 	}
 
 	Client.setClient(client)

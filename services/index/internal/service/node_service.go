@@ -22,7 +22,7 @@ type nodesServiceInterface interface {
 	AddNode(node node.Node) (*node.Node, resterr.RestErr)
 	GetNode(nodeId string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node node.Node) error
-	SetNodeInvalid(node node.Node) error
+	SetNodeInvalid(node *node.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
 	Delete(nodeId string) resterr.RestErr
 }
@@ -68,7 +68,7 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 	return nil
 }
 
-func (s *nodesService) SetNodeInvalid(node node.Node) error {
+func (s *nodesService) SetNodeInvalid(node *node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.ValidationFailed
 	emptystr := ""

@@ -44,7 +44,7 @@ func HandleNodeValidationFailed() event.Listener {
 			return
 		}
 
-		err = service.NodeService.SetNodeInvalid(node.Node{
+		err = service.NodeService.SetNodeInvalid(&node.Node{
 			ProfileURL:     nodeValidationFailedData.ProfileURL,
 			FailureReasons: &nodeValidationFailedData.FailureReasons,
 			Version:        &nodeValidationFailedData.Version,
