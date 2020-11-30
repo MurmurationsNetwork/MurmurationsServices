@@ -20,7 +20,7 @@ func HandleNodeValidated() event.Listener {
 			return
 		}
 
-		err = service.NodeService.SetNodeValid(node.Node{
+		err = service.NodeService.SetNodeValid(&node.Node{
 			ProfileURL:    nodeValidatedData.ProfileURL,
 			ProfileHash:   &nodeValidatedData.ProfileHash,
 			ProfileStr:    nodeValidatedData.ProfileStr,
