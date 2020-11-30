@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
@@ -97,8 +98,7 @@ func validateAgainstSchemas(linkedSchemas []string, document gojsonschema.JSONLo
 	FailureReasons := []string{}
 
 	for _, linkedSchema := range linkedSchemas {
-		// TODO: Wait for library.
-		schemaURL := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/master/schemas/" + linkedSchema + ".json"
+		schemaURL := getSchemaURL(linkedSchema)
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
@@ -148,4 +148,8 @@ func sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
 		FailureReasons: FailureReasons,
 		Version:        node.Version,
 	})
+}
+
+func getSchemaURL(linkedSchema string) string {
+	return os.Getenv("LIBRARY_URL") + "/schemas/" + linkedSchema + ".json"
 }

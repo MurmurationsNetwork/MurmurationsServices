@@ -4,6 +4,6 @@ metadata:
   name: index-config
 data:
   NATS_CLUSTER_ID: murmurations
-  MONGO_URI: 'mongodb://index-mongo:27017'
-  ELASTICSEARCH_URL: 'http://index-es:9200'
-  NATS_URL: 'http://nats:4222'
+  MONGO_URI: mongodb://index-mongo:27017
+  ELASTICSEARCH_URL: http://index-es:9200
+  NATS_URL: http://nats:4222
