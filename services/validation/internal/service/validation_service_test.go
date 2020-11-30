@@ -36,6 +36,6 @@ func TestGetLinkedSchemas(t *testing.T) {
 }
 
 func TestGetSchemaURL(t *testing.T) {
-	url := getSchemaURL("test1.json")
-	assert.Equal(t, "/schemas/test1.json.json", url)
+	url := getSchemaURL("test1")
+	assert.Equal(t, "/schemas/test1.json", url)
 }
