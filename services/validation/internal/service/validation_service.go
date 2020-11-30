@@ -9,7 +9,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -58,7 +58,7 @@ func (v *validationService) ValidateNode(node *node.Node) {
 		return
 	}
 
-	event.NewNodeValidatedPublisher(nats.Client()).Publish(event.NodeValidatedData{
+	event.NewNodeValidatedPublisher(nats.Client.Client()).Publish(event.NodeValidatedData{
 		ProfileURL:    node.ProfileURL,
 		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
 		ProfileStr:    jsonStr,
@@ -143,7 +143,7 @@ func getJSONStr(source string) (string, error) {
 }
 
 func sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
-	event.NewNodeValidationFailedPublisher(nats.Client()).Publish(event.NodeValidationFailedData{
+	event.NewNodeValidationFailedPublisher(nats.Client.Client()).Publish(event.NodeValidationFailedData{
 		ProfileURL:     node.ProfileURL,
 		FailureReasons: FailureReasons,
 		Version:        node.Version,

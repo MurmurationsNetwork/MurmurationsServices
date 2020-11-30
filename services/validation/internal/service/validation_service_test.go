@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: Not able to do unit tests.
 func TestGetLinkedSchemas(t *testing.T) {
 	_, ok := getLinkedSchemas(nil)
 	assert.Equal(t, false, ok)
@@ -25,4 +24,18 @@ func TestGetLinkedSchemas(t *testing.T) {
 
 	_, ok = getLinkedSchemas(map[string]interface{}{"linked_schemas": []string{}})
 	assert.Equal(t, false, ok)
+
+	_, ok = getLinkedSchemas(map[string]interface{}{"linked_schemas": []string{"https://ic3.dev/test2.json"}})
+	assert.Equal(t, false, ok)
+
+	_, ok = getLinkedSchemas(map[string]interface{}{"linked_schemas": []interface{}{"https://ic3.dev/test2.json"}})
+	assert.Equal(t, true, ok)
+
+	linkedSchemas, ok := getLinkedSchemas(map[string]interface{}{"linked_schemas": []interface{}{"https://ic3.dev/test2.json"}})
+	assert.Equal(t, "https://ic3.dev/test2.json", linkedSchemas[0])
+}
+
+func TestGetSchemaURL(t *testing.T) {
+	url := getSchemaURL("test1")
+	assert.Equal(t, "/schemas/test1.json", url)
 }

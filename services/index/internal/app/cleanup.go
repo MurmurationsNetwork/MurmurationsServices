@@ -1,7 +1,11 @@
 package app
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/mongo/nodes_db"
+import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
+)
 
 func cleanup() {
-	nodes_db.Disconnect()
+	mongo.Client.Disconnect()
+	nats.Client.Disconnect()
 }

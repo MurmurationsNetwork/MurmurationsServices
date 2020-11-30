@@ -2,6 +2,7 @@ package elastic
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -14,28 +15,27 @@ var (
 )
 
 type esClientInterface interface {
-	setClient(*elastic.Client)
-
 	CreateMappings([]Index) error
 	Index(string, interface{}) (*elastic.IndexResponse, error)
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
 	Search(string, *Query) (*elastic.SearchResult, error)
 	Delete(string, string) error
+
+	setClient(*elastic.Client)
 }
 
 func init() {
-	// TODO: Create test environment.
-	if true {
-		Client = &esClient{}
-	} else {
+	if os.Getenv("ENV") == "test" {
 		Client = &mockClient{}
+		return
 	}
+	Client = &esClient{}
 }
 
 func NewClient(url string) error {
 	var client *elastic.Client
 
-	if true {
+	if os.Getenv("ENV") != "test" {
 		op := func() error {
 			log := logger.GetLogger()
 

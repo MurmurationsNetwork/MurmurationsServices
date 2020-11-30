@@ -4,8 +4,9 @@ import "encoding/json"
 
 func ToJSON(s string) map[string]interface{} {
 	var raw map[string]interface{}
-	if err := json.Unmarshal([]byte(s), &raw); err != nil {
-		panic(err)
+	err := json.Unmarshal([]byte(s), &raw)
+	if err != nil {
+		return map[string]interface{}{}
 	}
 	return raw
 }

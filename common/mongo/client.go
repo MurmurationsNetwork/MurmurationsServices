@@ -1,0 +1,85 @@
+package mongo
+
+import (
+	"context"
+	"time"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/cenkalti/backoff"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+)
+
+type mongoClient struct {
+	client *mongo.Client
+	db     *mongo.Database
+}
+
+func (c *mongoClient) FindOne(collection string, filter primitive.M) *mongo.SingleResult {
+	return c.db.Collection(collection).FindOne(context.Background(), filter)
+}
+
+func (c *mongoClient) FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error) {
+	opts = append(opts, options.FindOneAndUpdate().SetReturnDocument(options.After))
+	mergedOpt := options.MergeFindOneAndUpdateOptions(opts...)
+
+	// Automatically increment the document version.
+	update["$inc"] = bson.M{"version": 1}
+
+	result := c.db.Collection(collection).FindOneAndUpdate(context.Background(), filter, update, mergedOpt)
+	if result.Err() != nil {
+		return nil, result.Err()
+	}
+
+	return result, nil
+}
+
+func (c *mongoClient) DeleteOne(collection string, filter primitive.M) error {
+	_, err := c.db.Collection(collection).DeleteOne(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *mongoClient) Ping() error {
+	op := func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		err := c.client.Ping(ctx, readpref.Primary())
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	notify := func(err error, time time.Duration) {
+		logger.Error("trying to re-connect MongoDB %s \n", err)
+	}
+
+	b := backoff.NewExponentialBackOff()
+	b.MaxElapsedTime = 2 * time.Minute
+	err := backoff.RetryNotify(op, b, notify)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *mongoClient) Disconnect() {
+	logger.Info("trying to disconnect from MongoDB")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err := c.client.Disconnect(ctx)
+	if err != nil {
+		logger.Error("error when trying to disconnect from MongoDB", err)
+	}
+}
+
+func (c *mongoClient) setClient(client *mongo.Client, dbName string) {
+	c.client = client
+	c.db = client.Database(dbName)
+}

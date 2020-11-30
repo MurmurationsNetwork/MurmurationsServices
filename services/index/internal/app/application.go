@@ -5,6 +5,8 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/elasticsearch"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/mongodb"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/nats"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,9 +15,13 @@ var (
 	server = getServer()
 )
 
-func StartApplication() {
+func init() {
 	elasticsearch.Init()
+	mongodb.Init()
+	nats.Init()
+}
 
+func StartApplication() {
 	mapUrls()
 	go listen(server)
 	listenToEvents()

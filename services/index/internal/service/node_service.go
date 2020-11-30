@@ -8,8 +8,8 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 )
@@ -21,8 +21,8 @@ var (
 type nodesServiceInterface interface {
 	AddNode(node node.Node) (*node.Node, resterr.RestErr)
 	GetNode(nodeId string) (*node.Node, resterr.RestErr)
-	SetNodeValid(node node.Node) error
-	SetNodeInvalid(node node.Node) error
+	SetNodeValid(node *node.Node) error
+	SetNodeInvalid(node *node.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
 	Delete(nodeId string) resterr.RestErr
 }
@@ -40,7 +40,7 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 		return nil, err
 	}
 
-	event.NewNodeCreatedPublisher(nats.Client()).Publish(event.NodeCreatedData{
+	event.NewNodeCreatedPublisher(nats.Client.Client()).Publish(event.NodeCreatedData{
 		ProfileURL: node.ProfileURL,
 		Version:    *node.Version,
 	})
@@ -57,7 +57,7 @@ func (s *nodesService) GetNode(nodeId string) (*node.Node, resterr.RestErr) {
 	return &node, nil
 }
 
-func (s *nodesService) SetNodeValid(node node.Node) error {
+func (s *nodesService) SetNodeValid(node *node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Validated
 	node.FailureReasons = &[]string{}
@@ -68,7 +68,7 @@ func (s *nodesService) SetNodeValid(node node.Node) error {
 	return nil
 }
 
-func (s *nodesService) SetNodeInvalid(node node.Node) error {
+func (s *nodesService) SetNodeInvalid(node *node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.ValidationFailed
 	emptystr := ""
