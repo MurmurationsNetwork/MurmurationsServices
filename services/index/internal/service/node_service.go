@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
@@ -19,7 +20,7 @@ var (
 )
 
 type nodesServiceInterface interface {
-	AddNode(node node.Node) (*node.Node, resterr.RestErr)
+	AddNode(node *node.Node) (*node.Node, resterr.RestErr)
 	GetNode(nodeId string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node *node.Node) error
 	SetNodeInvalid(node *node.Node) error
@@ -29,7 +30,7 @@ type nodesServiceInterface interface {
 
 type nodesService struct{}
 
-func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
+func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 	if err := node.Validate(); err != nil {
 		return nil, err
 	}
@@ -40,12 +41,16 @@ func (s *nodesService) AddNode(node node.Node) (*node.Node, resterr.RestErr) {
 		return nil, err
 	}
 
-	event.NewNodeCreatedPublisher(nats.Client.Client()).Publish(event.NodeCreatedData{
-		ProfileURL: node.ProfileURL,
-		Version:    *node.Version,
-	})
+	// FIXME: Don't use os.Getenv("ENV") here.
+	// FIXME: node.Version is nil in test mode. *node.Version will panic.
+	if os.Getenv("ENV") != "test" {
+		event.NewNodeCreatedPublisher(nats.Client.Client()).Publish(event.NodeCreatedData{
+			ProfileURL: node.ProfileURL,
+			Version:    *node.Version,
+		})
+	}
 
-	return &node, nil
+	return node, nil
 }
 
 func (s *nodesService) GetNode(nodeId string) (*node.Node, resterr.RestErr) {

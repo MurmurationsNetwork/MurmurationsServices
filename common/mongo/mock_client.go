@@ -16,7 +16,7 @@ func (c *mockClient) FindOne(collection string, filter primitive.M) *mongo.Singl
 }
 
 func (c *mockClient) FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error) {
-	return nil, nil
+	return &mongo.SingleResult{}, nil
 }
 
 func (c *mockClient) DeleteOne(collection string, filter primitive.M) error {
