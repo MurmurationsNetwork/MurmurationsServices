@@ -1,14 +1,13 @@
 package mongodb
 
 import (
-	"os"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
 func Init() {
-	err := mongo.NewClient(os.Getenv("MONGO_URI"), "murmurations")
+	err := mongo.NewClient(config.Conf.Mongo.URL, config.Conf.Mongo.DBName)
 	if err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 	}
