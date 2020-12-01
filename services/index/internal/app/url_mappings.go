@@ -2,9 +2,10 @@ package app
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/http"
+	"github.com/gin-gonic/gin"
 )
 
-func mapUrls() {
+func mapUrls(router *gin.Engine) {
 	router.GET("/ping", http.PingController.Ping)
 
 	router.POST("/nodes", http.NodeController.Add)

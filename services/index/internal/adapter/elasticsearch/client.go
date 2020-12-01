@@ -7,7 +7,7 @@ import (
 )
 
 func Init() {
-	err := elastic.NewClient(config.Conf.Es.URL)
+	err := elastic.NewClient(config.Conf.ES.URL)
 	if err != nil {
 		logger.Panic("error when trying to ping the ElasticSearch", err)
 		return

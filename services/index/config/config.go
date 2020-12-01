@@ -13,12 +13,12 @@ var Conf = config{}
 type config struct {
 	Server serverConf
 	Mongo  mongoConf
-	Es     esConf
+	ES     esConf
 	Nats   natsConf
 }
 
 type serverConf struct {
-	Port         int           `env:"SERVER_PORT,required"`
+	Port         string        `env:"SERVER_PORT,required"`
 	TimeoutRead  time.Duration `env:"SERVER_TIMEOUT_READ,required"`
 	TimeoutWrite time.Duration `env:"SERVER_TIMEOUT_WRITE,required"`
 	TimeoutIdle  time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`

@@ -2,25 +2,30 @@ package app
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
-func waitForShutdown() {
+func waitForShutdown(server *http.Server, closed chan struct{}) {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
+	logger.Info("Shutting down index service")
+
 	cleanup()
 
-	logger.Info("trying to shut down the server")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.Server.TimeoutIdle)
 	defer cancel()
+
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Fatal("server forced to shutdown", err)
+		logger.Fatal("Index service shutdown failure", err)
 	}
+
+	close(closed)
 }

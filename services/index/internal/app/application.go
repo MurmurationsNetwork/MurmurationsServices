@@ -12,11 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	router = gin.Default()
-	server = getServer()
-)
-
 func init() {
 	config.Init()
 	elasticsearch.Init()
@@ -25,27 +20,32 @@ func init() {
 }
 
 func StartApplication() {
-	mapUrls()
-	go listen()
-	waitForShutdown()
-	logger.Info("the server exited successfully")
+	router := gin.Default()
+	mapUrls(router)
+
+	server := getServer(router)
+
+	closed := make(chan struct{})
+	go waitForShutdown(server, closed)
+
+	if err := listenToEvents(); err != nil && err != http.ErrServerClosed {
+		logger.Panic("Error when trying to listen events", err)
+	}
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		logger.Panic("Error when trying to start the server", err)
+	}
+
+	<-closed
+	logger.Info("The service exited successfully")
 }
 
-func getServer() *http.Server {
+func getServer(router *gin.Engine) *http.Server {
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", config.Conf.Server.Port),
+		Addr:         fmt.Sprintf(":%s", config.Conf.Server.Port),
 		Handler:      router,
 		ReadTimeout:  config.Conf.Server.TimeoutRead,
 		WriteTimeout: config.Conf.Server.TimeoutWrite,
 		IdleTimeout:  config.Conf.Server.TimeoutIdle,
 	}
 	return srv
-}
-
-func listen() {
-	listenToEvents()
-	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
-		logger.Panic("error when trying to start the app", err)
-	}
 }
