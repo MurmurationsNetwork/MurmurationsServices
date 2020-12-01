@@ -9,7 +9,7 @@ type mockClient struct {
 }
 
 func (c *mockClient) Client() stan.Conn {
-	return nil
+	return c.client
 }
 
 func (c *mockClient) Disconnect() {

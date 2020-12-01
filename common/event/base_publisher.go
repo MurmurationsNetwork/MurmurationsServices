@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+	"os"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	stan "github.com/nats-io/stan.go"
@@ -40,6 +41,10 @@ func (p *publisher) SetAckHandler(ackHandler stan.AckHandler) {
 }
 
 func (p *publisher) Publish(data interface{}) {
+	// FIXME: Use Abstraction
+	if os.Getenv("ENV") == "test" {
+		return
+	}
 	msg, _ := json.Marshal(data)
 	p.client.PublishAsync(string(p.subject), msg, p.ackHandler)
 }

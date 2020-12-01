@@ -3,13 +3,13 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"os"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -151,5 +151,5 @@ func sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
 }
 
 func getSchemaURL(linkedSchema string) string {
-	return os.Getenv("LIBRARY_URL") + "/schemas/" + linkedSchema + ".json"
+	return config.Conf.Library.URL + "/schemas/" + linkedSchema + ".json"
 }

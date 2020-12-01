@@ -39,7 +39,7 @@ func (cont *nodeController) Add(c *gin.Context) {
 		return
 	}
 
-	result, err := service.NodeService.AddNode(node)
+	result, err := service.NodeService.AddNode(&node)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
