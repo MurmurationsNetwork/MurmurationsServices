@@ -10,10 +10,9 @@ import (
 var Conf = config{}
 
 type config struct {
-	Server serverConf
-	Mongo  mongoConf
-	ES     esConf
-	Nats   natsConf
+	Server  serverConf
+	Library libraryConf
+	Nats    natsConf
 }
 
 type serverConf struct {
@@ -23,13 +22,8 @@ type serverConf struct {
 	TimeoutIdle  time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
 }
 
-type mongoConf struct {
-	URL    string `env:"MONGO_URI,required"`
-	DBName string `env:"MONGO_DB_NAME,required"`
-}
-
-type esConf struct {
-	URL string `env:"ELASTICSEARCH_URL,required"`
+type libraryConf struct {
+	URL string `env:"LIBRARY_URL,required"`
 }
 
 type natsConf struct {

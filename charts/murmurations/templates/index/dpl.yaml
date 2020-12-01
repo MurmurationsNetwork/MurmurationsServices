@@ -18,13 +18,6 @@ spec:
           volumeMounts:
             - mountPath: /src/index
               name: source-path
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 20
-            failureThreshold: 3
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
@@ -33,6 +26,14 @@ spec:
           envFrom:
             - configMapRef:
                 name: index-config
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 35
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
       volumes:
         - name: source-path
           hostPath:

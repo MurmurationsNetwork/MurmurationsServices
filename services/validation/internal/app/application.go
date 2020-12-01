@@ -1,42 +1,47 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/nats"
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	router = gin.Default()
-	server = getServer()
-)
-
 func init() {
+	config.Init()
 	nats.Init()
 }
 
 func StartApplication() {
-	mapUrls()
-	go listen(server)
+	router := gin.Default()
+	mapUrls(router)
 
-	listenToEvents()
+	server := getServer(router)
 
-	waitForShutdown()
-	logger.Info("the server exited successfully")
+	closed := make(chan struct{})
+	go waitForShutdown(server, closed)
+
+	if err := listenToEvents(); err != nil && err != http.ErrServerClosed {
+		logger.Panic("Error when trying to listen events", err)
+	}
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		logger.Panic("Error when trying to start the server", err)
+	}
+
+	<-closed
+	logger.Info("The service exited successfully")
 }
 
-func getServer() *http.Server {
+func getServer(router *gin.Engine) *http.Server {
 	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: router,
+		Addr:         fmt.Sprintf(":%s", config.Conf.Server.Port),
+		Handler:      router,
+		ReadTimeout:  config.Conf.Server.TimeoutRead,
+		WriteTimeout: config.Conf.Server.TimeoutWrite,
+		IdleTimeout:  config.Conf.Server.TimeoutIdle,
 	}
 	return srv
-}
-
-func listen(srv *http.Server) {
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Panic("error when trying to start the app", err)
-	}
 }
