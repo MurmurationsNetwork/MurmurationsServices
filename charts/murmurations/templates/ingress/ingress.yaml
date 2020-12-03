@@ -15,3 +15,10 @@ spec:
             backend:
               serviceName: {{ template "murmurations.index" . }}
               servicePort: 8080
+    - host: library.murmurations.network.dev
+      http:
+        paths:
+          - path: /v1(/|$)(.*)
+            backend:
+              serviceName: {{ template "murmurations.library" . }}
+              servicePort: 8080

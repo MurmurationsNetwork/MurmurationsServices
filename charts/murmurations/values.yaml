@@ -12,11 +12,15 @@ indexKibana:
 indexMongo:
   replicas: 1
 
-nats:
-  replicas: 1
-
 validation:
   replicas: 1
   service:
     port: 8080
 
+library:
+  replicas: 1
+  service:
+    port: 8080
+
+nats:
+  replicas: 1
