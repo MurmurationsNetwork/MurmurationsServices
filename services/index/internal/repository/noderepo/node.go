@@ -1,9 +1,10 @@
-package node
+package noderepo
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
@@ -12,16 +13,35 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
+	model "github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
-	ErrUpdate = errors.New("update error")
+	Node nodeInterface
 )
 
-func (node *Node) Add() resterr.RestErr {
+type nodeInterface interface {
+	Add(node *model.Node) resterr.RestErr
+	Get(node *model.Node) resterr.RestErr
+	Update(node *model.Node) error
+	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
+	Delete(node *model.Node) resterr.RestErr
+}
+
+type node struct{}
+
+func init() {
+	if os.Getenv("ENV") == "test" {
+		Node = &mockNode{}
+		return
+	}
+	Node = &node{}
+}
+
+func (dao *node) Add(node *model.Node) resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
 	update := bson.M{"$set": node}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
@@ -32,14 +52,14 @@ func (node *Node) Add() resterr.RestErr {
 		return resterr.NewInternalServerError("Error when trying to add a node.", errors.New("database error"))
 	}
 
-	var updated Node
+	var updated model.Node
 	result.Decode(&updated)
 	node.Version = updated.Version
 
 	return nil
 }
 
-func (node *Node) Get() resterr.RestErr {
+func (dao *node) Get(node *model.Node) resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
 
 	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
@@ -60,7 +80,7 @@ func (node *Node) Get() resterr.RestErr {
 	return nil
 }
 
-func (node *Node) Update() error {
+func (dao *node) Update(node *model.Node) error {
 	filter := bson.M{"_id": node.ID, "version": node.Version}
 	// Unset the version to prevent setting it.
 	node.Version = nil
@@ -86,13 +106,13 @@ func (node *Node) Update() error {
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
-			err = node.setPostFailed()
+			err = dao.setPostFailed(node)
 			if err != nil {
 				return err
 			}
 		} else {
 			// Successfully parse into ElasticSearch, set the statue to 'posted'.
-			err = node.setPosted()
+			err = dao.setPosted(node)
 			if err != nil {
 				return err
 			}
@@ -109,7 +129,7 @@ func (node *Node) Update() error {
 	return nil
 }
 
-func (node *Node) setPostFailed() error {
+func (dao *node) setPostFailed(node *model.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.PostFailed
 
@@ -125,7 +145,7 @@ func (node *Node) setPostFailed() error {
 	return nil
 }
 
-func (node *Node) setPosted() error {
+func (dao *node) setPosted(node *model.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.Posted
 
@@ -141,7 +161,7 @@ func (node *Node) setPosted() error {
 	return nil
 }
 
-func (node *Node) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
+func (dao *node) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
 	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build())
 	if err != nil {
 		return nil, resterr.NewInternalServerError("Error when trying to search documents.", errors.New("database error"))
@@ -168,7 +188,7 @@ func (node *Node) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr
 	}, nil
 }
 
-func (node *Node) Delete() resterr.RestErr {
+func (dao *node) Delete(node *model.Node) resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
 
 	err := mongo.Client.DeleteOne(constant.MongoIndex.Node, filter)
