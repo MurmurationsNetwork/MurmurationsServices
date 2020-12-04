@@ -8,7 +8,7 @@ data:
   SERVER_TIMEOUT_WRITE: 10s
   SERVER_TIMEOUT_IDLE: 15s
   MONGO_URL: mongodb://index-mongo:27017
-  MONGO_DB_NAME: murmurationIndex
+  MONGO_DB_NAME: murmurationsIndex
   ELASTICSEARCH_URL: http://index-es:9200
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222

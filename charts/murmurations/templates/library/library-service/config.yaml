@@ -8,4 +8,4 @@ data:
   SERVER_TIMEOUT_WRITE: 10s
   SERVER_TIMEOUT_IDLE: 15s
   LIBRARY_MONGO_URL: mongodb://library-mongo:27017
-  LIBRARY_MONGO_DB_NAME: murmurationLibrary
+  LIBRARY_MONGO_DB_NAME: murmurationsLibrary
