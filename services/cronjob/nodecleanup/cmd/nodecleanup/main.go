@@ -16,7 +16,7 @@ import (
 func main() {
 	var client *mongo.Client
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("INDEX_MONGO_URL")))
 	if err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 		return

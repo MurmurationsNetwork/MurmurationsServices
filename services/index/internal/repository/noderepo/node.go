@@ -81,7 +81,7 @@ func (dao *node) Get(node *model.Node) resterr.RestErr {
 }
 
 func (dao *node) Update(node *model.Node) error {
-	filter := bson.M{"_id": node.ID, "version": node.Version}
+	filter := bson.M{"_id": node.ID, "__v": node.Version}
 	// Unset the version to prevent setting it.
 	node.Version = nil
 	update := bson.M{"$set": node}

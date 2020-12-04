@@ -1,22 +1,24 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: nodecleanup
+  name: parseschema
 spec:
-  schedule: "*/10 * * * *"
+  schedule: "*/1 * * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
-            - name: nodecleanup
-              image: {{ .Values.cronjobServiceImage }}
+            - name: parseschema
+              image: {{ .Values.parseschemaImage }}
+              command: ["go", "run"]
+              args: ["services/cronjob/parseschema/cmd/parseschema/main.go"]
               volumeMounts:
-                - mountPath: /src/nodecleanup
+                - mountPath: /src
                   name: source-path
               envFrom:
                 - configMapRef:
-                    name: cronjob-config
+                    name: parseschema-config
           volumes:
             - name: source-path
               hostPath:

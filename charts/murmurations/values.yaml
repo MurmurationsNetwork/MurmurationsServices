@@ -22,5 +22,8 @@ library:
   service:
     port: 8080
 
+libraryMongo:
+  replicas: 1
+
 nats:
   replicas: 1

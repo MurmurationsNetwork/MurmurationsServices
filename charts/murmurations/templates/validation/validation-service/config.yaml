@@ -9,4 +9,4 @@ data:
   SERVER_TIMEOUT_IDLE: 15s
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222
-  LIBRARY_URL: https://cdn.murmurations.tech
+  LIBRARY_CDN_URL: https://cdn.murmurations.tech

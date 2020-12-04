@@ -1,7 +1,9 @@
 package constant
 
 var MongoIndex = struct {
-	Node string
+	Node   string
+	Schema string
 }{
-	Node: "nodes",
+	Node:   "nodes",
+	Schema: "schemas",
 }
