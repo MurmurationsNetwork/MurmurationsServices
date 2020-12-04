@@ -18,13 +18,13 @@
 
 4. Install [Helm](https://helm.sh/docs/intro/install/)
 
-7. Add `127.0.0.1 index.murmurations.network` to your host file
+7. Add `127.0.0.1 index.murmurations.network.dev` & `127.0.0.1 library.murmurations.network.dev` to your host file
 
 *After completing the setup*
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.network/ping`
+2. Try `index.murmurations.network.dev/ping` or `library.murmurations.network.dev/ping`
 
 ## Directory Layout
 

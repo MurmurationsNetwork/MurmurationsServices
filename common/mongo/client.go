@@ -37,6 +37,14 @@ func (c *mongoClient) FindOneAndUpdate(collection string, filter primitive.M, up
 	return result, nil
 }
 
+func (c *mongoClient) Find(collection string, filter primitive.M, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+	cur, err := c.db.Collection(collection).Find(context.Background(), filter, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return cur, nil
+}
+
 func (c *mongoClient) DeleteOne(collection string, filter primitive.M) error {
 	_, err := c.db.Collection(collection).DeleteOne(context.Background(), filter)
 	if err != nil {

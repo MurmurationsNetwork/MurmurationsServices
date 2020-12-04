@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
-    - host: index.murmurations.network
+    - host: index.murmurations.network.dev
       http:
         paths:
           - path: /v1(/|$)(.*)

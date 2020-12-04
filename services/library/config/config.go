@@ -12,7 +12,6 @@ var Conf = config{}
 type config struct {
 	Server serverConf
 	Mongo  mongoConf
-	ES     esConf
 }
 
 type serverConf struct {
@@ -23,9 +22,8 @@ type serverConf struct {
 }
 
 type mongoConf struct {
-}
-
-type esConf struct {
+	URL    string `env:"LIBRARY_MONGO_URL,required"`
+	DBName string `env:"LIBRARY_MONGO_DB_NAME,required"`
 }
 
 func Init() {

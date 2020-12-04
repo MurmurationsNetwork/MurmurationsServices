@@ -6,11 +6,13 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/adapter/mongodb"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
 	config.Init()
+	mongodb.Init()
 }
 
 func StartApplication() {

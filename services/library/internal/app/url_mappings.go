@@ -7,4 +7,6 @@ import (
 
 func mapUrls(router *gin.Engine) {
 	router.GET("/ping", http.PingController.Ping)
+
+	router.GET("/schemas", http.SchemaController.Search)
 }
