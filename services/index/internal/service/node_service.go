@@ -12,14 +12,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/noderepo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
 )
 
-var (
-	NodeService nodesServiceInterface = &nodesService{}
-)
-
-type nodesServiceInterface interface {
+type NodesService interface {
 	AddNode(node *node.Node) (*node.Node, resterr.RestErr)
 	GetNode(nodeID string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node *node.Node) error
@@ -28,7 +24,15 @@ type nodesServiceInterface interface {
 	Delete(nodeID string) resterr.RestErr
 }
 
-type nodesService struct{}
+type nodesService struct {
+	nodeRepo db.NodeRepository
+}
+
+func NewNodeService(nodeRepo db.NodeRepository) NodesService {
+	return &nodesService{
+		nodeRepo: nodeRepo,
+	}
+}
 
 func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 	if err := node.Validate(); err != nil {
@@ -38,7 +42,7 @@ func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Received
 
-	if err := noderepo.Node.Add(node); err != nil {
+	if err := s.nodeRepo.Add(node); err != nil {
 		return nil, err
 	}
 
@@ -52,7 +56,7 @@ func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 
 func (s *nodesService) GetNode(nodeID string) (*node.Node, resterr.RestErr) {
 	node := node.Node{ID: nodeID}
-	err := noderepo.Node.Get(&node)
+	err := s.nodeRepo.Get(&node)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +68,7 @@ func (s *nodesService) SetNodeValid(node *node.Node) error {
 	node.Status = constant.NodeStatus.Validated
 	node.FailureReasons = &[]string{}
 
-	if err := noderepo.Node.Update(node); err != nil {
+	if err := s.nodeRepo.Update(node); err != nil {
 		return err
 	}
 	return nil
@@ -78,14 +82,14 @@ func (s *nodesService) SetNodeInvalid(node *node.Node) error {
 	lastValidated := dateutil.GetZeroValueUnix()
 	node.LastValidated = &lastValidated
 
-	if err := noderepo.Node.Update(node); err != nil {
+	if err := s.nodeRepo.Update(node); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *nodesService) Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
-	result, err := noderepo.Node.Search(query)
+	result, err := s.nodeRepo.Search(query)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +99,7 @@ func (s *nodesService) Search(query *query.EsQuery) (*query.QueryResults, rester
 func (s *nodesService) Delete(nodeID string) resterr.RestErr {
 	node := &node.Node{ID: nodeID}
 
-	err := noderepo.Node.Get(node)
+	err := s.nodeRepo.Get(node)
 	if err != nil {
 		return err
 	}
@@ -106,7 +110,7 @@ func (s *nodesService) Delete(nodeID string) resterr.RestErr {
 		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists for node_id: %s", nodeID))
 	}
 
-	err = noderepo.Node.Delete(node)
+	err = s.nodeRepo.Delete(node)
 	if err != nil {
 		return err
 	}

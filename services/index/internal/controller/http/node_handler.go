@@ -10,20 +10,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	NodeController nodeControllerInterface = &nodeController{}
-)
-
-type nodeControllerInterface interface {
+type NodeHandler interface {
 	Add(c *gin.Context)
 	Get(c *gin.Context)
 	Search(c *gin.Context)
 	Delete(c *gin.Context)
 }
 
-type nodeController struct{}
+type nodeHandler struct {
+	nodeService service.NodesService
+}
 
-func (cont *nodeController) getNodeId(params gin.Params) (string, resterr.RestErr) {
+func NewNodeHandler(nodeService service.NodesService) NodeHandler {
+	return &nodeHandler{
+		nodeService: nodeService,
+	}
+}
+
+func (handler *nodeHandler) getNodeId(params gin.Params) (string, resterr.RestErr) {
 	nodeId, found := params.Get("nodeId")
 	if !found {
 		return "", resterr.NewBadRequestError("Invalid node_id.")
@@ -31,7 +35,7 @@ func (cont *nodeController) getNodeId(params gin.Params) (string, resterr.RestEr
 	return nodeId, nil
 }
 
-func (cont *nodeController) Add(c *gin.Context) {
+func (handler *nodeHandler) Add(c *gin.Context) {
 	var node node.Node
 	if err := c.ShouldBindJSON(&node); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
@@ -39,7 +43,7 @@ func (cont *nodeController) Add(c *gin.Context) {
 		return
 	}
 
-	result, err := service.NodeService.AddNode(&node)
+	result, err := handler.nodeService.AddNode(&node)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
@@ -48,14 +52,14 @@ func (cont *nodeController) Add(c *gin.Context) {
 	c.JSON(http.StatusOK, result.AddNodeRespond())
 }
 
-func (cont *nodeController) Get(c *gin.Context) {
-	nodeId, err := cont.getNodeId(c.Params)
+func (handler *nodeHandler) Get(c *gin.Context) {
+	nodeId, err := handler.getNodeId(c.Params)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
-	node, err := service.NodeService.GetNode(nodeId)
+	node, err := handler.nodeService.GetNode(nodeId)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
@@ -64,7 +68,7 @@ func (cont *nodeController) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, node.GetNodeRespond())
 }
 
-func (cont *nodeController) Search(c *gin.Context) {
+func (handler *nodeHandler) Search(c *gin.Context) {
 	var query query.EsQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
@@ -72,7 +76,7 @@ func (cont *nodeController) Search(c *gin.Context) {
 		return
 	}
 
-	searchRes, err := service.NodeService.Search(&query)
+	searchRes, err := handler.nodeService.Search(&query)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
@@ -81,14 +85,14 @@ func (cont *nodeController) Search(c *gin.Context) {
 	c.JSON(http.StatusOK, searchRes.Marshall())
 }
 
-func (cont *nodeController) Delete(c *gin.Context) {
-	nodeId, err := cont.getNodeId(c.Params)
+func (handler *nodeHandler) Delete(c *gin.Context) {
+	nodeId, err := handler.getNodeId(c.Params)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
-	err = service.NodeService.Delete(nodeId)
+	err = handler.nodeService.Delete(nodeId)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return

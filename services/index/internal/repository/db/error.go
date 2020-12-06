@@ -1,4 +1,4 @@
-package noderepo
+package db
 
 import "errors"
 
