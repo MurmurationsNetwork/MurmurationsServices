@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type schemaFormat struct {
+type schema struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Metadata    struct {
@@ -25,7 +25,7 @@ type schemaFormat struct {
 	} `json:"metadata"`
 }
 
-type schemaInfo struct {
+type schemaDoc struct {
 	Title       string `bson:"title,omitempty"`
 	Description string `bson:"description,omitempty"`
 	Name        string `bson:"name,omitempty"`
@@ -39,47 +39,33 @@ func init() {
 }
 
 func main() {
-	schemaListingURL := config.Conf.CDN.URL + "/api/schemas"
+	url := config.Conf.CDN.URL + "/api/schemas"
 
-	bytes, err := httputil.GetByte(schemaListingURL)
+	schemaList, err := getSchemaList(url)
 	if err != nil {
-		logger.Panic("error when trying to get a list of schemas from: "+schemaListingURL, err)
+		logger.Panic("error when trying to get schemaList from: "+url, err)
 		return
 	}
 
-	var schemas []string
-	err = json.Unmarshal(bytes, &schemas)
-	if err != nil {
-		logger.Panic("error when trying to parse content from: "+schemaListingURL, err)
-		return
-	}
+	for _, schemaName := range schemaList {
+		schemaURL := getSchemaURL(schemaName)
 
-	for _, schema := range schemas {
-		schemaURL := getSchemaURL(schema)
-
-		bytes, err := httputil.GetByte(schemaURL)
+		data, err := getSchema(schemaURL)
 		if err != nil {
-			logger.Panic("error when trying to get the schema content from: "+schemaURL, err)
+			logger.Panic("error when trying to get schema from: "+schemaURL, err)
 			return
 		}
 
-		var jsonData schemaFormat
-		err = json.Unmarshal(bytes, &jsonData)
-		if err != nil {
-			logger.Panic("error when trying to parse content from: "+schemaURL, err)
-			return
+		doc := schemaDoc{
+			Title:       data.Title,
+			Description: data.Description,
+			Name:        data.Metadata.Schema.Name,
+			Version:     data.Metadata.Schema.Version,
+			URL:         data.Metadata.Schema.URL,
 		}
 
-		schemaInfo := schemaInfo{
-			Title:       jsonData.Title,
-			Description: jsonData.Description,
-			Name:        jsonData.Metadata.Schema.Name,
-			Version:     jsonData.Metadata.Schema.Version,
-			URL:         jsonData.Metadata.Schema.URL,
-		}
-
-		filter := bson.M{"name": schemaInfo.Name}
-		update := bson.M{"$set": schemaInfo}
+		filter := bson.M{"name": doc.Name}
+		update := bson.M{"$set": doc}
 		opt := options.FindOneAndUpdate().SetUpsert(true)
 
 		_, err = mongo.Client.FindOneAndUpdate(constant.MongoIndex.Schema, filter, update, opt)
@@ -90,6 +76,41 @@ func main() {
 	}
 }
 
+func getSchemaList(url string) ([]string, error) {
+	bytes, err := httputil.GetByte(url)
+	if err != nil {
+		return nil, err
+	}
+
+	type jsonFormat struct {
+		LastCommit string   `json:"last_commit"`
+		SchemaList []string `json:"schema_list"`
+	}
+
+	var data jsonFormat
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data.SchemaList, nil
+}
+
 func getSchemaURL(schemaName string) string {
 	return config.Conf.CDN.URL + "/schemas/" + schemaName + ".json"
+}
+
+func getSchema(url string) (*schema, error) {
+	bytes, err := httputil.GetByte(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var data schema
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }
