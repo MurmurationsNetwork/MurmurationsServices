@@ -21,6 +21,7 @@ func init() {
 
 func StartApplication() {
 	router := gin.Default()
+
 	mapUrls(router)
 
 	server := getServer(router)

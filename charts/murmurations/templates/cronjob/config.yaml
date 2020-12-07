@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cronjob-config
-data:
-  MONGO_URI: mongodb://index-mongo:27017

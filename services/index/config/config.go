@@ -24,7 +24,7 @@ type serverConf struct {
 }
 
 type mongoConf struct {
-	URL    string `env:"MONGO_URI,required"`
+	URL    string `env:"MONGO_URL,required"`
 	DBName string `env:"MONGO_DB_NAME,required"`
 }
 

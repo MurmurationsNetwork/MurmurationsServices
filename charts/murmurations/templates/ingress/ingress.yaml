@@ -8,10 +8,17 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
-    - host: index.murmurations.network
+    - host: index.murmurations.tech
       http:
         paths:
           - path: /v1(/|$)(.*)
             backend:
               serviceName: {{ template "murmurations.index" . }}
+              servicePort: 8080
+    - host: library.murmurations.tech
+      http:
+        paths:
+          - path: /v1(/|$)(.*)
+            backend:
+              serviceName: {{ template "murmurations.library" . }}
               servicePort: 8080

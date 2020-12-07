@@ -10,3 +10,7 @@
 {{- define "murmurations.validation" -}}
   {{- printf "%s-validation" (include "murmurations.fullname" .) -}}
 {{- end -}}
+
+{{- define "murmurations.library" -}}
+  {{- printf "%s-library" (include "murmurations.fullname" .) -}}
+{{- end -}}

@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: validation-config
+  name: library-config
 data:
   SERVER_PORT: "8080"
   SERVER_TIMEOUT_READ: 5s
   SERVER_TIMEOUT_WRITE: 10s
   SERVER_TIMEOUT_IDLE: 15s
-  NATS_CLUSTER_ID: murmurations
-  NATS_URL: http://nats:4222
-  LIBRARY_URL: https://cdn.murmurations.tech
+  LIBRARY_MONGO_URL: mongodb://library-mongo:27017
+  LIBRARY_MONGO_DB_NAME: murmurationsLibrary

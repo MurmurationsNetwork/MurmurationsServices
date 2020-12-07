@@ -1,0 +1,4 @@
+package app
+
+func cleanup() {
+}

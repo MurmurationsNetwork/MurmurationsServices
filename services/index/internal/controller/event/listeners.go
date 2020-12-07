@@ -11,8 +11,23 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func HandleNodeValidated() event.Listener {
-	return event.NewNodeValidatedListener(nats.Client.Client(), qgroup, func(msg *stan.Msg) {
+type NodeHandler interface {
+	Validated() error
+	ValidationFailed() error
+}
+
+type nodeHandler struct {
+	nodeService service.NodesService
+}
+
+func NewNodeHandler(nodeService service.NodesService) NodeHandler {
+	return &nodeHandler{
+		nodeService: nodeService,
+	}
+}
+
+func (handler *nodeHandler) Validated() error {
+	return event.NewNodeValidatedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
 		var nodeValidatedData event.NodeValidatedData
 		err := json.Unmarshal(msg.Data, &nodeValidatedData)
 		if err != nil {
@@ -20,7 +35,7 @@ func HandleNodeValidated() event.Listener {
 			return
 		}
 
-		err = service.NodeService.SetNodeValid(&node.Node{
+		err = handler.nodeService.SetNodeValid(&node.Node{
 			ProfileURL:    nodeValidatedData.ProfileURL,
 			ProfileHash:   &nodeValidatedData.ProfileHash,
 			ProfileStr:    nodeValidatedData.ProfileStr,
@@ -32,11 +47,11 @@ func HandleNodeValidated() event.Listener {
 		}
 
 		msg.Ack()
-	})
+	}).Listen()
 }
 
-func HandleNodeValidationFailed() event.Listener {
-	return event.NewNodeValidationFailedListener(nats.Client.Client(), qgroup, func(msg *stan.Msg) {
+func (handler *nodeHandler) ValidationFailed() error {
+	return event.NewNodeValidationFailedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
 		var nodeValidationFailedData event.NodeValidationFailedData
 		err := json.Unmarshal(msg.Data, &nodeValidationFailedData)
 		if err != nil {
@@ -44,7 +59,7 @@ func HandleNodeValidationFailed() event.Listener {
 			return
 		}
 
-		err = service.NodeService.SetNodeInvalid(&node.Node{
+		err = handler.nodeService.SetNodeInvalid(&node.Node{
 			ProfileURL:     nodeValidationFailedData.ProfileURL,
 			FailureReasons: &nodeValidationFailedData.FailureReasons,
 			Version:        &nodeValidationFailedData.Version,
@@ -54,6 +69,5 @@ func HandleNodeValidationFailed() event.Listener {
 		}
 
 		msg.Ack()
-	})
-
+	}).Listen()
 }

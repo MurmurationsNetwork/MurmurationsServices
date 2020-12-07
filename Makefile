@@ -9,3 +9,6 @@ index-dev:
 
 validation-dev:
 	$(MAKE) -C services/validation/ docker-build-dev
+
+library-dev:
+	$(MAKE) -C services/library/ docker-build-dev

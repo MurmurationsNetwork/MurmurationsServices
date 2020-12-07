@@ -23,7 +23,7 @@ type serverConf struct {
 }
 
 type libraryConf struct {
-	URL string `env:"LIBRARY_URL,required"`
+	URL string `env:"LIBRARY_CDN_URL,required"`
 }
 
 type natsConf struct {

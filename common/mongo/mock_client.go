@@ -19,6 +19,10 @@ func (c *mockClient) FindOneAndUpdate(collection string, filter primitive.M, upd
 	return &mongo.SingleResult{}, nil
 }
 
+func (c *mockClient) Find(collection string, filter primitive.M, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+	return &mongo.Cursor{}, nil
+}
+
 func (c *mockClient) DeleteOne(collection string, filter primitive.M) error {
 	return nil
 }

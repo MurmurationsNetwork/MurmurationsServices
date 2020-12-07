@@ -2,14 +2,18 @@ package app
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
 
 func listenToEvents() error {
-	err := event.HandleNodeValidationFailed().Listen()
+	nodeHandler := event.NewNodeHandler(service.NewNodeService(db.NewRepository()))
+
+	err := nodeHandler.Validated()
 	if err != nil {
 		return err
 	}
-	err = event.HandleNodeValidated().Listen()
+	err = nodeHandler.ValidationFailed()
 	if err != nil {
 		return err
 	}

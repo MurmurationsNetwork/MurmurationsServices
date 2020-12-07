@@ -27,7 +27,7 @@ func (c *mongoClient) FindOneAndUpdate(collection string, filter primitive.M, up
 	mergedOpt := options.MergeFindOneAndUpdateOptions(opts...)
 
 	// Automatically increment the document version.
-	update["$inc"] = bson.M{"version": 1}
+	update["$inc"] = bson.M{"__v": 1}
 
 	result := c.db.Collection(collection).FindOneAndUpdate(context.Background(), filter, update, mergedOpt)
 	if result.Err() != nil {
@@ -35,6 +35,14 @@ func (c *mongoClient) FindOneAndUpdate(collection string, filter primitive.M, up
 	}
 
 	return result, nil
+}
+
+func (c *mongoClient) Find(collection string, filter primitive.M, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+	cur, err := c.db.Collection(collection).Find(context.Background(), filter, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return cur, nil
 }
 
 func (c *mongoClient) DeleteOne(collection string, filter primitive.M) error {
