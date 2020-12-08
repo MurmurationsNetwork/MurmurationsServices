@@ -1,4 +1,4 @@
-package schemarepo
+package db
 
 import (
 	"context"
@@ -12,21 +12,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var (
-	Schema schemaRepoInterface
-)
-
-type schemaRepoInterface interface {
+type SchemaRepo interface {
 	Search() (schema.Schemas, resterr.RestErr)
 }
 
 type schemaRepo struct{}
 
-func init() {
-	Schema = &schemaRepo{}
+func NewSchemaRepo() SchemaRepo {
+	return &schemaRepo{}
 }
 
-func (dao *schemaRepo) Search() (schema.Schemas, resterr.RestErr) {
+func (r *schemaRepo) Search() (schema.Schemas, resterr.RestErr) {
 	filter := bson.M{}
 
 	cur, err := mongo.Client.Find(constant.MongoIndex.Schema, filter)

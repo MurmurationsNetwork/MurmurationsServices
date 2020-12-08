@@ -11,7 +11,21 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func HandleNodeCreated() event.Listener {
+type NodeHandler interface {
+	NewNodeCreatedListener() error
+}
+
+type nodeHandler struct {
+	validationService service.ValidationService
+}
+
+func NewNodeHandler(validationService service.ValidationService) NodeHandler {
+	return &nodeHandler{
+		validationService: validationService,
+	}
+}
+
+func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(nats.Client.Client(), qgroup, func(msg *stan.Msg) {
 		var nodeCreatedData event.NodeCreatedData
 		err := json.Unmarshal(msg.Data, &nodeCreatedData)
@@ -20,11 +34,11 @@ func HandleNodeCreated() event.Listener {
 			return
 		}
 
-		service.ValidationService.ValidateNode(&node.Node{
+		handler.validationService.ValidateNode(&node.Node{
 			ProfileURL: nodeCreatedData.ProfileURL,
 			Version:    nodeCreatedData.Version,
 		})
 
 		msg.Ack()
-	})
+	}).Listen()
 }

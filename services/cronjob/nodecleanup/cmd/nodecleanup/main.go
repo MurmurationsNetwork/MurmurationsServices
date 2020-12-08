@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleanup/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleanup/internal/service"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -28,15 +27,12 @@ func main() {
 		return
 	}
 
-	filter := bson.M{"status": constant.NodeStatus.ValidationFailed}
-	// TODO: Abstract MongoDB operations.
-	result, err := client.Database("murmurations").Collection("nodes").DeleteMany(context.Background(), filter)
+	svc := service.NewNodeService(db.NewNodeRepository(client))
+	err = svc.Remove()
 	if err != nil {
 		logger.Panic("error when trying to delete nodes", err)
 		return
 	}
-
-	logger.Info(fmt.Sprintf("Delete %d nodes with %s status", result.DeletedCount, constant.NodeStatus.ValidationFailed))
 
 	if err := client.Disconnect(context.Background()); err != nil {
 		logger.Panic("error when trying to disconnect from MongoDB", err)

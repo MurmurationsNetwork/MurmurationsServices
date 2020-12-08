@@ -6,5 +6,6 @@ import (
 )
 
 func mapUrls(router *gin.Engine) {
-	router.GET("/ping", http.PingController.Ping)
+	pingHandler := http.NewPingHandler()
+	router.GET("/ping", pingHandler.Ping)
 }
