@@ -11,6 +11,11 @@ var Conf = config{}
 type config struct {
 	CDN   cdnConf
 	Mongo mongoConf
+	Redis redisConf
+}
+
+type cdnConf struct {
+	URL string `env:"LIBRARY_CDN_URL,required"`
 }
 
 type mongoConf struct {
@@ -18,8 +23,8 @@ type mongoConf struct {
 	DBName string `env:"LIBRARY_MONGO_DB_NAME,required"`
 }
 
-type cdnConf struct {
-	URL string `env:"LIBRARY_CDN_URL,required"`
+type redisConf struct {
+	URL string `env:"REDIS_URL,required"`
 }
 
 func Init() {
