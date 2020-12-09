@@ -6,43 +6,25 @@ test:
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
-# Docker Build
+# ---------------------------------------------------------------
 
-index:
+docker_build:
 	$(MAKE) -C services/index/ docker-build
-
-validation:
 	$(MAKE) -C services/validation/ docker-build
-
-library:
 	$(MAKE) -C services/library/ docker-build
-
-nodecleanup:
 	$(MAKE) -C services/cronjob/nodecleanup/ docker-build
-
-parseschema:
 	$(MAKE) -C services/cronjob/parseschema/ docker-build
 
-# Docker Publish
+TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})
 
-VERSION ?= $(shell git rev-parse --short HEAD)
-
-publish-index:
-	@echo 'publish index:$(VERSION)'
-	docker push murmurations/index:$(VERSION)
-
-publish-validation:
-	@echo 'publish validation:$(VERSION)'
-	docker push murmurations/validation:$(VERSION)
-
-publish-library:
-	@echo 'publish library:$(VERSION)'
-	docker push murmurations/library:$(VERSION)
-
-publish-nodecleanup:
-	@echo 'publish nodecleanup:$(VERSION)'
-	docker push murmurations/nodecleanup:$(VERSION)
-
-publish-parseschema:
-	@echo 'publish parseschema:$(VERSION)'
-	docker push murmurations/parseschema:$(VERSION)
+docker_push:
+	docker push murmurations/index:latest
+	docker push murmurations/index:$(TAG)
+	docker push murmurations/validation:latest
+	docker push murmurations/validation:$(TAG)
+	docker push murmurations/library:latest
+	docker push murmurations/library:$(TAG)
+	docker push murmurations/nodecleanup:latest
+	docker push murmurations/nodecleanup:$(TAG)
+	docker push murmurations/parseschema:latest
+	docker push murmurations/parseschema:$(TAG)
