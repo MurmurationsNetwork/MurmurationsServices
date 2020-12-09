@@ -30,3 +30,19 @@ VERSION ?= $(shell git rev-parse --short HEAD)
 publish-index:
 	@echo 'publish index:$(VERSION)'
 	docker push murmurations/index:$(VERSION)
+
+publish-validation:
+	@echo 'publish validation:$(VERSION)'
+	docker push murmurations/validation:$(VERSION)
+
+publish-library:
+	@echo 'publish library:$(VERSION)'
+	docker push murmurations/library:$(VERSION)
+
+publish-nodecleanup:
+	@echo 'publish nodecleanup:$(VERSION)'
+	docker push murmurations/nodecleanup:$(VERSION)
+
+publish-parseschema:
+	@echo 'publish parseschema:$(VERSION)'
+	docker push murmurations/parseschema:$(VERSION)

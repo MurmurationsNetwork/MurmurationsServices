@@ -36,7 +36,28 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Build the index image
       run: make index
     - name: Publish the index image
       run: make publish-index
+
+    - name: Build the validation image
+      run: make validation
+    - name: Publish the validation image
+      run: make publish-validation
+
+    - name: Build the library image
+      run: make library
+    - name: Publish the library image
+      run: make publish-library
+
+    - name: Build the nodecleanup image
+      run: make nodecleanup
+    - name: Publish the nodecleanup image
+      run: make publish-nodecleanup
+
+    - name: Build the parseschema image
+      run: make parseschema
+    - name: Publish the parseschema image
+      run: make publish-parseschema
