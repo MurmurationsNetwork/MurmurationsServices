@@ -25,13 +25,13 @@ docker_tag: docker_build
 	docker tag murmurations/parseschema murmurations/parseschema:${TAG}
 
 docker_push: docker_tag
-	docker push murmurations/index
+	docker push murmurations/index:latest
 	docker push murmurations/index:$(TAG)
-	docker push murmurations/validation
+	docker push murmurations/validation:latest
 	docker push murmurations/validation:$(TAG)
-	docker push murmurations/library
+	docker push murmurations/library:latest
 	docker push murmurations/library:$(TAG)
-	docker push murmurations/nodecleanup
+	docker push murmurations/nodecleanup:latest
 	docker push murmurations/nodecleanup:$(TAG)
-	docker push murmurations/parseschema
+	docker push murmurations/parseschema:latest
 	docker push murmurations/parseschema:$(TAG)
