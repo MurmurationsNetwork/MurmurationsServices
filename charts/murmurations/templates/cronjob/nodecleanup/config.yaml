@@ -4,3 +4,4 @@ metadata:
   name: nodecleanup-config
 data:
   INDEX_MONGO_URL: mongodb://index-mongo:27017
+  INDEX_MONGO_DB_NAME: murmurationsIndex

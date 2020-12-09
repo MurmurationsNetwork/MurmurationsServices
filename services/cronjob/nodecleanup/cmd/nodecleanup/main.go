@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"os"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleanup/internal/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleanup/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleanup/internal/service"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,10 +12,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+func init() {
+	config.Init()
+}
+
 func main() {
 	var client *mongo.Client
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("INDEX_MONGO_URL")))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(config.Conf.Mongo.URL))
 	if err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 		return

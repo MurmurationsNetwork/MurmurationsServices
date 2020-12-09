@@ -1,14 +1,24 @@
 test:
 	export ENV=test && go test ./...
 
+# ---------------------------------------------------------------
+
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
-index-dev:
-	$(MAKE) -C services/index/ docker-build-dev
+# ---------------------------------------------------------------
 
-validation-dev:
-	$(MAKE) -C services/validation/ docker-build-dev
+index:
+	$(MAKE) -C services/index/ docker-build
 
-library-dev:
-	$(MAKE) -C services/library/ docker-build-dev
+validation:
+	$(MAKE) -C services/validation/ docker-build
+
+library:
+	$(MAKE) -C services/library/ docker-build
+
+nodecleanup:
+	$(MAKE) -C services/cronjob/nodecleanup/ docker-build
+
+parseschema:
+	$(MAKE) -C services/cronjob/parseschema/ docker-build
