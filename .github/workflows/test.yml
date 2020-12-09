@@ -36,7 +36,5 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build docker images
-      run: make docker_build
     - name: Publish docker images
       run: make docker_push

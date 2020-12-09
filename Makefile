@@ -15,9 +15,16 @@ docker_build:
 	$(MAKE) -C services/cronjob/nodecleanup/ docker-build
 	$(MAKE) -C services/cronjob/parseschema/ docker-build
 
-TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})
+TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
 
-docker_push:
+docker_tag: docker_build
+	docker tag murmurations/index murmurations/index:${TAG}
+	docker tag murmurations/validation murmurations/validation:${TAG}
+	docker tag murmurations/library murmurations/library:${TAG}
+	docker tag murmurations/nodecleanup murmurations/nodecleanup:${TAG}
+	docker tag murmurations/parseschema murmurations/index:${TAG}
+
+docker_push: docker_tag
 	docker push murmurations/index:latest
 	docker push murmurations/index:$(TAG)
 	docker push murmurations/validation:latest
