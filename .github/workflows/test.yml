@@ -1,4 +1,4 @@
-name: CI
+name: CICD
 
 on:
   push:
@@ -16,14 +16,32 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-
+    - name: Check out the repo
+      uses: actions/checkout@v2
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
         go-version: ^1.13
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
     - name: Test
       run: make test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+    - name: Build the index image
+      run: make index
+
+  push_to_registry:
+    name: Push Docker images to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
