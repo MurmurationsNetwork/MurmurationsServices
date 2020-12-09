@@ -1,3 +1,3 @@
 docker-build:
 	cd ../../../ && \
-	docker build -f services/cronjob/parseschema/docker/Dockerfile-prod
+	docker build -f services/cronjob/parseschema/docker/Dockerfile-prod .
