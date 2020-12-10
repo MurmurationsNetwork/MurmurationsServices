@@ -10,7 +10,8 @@ spec:
         spec:
           containers:
             - name: schemaparser
-              image: murmurations/schemaparser
+              image: murmurations/schemaparser:fdeb483
+              imagePullPolicy: IfNotPresent
               envFrom:
                 - configMapRef:
                     name: schemaparser-config
