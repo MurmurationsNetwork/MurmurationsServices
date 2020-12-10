@@ -13,6 +13,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+
     - name: Check out the repo
       uses: actions/checkout@v2
 
@@ -25,9 +26,9 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Install Helm
-    - uses: azure/setup-helm@v1
+      uses: azure/setup-helm@v1
       with:
-        version: 'v3.4.0' # default is latest stable
+        version: 'v3.4.0'
 
     - name: Deploy
       run: helm upgrade murmdev ./charts/murmdev --install --wait --atomic
