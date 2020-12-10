@@ -20,10 +20,14 @@ jobs:
       uses: digitalocean/action-doctl@v2
       with:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-    - name: Save DigitalOcean kubeconfig
-      run: doctl kubernetes cluster kubeconfig save murmdev-k8s
+
+    - name: Save DigitalOcean kubeconfig with short-lived credentials
+      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
+
+    - name: Install Helm
+    - uses: azure/setup-helm@v1
+      with:
+        version: 'v3.4.0' # default is latest stable
 
     - name: Deploy
-      uses: WyriHaximus/github-action-helm3@v2
-      with:
-        exec: helm upgrade murmdev ./charts/murmdev --install --wait --atomic
+      run: helm upgrade murmdev ./charts/murmdev --install --wait --atomic
