@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/schemaparser/**'
-  # pull_request:
+  pull_request:
 
 jobs:
   build:
