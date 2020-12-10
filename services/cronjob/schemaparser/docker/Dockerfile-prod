@@ -1,0 +1,12 @@
+FROM golang:alpine as build
+
+WORKDIR /src/schemaparser
+ADD . /src/schemaparser
+RUN CGO_ENABLED=0 go build -o /bin/schemaparser ./services/cronjob/schemaparser/cmd/schemaparser
+
+FROM ubuntu:16.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+COPY --from=build /bin/schemaparser /app/schemaparser
+EXPOSE 8000
+CMD ["/app/schemaparser"]

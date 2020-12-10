@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: library-mongo
+spec:
+  selector:
+    app: library-mongo
+  ports:
+    - name: db
+      protocol: TCP
+      port: 27017

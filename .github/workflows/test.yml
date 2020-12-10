@@ -1,17 +1,13 @@
-name: CICD
+name: test
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
+      - staging
   pull_request:
-    paths-ignore:
-      - '**.md'
 
 jobs:
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -24,17 +20,3 @@ jobs:
         go-version: ^1.13
     - name: Test
       run: make test
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out the repo
-      uses: actions/checkout@v2
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Publish docker images
-      run: make docker_push

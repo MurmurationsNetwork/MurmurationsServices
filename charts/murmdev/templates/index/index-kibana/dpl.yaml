@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index-kibana
+spec:
+  replicas: {{ .Values.indexKibana.replicas }}
+  selector:
+    matchLabels:
+      app: index-kibana
+  template:
+    metadata:
+      labels:
+        app: index-kibana
+    spec:
+      containers:
+        - name: index-kibana
+          image: 'docker.elastic.co/kibana/kibana:7.9.3'
+          ports:
+            - containerPort: 5601
+          envFrom:
+            - configMapRef:
+                name: index-kibana-config

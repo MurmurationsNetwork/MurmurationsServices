@@ -1,0 +1,19 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: schemaparser
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: schemaparser
+              image: murmurations/schemaparser
+              command: ["go", "run"]
+              args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]
+              envFrom:
+                - configMapRef:
+                    name: schemaparser-config
+          restartPolicy: Never

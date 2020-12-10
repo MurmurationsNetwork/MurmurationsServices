@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "murmurations.library" . }}
+  name: murmurations-library
 spec:
   replicas: {{ .Values.library.replicas }}
   selector:

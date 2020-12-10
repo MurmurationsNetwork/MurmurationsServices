@@ -1,0 +1,29 @@
+name: deploy-manifests
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - 'charts/murmdev/**'
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - name: Save DigitalOcean kubeconfig
+      run: doctl kubernetes cluster kubeconfig save murmdev-k8s
+    - name: Restart nodecleaner deployment
+      run: kubectl rollout restart deployment murmurations-nodecleaner
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v2
+      with:
+        exec: helm upgrade murmdev ./charts/murmdev --install --wait --atomic

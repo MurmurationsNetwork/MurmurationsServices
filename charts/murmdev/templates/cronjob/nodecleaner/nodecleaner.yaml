@@ -1,0 +1,19 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleaner
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleaner
+              image: murmurations/nodecleaner
+              command: ["go", "run"]
+              args: ["services/cronjob/nodecleaner/cmd/nodecleaner/main.go"]
+              envFrom:
+                - configMapRef:
+                    name: nodecleaner-config
+          restartPolicy: Never
