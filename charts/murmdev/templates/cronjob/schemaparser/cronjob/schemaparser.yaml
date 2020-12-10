@@ -11,8 +11,6 @@ spec:
           containers:
             - name: schemaparser
               image: murmurations/schemaparser
-              command: ["go", "run"]
-              args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]
               envFrom:
                 - configMapRef:
                     name: schemaparser-config
