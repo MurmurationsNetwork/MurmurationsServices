@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: schemaparser
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: schemaparser
+              image: {{ .Values.schemaparserImage }}
+              command: ["go", "run"]
+              args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]
+              volumeMounts:
+                - mountPath: /src
+                  name: source-path
+              envFrom:
+                - configMapRef:
+                    name: schemaparser-config
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.sourcepath }}
+          restartPolicy: Never

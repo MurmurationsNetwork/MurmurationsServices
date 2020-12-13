@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleaner
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleaner
+              image: {{ .Values.nodecleanerImage }}
+              command: ["go", "run"]
+              args: ["services/cronjob/nodecleaner/cmd/nodecleaner/main.go"]
+              volumeMounts:
+                - mountPath: /src
+                  name: source-path
+              envFrom:
+                - configMapRef:
+                    name: nodecleaner-config
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.sourcepath }}
+          restartPolicy: Never

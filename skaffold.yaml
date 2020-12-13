@@ -16,14 +16,14 @@ build:
       context: .
       docker:
         dockerfile: services/library/docker/Dockerfile-dev
-    - image: murmurations/nodecleanup
+    - image: murmurations/nodecleaner
       context: .
       docker:
-        dockerfile: services/cronjob/nodecleanup/docker/Dockerfile-dev
-    - image: murmurations/parseschema
+        dockerfile: services/cronjob/nodecleaner/docker/Dockerfile-dev
+    - image: murmurations/schemaparser
       context: .
       docker:
-        dockerfile: services/cronjob/parseschema/docker/Dockerfile-dev
+        dockerfile: services/cronjob/schemaparser/docker/Dockerfile-dev
 deploy:
   helm:
     releases:
@@ -34,8 +34,8 @@ deploy:
         validationServiceImage: murmurations/validation
         libraryServiceImage: murmurations/library
         # cronjobs
-        nodecleanupImage: murmurations/nodecleanup
-        parseschemaImage: murmurations/parseschema
+        nodecleanerImage: murmurations/nodecleaner
+        schemaparserImage: murmurations/schemaparser
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
         sourcepath: "{{.SOURCEPATH}}"
