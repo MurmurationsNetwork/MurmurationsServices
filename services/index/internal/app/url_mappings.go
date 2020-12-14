@@ -9,10 +9,11 @@ import (
 
 func mapUrls(router *gin.Engine) {
 	nodeHandler := http.NewNodeHandler(service.NewNodeService(db.NewRepository()))
-
-	router.GET("/ping", http.PingController.Ping)
 	router.POST("/nodes", nodeHandler.Add)
 	router.GET("/nodes/:nodeId", nodeHandler.Get)
 	router.GET("/nodes", nodeHandler.Search)
 	router.DELETE("/nodes/:nodeId", nodeHandler.Delete)
+
+	pingHandler := http.NewPingHandler()
+	router.GET("/ping", pingHandler.Ping)
 }

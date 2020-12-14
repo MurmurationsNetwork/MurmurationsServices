@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "murmurations.index" . }}
+  name: murmurations-index
 spec:
   replicas: {{ .Values.index.replicas }}
   selector:

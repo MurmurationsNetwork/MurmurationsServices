@@ -14,17 +14,18 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-var (
-	ValidationService validationServiceInterface = &validationService{}
-)
-
-type validationServiceInterface interface {
+type ValidationService interface {
 	ValidateNode(node *node.Node)
 }
 
-type validationService struct{}
+type validationService struct {
+}
 
-func (v *validationService) ValidateNode(node *node.Node) {
+func NewValidationService() ValidationService {
+	return &validationService{}
+}
+
+func (svc *validationService) ValidateNode(node *node.Node) {
 	document := gojsonschema.NewReferenceLoader(node.ProfileURL)
 	data, err := document.LoadJSON()
 	if err != nil {
@@ -33,9 +34,9 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	}
 
 	// Validate against the default schema.
-	FailureReasons := validateAgainstSchemas([]string{"default-v1"}, document)
-	if len(FailureReasons) != 0 {
-		sendNodeValidationFailedEvent(node, FailureReasons)
+	failureReasons := validateAgainstSchemas([]string{"default-v1"}, document)
+	if len(failureReasons) != 0 {
+		sendNodeValidationFailedEvent(node, failureReasons)
 		return
 	}
 
@@ -46,9 +47,9 @@ func (v *validationService) ValidateNode(node *node.Node) {
 	}
 
 	// Validate against schemes specify inside the profile data.
-	FailureReasons = validateAgainstSchemas(linkedSchemas, document)
-	if len(FailureReasons) != 0 {
-		sendNodeValidationFailedEvent(node, FailureReasons)
+	failureReasons = validateAgainstSchemas(linkedSchemas, document)
+	if len(failureReasons) != 0 {
+		sendNodeValidationFailedEvent(node, failureReasons)
 		return
 	}
 

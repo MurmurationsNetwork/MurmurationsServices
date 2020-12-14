@@ -22,6 +22,8 @@ func init() {
 func StartApplication() {
 	router := gin.Default()
 
+	router.Use(CORS())
+
 	mapUrls(router)
 
 	server := getServer(router)

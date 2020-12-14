@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
@@ -8,17 +8,23 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
-    - host: index.murmurations.tech
+    - host: index.murmurations.dev
       http:
         paths:
-          - path: /v1(/|$)(.*)
+          - pathType: Prefix
+            path: /v1(/|$)(.*)
             backend:
-              serviceName: {{ template "murmurations.index" . }}
-              servicePort: 8080
-    - host: library.murmurations.tech
+              service:
+                name: murmurations-index
+                port:
+                  number: 8080
+    - host: library.murmurations.dev
       http:
         paths:
-          - path: /v1(/|$)(.*)
+          - pathType: Prefix
+            path: /v1(/|$)(.*)
             backend:
-              serviceName: {{ template "murmurations.library" . }}
-              servicePort: 8080
+              service:
+                name: murmurations-library
+                port:
+                  number: 8080
