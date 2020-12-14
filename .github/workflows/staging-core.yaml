@@ -1,4 +1,4 @@
-name: deploy-core
+name: staging-core
 
 on:
   push:
@@ -8,13 +8,26 @@ on:
       - 'charts/murmdev/charts/core'
 
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
 
-    - name: Check out the repo
-      uses: actions/checkout@v2
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.13
+
+    - name: Test
+      run: make test
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
 
     - name: Install doctl
       uses: digitalocean/action-doctl@v2
@@ -23,11 +36,6 @@ jobs:
 
     - name: Save DigitalOcean kubeconfig with short-lived credentials
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
-
-    - name: Install Helm
-      uses: azure/setup-helm@v1
-      with:
-        version: 'v3.4.0'
 
     - name: Deploy
       run: make helm-murmdev-core
