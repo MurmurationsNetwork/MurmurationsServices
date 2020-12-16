@@ -66,20 +66,20 @@ docker-push-schemaparser: docker-tag-schemaparser
 
 # ---------------------------------------------------------------
 
-helm-murmdev-core:
+helm-staging-core:
 	helm upgrade murmdev-core ./charts/murmdev/charts/core --install --wait --atomic
 
-helm-murmdev-index:
+helm-staging-index:
 	helm upgrade murmdev-index ./charts/murmdev/charts/index --set image=murmurations/index:$(TAG) --install --wait --atomic
 
-helm-murmdev-validation:
+helm-staging-validation:
 	helm upgrade murmdev-validation ./charts/murmdev/charts/validation --set image=murmurations/validation:$(TAG) --install --wait --atomic
 
-helm-murmdev-library:
+helm-staging-library:
 	helm upgrade murmdev-library ./charts/murmdev/charts/library --set image=murmurations/library:$(TAG) --install --wait --atomic
 
-helm-murmdev-nodecleaner:
+helm-staging-nodecleaner:
 	helm upgrade murmdev-nodecleaner ./charts/murmdev/charts/nodecleaner --set image=murmurations/nodecleaner:$(TAG) --install --wait --atomic
 
-helm-murmdev-schemaparser:
+helm-staging-schemaparser:
 	helm upgrade murmdev-schemaparser ./charts/murmdev/charts/schemaparser --set image=murmurations/schemaparser:$(TAG) --install --wait --atomic

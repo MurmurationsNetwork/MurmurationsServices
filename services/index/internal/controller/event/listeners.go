@@ -2,6 +2,8 @@ package event
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -28,6 +30,12 @@ func NewNodeHandler(nodeService service.NodesService) NodeHandler {
 
 func (handler *nodeHandler) Validated() error {
 	return event.NewNodeValidatedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Error(fmt.Sprintf("Panic occurred in nodeValidated handler: %v", err), errors.New("painc"))
+			}
+		}()
+
 		var nodeValidatedData event.NodeValidatedData
 		err := json.Unmarshal(msg.Data, &nodeValidatedData)
 		if err != nil {
@@ -52,6 +60,12 @@ func (handler *nodeHandler) Validated() error {
 
 func (handler *nodeHandler) ValidationFailed() error {
 	return event.NewNodeValidationFailedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Error(fmt.Sprintf("Panic occurred in nodeValidationFailed handler: %v", err), errors.New("painc"))
+			}
+		}()
+
 		var nodeValidationFailedData event.NodeValidationFailedData
 		err := json.Unmarshal(msg.Data, &nodeValidationFailedData)
 		if err != nil {

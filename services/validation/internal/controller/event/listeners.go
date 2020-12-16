@@ -2,6 +2,8 @@ package event
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -27,10 +29,16 @@ func NewNodeHandler(validationService service.ValidationService) NodeHandler {
 
 func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(nats.Client.Client(), qgroup, func(msg *stan.Msg) {
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Error(fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err), errors.New("painc"))
+			}
+		}()
+
 		var nodeCreatedData event.NodeCreatedData
 		err := json.Unmarshal(msg.Data, &nodeCreatedData)
 		if err != nil {
-			logger.Error("error when trying to parsing nodeCreatedData", err)
+			logger.Error("Error when trying to parsing nodeCreatedData", err)
 			return
 		}
 
