@@ -32,7 +32,7 @@ func (handler *nodeHandler) Validated() error {
 	return event.NewNodeValidatedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error(fmt.Sprintf("Panic occurred in nodeValidated handler: %v", err), errors.New("painc"))
+				logger.Error(fmt.Sprintf("Panic occurred in nodeValidated handler: %v", err), errors.New("panic"))
 			}
 		}()
 
@@ -62,7 +62,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 	return event.NewNodeValidationFailedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error(fmt.Sprintf("Panic occurred in nodeValidationFailed handler: %v", err), errors.New("painc"))
+				logger.Error(fmt.Sprintf("Panic occurred in nodeValidationFailed handler: %v", err), errors.New("panic"))
 			}
 		}()
 

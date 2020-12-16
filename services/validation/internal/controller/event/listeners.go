@@ -31,7 +31,7 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(nats.Client.Client(), qgroup, func(msg *stan.Msg) {
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error(fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err), errors.New("painc"))
+				logger.Error(fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err), errors.New("panic"))
 			}
 		}()
 
