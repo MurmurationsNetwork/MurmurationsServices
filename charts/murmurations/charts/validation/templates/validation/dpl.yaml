@@ -1,0 +1,76 @@
+{{- if eq .Values.global.env "development" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validation
+spec:
+  replicas: {{ .Values.validation.replicas }}
+  selector:
+    matchLabels:
+      app: validation
+  template:
+    metadata:
+      labels:
+        app: validation
+    spec:
+      containers:
+        - name: validation
+          image: {{ .Values.image }}
+          volumeMounts:
+            - mountPath: /src/validation
+              name: source-path
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: validation-config
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: source-path
+          hostPath:
+            path: {{ .Values.global.sourcepath }}
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validation
+spec:
+  replicas: {{ .Values.validation.replicas }}
+  selector:
+    matchLabels:
+      app: validation
+  template:
+    metadata:
+      labels:
+        app: validation
+    spec:
+      containers:
+        - name: validation
+          image: {{ .Values.image }}
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: validation-config
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+{{- end }}

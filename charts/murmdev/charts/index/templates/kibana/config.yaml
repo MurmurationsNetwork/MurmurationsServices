@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: index-kibana-config
-data:
-  ELASTICSEARCH_HOSTS: http://index-es:9200

@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/library/**'
-      - 'charts/murmdev/charts/library'
+      - 'charts/murmurations/charts/library'
 
 jobs:
   test:
@@ -56,4 +56,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Restart library deployment
-      run: make helm-staging-library
+      run: make helm-murmurations-library

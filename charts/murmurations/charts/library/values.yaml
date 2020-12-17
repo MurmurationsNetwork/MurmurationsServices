@@ -1,0 +1,9 @@
+image: ""
+
+library:
+  replicas: 1
+  service:
+    port: 8080
+
+mongo:
+  replicas: 1

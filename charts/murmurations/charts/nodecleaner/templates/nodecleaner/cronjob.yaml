@@ -1,0 +1,47 @@
+{{- if eq .Values.global.env "development" }}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleaner
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleaner
+              image: {{ .Values.image }}
+              command: ["go", "run"]
+              args: ["services/cronjob/nodecleaner/cmd/nodecleaner/main.go"]
+              volumeMounts:
+                - mountPath: /src
+                  name: source-path
+              envFrom:
+                - configMapRef:
+                    name: nodecleaner-config
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.global.sourcepath }}
+          restartPolicy: Never
+{{- else }}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleaner
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleaner
+              image: {{ .Values.image }}
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: nodecleaner-config
+          restartPolicy: Never
+{{- end }}

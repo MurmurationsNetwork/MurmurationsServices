@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/nodecleaner/**'
-      - 'charts/murmdev/charts/nodecleaner'
+      - 'charts/murmurations/charts/nodecleaner'
 
 jobs:
   test:
@@ -56,4 +56,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Restart nodecleaner deployment
-      run: make helm-staging-nodecleaner
+      run: make helm-murmurations-nodecleaner

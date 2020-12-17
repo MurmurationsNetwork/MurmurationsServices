@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/schemaparser/**'
-      - 'charts/murmdev/charts/schemaparser'
+      - 'charts/murmurations/charts/schemaparser'
 
 jobs:
   test:
@@ -56,4 +56,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Restart schemaparser deployment
-      run: make helm-staging-schemaparser
+      run: make helm-murmurations-schemaparser
