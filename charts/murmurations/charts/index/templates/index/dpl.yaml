@@ -1,4 +1,3 @@
-{{- if eq .Values.global.env "development" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,9 +15,6 @@ spec:
       containers:
         - name: index
           image: {{ .Values.image }}
-          volumeMounts:
-            - mountPath: /src/index
-              name: source-path
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
@@ -35,42 +31,12 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
+      {{- if eq .Values.global.env "development" }}
+          volumeMounts:
+            - mountPath: /src/index
+              name: source-path
       volumes:
         - name: source-path
           hostPath:
             path: {{ .Values.global.sourcepath }}
-{{- else }}
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: index
-spec:
-  replicas: {{ .Values.index.replicas }}
-  selector:
-    matchLabels:
-      app: index
-  template:
-    metadata:
-      labels:
-        app: index
-    spec:
-      containers:
-        - name: index
-          image: {{ .Values.image }}
-          env:
-            - name: NATS_CLIENT_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-          envFrom:
-            - configMapRef:
-                name: index-config
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: 8080
-            initialDelaySeconds: 35
-            periodSeconds: 15
-            timeoutSeconds: 5
-            failureThreshold: 3
-{{- end }}
+      {{- end }}

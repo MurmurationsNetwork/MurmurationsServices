@@ -1,37 +1,13 @@
-{{- if eq .Values.global.env "development" }}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: schemaparser
 spec:
+  {{- if eq .Values.global.env "development" }}
   schedule: "*/1 * * * *"
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          containers:
-            - name: schemaparser
-              image: {{ .Values.image }}
-              command: ["go", "run"]
-              args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]
-              volumeMounts:
-                - mountPath: /src
-                  name: source-path
-              envFrom:
-                - configMapRef:
-                    name: schemaparser-config
-          volumes:
-            - name: source-path
-              hostPath:
-                path: {{ .Values.global.sourcepath }}
-          restartPolicy: Never
-{{- else }}
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  name: schemaparser
-spec:
+  {{- else }}
   schedule: "*/5 * * * *"
+  {{- end }}
   jobTemplate:
     spec:
       template:
@@ -43,5 +19,15 @@ spec:
               envFrom:
                 - configMapRef:
                     name: schemaparser-config
+          {{- if eq .Values.global.env "development" }}
+              command: ["go", "run"]
+              args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]
+              volumeMounts:
+                - mountPath: /src
+                  name: source-path
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.global.sourcepath }}
+          {{- end }}
           restartPolicy: Never
-{{- end }}
