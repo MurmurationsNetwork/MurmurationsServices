@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: index-mongo
-          image: mongo
+          image: mongo:4.4.2

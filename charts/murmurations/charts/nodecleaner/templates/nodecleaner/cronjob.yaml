@@ -3,7 +3,13 @@ kind: CronJob
 metadata:
   name: nodecleaner
 spec:
-  schedule: "*/5 * * * *"
+  {{- if eq .Values.global.env "production" }}
+  schedule: "0 */12 * * *" # every 12 hrs
+  {{- else if eq .Values.global.env "staging" }}
+  schedule: "*/2 * * * *"  # every 2 minutes
+  {{- else }}
+  schedule: "*/1 * * * *"  # every 1 minute
+  {{- end }}
   jobTemplate:
     spec:
       template:

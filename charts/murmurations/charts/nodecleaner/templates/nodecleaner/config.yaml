@@ -5,3 +5,10 @@ metadata:
 data:
   INDEX_MONGO_URL: mongodb://index-mongo:27017
   INDEX_MONGO_DB_NAME: murmurationsIndex
+  {{- if eq .Values.global.env "production" }}
+  TTL: "43200" # 12 hrs
+  {{- else if eq .Values.global.env "staging" }}
+  TTL: "120"   # 2 mins
+  {{- else }}
+  TTL: "120"   # 2 mins
+  {{- end }}

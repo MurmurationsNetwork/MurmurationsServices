@@ -10,6 +10,7 @@ var Conf = config{}
 
 type config struct {
 	Mongo mongoConf
+	TTL   int `env:"TTL,required"`
 }
 
 type mongoConf struct {

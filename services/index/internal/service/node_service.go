@@ -41,6 +41,7 @@ func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Received
+	node.CreatedAt = dateutil.GetNowUnix()
 
 	if err := s.nodeRepo.Add(node); err != nil {
 		return nil, err

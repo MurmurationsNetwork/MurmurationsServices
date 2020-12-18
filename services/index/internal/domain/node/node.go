@@ -12,7 +12,8 @@ type Node struct {
 	LastValidated  *int64    `json:"last_validated" bson:"last_validated,omitempty"`
 	FailureReasons *[]string `json:"failure_reasons" bson:"failure_reasons,omitempty"`
 
-	Version *int32 `json:"-" bson:"__v,omitempty"`
+	Version   *int32 `json:"-" bson:"__v,omitempty"`
+	CreatedAt int64  `json:"-" bson:"createdAt,omitempty"`
 
 	ProfileStr string `json:"-" bson:"-"`
 }
