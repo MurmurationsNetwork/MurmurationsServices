@@ -56,4 +56,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Restart library deployment
-      run: make helm-murmurations-library
+      run: make helm-staging-library

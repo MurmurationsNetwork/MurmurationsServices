@@ -67,19 +67,19 @@ docker-push-schemaparser: docker-tag-schemaparser
 # ---------------------------------------------------------------
 
 helm-staging-core:
-	helm upgrade murmurations-core ./charts/murmurations/charts/core --install --wait --atomic
+	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=staging --install --wait --atomic
 
 helm-staging-index:
-	helm upgrade murmurations-index ./charts/murmurations/charts/index --set image=murmurations/index:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=staging,image=murmurations/index:$(TAG) --install --wait --atomic
 
 helm-staging-validation:
-	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set image=murmurations/validation:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=staging,image=murmurations/validation:$(TAG) --install --wait --atomic
 
 helm-staging-library:
-	helm upgrade murmurations-library ./charts/murmurations/charts/library --set image=murmurations/library:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=staging,image=murmurations/library:$(TAG) --install --wait --atomic
 
 helm-staging-nodecleaner:
-	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set image=murmurations/nodecleaner:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=staging,image=murmurations/nodecleaner:$(TAG) --install --wait --atomic
 
 helm-staging-schemaparser:
-	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set image=murmurations/schemaparser:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=staging,image=murmurations/schemaparser:$(TAG) --install --wait --atomic

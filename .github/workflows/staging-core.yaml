@@ -38,4 +38,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Deploy
-      run: make helm-murmurations-core
+      run: make helm-staging-core

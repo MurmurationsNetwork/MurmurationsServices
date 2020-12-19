@@ -3,10 +3,12 @@ kind: CronJob
 metadata:
   name: schemaparser
 spec:
-  {{- if eq .Values.global.env "development" }}
-  schedule: "*/1 * * * *"
+  {{- if eq .Values.global.env "production" }}
+  schedule: "*/1 * * * *"  # every 1 minute
+  {{- else if eq .Values.global.env "staging" }}
+  schedule: "*/1 * * * *"  # every 1 minute
   {{- else }}
-  schedule: "*/5 * * * *"
+  schedule: "*/1 * * * *"  # every 1 minute
   {{- end }}
   jobTemplate:
     spec:

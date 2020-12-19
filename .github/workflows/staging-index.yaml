@@ -56,4 +56,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
 
     - name: Restart index deployment
-      run: make helm-murmurations-index
+      run: make helm-staging-index
