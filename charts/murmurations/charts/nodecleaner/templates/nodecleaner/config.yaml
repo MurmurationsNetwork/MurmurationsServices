@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodecleaner-config
+data:
+  INDEX_MONGO_URL: mongodb://index-mongo:27017
+  INDEX_MONGO_DB_NAME: murmurationsIndex
+  {{- if eq .Values.global.env "production" }}
+  TTL: "86400" # 24 hrs
+  {{- else if eq .Values.global.env "staging" }}
+  TTL: "240"   # 4 mins
+  {{- else }}
+  TTL: "120"   # 2 mins
+  {{- end }}

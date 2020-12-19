@@ -30,12 +30,11 @@ deploy:
     - name: development
       chartPath: charts/murmurations
       artifactOverrides:
-        indexServiceImage: murmurations/index
-        validationServiceImage: murmurations/validation
-        libraryServiceImage: murmurations/library
-        # cronjobs
-        nodecleanerImage: murmurations/nodecleaner
-        schemaparserImage: murmurations/schemaparser
+        index.image: murmurations/index
+        validation.image: murmurations/validation
+        library.image: murmurations/library
+        nodecleaner.image: murmurations/nodecleaner
+        schemaparser.image: murmurations/schemaparser
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
-        sourcepath: "{{.SOURCEPATH}}"
+        global.sourcepath: "{{.SOURCEPATH}}"

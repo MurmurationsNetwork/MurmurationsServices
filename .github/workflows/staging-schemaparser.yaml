@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/schemaparser/**'
-      - 'charts/murmdev/charts/schemaparser'
+      - 'charts/murmurations/charts/schemaparser'
 
 jobs:
   test:

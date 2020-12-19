@@ -12,7 +12,7 @@ import (
 )
 
 type NodeRepository interface {
-	Remove(status string) error
+	Remove(status string, timeBefore int64) error
 }
 
 func NewNodeRepository(client *mongo.Client) NodeRepository {
@@ -25,8 +25,13 @@ type nodeRepository struct {
 	client *mongo.Client
 }
 
-func (r *nodeRepository) Remove(status string) error {
-	filter := bson.M{"status": status}
+func (r *nodeRepository) Remove(status string, timeBefore int64) error {
+	filter := bson.M{
+		"status": status,
+		"createdAt": bson.M{
+			"$lt": timeBefore,
+		},
+	}
 	result, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Node).DeleteMany(context.Background(), filter)
 	if err != nil {
 		return err

@@ -1,7 +1,11 @@
 package service
 
 import (
+	"time"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/db"
 )
 
@@ -20,5 +24,8 @@ func NewNodeService(nodeRepo db.NodeRepository) NodesService {
 }
 
 func (svc *nodesService) Remove() error {
-	return svc.nodeRepo.Remove(constant.NodeStatus.ValidationFailed)
+	return svc.nodeRepo.Remove(
+		constant.NodeStatus.ValidationFailed,
+		dateutil.NowSubtract(time.Duration(config.Conf.TTL)*time.Second),
+	)
 }

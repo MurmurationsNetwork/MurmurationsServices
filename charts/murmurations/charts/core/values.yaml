@@ -1,0 +1,4 @@
+env: ""
+
+nats:
+  replicas: 1

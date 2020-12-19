@@ -5,7 +5,7 @@ on:
     branches:
       - staging
     paths:
-      - 'charts/murmdev/charts/core'
+      - 'charts/murmurations/charts/core'
 
 jobs:
   test:

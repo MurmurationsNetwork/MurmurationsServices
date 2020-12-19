@@ -1,0 +1,35 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nodecleaner
+spec:
+  {{- if eq .Values.global.env "production" }}
+  schedule: "0 */12 * * *" # every 12 hrs
+  {{- else if eq .Values.global.env "staging" }}
+  schedule: "*/2 * * * *"  # every 2 minutes
+  {{- else }}
+  schedule: "*/1 * * * *"  # every 1 minute
+  {{- end }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nodecleaner
+              image: {{ .Values.image }}
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: nodecleaner-config
+          {{- if eq .Values.global.env "development" }}
+              command: ["go", "run"]
+              args: ["services/cronjob/nodecleaner/cmd/nodecleaner/main.go"]
+              volumeMounts:
+                - mountPath: /src
+                  name: source-path
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.global.sourcepath }}
+          {{- end }}
+          restartPolicy: Never

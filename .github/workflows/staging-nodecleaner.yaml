@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/nodecleaner/**'
-      - 'charts/murmdev/charts/nodecleaner'
+      - 'charts/murmurations/charts/nodecleaner'
 
 jobs:
   test:

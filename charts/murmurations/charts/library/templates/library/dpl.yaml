@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library
+spec:
+  replicas: {{ .Values.library.replicas }}
+  selector:
+    matchLabels:
+      app: library
+  template:
+    metadata:
+      labels:
+        app: library
+    spec:
+      containers:
+        - name: library
+          image: {{ .Values.image }}
+          envFrom:
+            - configMapRef:
+                name: library-config
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 35
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+      {{- if eq .Values.global.env "development" }}
+          volumeMounts:
+            - mountPath: /src/library
+              name: source-path
+      volumes:
+        - name: source-path
+          hostPath:
+            path: {{ .Values.global.sourcepath }}
+      {{- end }}

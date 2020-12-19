@@ -11,3 +11,7 @@ func GetNowUnix() int64 {
 func GetZeroValueUnix() int64 {
 	return time.Time{}.UTC().Unix()
 }
+
+func NowSubtract(duration time.Duration) int64 {
+	return time.Now().UTC().Add(duration * -1).Unix()
+}

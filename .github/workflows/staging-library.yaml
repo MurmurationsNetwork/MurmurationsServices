@@ -7,7 +7,7 @@ on:
     paths:
       - 'services/common/**'
       - 'services/library/**'
-      - 'charts/murmdev/charts/library'
+      - 'charts/murmurations/charts/library'
 
 jobs:
   test:
