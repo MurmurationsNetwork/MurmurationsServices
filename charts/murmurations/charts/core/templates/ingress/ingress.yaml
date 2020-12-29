@@ -19,10 +19,12 @@ spec:
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "development" }}
-    - host: index.murmurations.dev
-    {{- else }}
+    {{- if eq .Values.global.env "production" }}
+    - host: index.murmurations.com
+    {{- else if eq .Values.global.env "staging" }}
     - host: index.murmurations.tech
+    {{- else }}
+    - host: index.murmurations.dev
     {{- end }}
       http:
         paths:
@@ -33,10 +35,12 @@ spec:
                 name: index
                 port:
                   number: 8080
-    {{- if eq .Values.global.env "development" }}
-    - host: library.murmurations.dev
-    {{- else }}
+    {{- if eq .Values.global.env "production" }}
+    - host: library.murmurations.com
+    {{- else if eq .Values.global.env "staging" }}
     - host: library.murmurations.tech
+    {{- else }}
+    - host: library.murmurations.dev
     {{- end }}
       http:
         paths:

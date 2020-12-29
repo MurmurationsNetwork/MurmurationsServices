@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/cenkalti/backoff"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -54,7 +54,7 @@ func (c *mongoClient) DeleteOne(collection string, filter primitive.M) error {
 }
 
 func (c *mongoClient) Ping() error {
-	op := func() error {
+	operation := func() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 		err := c.client.Ping(ctx, readpref.Primary())
@@ -63,13 +63,7 @@ func (c *mongoClient) Ping() error {
 		}
 		return nil
 	}
-	notify := func(err error, time time.Duration) {
-		logger.Error("trying to re-connect MongoDB %s \n", err)
-	}
-
-	b := backoff.NewExponentialBackOff()
-	b.MaxElapsedTime = 2 * time.Minute
-	err := backoff.RetryNotify(op, b, notify)
+	err := backoff.NewBackoff(operation, "Trying to re-connect MongoDB")
 	if err != nil {
 		return err
 	}

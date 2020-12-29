@@ -2,10 +2,8 @@ package nats
 
 import (
 	"os"
-	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/cenkalti/backoff"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/nats-io/stan.go"
 )
 
@@ -34,7 +32,7 @@ func NewClient(stanClusterID, clientID, natsURL string) error {
 	if os.Getenv("ENV") != "test" {
 		opts := []stan.Option{stan.NatsURL(natsURL)}
 
-		op := func() error {
+		operation := func() error {
 			var err error
 			client, err = stan.Connect(stanClusterID, clientID, opts...)
 			if err != nil {
@@ -42,13 +40,7 @@ func NewClient(stanClusterID, clientID, natsURL string) error {
 			}
 			return nil
 		}
-		notify := func(err error, time time.Duration) {
-			logger.Error("trying to re-connect NATS %s \n", err)
-		}
-
-		b := backoff.NewExponentialBackOff()
-		b.MaxElapsedTime = 2 * time.Minute
-		err := backoff.RetryNotify(op, b, notify)
+		err := backoff.NewBackoff(operation, "Trying to re-connect NATS")
 		if err != nil {
 			return ErrConnectReqTimeout
 		}
