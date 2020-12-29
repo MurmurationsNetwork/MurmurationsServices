@@ -1,13 +1,13 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    target-branch: "staging"
-
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
     target-branch: "staging"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "weekly"
