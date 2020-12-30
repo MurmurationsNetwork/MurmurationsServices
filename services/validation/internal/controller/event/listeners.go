@@ -29,24 +29,27 @@ func NewNodeHandler(validationService service.ValidationService) NodeHandler {
 
 func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(nats.Client.Client(), qgroup, func(msg *stan.Msg) {
-		defer func() {
-			if err := recover(); err != nil {
-				logger.Error(fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err), errors.New("panic"))
+		// If we don't put a goruine here, we can only validate a node each time.
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					logger.Error(fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err), errors.New("panic"))
+				}
+			}()
+
+			var nodeCreatedData event.NodeCreatedData
+			err := json.Unmarshal(msg.Data, &nodeCreatedData)
+			if err != nil {
+				logger.Error("Error when trying to parsing nodeCreatedData", err)
+				return
 			}
+
+			handler.validationService.ValidateNode(&node.Node{
+				ProfileURL: nodeCreatedData.ProfileURL,
+				Version:    nodeCreatedData.Version,
+			})
+
+			msg.Ack()
 		}()
-
-		var nodeCreatedData event.NodeCreatedData
-		err := json.Unmarshal(msg.Data, &nodeCreatedData)
-		if err != nil {
-			logger.Error("Error when trying to parsing nodeCreatedData", err)
-			return
-		}
-
-		handler.validationService.ValidateNode(&node.Node{
-			ProfileURL: nodeCreatedData.ProfileURL,
-			Version:    nodeCreatedData.Version,
-		})
-
-		msg.Ack()
 	}).Listen()
 }

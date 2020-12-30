@@ -1,12 +1,11 @@
 package elastic
 
 import (
-	"fmt"
 	"os"
 	"time"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/cenkalti/backoff"
 	"github.com/olivere/elastic"
 )
 
@@ -36,7 +35,7 @@ func NewClient(url string) error {
 	var client *elastic.Client
 
 	if os.Getenv("ENV") != "test" {
-		op := func() error {
+		operation := func() error {
 			log := logger.GetLogger()
 
 			var err error
@@ -52,13 +51,7 @@ func NewClient(url string) error {
 
 			return nil
 		}
-		notify := func(err error, time time.Duration) {
-			logger.Info(fmt.Sprintf("trying to re-connect ElasticSearch %s \n", err))
-		}
-		b := backoff.NewExponentialBackOff()
-		b.MaxElapsedTime = 2 * time.Minute
-
-		err := backoff.RetryNotify(op, b, notify)
+		err := backoff.NewBackoff(operation, "Trying to re-connect ElasticSearch")
 		if err != nil {
 			return err
 		}
