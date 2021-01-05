@@ -12,6 +12,8 @@ kubectl config use-context CONTEXT_NAME
 
 ### 2. Run the following commands to create secrets
 
+Create secrets for Mongodb.
+
 ```bash
 kubectl \
   create secret generic index-mongo-secret \
@@ -22,7 +24,11 @@ kubectl \
   create secret generic library-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
   --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
+```
 
+Create secrets for each service.
+
+```
 kubectl \
   create secret generic index-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
