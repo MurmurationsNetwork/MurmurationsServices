@@ -22,45 +22,11 @@
 
 *After completing the setup*
 
-1. Create secrets for each service
+1. [Create secrets](.doc/create-secrets.md) for each service
 
 2. Run `make dev` to start services
 
 3. Try `index.murmurations.dev/ping` or `library.murmurations.dev/ping`
-
-## Create Secrets
-
-```bash
-kubectl \
-  create secret generic index-mongo-secret \
-  --from-literal="MONGO_INITDB_ROOT_USERNAME=index-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
-
-kubectl \
-  create secret generic library-mongo-secret \
-  --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
-
-kubectl \
-  create secret generic index-secret \
-  --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=password"
-
-kubectl \
-  create secret generic library-secret \
-  --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=password"
-
-kubectl \
-  create secret generic schemaparser-secret \
-  --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=password"
-
-kubectl \
-  create secret generic nodecleaner-secret \
-  --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=password"
-```
 
 ## Directory Layout
 
