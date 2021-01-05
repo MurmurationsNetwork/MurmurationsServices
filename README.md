@@ -22,9 +22,11 @@
 
 *After completing the setup*
 
-1. Run `make dev` to start services
+1. Create secrets for each service
 
-2. Try `index.murmurations.dev/ping` or `library.murmurations.dev/ping`
+2. Run `make dev` to start services
+
+3. Try `index.murmurations.dev/ping` or `library.murmurations.dev/ping`
 
 ## Create Secrets
 
