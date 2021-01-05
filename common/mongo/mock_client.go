@@ -34,5 +34,9 @@ func (c *mockClient) Ping() error {
 func (c *mockClient) Disconnect() {
 }
 
+func (c *mockClient) GetClient() *mongo.Client {
+	return c.client
+}
+
 func (c *mockClient) setClient(client *mongo.Client, dbName string) {
 }

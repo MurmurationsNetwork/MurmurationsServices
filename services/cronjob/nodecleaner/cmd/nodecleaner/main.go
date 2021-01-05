@@ -1,45 +1,27 @@
 package main
 
 import (
-	"context"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/adapter/mongodb"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/service"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func init() {
 	config.Init()
+	mongodb.Init()
 }
 
 func main() {
-	var client *mongo.Client
+	svc := service.NewNodeService(db.NewNodeRepository(mongo.Client.GetClient()))
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(config.Conf.Mongo.URL))
-	if err != nil {
-		logger.Panic("error when trying to connect to MongoDB", err)
-		return
-	}
-
-	err = client.Ping(context.Background(), readpref.Primary())
-	if err != nil {
-		logger.Panic("trying to re-connect MongoDB %s \n", err)
-		return
-	}
-
-	svc := service.NewNodeService(db.NewNodeRepository(client))
-	err = svc.Remove()
+	err := svc.Remove()
 	if err != nil {
 		logger.Panic("error when trying to delete nodes", err)
 		return
 	}
 
-	if err := client.Disconnect(context.Background()); err != nil {
-		logger.Panic("error when trying to disconnect from MongoDB", err)
-		return
-	}
+	mongo.Client.Disconnect()
 }

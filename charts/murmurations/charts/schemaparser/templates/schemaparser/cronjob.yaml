@@ -21,6 +21,8 @@ spec:
               envFrom:
                 - configMapRef:
                     name: schemaparser-config
+                - secretRef:
+                    name: schemaparser-secret
           {{- if eq .Values.global.env "development" }}
               command: ["go", "run"]
               args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]

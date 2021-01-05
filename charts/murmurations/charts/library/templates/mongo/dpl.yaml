@@ -15,3 +15,6 @@ spec:
       containers:
         - name: library-mongo
           image: mongo:4.4.2
+          envFrom:
+            - secretRef:
+                name: library-mongo-secret

@@ -81,6 +81,10 @@ func (c *mongoClient) Disconnect() {
 	}
 }
 
+func (c *mongoClient) GetClient() *mongo.Client {
+	return c.client
+}
+
 func (c *mongoClient) setClient(client *mongo.Client, dbName string) {
 	c.client = client
 	c.db = client.Database(dbName)

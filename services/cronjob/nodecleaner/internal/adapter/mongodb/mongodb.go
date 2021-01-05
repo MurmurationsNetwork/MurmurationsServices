@@ -3,7 +3,7 @@ package mongodb
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
 )
 
 func Init() {

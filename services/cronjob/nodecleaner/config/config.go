@@ -14,8 +14,10 @@ type config struct {
 }
 
 type mongoConf struct {
-	URL    string `env:"INDEX_MONGO_URL,required"`
-	DBName string `env:"INDEX_MONGO_DB_NAME,required"`
+	USERNAME string `env:"MONGO_USERNAME,required"`
+	PASSWORD string `env:"MONGO_PASSWORD,required"`
+	HOST     string `env:"MONGO_HOST,required"`
+	DBName   string `env:"MONGO_DB_NAME,required"`
 }
 
 func Init() {

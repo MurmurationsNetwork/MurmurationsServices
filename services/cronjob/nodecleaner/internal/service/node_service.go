@@ -5,7 +5,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/db"
 )
 

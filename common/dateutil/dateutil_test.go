@@ -8,15 +8,27 @@ import (
 )
 
 func TestGetNowUnix(t *testing.T) {
-	assert.Equal(t, GetNowUnix(), time.Now().UTC().Unix())
+	expect := time.Now().UTC().Unix()
+	actual := GetNowUnix()
+	assert.Equal(t, actual, expect)
 }
 
 func TestGetZeroValueUnix(t *testing.T) {
-	assert.Equal(t, GetZeroValueUnix(), int64(-62135596800))
+	expect := int64(-62135596800)
+	actual := GetZeroValueUnix()
+	assert.Equal(t, actual, expect)
 }
 
 func TestNowSubtract(t *testing.T) {
-	assert.Equal(t, NowSubtract(10*time.Second), time.Now().UTC().Add(-10*time.Second).Unix())
-	assert.Equal(t, NowSubtract(600*time.Second), time.Now().UTC().Add(-10*time.Minute).Unix())
-	assert.Equal(t, NowSubtract(86400*time.Second), time.Now().AddDate(0, 0, -1).UTC().Unix())
+	expect := time.Now().UTC().Add(-10 * time.Second).Unix()
+	actual := NowSubtract(10 * time.Second)
+	assert.Equal(t, actual, expect)
+
+	expect = time.Now().UTC().Add(-10 * time.Minute).Unix()
+	actual = NowSubtract(600 * time.Second)
+	assert.Equal(t, actual, expect)
+
+	expect = time.Now().AddDate(0, 0, -1).UTC().Unix()
+	actual = NowSubtract(86400 * time.Second)
+	assert.Equal(t, actual, expect)
 }

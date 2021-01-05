@@ -7,5 +7,5 @@ data:
   SERVER_TIMEOUT_READ: 5s
   SERVER_TIMEOUT_WRITE: 10s
   SERVER_TIMEOUT_IDLE: 15s
-  LIBRARY_MONGO_URL: mongodb://library-mongo:27017
-  LIBRARY_MONGO_DB_NAME: murmurationsLibrary
+  MONGO_HOST: library-mongo:27017
+  MONGO_DB_NAME: murmurationsLibrary

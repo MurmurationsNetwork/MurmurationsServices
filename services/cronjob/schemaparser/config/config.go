@@ -19,8 +19,10 @@ type cdnConf struct {
 }
 
 type mongoConf struct {
-	URL    string `env:"LIBRARY_MONGO_URL,required"`
-	DBName string `env:"LIBRARY_MONGO_DB_NAME,required"`
+	USERNAME string `env:"MONGO_USERNAME,required"`
+	PASSWORD string `env:"MONGO_PASSWORD,required"`
+	HOST     string `env:"MONGO_HOST,required"`
+	DBName   string `env:"MONGO_DB_NAME,required"`
 }
 
 type redisConf struct {

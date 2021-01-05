@@ -7,7 +7,9 @@ import (
 )
 
 func Init() {
-	err := mongo.NewClient(config.Conf.Mongo.URL, config.Conf.Mongo.DBName)
+	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
+
+	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 	}
