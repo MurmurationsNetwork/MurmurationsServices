@@ -15,3 +15,6 @@ spec:
       containers:
         - name: index-mongo
           image: mongo:4.4.2
+          envFrom:
+            - secretRef:
+                name: index-mongo-secret

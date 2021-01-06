@@ -12,7 +12,7 @@
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop) and enable Kubernetes
 
-2. Install [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/)
+2. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
 
 3. Install [Skaffold](https://skaffold.dev/docs/install/)
 
@@ -22,9 +22,11 @@
 
 *After completing the setup*
 
-1. Run `make dev` to start services
+1. [Create secrets](.doc/secrets.md) for each service
 
-2. Try `index.murmurations.dev/ping` or `library.murmurations.dev/ping`
+2. Run `make dev` to start services
+
+3. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
 
 ## Directory Layout
 

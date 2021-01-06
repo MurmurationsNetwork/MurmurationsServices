@@ -18,6 +18,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: library-config
+            - secretRef:
+                name: library-secret
           livenessProbe:
             httpGet:
               path: /ping

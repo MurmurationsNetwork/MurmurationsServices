@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: schemaparser-config
 data:
-  LIBRARY_MONGO_URL: mongodb://library-mongo:27017
-  LIBRARY_MONGO_DB_NAME: murmurationsLibrary
+  MONGO_HOST: library-mongo:27017
+  MONGO_DB_NAME: murmurationsLibrary
   LIBRARY_CDN_URL: https://cdn.murmurations.tech
   REDIS_URL: schemaparser-redis:6379

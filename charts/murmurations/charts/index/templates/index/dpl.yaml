@@ -23,6 +23,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: index-config
+            - secretRef:
+                name: index-secret
           livenessProbe:
             httpGet:
               path: /ping
