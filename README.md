@@ -22,7 +22,7 @@
 
 *After completing the setup*
 
-1. [Create secrets](.doc/create-secrets.md) for each service
+1. [Create secrets](.doc/secrets.md) for each service
 
 2. Run `make dev` to start services
 

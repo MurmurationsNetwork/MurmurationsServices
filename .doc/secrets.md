@@ -1,8 +1,8 @@
-# How to Create Secrets
+# Managing Secret using kubectl
 
+## Create Secrets
 
 ### 1. Change the current-context
-
 
 ```
 kubectl config use-context CONTEXT_NAME
@@ -50,4 +50,12 @@ kubectl \
   create secret generic nodecleaner-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
   --from-literal="MONGO_PASSWORD=password"
+```
+
+## Delete a Secret
+
+To delete the Secret you have just created:
+
+```
+kubectl delete secret index-secret
 ```
