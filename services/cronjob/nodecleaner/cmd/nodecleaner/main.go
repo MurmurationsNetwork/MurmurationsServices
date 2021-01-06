@@ -19,7 +19,7 @@ func main() {
 
 	err := svc.Remove()
 	if err != nil {
-		logger.Panic("error when trying to delete nodes", err)
+		logger.Panic("Error when trying to delete nodes", err)
 		return
 	}
 

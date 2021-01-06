@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'services/common/**'
-      - 'services/nodecleaner/**'
+      - 'services/cronjob/nodecleaner/**'
       - 'charts/murmurations/charts/nodecleaner'
 
 jobs:

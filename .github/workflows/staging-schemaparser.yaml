@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'services/common/**'
-      - 'services/schemaparser/**'
+      - 'services/cronjob/schemaparser/**'
       - 'charts/murmurations/charts/schemaparser'
 
 jobs:
