@@ -1,4 +1,4 @@
-# How to install Nginx Controller
+# How to Install Nginx Controller
 
 ## Installation
 
