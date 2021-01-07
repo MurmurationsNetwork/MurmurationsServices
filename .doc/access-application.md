@@ -1,4 +1,4 @@
-# How to access application in Kubernetes
+# How to Access Application in Kubernetes
 
 You can use [Port Forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) and then just connect your client to it.
 
