@@ -1,0 +1,92 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-forwarder-cm
+  namespace: logging
+  labels:
+    app.kubernetes.io/component: forwarder
+    app.kubernetes.io/instance: fluentd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: fluentd
+    helm.sh/chart: fluentd-3.2.2
+  annotations:
+    meta.helm.sh/release-name: fluentd
+    meta.helm.sh/release-namespace: logging
+data:
+  fluentd.conf: |
+
+    # Ignore fluentd own events
+    <match fluent.**>
+        @type null
+    </match>
+
+    # HTTP input for the liveness and readiness probes
+    <source>
+        @type http
+        port 9880
+    </source>
+
+    # Throw the healthcheck to the standard output instead of forwarding it
+    <match fluentd.healthcheck>
+        @type null
+    </match>
+
+    # Get the logs from the containers running in the node
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      exclude_path /var/log/containers/*fluentd*.log
+      pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
+      tag kubernetes.*
+      read_from_head true
+      format json
+      time_format %Y-%m-%dT%H:%M:%S.%NZ
+    </source>
+
+    # enrich with kubernetes metadata
+    <filter kubernetes.**>
+        @type kubernetes_metadata
+    </filter>
+
+    <match kubernetes.var.log.containers.**index**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "elasticsearch-master.logging.svc.cluster.local"
+      port "9200"
+      index_name "index-logs"
+      <buffer>
+        @type file
+        path /opt/bitnami/fluentd/logs/buffers/index-logs.buffer
+        flush_thread_count 2
+        flush_interval 5s
+      </buffer>
+    </match>
+
+    <match kubernetes.var.log.containers.**validation**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "elasticsearch-master.logging.svc.cluster.local"
+      port "9200"
+      index_name "validation-logs"
+      <buffer>
+        @type file
+        path /opt/bitnami/fluentd/logs/buffers/validation-logs.buffer
+        flush_thread_count 2
+        flush_interval 5s
+      </buffer>
+    </match>
+
+
+    <match kubernetes.var.log.containers.**library**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "elasticsearch-master.logging.svc.cluster.local"
+      port "9200"
+      index_name "library-logs"
+      <buffer>
+        @type file
+        path /opt/bitnami/fluentd/logs/buffers/library-logs.buffer
+        flush_thread_count 2
+        flush_interval 5s
+      </buffer>
+    </match>

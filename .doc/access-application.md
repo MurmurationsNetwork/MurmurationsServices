@@ -8,4 +8,5 @@ If you want to stop, just hit `Ctrl+C` on the same cmd window to stop the proces
 kubectl port-forward svc/index-mongo 27017:27017
 kubectl port-forward svc/library-mongo 27018:27017
 kubectl port-forward svc/index-kibana 5601:5601
+kubectl port-forward svc/kibana-kibana 5601:5601 -n logging
 ```
