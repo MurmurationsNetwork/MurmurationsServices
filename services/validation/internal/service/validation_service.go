@@ -3,12 +3,14 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
@@ -29,6 +31,7 @@ func NewValidationService() ValidationService {
 func (svc *validationService) ValidateNode(node *node.Node) {
 	data, err := svc.readFromProfileURL(node.ProfileURL)
 	if err != nil {
+		logger.Info("Could not read from profile_url: " + node.ProfileURL)
 		svc.sendNodeValidationFailedEvent(node, []string{"Could not read from profile_url: " + node.ProfileURL})
 		return
 	}
@@ -36,12 +39,14 @@ func (svc *validationService) ValidateNode(node *node.Node) {
 	// Validate against the default schema.
 	failureReasons := svc.validateAgainstSchemas([]string{"default-v1"}, node.ProfileURL)
 	if len(failureReasons) != 0 {
+		logger.Info("Failed to validate against schemas: " + strings.Join(failureReasons, " "))
 		svc.sendNodeValidationFailedEvent(node, failureReasons)
 		return
 	}
 
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
+		logger.Info("Could not read linked_schemas from profile_url: " + node.ProfileURL)
 		svc.sendNodeValidationFailedEvent(node, []string{"Could not read linked_schemas from profile_url: " + node.ProfileURL})
 		return
 	}
@@ -49,12 +54,14 @@ func (svc *validationService) ValidateNode(node *node.Node) {
 	// Validate against schemes specify inside the profile data.
 	failureReasons = svc.validateAgainstSchemas(linkedSchemas, node.ProfileURL)
 	if len(failureReasons) != 0 {
+		logger.Info("Failed to validate against schemas: " + strings.Join(failureReasons, " "))
 		svc.sendNodeValidationFailedEvent(node, failureReasons)
 		return
 	}
 
 	jsonStr, err := getJSONStr(node.ProfileURL)
 	if err != nil {
+		logger.Info("Could not get JSON string from profile_url: " + node.ProfileURL)
 		svc.sendNodeValidationFailedEvent(node, []string{"Could not get JSON string from profile_url: " + node.ProfileURL})
 		return
 	}
