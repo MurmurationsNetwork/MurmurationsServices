@@ -16,7 +16,10 @@ func init() {
 }
 
 func StartApplication() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(gin.Recovery())
+
 	mapUrls(router)
 
 	server := getServer(router)

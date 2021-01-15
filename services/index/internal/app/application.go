@@ -20,9 +20,9 @@ func init() {
 }
 
 func StartApplication() {
-	router := gin.Default()
-
-	router.Use(CORS())
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(gin.Recovery(), CORS())
 
 	mapUrls(router)
 

@@ -53,15 +53,13 @@ spec:
             - ulimit -n 65536
           securityContext:
             privileged: true
-        {{- if not (eq .Values.global.env "development") }}
+  {{- if not (eq .Values.global.env "development") }}
         - name: file-permissions
           image: busybox:1.32
           command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/']
           volumeMounts:
           - mountPath: /usr/share/elasticsearch/data
             name: index-es-storage
-        {{- end }}
-  {{- if not (eq .Values.global.env "development") }}
   volumeClaimTemplates:
   - metadata:
       name: index-es-storage
