@@ -1,30 +1,5 @@
 # Install Elastic Stack (EFK) Elastic, FluentD, Kibana
 
-**Create a namespace**
-
-```
-kubectl create namespace logging
-```
-
-**Install elastic search chart**
-
-```
-helm repo add elastic https://helm.elastic.co
-helm install elasticsearch elastic/elasticsearch -f values-elastic.yaml -n logging
-```
-
-**Check out the status**
-
-```
-kubectl get all -n logging
-```
-
-**Install Kibana chart**
-
-```
-helm install kibana elastic/kibana -f values-kibana.yaml -n logging
-```
-
 **Install Fluentd**
 
 ```

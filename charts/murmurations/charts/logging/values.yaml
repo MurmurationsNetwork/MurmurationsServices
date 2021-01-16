@@ -1,0 +1,5 @@
+es:
+  replicas: 1
+
+mongo:
+  replicas: 1

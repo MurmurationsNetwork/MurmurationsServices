@@ -2,7 +2,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: fluentd-forwarder-cm
-  namespace: logging
+  namespace: kube-logging
   labels:
     app.kubernetes.io/component: forwarder
     app.kubernetes.io/instance: fluentd
@@ -11,7 +11,7 @@ metadata:
     helm.sh/chart: fluentd-3.2.2
   annotations:
     meta.helm.sh/release-name: fluentd
-    meta.helm.sh/release-namespace: logging
+    meta.helm.sh/release-namespace: kube-logging
 data:
   fluentd.conf: |
 

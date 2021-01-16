@@ -83,3 +83,6 @@ helm-staging-nodecleaner:
 
 helm-staging-schemaparser:
 	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=staging,image=murmurations/schemaparser:$(TAG) --install --wait --atomic
+
+helm-staging-logging:
+	helm upgrade murmurations-logging ./charts/murmurations/charts/logging --set global.env=staging --install --wait --atomic

@@ -8,8 +8,5 @@ index:
 es:
   replicas: 1
 
-kibana:
-  replicas: 1
-
 mongo:
   replicas: 1
