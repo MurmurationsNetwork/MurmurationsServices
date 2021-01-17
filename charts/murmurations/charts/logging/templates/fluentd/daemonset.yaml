@@ -22,7 +22,7 @@ spec:
         image: fluent/fluentd-kubernetes-daemonset:v1.11-debian-elasticsearch7-1
         env:
           - name:  FLUENT_ELASTICSEARCH_HOST
-            value: "elasticsearch.logging.svc.cluster.local"
+            value: "elasticsearch.kube-logging.svc.cluster.local"
           - name:  FLUENT_ELASTICSEARCH_PORT
             value: "9200"
           - name: FLUENT_ELASTICSEARCH_SCHEME
@@ -41,6 +41,8 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
+        - name: fluentd-config
+          mountPath: /fluentd/etc # path of fluentd config file
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
@@ -49,3 +51,6 @@ spec:
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
+      - name: fluentd-config
+        configMap:
+          name: fluentd-config # name of the config map we will create
