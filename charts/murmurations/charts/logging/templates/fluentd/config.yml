@@ -114,7 +114,7 @@ data:
       scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
       ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
       reload_connections true
-      index_name "library-app"
+      index_name "nodecleaner-app"
       <buffer>
         flush_thread_count 8
         flush_interval 5s
@@ -133,7 +133,7 @@ data:
       scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
       ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
       reload_connections true
-      index_name "library-app"
+      index_name "schemaparser-app"
       <buffer>
         flush_thread_count 8
         flush_interval 5s
