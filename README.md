@@ -18,15 +18,15 @@
 
 4. Install [Helm](https://helm.sh/docs/intro/install/)
 
-5. Add `127.0.0.1 index.murmurations.dev` & `127.0.0.1 library.murmurations.dev` to your host file
+5. [Create secrets](.doc/secrets.md) for each service
+
+6. Add `127.0.0.1 index.murmurations.dev` & `127.0.0.1 library.murmurations.dev` to your host file
 
 *After completing the setup*
 
-1. [Create secrets](.doc/secrets.md) for each service
+1. Run `make dev` to start services
 
-2. Run `make dev` to start services
-
-3. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
+2. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
 
 ## Directory Layout
 

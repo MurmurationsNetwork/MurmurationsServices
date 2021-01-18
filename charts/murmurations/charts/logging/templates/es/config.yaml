@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: kube-logging
+data:
+  cluster.name: k8s-logs
+  discovery.seed_hosts: "es-cluster-0.index-es"
+  cluster.initial_master_nodes: "es-cluster-0"
+  ES_JAVA_OPTS: "-Xmx128m -Xms128m"

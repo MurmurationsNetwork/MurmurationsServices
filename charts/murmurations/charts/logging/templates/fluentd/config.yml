@@ -1,0 +1,145 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-config
+  namespace: kube-logging
+data:
+  fluent.conf: |
+
+    # here we read the logs from Docker's containers and parse them
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      exclude_path ["/var/log/containers/*fluentd*.log", "/var/log/containers/*kube-system*.log"]
+      pos_file /var/log/fluentd-containers.log.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+
+    <filter **>
+      @type parser
+      key_name log
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key time
+          keep_time_key true
+        </pattern>
+      </parse>
+    </filter>
+
+    # we use kubernetes metadata plugin to add metadatas to the log
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+    </filter>
+
+    # Ignore fluentd logs.
+    <match fluent.**>
+      @type null
+    </match>
+
+    # Ignore kube-system logs.
+    <match kubernetes.var.log.containers.**kube-system**.log>
+      @type null
+    </match>
+
+    # Send the logs to Elasticsearch
+    <match kubernetes.var.log.containers.**index**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
+      port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
+      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+      ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
+      reload_connections true
+      index_name "index-app"
+      <buffer>
+        flush_thread_count 8
+        flush_interval 5s
+        chunk_limit_size 2M
+        queue_limit_length 32
+        retry_max_interval 30
+        retry_forever true
+      </buffer>
+    </match>
+
+    <match kubernetes.var.log.containers.**validation**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
+      port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
+      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+      ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
+      reload_connections true
+      index_name "validation-app"
+      <buffer>
+        flush_thread_count 8
+        flush_interval 5s
+        chunk_limit_size 2M
+        queue_limit_length 32
+        retry_max_interval 30
+        retry_forever true
+       </buffer>
+    </match>
+
+    <match kubernetes.var.log.containers.**library**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
+      port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
+      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+      ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
+      reload_connections true
+      index_name "library-app"
+      <buffer>
+        flush_thread_count 8
+        flush_interval 5s
+        chunk_limit_size 2M
+        queue_limit_length 32
+        retry_max_interval 30
+        retry_forever true
+      </buffer>
+    </match>
+
+    <match kubernetes.var.log.containers.**nodecleaner**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
+      port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
+      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+      ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
+      reload_connections true
+      index_name "nodecleaner-app"
+      <buffer>
+        flush_thread_count 8
+        flush_interval 5s
+        chunk_limit_size 2M
+        queue_limit_length 32
+        retry_max_interval 30
+        retry_forever true
+      </buffer>
+    </match>
+
+    <match kubernetes.var.log.containers.**schemaparser**.log>
+      @type elasticsearch
+      include_tag_key true
+      host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
+      port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
+      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+      ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
+      reload_connections true
+      index_name "schemaparser-app"
+      <buffer>
+        flush_thread_count 8
+        flush_interval 5s
+        chunk_limit_size 2M
+        queue_limit_length 32
+        retry_max_interval 30
+        retry_forever true
+      </buffer>
+    </match>
