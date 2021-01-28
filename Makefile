@@ -23,6 +23,9 @@ docker-build-nodecleaner:
 docker-build-schemaparser:
 	$(MAKE) -C services/cronjob/schemaparser/ docker-build
 
+docker-build-revalidatenode:
+	$(MAKE) -C services/cronjob/revalidatenode/ docker-build
+
 # ---------------------------------------------------------------
 
 TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
@@ -41,6 +44,9 @@ docker-tag-nodecleaner: docker-build-nodecleaner
 
 docker-tag-schemaparser: docker-build-schemaparser
 	docker tag murmurations/schemaparser murmurations/schemaparser:${TAG}
+
+docker-tag-revalidatenode: docker-build-revalidatenode
+	docker tag murmurations/revalidatenode murmurations/revalidatenode:${TAG}
 
 # ---------------------------------------------------------------
 
@@ -64,10 +70,17 @@ docker-push-schemaparser: docker-tag-schemaparser
 	docker push murmurations/schemaparser:latest
 	docker push murmurations/schemaparser:$(TAG)
 
+docker-push-revalidatenode: docker-tag-revalidatenode
+	docker push murmurations/revalidatenode:latest
+	docker push murmurations/revalidatenode:$(TAG)
+
 # ---------------------------------------------------------------
 
 helm-staging-core:
 	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=staging --install --wait --atomic
+
+helm-staging-logging:
+	helm upgrade murmurations-logging ./charts/murmurations/charts/logging --set global.env=staging --install --wait --atomic
 
 helm-staging-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=staging,image=murmurations/index:$(TAG) --install --wait --atomic
@@ -84,5 +97,5 @@ helm-staging-nodecleaner:
 helm-staging-schemaparser:
 	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=staging,image=murmurations/schemaparser:$(TAG) --install --wait --atomic
 
-helm-staging-logging:
-	helm upgrade murmurations-logging ./charts/murmurations/charts/logging --set global.env=staging --install --wait --atomic
+helm-staging-revalidatenode:
+	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=staging,image=murmurations/revalidatenode:$(TAG) --install --wait --atomic

@@ -50,6 +50,12 @@ kubectl \
   create secret generic nodecleaner-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
   --from-literal="MONGO_PASSWORD=password"
+
+# revalidatenode connects to Index MongoDB.
+kubectl \
+  create secret generic revalidatenode-secret \
+  --from-literal="MONGO_USERNAME=index-admin" \
+  --from-literal="MONGO_PASSWORD=password"
 ```
 
 ## Delete a Secret

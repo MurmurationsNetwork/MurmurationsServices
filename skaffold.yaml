@@ -24,6 +24,10 @@ build:
       context: .
       docker:
         dockerfile: services/cronjob/schemaparser/docker/Dockerfile-dev
+    - image: murmurations/revalidatenode
+      context: .
+      docker:
+        dockerfile: services/cronjob/revalidatenode/docker/Dockerfile-dev
 deploy:
   helm:
     releases:
@@ -35,6 +39,7 @@ deploy:
         library.image: murmurations/library
         nodecleaner.image: murmurations/nodecleaner
         schemaparser.image: murmurations/schemaparser
+        revalidatenode.image: murmurations/revalidatenode
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
         global.sourcepath: "{{.SOURCEPATH}}"

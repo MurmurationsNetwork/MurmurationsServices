@@ -1,3 +1,4 @@
+{{- if not (eq .Values.global.env "development") }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -54,3 +55,4 @@ spec:
       - name: fluentd-config
         configMap:
           name: fluentd-config # name of the config map we will create
+{{- end }}
