@@ -1,3 +1,4 @@
+{{- if not (eq .Values.global.env "development") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,3 +9,4 @@ data:
   discovery.seed_hosts: "es-cluster-0.index-es"
   cluster.initial_master_nodes: "es-cluster-0"
   ES_JAVA_OPTS: "-Xmx128m -Xms128m"
+{{- end }}

@@ -32,10 +32,15 @@ func (r *nodeRepository) Remove(status string, timeBefore int64) error {
 			"$lt": timeBefore,
 		},
 	}
+
 	result, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Node).DeleteMany(context.Background(), filter)
 	if err != nil {
 		return err
 	}
-	logger.Info(fmt.Sprintf("Delete %d nodes with %s status", result.DeletedCount, status))
+
+	if result.DeletedCount != 0 {
+		logger.Info(fmt.Sprintf("Delete %d nodes with %s status", result.DeletedCount, status))
+	}
+
 	return nil
 }

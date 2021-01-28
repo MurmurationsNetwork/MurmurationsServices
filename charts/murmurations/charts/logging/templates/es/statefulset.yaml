@@ -1,3 +1,4 @@
+{{- if not (eq .Values.global.env "development") }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -55,7 +56,6 @@ spec:
         command: ["sh", "-c", "ulimit -n 65536"]
         securityContext:
           privileged: true
-{{- if not (eq .Values.global.env "development") }}
       - name: fix-permissions
         image: busybox:1.32
         command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/']
@@ -73,4 +73,4 @@ spec:
       resources:
         requests:
           storage: 5Gi
-  {{- end }}
+{{- end }}

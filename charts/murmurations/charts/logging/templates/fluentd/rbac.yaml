@@ -1,3 +1,4 @@
+{{- if not (eq .Values.global.env "development") }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -32,3 +33,4 @@ subjects:
 - kind: ServiceAccount
   name: fluentd
   namespace: kube-logging
+{{- end }}

@@ -72,12 +72,11 @@ func (c *mongoClient) Ping() error {
 }
 
 func (c *mongoClient) Disconnect() {
-	logger.Info("trying to disconnect from MongoDB")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err := c.client.Disconnect(ctx)
 	if err != nil {
-		logger.Error("error when trying to disconnect from MongoDB", err)
+		logger.Error("Error when trying to disconnect from MongoDB", err)
 	}
 }
 
