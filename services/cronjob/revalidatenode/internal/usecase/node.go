@@ -30,6 +30,10 @@ func (usecase *nodeUsecase) RevalidateNodes() error {
 		return err
 	}
 
+	if len(nodes) == 0 {
+		return nil
+	}
+
 	logger.Info(fmt.Sprintf("Found %d nodes with status %s, sending them to validation service", len(nodes), constant.NodeStatus.Received))
 
 	for _, node := range nodes {
