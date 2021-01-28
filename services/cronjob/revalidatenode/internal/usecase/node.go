@@ -25,7 +25,9 @@ func NewNodeUsecase(nodeRepo repository.NodeRepository) NodeUsecase {
 }
 
 func (usecase *nodeUsecase) RevalidateNodes() error {
-	nodes, err := usecase.nodeRepo.FindByStatus(constant.NodeStatus.Received)
+	statuses := []string{constant.NodeStatus.Received, constant.NodeStatus.PostFailed}
+
+	nodes, err := usecase.nodeRepo.FindByStatuses(statuses)
 	if err != nil {
 		return err
 	}
@@ -34,7 +36,9 @@ func (usecase *nodeUsecase) RevalidateNodes() error {
 		return nil
 	}
 
-	logger.Info(fmt.Sprintf("Found %d nodes with status %s, sending them to validation service", len(nodes), constant.NodeStatus.Received))
+	logger.Info(
+		fmt.Sprintf("Found %d nodes with status %s or %s, sending them to validation service", len(nodes), statuses[0], statuses[1]),
+	)
 
 	for _, node := range nodes {
 		event.NewNodeCreatedPublisher(nats.Client.Client()).Publish(event.NodeCreatedData{

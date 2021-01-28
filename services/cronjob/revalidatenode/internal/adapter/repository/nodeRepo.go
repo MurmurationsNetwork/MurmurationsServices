@@ -13,7 +13,7 @@ import (
 )
 
 type NodeRepository interface {
-	FindByStatus(status string) (entity.Nodes, error)
+	FindByStatuses(statuses []string) (entity.Nodes, error)
 }
 
 func NewNodeRepository(client *mongo.Client) NodeRepository {
@@ -26,12 +26,12 @@ type nodeRepository struct {
 	client *mongo.Client
 }
 
-func (r *nodeRepository) FindByStatus(status string) (entity.Nodes, error) {
-	filter := bson.M{"status": status}
+func (r *nodeRepository) FindByStatuses(statuses []string) (entity.Nodes, error) {
+	filter := bson.M{"status": bson.M{"$in": statuses}}
 
 	cur, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Node).Find(context.Background(), filter)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error trying to find nodes with %s status", status), err)
+		logger.Error(fmt.Sprintf("Error trying to find nodes with %v status", statuses), err)
 		return nil, err
 	}
 
@@ -40,14 +40,14 @@ func (r *nodeRepository) FindByStatus(status string) (entity.Nodes, error) {
 		var node entity.Node
 		err := cur.Decode(&node)
 		if err != nil {
-			logger.Error(fmt.Sprintf("Error trying to find nodes with %s status", status), err)
+			logger.Error(fmt.Sprintf("Error trying to find nodes with %v status", statuses), err)
 			return nil, err
 		}
 		nodes = append(nodes, &node)
 	}
 
 	if err := cur.Err(); err != nil {
-		logger.Error(fmt.Sprintf("Error trying to find nodes with %s status", status), err)
+		logger.Error(fmt.Sprintf("Error trying to find nodes with %v status", statuses), err)
 		return nil, err
 	}
 
