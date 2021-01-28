@@ -14,8 +14,10 @@ func (c *natsClient) Client() stan.Conn {
 }
 
 func (c *natsClient) Disconnect() {
-	logger.Info("trying to disconnect from NATS")
-	c.client.Close()
+	err := c.client.Close()
+	if err != nil {
+		logger.Error("Error when trying to disconnect from Nats", err)
+	}
 }
 
 func (c *natsClient) setClient(client stan.Conn) {
