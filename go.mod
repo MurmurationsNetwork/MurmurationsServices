@@ -17,7 +17,7 @@ require (
 	github.com/olivere/elastic v6.2.35+incompatible
 	github.com/stretchr/testify v1.7.0
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.mongodb.org/mongo-driver v1.4.4
+	go.mongodb.org/mongo-driver v1.4.6
 	go.uber.org/zap v1.16.0
 	golang.org/x/sys v0.0.0-20201109165425-215b40eba54c // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
