@@ -37,6 +37,10 @@ func NewNodeService(nodeRepo db.NodeRepository) NodeUsecase {
 }
 
 func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr) {
+	if node.ProfileURL == "" {
+		return nil, resterr.NewBadRequestError("The profile_url parameter is missing.")
+	}
+
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()

@@ -13,7 +13,9 @@ func (r *mockNodeRepository) Add(node *entity.Node) resterr.RestErr {
 }
 
 func (r *mockNodeRepository) Get(nodeID string) (*entity.Node, resterr.RestErr) {
-	return nil, nil
+	return &entity.Node{
+		ID: nodeID,
+	}, nil
 }
 
 func (r *mockNodeRepository) Update(node *entity.Node) error {
