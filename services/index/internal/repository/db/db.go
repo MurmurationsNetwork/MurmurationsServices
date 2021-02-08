@@ -13,9 +13,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
-	model "github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	model "github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

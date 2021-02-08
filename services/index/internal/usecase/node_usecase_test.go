@@ -1,11 +1,11 @@
-package service
+package usecase
 
 import (
 	"testing"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
 	"github.com/stretchr/testify/assert"
 )

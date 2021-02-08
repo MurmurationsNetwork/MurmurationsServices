@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"fmt"
@@ -12,12 +12,12 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
 )
 
-type NodesService interface {
+type NodeUsecase interface {
 	AddNode(node *node.Node) (*node.Node, resterr.RestErr)
 	GetNode(nodeID string) (*node.Node, resterr.RestErr)
 	SetNodeValid(node *node.Node) error
@@ -26,17 +26,17 @@ type NodesService interface {
 	Delete(nodeID string) resterr.RestErr
 }
 
-type nodesService struct {
+type nodeUsecase struct {
 	nodeRepo db.NodeRepository
 }
 
-func NewNodeService(nodeRepo db.NodeRepository) NodesService {
-	return &nodesService{
+func NewNodeService(nodeRepo db.NodeRepository) NodeUsecase {
+	return &nodeUsecase{
 		nodeRepo: nodeRepo,
 	}
 }
 
-func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
+func (s *nodeUsecase) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 	if err := node.Validate(); err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *nodesService) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 	return node, nil
 }
 
-func (s *nodesService) GetNode(nodeID string) (*node.Node, resterr.RestErr) {
+func (s *nodeUsecase) GetNode(nodeID string) (*node.Node, resterr.RestErr) {
 	node := node.Node{ID: nodeID}
 	err := s.nodeRepo.Get(&node)
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *nodesService) GetNode(nodeID string) (*node.Node, resterr.RestErr) {
 	return &node, nil
 }
 
-func (s *nodesService) SetNodeValid(node *node.Node) error {
+func (s *nodeUsecase) SetNodeValid(node *node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Validated
 	node.FailureReasons = &[]string{}
@@ -78,7 +78,7 @@ func (s *nodesService) SetNodeValid(node *node.Node) error {
 	return nil
 }
 
-func (s *nodesService) SetNodeInvalid(node *node.Node) error {
+func (s *nodeUsecase) SetNodeInvalid(node *node.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.ValidationFailed
 	emptystr := ""
@@ -92,7 +92,7 @@ func (s *nodesService) SetNodeInvalid(node *node.Node) error {
 	return nil
 }
 
-func (s *nodesService) Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
+func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
 	result, err := s.nodeRepo.Search(query)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (s *nodesService) Search(query *query.EsQuery) (*query.QueryResults, rester
 	return result, nil
 }
 
-func (s *nodesService) Delete(nodeID string) resterr.RestErr {
+func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 	node := &node.Node{ID: nodeID}
 
 	if err := s.nodeRepo.Get(node); err != nil {

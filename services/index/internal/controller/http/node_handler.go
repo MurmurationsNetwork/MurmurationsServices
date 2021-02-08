@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/query"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,12 +18,12 @@ type NodeHandler interface {
 }
 
 type nodeHandler struct {
-	nodeService service.NodesService
+	nodeUsecase usecase.NodeUsecase
 }
 
-func NewNodeHandler(nodeService service.NodesService) NodeHandler {
+func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
 	return &nodeHandler{
-		nodeService: nodeService,
+		nodeUsecase: nodeService,
 	}
 }
 
@@ -43,7 +43,7 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 		return
 	}
 
-	result, err := handler.nodeService.AddNode(&node)
+	result, err := handler.nodeUsecase.AddNode(&node)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
@@ -59,7 +59,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 		return
 	}
 
-	node, err := handler.nodeService.GetNode(nodeId)
+	node, err := handler.nodeUsecase.GetNode(nodeId)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
@@ -76,7 +76,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		return
 	}
 
-	searchRes, err := handler.nodeService.Search(&query)
+	searchRes, err := handler.nodeUsecase.Search(&query)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
@@ -92,7 +92,7 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = handler.nodeService.Delete(nodeId)
+	err = handler.nodeUsecase.Delete(nodeId)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
