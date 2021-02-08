@@ -108,11 +108,11 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 	// TODO: Maybe we should avoid network requests in the index server?
 	resp, err := httputil.Get(node.ProfileURL)
 	if err != nil {
-		return resterr.NewBadRequestError(fmt.Sprintf("Error when trying to get the information from node_id: %s", nodeID))
+		return resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists for node_id: %s", nodeID))
+		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -123,5 +123,5 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 		return nil
 	}
 
-	return resterr.NewBadRequestError(fmt.Sprintf("Node %s retrun status code %d", nodeID, resp.StatusCode))
+	return resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
 }
