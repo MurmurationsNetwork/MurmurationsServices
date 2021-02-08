@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/event"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
 )
 

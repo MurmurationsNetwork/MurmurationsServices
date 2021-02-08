@@ -5,8 +5,8 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
 	"github.com/stretchr/testify/assert"
 )
 

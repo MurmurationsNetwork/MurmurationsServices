@@ -12,9 +12,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
 )
 
 type NodeUsecase interface {
