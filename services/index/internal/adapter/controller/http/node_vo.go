@@ -1,20 +1,21 @@
-package node
+package http
 
 import (
 	"encoding/json"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )
 
 type respond struct {
 	Data interface{} `json:"data,omitempty"`
 }
 
-type addNodeRespond struct {
+type addNodeVO struct {
 	NodeID string `json:"node_id,omitempty"`
 }
 
-type getNodeRespond struct {
+type getNodeVO struct {
 	ID             string    `json:"node_id,omitempty"`
 	ProfileURL     string    `json:"profile_url,omitempty"`
 	ProfileHash    *string   `json:"profile_hash,omitempty"`
@@ -23,19 +24,19 @@ type getNodeRespond struct {
 	FailureReasons *[]string `json:"failure_reasons,omitempty"`
 }
 
-type searchNodeRespond struct {
+type searchNodeVO struct {
 	ProfileURL    string `json:"profile_url,omitempty"`
 	LastValidated *int64 `json:"last_validated,omitempty"`
 }
 
-func (node *Node) AddNodeRespond() interface{} {
-	res := addNodeRespond{
+func (handler *nodeHandler) toAddNodeVO(node *entity.Node) interface{} {
+	res := addNodeVO{
 		NodeID: node.ID,
 	}
 	return respond{Data: res}
 }
 
-func (node *Node) GetNodeRespond() interface{} {
+func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {
 	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted {
 		node.ProfileHash = nil
 		node.LastValidated = nil
@@ -44,17 +45,17 @@ func (node *Node) GetNodeRespond() interface{} {
 		node.FailureReasons = nil
 	}
 
-	nodeJson, _ := json.Marshal(node)
-	var res getNodeRespond
-	json.Unmarshal(nodeJson, &res)
+	nodeJSON, _ := json.Marshal(toDTO(node))
+	var res getNodeVO
+	json.Unmarshal(nodeJSON, &res)
 	return respond{Data: res}
 }
 
-func (nodes Nodes) Marshall() interface{} {
+func (handler *nodeHandler) toSearchNodeVO(nodes entity.Nodes) interface{} {
 	data := make([]interface{}, len(nodes))
 	for index, node := range nodes {
 		nodeJson, _ := json.Marshal(node)
-		var res searchNodeRespond
+		var res searchNodeVO
 		json.Unmarshal(nodeJson, &res)
 		data[index] = res
 	}

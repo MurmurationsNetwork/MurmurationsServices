@@ -13,19 +13,18 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
-	model "github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type NodeRepository interface {
-	Add(node *node.Node) resterr.RestErr
-	Get(node *node.Node) resterr.RestErr
-	Update(node *node.Node) error
+	Add(node *entity.Node) resterr.RestErr
+	Get(nodeID string) (*entity.Node, resterr.RestErr)
+	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
-	Delete(node *node.Node) resterr.RestErr
+	Delete(node *entity.Node) resterr.RestErr
 }
 
 func NewRepository() NodeRepository {
@@ -38,9 +37,9 @@ func NewRepository() NodeRepository {
 type nodeRepository struct {
 }
 
-func (r *nodeRepository) Add(node *model.Node) resterr.RestErr {
+func (r *nodeRepository) Add(node *entity.Node) resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": node}
+	update := bson.M{"$set": r.toDAO(node)}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	result, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update, opt)
@@ -49,39 +48,40 @@ func (r *nodeRepository) Add(node *model.Node) resterr.RestErr {
 		return resterr.NewInternalServerError("Error when trying to add a node.", errors.New("database error"))
 	}
 
-	var updated model.Node
+	var updated nodeDAO
 	result.Decode(&updated)
 	node.Version = updated.Version
 
 	return nil
 }
 
-func (r *nodeRepository) Get(node *model.Node) resterr.RestErr {
-	filter := bson.M{"_id": node.ID}
+func (r *nodeRepository) Get(nodeID string) (*entity.Node, resterr.RestErr) {
+	filter := bson.M{"_id": nodeID}
 
 	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
-			return resterr.NewNotFoundError(fmt.Sprintf("Could not find node_id: %s", node.ID))
+			return nil, resterr.NewNotFoundError(fmt.Sprintf("Could not find node_id: %s", nodeID))
 		}
 		logger.Error("Error when trying to find a node", result.Err())
-		return resterr.NewInternalServerError("Error when trying to find a node.", errors.New("database error"))
+		return nil, resterr.NewInternalServerError("Error when trying to find a node.", errors.New("database error"))
 	}
 
+	var node nodeDAO
 	err := result.Decode(&node)
 	if err != nil {
 		logger.Error("Error when trying to parse database response", result.Err())
-		return resterr.NewInternalServerError("Error when trying to find a node.", errors.New("database error"))
+		return nil, resterr.NewInternalServerError("Error when trying to find a node.", errors.New("database error"))
 	}
 
-	return nil
+	return node.toEntity(), nil
 }
 
-func (r *nodeRepository) Update(node *model.Node) error {
+func (r *nodeRepository) Update(node *entity.Node) error {
 	filter := bson.M{"_id": node.ID, "__v": node.Version}
 	// Unset the version to prevent setting it.
 	node.Version = nil
-	update := bson.M{"$set": node}
+	update := bson.M{"$set": r.toDAO(node)}
 
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
@@ -126,12 +126,12 @@ func (r *nodeRepository) Update(node *model.Node) error {
 	return nil
 }
 
-func (r *nodeRepository) setPostFailed(node *model.Node) error {
+func (r *nodeRepository) setPostFailed(node *entity.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.PostFailed
 
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": node}
+	update := bson.M{"$set": r.toDAO(node)}
 
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
@@ -142,12 +142,12 @@ func (r *nodeRepository) setPostFailed(node *model.Node) error {
 	return nil
 }
 
-func (r *nodeRepository) setPosted(node *model.Node) error {
+func (r *nodeRepository) setPosted(node *entity.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.Posted
 
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": node}
+	update := bson.M{"$set": r.toDAO(node)}
 
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
@@ -185,7 +185,7 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 	}, nil
 }
 
-func (r *nodeRepository) Delete(node *model.Node) resterr.RestErr {
+func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
 	filter := bson.M{"_id": node.ID}
 
 	err := mongo.Client.DeleteOne(constant.MongoIndex.Node, filter)

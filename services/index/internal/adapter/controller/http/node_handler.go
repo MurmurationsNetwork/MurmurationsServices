@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
 	"github.com/gin-gonic/gin"
@@ -36,20 +35,25 @@ func (handler *nodeHandler) getNodeId(params gin.Params) (string, resterr.RestEr
 }
 
 func (handler *nodeHandler) Add(c *gin.Context) {
-	var node node.Node
+	var node nodeDTO
 	if err := c.ShouldBindJSON(&node); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
 
-	result, err := handler.nodeUsecase.AddNode(&node)
+	if err := node.Validate(); err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	result, err := handler.nodeUsecase.AddNode(node.toEntity())
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result.AddNodeRespond())
+	c.JSON(http.StatusOK, handler.toAddNodeVO(result))
 }
 
 func (handler *nodeHandler) Get(c *gin.Context) {
@@ -65,7 +69,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, node.GetNodeRespond())
+	c.JSON(http.StatusOK, handler.toGetNodeVO(node))
 }
 
 func (handler *nodeHandler) Search(c *gin.Context) {
@@ -76,13 +80,13 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		return
 	}
 
-	searchRes, err := handler.nodeUsecase.Search(&query)
+	searchResult, err := handler.nodeUsecase.Search(&query)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
-	c.JSON(http.StatusOK, searchRes.Marshall())
+	c.JSON(http.StatusOK, searchResult.ToVO())
 }
 
 func (handler *nodeHandler) Delete(c *gin.Context) {

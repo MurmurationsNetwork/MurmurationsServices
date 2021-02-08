@@ -13,15 +13,15 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 )
 
 type NodeUsecase interface {
-	AddNode(node *node.Node) (*node.Node, resterr.RestErr)
-	GetNode(nodeID string) (*node.Node, resterr.RestErr)
-	SetNodeValid(node *node.Node) error
-	SetNodeInvalid(node *node.Node) error
+	AddNode(node *entity.Node) (*entity.Node, resterr.RestErr)
+	GetNode(nodeID string) (*entity.Node, resterr.RestErr)
+	SetNodeValid(node *entity.Node) error
+	SetNodeInvalid(node *entity.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
 	Delete(nodeID string) resterr.RestErr
 }
@@ -36,11 +36,7 @@ func NewNodeService(nodeRepo db.NodeRepository) NodeUsecase {
 	}
 }
 
-func (s *nodeUsecase) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
-	if err := node.Validate(); err != nil {
-		return nil, err
-	}
-
+func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr) {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()
@@ -58,16 +54,15 @@ func (s *nodeUsecase) AddNode(node *node.Node) (*node.Node, resterr.RestErr) {
 	return node, nil
 }
 
-func (s *nodeUsecase) GetNode(nodeID string) (*node.Node, resterr.RestErr) {
-	node := node.Node{ID: nodeID}
-	err := s.nodeRepo.Get(&node)
+func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, resterr.RestErr) {
+	node, err := s.nodeRepo.Get(nodeID)
 	if err != nil {
 		return nil, err
 	}
-	return &node, nil
+	return node, nil
 }
 
-func (s *nodeUsecase) SetNodeValid(node *node.Node) error {
+func (s *nodeUsecase) SetNodeValid(node *entity.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Validated
 	node.FailureReasons = &[]string{}
@@ -78,7 +73,7 @@ func (s *nodeUsecase) SetNodeValid(node *node.Node) error {
 	return nil
 }
 
-func (s *nodeUsecase) SetNodeInvalid(node *node.Node) error {
+func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.ValidationFailed
 	emptystr := ""
@@ -101,10 +96,9 @@ func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr
 }
 
 func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
-	node := &node.Node{ID: nodeID}
-
-	if err := s.nodeRepo.Get(node); err != nil {
-		return err
+	node, getErr := s.nodeRepo.Get(nodeID)
+	if getErr != nil {
+		return getErr
 	}
 
 	// TODO: Maybe we should avoid network requests in the index server?

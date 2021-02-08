@@ -6,14 +6,14 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/stretchr/testify/assert"
 )
 
 var svc = NewNodeService(db.NewRepository())
 
 func TestAddNodeWithoutProfileURL(t *testing.T) {
-	node1 := node.Node{}
+	node1 := entity.Node{}
 	_, err := svc.AddNode(&node1)
 	assert.Equal(t, "The profile_url parameter is missing.", err.Message())
 }
@@ -21,7 +21,7 @@ func TestAddNodeWithoutProfileURL(t *testing.T) {
 func TestAddNodeWithProfileURL(t *testing.T) {
 	// FIXME: Not able to set version directly.
 	version := int32(1)
-	node2 := &node.Node{ProfileURL: "https://ic3.dev/test.json", Version: &version}
+	node2 := &entity.Node{ProfileURL: "https://ic3.dev/test.json", Version: &version}
 	_, err := svc.AddNode(node2)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "4d62d0d132e2814379c22f2850d7a6c9ae97c16f021c25c975730c6b97b31f2c", node2.ID)
@@ -35,7 +35,7 @@ func TestGetNode(t *testing.T) {
 }
 
 func TestSetNodeValid(t *testing.T) {
-	node := node.Node{ProfileURL: "https://ic3.dev/test.json"}
+	node := entity.Node{ProfileURL: "https://ic3.dev/test.json"}
 
 	svc.SetNodeValid(&node)
 
@@ -45,7 +45,7 @@ func TestSetNodeValid(t *testing.T) {
 }
 
 func TestSetNodeInvalid(t *testing.T) {
-	node := node.Node{}
+	node := entity.Node{}
 
 	svc.SetNodeInvalid(&node)
 
