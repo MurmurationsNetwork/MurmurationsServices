@@ -8,8 +8,8 @@ github.com/aws/aws-sdk-go v1.34.28 h1:sscPpn/Ns3i0F4HPEWAVcwdIRaZZCuL7llJ2/60yPI
 github.com/aws/aws-sdk-go v1.34.28/go.mod h1:H7NKnBqNVzoTJpGfLrQkkD+ytBA93eiDYi/+8rV9s48=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
-github.com/caarlos0/env/v6 v6.4.0 h1:fUo2hQNR3O7Yb7E2sYy8cxY42BRvFxWa0G4XBMLJAQM=
-github.com/caarlos0/env/v6 v6.4.0/go.mod h1:MX/8qQ2zCofGGkb7FxjmDLOOjUylO2b7dbsIpN30bnY=
+github.com/caarlos0/env/v6 v6.5.0 h1:f4C7ZQwm0nRFo8vETCQviLUOtOlOwsOhgc/QXp0zrTM=
+github.com/caarlos0/env/v6 v6.5.0/go.mod h1:5ZqhjfyF261xGkANuSuMQ1FeA9ikA3wzDY64wSd9k8k=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
