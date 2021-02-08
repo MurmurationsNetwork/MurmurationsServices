@@ -16,6 +16,15 @@ func init() {
 	}
 }
 
+func Get(url string) (*http.Response, error) {
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return resp, err
+}
+
 func GetByte(url string) ([]byte, error) {
 	resp, err := client.Get(url)
 	if err != nil {

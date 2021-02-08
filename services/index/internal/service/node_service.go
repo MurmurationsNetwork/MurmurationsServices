@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
@@ -102,20 +103,27 @@ func (s *nodesService) Search(query *query.EsQuery) (*query.QueryResults, rester
 func (s *nodesService) Delete(nodeID string) resterr.RestErr {
 	node := &node.Node{ID: nodeID}
 
-	err := s.nodeRepo.Get(node)
-	if err != nil {
+	if err := s.nodeRepo.Get(node); err != nil {
 		return err
 	}
 
 	// TODO: Maybe we should avoid network requests in the index server?
-	isValid := httputil.IsValidURL(node.ProfileURL)
-	if isValid {
+	resp, err := httputil.Get(node.ProfileURL)
+	if err != nil {
+		return resterr.NewBadRequestError(fmt.Sprintf("Error when trying to get the information from node_id: %s", nodeID))
+	}
+
+	if resp.StatusCode == http.StatusOK {
 		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists for node_id: %s", nodeID))
 	}
 
-	err = s.nodeRepo.Delete(node)
-	if err != nil {
-		return err
+	if resp.StatusCode == http.StatusNotFound {
+		err := s.nodeRepo.Delete(node)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	return nil
+
+	return resterr.NewBadRequestError(fmt.Sprintf("Node %s retrun status code %d", nodeID, resp.StatusCode))
 }
