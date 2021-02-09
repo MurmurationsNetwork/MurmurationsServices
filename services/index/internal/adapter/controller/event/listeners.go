@@ -8,8 +8,8 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/domain/node"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
 	"github.com/nats-io/stan.go"
 )
 
@@ -19,12 +19,12 @@ type NodeHandler interface {
 }
 
 type nodeHandler struct {
-	nodeService service.NodesService
+	nodeUsecase usecase.NodeUsecase
 }
 
-func NewNodeHandler(nodeService service.NodesService) NodeHandler {
+func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
 	return &nodeHandler{
-		nodeService: nodeService,
+		nodeUsecase: nodeService,
 	}
 }
 
@@ -44,7 +44,7 @@ func (handler *nodeHandler) Validated() error {
 				return
 			}
 
-			err = handler.nodeService.SetNodeValid(&node.Node{
+			err = handler.nodeUsecase.SetNodeValid(&entity.Node{
 				ProfileURL:    nodeValidatedData.ProfileURL,
 				ProfileHash:   &nodeValidatedData.ProfileHash,
 				ProfileStr:    nodeValidatedData.ProfileStr,
@@ -76,7 +76,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 				return
 			}
 
-			err = handler.nodeService.SetNodeInvalid(&node.Node{
+			err = handler.nodeUsecase.SetNodeInvalid(&entity.Node{
 				ProfileURL:     nodeValidationFailedData.ProfileURL,
 				FailureReasons: &nodeValidationFailedData.FailureReasons,
 				Version:        &nodeValidationFailedData.Version,

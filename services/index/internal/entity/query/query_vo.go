@@ -5,13 +5,13 @@ type meta struct {
 	TotalPages      int64 `json:"total_pages"`
 }
 
-type respond struct {
+type vo struct {
 	Data interface{} `json:"data,omitempty"`
 	Meta meta        `json:"meta,omitempty"`
 }
 
-func (results QueryResults) Marshall() interface{} {
-	return respond{
+func (results QueryResults) ToVO() interface{} {
+	return vo{
 		Data: results.Result,
 		Meta: meta{
 			TotalPages:      results.TotalPages,

@@ -1,14 +1,14 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/http"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/controller/http"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
 func mapUrls(router *gin.Engine) {
-	nodeHandler := http.NewNodeHandler(service.NewNodeService(db.NewRepository()))
+	nodeHandler := http.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
 	router.POST("/nodes", nodeHandler.Add)
 	router.GET("/nodes/:nodeId", nodeHandler.Get)
 	router.GET("/nodes", nodeHandler.Search)
