@@ -1,4 +1,4 @@
-package mongodb
+package global
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -7,6 +7,11 @@ import (
 )
 
 func Init() {
+	config.Init()
+	mongoInit()
+}
+
+func mongoInit() {
 	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)

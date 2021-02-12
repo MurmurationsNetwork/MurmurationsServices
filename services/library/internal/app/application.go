@@ -7,13 +7,12 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/adapter/mongodb"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/global"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
-	config.Init()
-	mongodb.Init()
+	global.Init()
 }
 
 func StartApplication() {

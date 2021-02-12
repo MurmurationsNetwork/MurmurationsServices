@@ -8,7 +8,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 	"github.com/nats-io/stan.go"
 )
@@ -45,7 +45,7 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 			}
 
 			logger.Info("Validating a new node: " + nodeCreatedData.ProfileURL)
-			handler.validationService.ValidateNode(&node.Node{
+			handler.validationService.ValidateNode(&entity.Node{
 				ProfileURL: nodeCreatedData.ProfileURL,
 				Version:    nodeCreatedData.Version,
 			})

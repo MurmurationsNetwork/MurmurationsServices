@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/controller/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )
 
