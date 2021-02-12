@@ -9,13 +9,22 @@ import (
 	"go.uber.org/zap"
 )
 
-func Logger(skipPaths []string) gin.HandlerFunc {
+var defaultSkipPaths = []string{"/ping"}
+
+func Logger() gin.HandlerFunc {
+	return LoggerWithConfig(gin.LoggerConfig{})
+}
+
+func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
+	notlogged := conf.SkipPaths
+	notlogged = append(notlogged, defaultSkipPaths...)
+
 	var skip map[string]struct{}
 
-	if length := len(skipPaths); length > 0 {
+	if length := len(notlogged); length > 0 {
 		skip = make(map[string]struct{}, length)
 
-		for _, path := range skipPaths {
+		for _, path := range notlogged {
 			skip[path] = struct{}{}
 		}
 	}

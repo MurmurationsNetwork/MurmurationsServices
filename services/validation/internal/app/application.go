@@ -18,7 +18,7 @@ func init() {
 func StartApplication() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Use(gin.Recovery(), middleware.Logger([]string{"/ping"}))
+	router.Use(gin.Recovery(), middleware.Logger())
 
 	mapUrls(router)
 
