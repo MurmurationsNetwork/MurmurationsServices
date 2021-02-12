@@ -1,4 +1,4 @@
-package node
+package entity
 
 type Node struct {
 	ProfileURL string `json:"profile_url"`

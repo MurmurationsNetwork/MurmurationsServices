@@ -13,12 +13,12 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/domain/node"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
 	"github.com/xeipuuv/gojsonschema"
 )
 
 type ValidationService interface {
-	ValidateNode(node *node.Node)
+	ValidateNode(node *entity.Node)
 }
 
 type validationService struct {
@@ -28,7 +28,7 @@ func NewValidationService() ValidationService {
 	return &validationService{}
 }
 
-func (svc *validationService) ValidateNode(node *node.Node) {
+func (svc *validationService) ValidateNode(node *entity.Node) {
 	data, err := svc.readFromProfileURL(node.ProfileURL)
 	if err != nil {
 		logger.Info("Could not read from profile_url: " + node.ProfileURL)
@@ -158,7 +158,7 @@ func (svc *validationService) validateAgainstSchemas(linkedSchemas []string, pro
 	return FailureReasons
 }
 
-func (svc *validationService) sendNodeValidationFailedEvent(node *node.Node, FailureReasons []string) {
+func (svc *validationService) sendNodeValidationFailedEvent(node *entity.Node, FailureReasons []string) {
 	event.NewNodeValidationFailedPublisher(nats.Client.Client()).Publish(event.NodeValidationFailedData{
 		ProfileURL:     node.ProfileURL,
 		FailureReasons: FailureReasons,
