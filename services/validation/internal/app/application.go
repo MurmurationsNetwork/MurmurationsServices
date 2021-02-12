@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/nats"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func init() {
 func StartApplication() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Use(gin.Recovery())
+	router.Use(gin.Recovery(), middleware.Logger([]string{"/ping"}))
 
 	mapUrls(router)
 

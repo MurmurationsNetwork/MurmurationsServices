@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/adapter/mongodb"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func init() {
 func StartApplication() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Use(gin.Recovery(), CORS())
+	router.Use(gin.Recovery(), middleware.Logger([]string{"/ping"}), CORS())
 
 	mapUrls(router)
 
