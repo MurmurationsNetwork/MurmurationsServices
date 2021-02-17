@@ -18,6 +18,10 @@ kubectl get pods --namespace cert-manager
 
 You’ll need to ensure that your domains are pointed to the Load Balancer via `A` records. This is done through your DNS provider.
 
+```
+Create A records for index.murmurations.network and library.murmurations.network, both pointing to 139.59.201.176
+```
+
 ## Create one issues Let’s Encrypt certificates
 
 ```

@@ -38,4 +38,8 @@
 
 4. [Create PVCs](.doc/pvcs.md) for each service
 
-5. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+5. Deploy each service
+
+6. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+
+7. Try `index.murmurations.network/v1/ping` or `library.murmurations.network/v1/ping`
