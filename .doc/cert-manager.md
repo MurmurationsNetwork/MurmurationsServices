@@ -14,8 +14,12 @@ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/relea
 kubectl get pods --namespace cert-manager
 ```
 
+## Create A records
+
+You’ll need to ensure that your domains are pointed to the Load Balancer via `A` records. This is done through your DNS provider.
+
 ## Create one issues Let’s Encrypt certificates
 
 ```
-make helm-production-core
+make helm-production-ingress
 ```

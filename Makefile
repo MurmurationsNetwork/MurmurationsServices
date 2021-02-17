@@ -76,8 +76,8 @@ docker-push-revalidatenode: docker-tag-revalidatenode
 
 # ---------------------------------------------------------------
 
-helm-staging-core:
-	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=staging --install --wait --atomic
+helm-staging-ingress:
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=staging --install --wait --atomic
 
 helm-staging-logging:
 	helm upgrade murmurations-logging ./charts/murmurations/charts/logging --set global.env=staging --install --wait --atomic
@@ -106,8 +106,8 @@ helm-staging-revalidatenode:
 # otherwise please update to the correct version.
 SPECIFIC_TAG ?= latest
 
-helm-production-core:
-	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=production --install --wait --atomic
+helm-production-ingress:
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=production --install --wait --atomic
 
 helm-production-logging:
 	helm upgrade murmurations-logging ./charts/murmurations/charts/logging --set global.env=production --install --wait --atomic
