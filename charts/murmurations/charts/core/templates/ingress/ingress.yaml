@@ -11,7 +11,13 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}
 spec:
-  {{- if not (eq .Values.global.env "development") }}
+  {{- if eq .Values.global.env "production" }}
+  tls:
+    - hosts:
+      - index.murmurations.network
+      - library.murmurations.network
+      secretName: murmurations-network-tls
+  {{- else if eq .Values.global.env "staging" }}
   tls:
     - hosts:
       - index.murmurations.tech
