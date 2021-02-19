@@ -7,18 +7,7 @@ Follow [Official Installation Guide](https://kubernetes.github.io/ingress-nginx/
 **Docker for Mac**
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/do/deploy.yaml
-```
-
-**Check Resources**
-
-```
-kubectl get pods -n ingress-nginx \
-  -l app.kubernetes.io/name=ingress-nginx --watch
-```
-
-## Uninstallation
-
-```
-kubectl delete all --all -n ingress-nginx
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx
 ```
