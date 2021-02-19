@@ -24,7 +24,7 @@ helm install \
   --set installCRDs=true
 ```
 
-## Create one issues Let’s Encrypt certificates
+## Install Issuer and Ingress
 
 ```
 make helm-production-ingress
