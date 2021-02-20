@@ -12,11 +12,11 @@
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop) and enable Kubernetes
 
-2. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
+2. Install [Helm](https://helm.sh/docs/intro/install/)
 
-3. Install [Skaffold](https://skaffold.dev/docs/install/)
+3. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
 
-4. Install [Helm](https://helm.sh/docs/intro/install/)
+4. Install [Skaffold](https://skaffold.dev/docs/install/)
 
 5. [Create secrets](.doc/secrets.md) for each service
 
@@ -28,7 +28,18 @@
 
 2. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
 
-## Directory Layout
+## Run in DigitalOcean
 
-* **common** contains packages that are shared across different services
-* **services** contains packages that compile to applications that are long-running processes (such as API servers)
+1. Create Kubernetes Clusters in DigitalOcean
+
+2. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
+
+3. [Create secrets](.doc/secrets.md) for each service
+
+4. [Create PVCs](.doc/pvcs.md) for each service
+
+5. Deploy each service
+
+6. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+
+7. Try `index.murmurations.network/v1/ping` or `library.murmurations.network/v1/ping`
