@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/redis"
@@ -68,11 +69,32 @@ func (s *schemaService) UpdateSchemas(schemaList []string) error {
 	return nil
 }
 
-func (s *schemaService) SetLastCommit(lastCommit string) error {
-	err := s.redis.Set("schemas:lastCommit", lastCommit, 0)
+func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
+	oldLastCommitTime, err := s.redis.Get("schemas:lastCommit")
 	if err != nil {
 		return err
 	}
+
+	t1, err := time.Parse(time.RFC3339, oldLastCommitTime)
+	if err != nil {
+		return err
+	}
+	t2, err := time.Parse(time.RFC3339, newLastCommitTime)
+	if err != nil {
+		return err
+	}
+
+	// To make sure DNS updates the content of schemas.
+	// The system won't update the last commit time until it passes a certain period.
+	if int(t2.Sub(t1).Seconds()) < 180 {
+		return nil
+	}
+
+	err = s.redis.Set("schemas:lastCommit", newLastCommitTime, 0)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

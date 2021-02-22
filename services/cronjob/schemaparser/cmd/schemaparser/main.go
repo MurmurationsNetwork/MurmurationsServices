@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/adapter/mongodb"
@@ -44,4 +46,6 @@ func main() {
 		logger.Panic("Error when trying to set schemas:lastCommit", err)
 		return
 	}
+
+	logger.Info(fmt.Sprintf("Update library schemas"))
 }
