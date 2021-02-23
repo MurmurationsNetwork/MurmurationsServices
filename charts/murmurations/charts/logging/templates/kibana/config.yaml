@@ -1,9 +1,0 @@
-{{- if not (eq .Values.global.env "development") }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kibana-config
-  namespace: kube-logging
-data:
-  ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-{{- end }}

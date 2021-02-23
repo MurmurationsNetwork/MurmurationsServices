@@ -1,0 +1,112 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-forwarder-cm
+  namespace: kube-logging
+  uid: 74a129d4-8884-46c3-be80-746d01bc4d9b
+  resourceVersion: '1851914'
+  creationTimestamp: '2021-02-23T08:54:34Z'
+  labels:
+    app.kubernetes.io/component: forwarder
+    app.kubernetes.io/instance: fluentd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: fluentd
+    helm.sh/chart: fluentd-3.6.2
+  annotations:
+    meta.helm.sh/release-name: fluentd
+    meta.helm.sh/release-namespace: kube-logging
+data:
+  fluentd-inputs.conf: |
+    # HTTP input for the liveness and readiness probes
+    <source>
+      @type http
+      port 9880
+    </source>
+    # Get the logs from the containers running in the node
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      # exclude Fluentd logs
+      exclude_path [/var/log/containers/*fluentd*.log, /var/log/containers/*kube-system*.log]
+      pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+      </parse>
+    </source>
+
+    <filter **>
+      @type parser
+      key_name log
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key time
+          keep_time_key true
+        </pattern>
+      </parse>
+    </filter>
+
+    # enrich with kubernetes metadata
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+    </filter>
+  fluentd-output.conf: |
+    # Throw the healthcheck to the standard output instead of forwarding it
+    <match fluentd.healthcheck>
+      @type null
+    </match>
+
+    <match kubernetes.var.log.containers.**index**.log>
+      @type elasticsearch
+      include_tag_key true
+      index_name index-app-logs
+      <server>
+        host elasticsearch-master.kube-logging.svc.cluster.local
+        port 9200
+      </server>
+      <buffer>
+        @type file
+        path /opt/bitnami/fluentd/logs/buffers/index-app-logs.buffer
+        flush_thread_count 2
+        flush_interval 5s
+      </buffer>
+    </match>
+  fluentd.conf: |
+    # Ignore fluentd own events
+    <match fluent.**>
+      @type null
+    </match>
+
+    @include fluentd-inputs.conf
+    @include fluentd-output.conf
+  metrics.conf: |
+    # Prometheus Exporter Plugin
+    # input plugin that exports metrics
+    <source>
+      @type prometheus
+      port 24231
+    </source>
+    # input plugin that collects metrics from MonitorAgent
+    <source>
+      @type prometheus_monitor
+      <labels>
+        host #{hostname}
+      </labels>
+    </source>
+    # input plugin that collects metrics for output plugin
+    <source>
+      @type prometheus_output_monitor
+      <labels>
+        host #{hostname}
+      </labels>
+    </source>
+    # input plugin that collects metrics for in_tail plugin
+    <source>
+      @type prometheus_tail_monitor
+      <labels>
+        host #{hostname}
+      </labels>
+    </source>

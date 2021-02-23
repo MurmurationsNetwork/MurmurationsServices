@@ -38,7 +38,7 @@
 
 4. [Create PVCs](.doc/pvcs.md) for each service
 
-5. Deploy each service
+5. [Deploy services](.doc/deploy-services.md)
 
 6. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
 
