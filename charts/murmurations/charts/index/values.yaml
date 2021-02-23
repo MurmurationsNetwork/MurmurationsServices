@@ -10,6 +10,3 @@ es:
 
 mongo:
   replicas: 1
-
-nats:
-  replicas: 1

@@ -79,6 +79,9 @@ docker-push-revalidatenode: docker-tag-revalidatenode
 helm-staging-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=staging --install --wait --atomic
 
+helm-staging-mq:
+	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=staging --install --wait --atomic
+
 helm-staging-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=staging,image=murmurations/index:$(TAG) --install --wait --atomic
 
@@ -105,6 +108,9 @@ SPECIFIC_TAG ?= latest
 
 helm-production-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=production --install --wait --atomic
+
+helm-production-mq:
+	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=production --install --wait --atomic
 
 helm-production-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=production,image=murmurations/index:$(SPECIFIC_TAG) --install --wait --atomic

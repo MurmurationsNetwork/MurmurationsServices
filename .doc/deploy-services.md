@@ -19,5 +19,14 @@ Open `Makefile` and change `SPECIFIC_TAG` to the tag you want to deploy.
 ## 3. Deploy Services
 
 ```
-make helm-production-xxx
+
+make helm-production-mq
+make helm-production-ingress
+make helm-production-index
+make helm-production-validation
+make helm-production-library
+make helm-production-nodecleaner
+make helm-production-schemaparser
+make helm-production-revalidatenode
+...
 ```
