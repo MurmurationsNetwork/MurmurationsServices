@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: validation
+  name: validation-app
 spec:
   selector:
-    app: validation
+    app: validation-app
   ports:
     - name: validation
       protocol: TCP

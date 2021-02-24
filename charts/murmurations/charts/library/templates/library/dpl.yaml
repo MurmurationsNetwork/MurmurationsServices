@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: library
+  name: library-app
 spec:
   replicas: {{ .Values.library.replicas }}
   selector:
     matchLabels:
-      app: library
+      app: library-app
   template:
     metadata:
       labels:
-        app: library
+        app: library-app
     spec:
       containers:
-        - name: library
+        - name: library-app
           image: {{ .Values.image }}
           envFrom:
             - configMapRef:
-                name: library-config
+                name: library-app-config
             - secretRef:
                 name: library-secret
           livenessProbe:

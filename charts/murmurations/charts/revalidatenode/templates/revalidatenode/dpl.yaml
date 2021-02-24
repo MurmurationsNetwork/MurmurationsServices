@@ -1,7 +1,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: revalidatenode
+  name: revalidatenode-app
 spec:
   {{- if eq .Values.global.env "production" }}
   schedule: "*/1 * * * *"  # every 1 minute
@@ -15,7 +15,7 @@ spec:
       template:
         spec:
           containers:
-            - name: revalidatenode
+            - name: revalidatenode-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
               env:
@@ -25,7 +25,7 @@ spec:
                       fieldPath: metadata.name
               envFrom:
                 - configMapRef:
-                    name: revalidatenode-config
+                    name: revalidatenode-app-config
                 - secretRef:
                     name: revalidatenode-secret
           {{- if eq .Values.global.env "development" }}

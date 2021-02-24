@@ -7,31 +7,26 @@
 ```
 helm repo add elastic https://Helm.elastic.co
 helm repo update
-helm install elasticsearch elastic/elasticsearch -f values-elasticsearch.yaml -n kube-logging
+helm upgrade elasticsearch elastic/elasticsearch --version="7.9.0" -f values-elasticsearch.yaml -n kube-logging --install
 ```
 
 **install Kibana chart**
 
 ```
-helm install kibana elastic/kibana -f values-kibana.yaml -n kube-logging
+helm upgrade kibana elastic/kibana --version="7.9.0" -f values-kibana.yaml -n kube-logging --install
 ```
 
 **install Fluentd**
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install fluentd bitnami/fluentd -n kube-logging
+helm upgrade fluentd bitnami/fluentd --version="2.0.1" -n kube-logging --install
 ```
 
 **apply Fluentd config**
 
 ```
 kubectl apply -f fluentd-config.yaml
-```
-
-**restart Fluentd deamonSet**
-
-```
 kubectl rollout restart daemonset/fluentd -n kube-logging
 ```
 
@@ -42,6 +37,12 @@ kubectl rollout restart daemonset/fluentd -n kube-logging
 ```
 kubectl port-forward deployment/kibana-kibana 5601 -n kube-logging
 access: localhost:5601
+```
+
+**restart Fluentd deamonSet**
+
+```
+kubectl rollout restart daemonset/fluentd -n kube-logging
 ```
 
 **restart elastic search statefulSet**
