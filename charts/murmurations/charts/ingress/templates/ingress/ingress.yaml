@@ -57,3 +57,44 @@ spec:
                 name: library-app
                 port:
                   number: 8080
+---
+{{- if not (eq .Values.global.env "development") }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: kube-logging
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingress.kubernetes.io/auth-type: "basic"
+    ingress.kubernetes.io/auth-secret: kibana-basic-auth
+spec:
+  {{- if eq .Values.global.env "production" }}
+  tls:
+    - hosts:
+      - logging.murmurations.network
+      secretName: murmurations-network-tls
+  {{- else if eq .Values.global.env "staging" }}
+  tls:
+    - hosts:
+      - logging.murmurations.tech
+      secretName: murmurations-tech-tls
+  {{- end }}
+  rules:
+    {{- if eq .Values.global.env "production" }}
+    - host: logging.murmurations.network
+    {{- else if eq .Values.global.env "staging" }}
+    - host: logging.murmurations.tech
+    {{- end }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: kibana-kibana
+                port:
+                  number: 5601
+{{- end }}
