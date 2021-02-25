@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: index
+  name: index-app
 spec:
   replicas: {{ .Values.index.replicas }}
   selector:
     matchLabels:
-      app: index
+      app: index-app
   template:
     metadata:
       labels:
-        app: index
+        app: index-app
     spec:
       containers:
-        - name: index
+        - name: index-app
           image: {{ .Values.image }}
           env:
             - name: NATS_CLIENT_ID
@@ -22,7 +22,7 @@ spec:
                   fieldPath: metadata.name
           envFrom:
             - configMapRef:
-                name: index-config
+                name: index-app-config
             - secretRef:
                 name: index-secret
           livenessProbe:

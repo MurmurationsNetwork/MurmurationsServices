@@ -21,11 +21,11 @@ func mongoInit() {
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
-		logger.Panic("error when trying to connect to MongoDB", err)
+		logger.Panic("Error when trying to connect to MongoDB", err)
 	}
 	err = mongo.Client.Ping()
 	if err != nil {
-		logger.Panic("error when trying to ping the MongoDB", err)
+		logger.Panic("Error when trying to ping the MongoDB", err)
 	}
 }
 
@@ -80,19 +80,21 @@ func esInit() {
 
 	err := elastic.NewClient(config.Conf.ES.URL)
 	if err != nil {
-		logger.Panic("error when trying to ping the ElasticSearch", err)
+		logger.Panic("Error when trying to ping the ElasticSearch", err)
 		return
 	}
 	err = elastic.Client.CreateMappings(indices)
 	if err != nil {
-		logger.Panic("error when trying to create index for ElasticSearch", err)
+		logger.Panic("Error when trying to create index for ElasticSearch", err)
 		return
 	}
+
+	logger.Info("ElasticSearch index created")
 }
 
 func natsInit() {
 	err := nats.NewClient(config.Conf.Nats.ClusterID, config.Conf.Nats.ClientID, config.Conf.Nats.URL)
 	if err != nil {
-		logger.Panic("error when trying to connect nats", err)
+		logger.Panic("Error when trying to connect nats", err)
 	}
 }

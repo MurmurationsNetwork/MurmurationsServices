@@ -38,7 +38,7 @@ spec:
             path: /v1(/|$)(.*)
             backend:
               service:
-                name: index
+                name: index-app
                 port:
                   number: 8080
     {{- if eq .Values.global.env "production" }}
@@ -54,6 +54,6 @@ spec:
             path: /v1(/|$)(.*)
             backend:
               service:
-                name: library
+                name: library-app
                 port:
                   number: 8080

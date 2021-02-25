@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: revalidatenode-config
+  name: revalidatenode-app-config
 data:
   MONGO_HOST: index-mongo:27017
   MONGO_DB_NAME: murmurationsIndex

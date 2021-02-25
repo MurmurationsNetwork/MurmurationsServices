@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: validation
+  name: validation-app
 spec:
   replicas: {{ .Values.validation.replicas }}
   selector:
     matchLabels:
-      app: validation
+      app: validation-app
   template:
     metadata:
       labels:
-        app: validation
+        app: validation-app
     spec:
       containers:
-        - name: validation
+        - name: validation-app
           image: {{ .Values.image }}
           env:
             - name: NATS_CLIENT_ID
@@ -22,7 +22,7 @@ spec:
                   fieldPath: metadata.name
           envFrom:
             - configMapRef:
-                name: validation-config
+                name: validation-app-config
           livenessProbe:
             httpGet:
               path: /ping

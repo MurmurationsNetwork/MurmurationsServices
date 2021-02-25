@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: schemaparser-config
+  name: schemaparser-app-config
 data:
   MONGO_HOST: library-mongo:27017
   MONGO_DB_NAME: murmurationsLibrary

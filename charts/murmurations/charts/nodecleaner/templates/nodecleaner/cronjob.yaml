@@ -1,7 +1,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: nodecleaner
+  name: nodecleaner-app
 spec:
   {{- if eq .Values.global.env "production" }}
   schedule: "0 */12 * * *" # every 12 hrs
@@ -15,12 +15,12 @@ spec:
       template:
         spec:
           containers:
-            - name: nodecleaner
+            - name: nodecleaner-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
               envFrom:
                 - configMapRef:
-                    name: nodecleaner-config
+                    name: nodecleaner-app-config
                 - secretRef:
                     name: nodecleaner-secret
           {{- if eq .Values.global.env "development" }}

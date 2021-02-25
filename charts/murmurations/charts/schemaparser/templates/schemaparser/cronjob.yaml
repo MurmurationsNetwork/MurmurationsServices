@@ -1,7 +1,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: schemaparser
+  name: schemaparser-app
 spec:
   {{- if eq .Values.global.env "production" }}
   schedule: "*/1 * * * *"  # every 1 minute
@@ -15,12 +15,12 @@ spec:
       template:
         spec:
           containers:
-            - name: schemaparser
+            - name: schemaparser-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
               envFrom:
                 - configMapRef:
-                    name: schemaparser-config
+                    name: schemaparser-app-config
                 - secretRef:
                     name: schemaparser-secret
           {{- if eq .Values.global.env "development" }}

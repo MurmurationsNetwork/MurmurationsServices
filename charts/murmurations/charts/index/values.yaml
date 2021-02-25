@@ -6,10 +6,7 @@ index:
     port: 8080
 
 es:
-  replicas: 1
+  replicas: 3
 
 mongo:
-  replicas: 1
-
-nats:
   replicas: 1

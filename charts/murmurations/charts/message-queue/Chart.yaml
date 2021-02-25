@@ -1,6 +1,6 @@
 apiVersion: v2
-name: logging
-description: EFK Logging
+name: message-queue
+description: murmurations message queue
 
 # A chart can be either an 'application' or a 'library' chart.
 #
