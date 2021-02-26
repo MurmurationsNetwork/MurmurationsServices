@@ -58,6 +58,16 @@ kubectl \
   --from-literal="MONGO_PASSWORD=password"
 ```
 
+**Create secrets for kibana (the logging interface)**
+
+```
+htpasswd -c ./auth <your-user>
+
+kubectl -n kube-logging create secret generic kibana-basic-auth --from-file auth
+
+rm auth
+```
+
 ## Delete a Secret
 
 To delete the Secret you have just created:
