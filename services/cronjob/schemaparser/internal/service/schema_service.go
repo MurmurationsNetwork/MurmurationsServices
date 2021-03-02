@@ -92,8 +92,11 @@ func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
 }
 
 func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
-	if newTime == "" || oldTime == "" {
+	if oldTime == "" {
 		return true, nil
+	}
+	if newTime == "" {
+		return false, nil
 	}
 
 	t1, err := time.Parse(time.RFC3339, oldTime)

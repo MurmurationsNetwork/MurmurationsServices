@@ -24,7 +24,7 @@ func TestShouldSetLastCommitTime(t *testing.T) {
 		oldLastCommitTime := "2021-02-19T00:00:00Z"
 		newLastCommitTime := ""
 		ok, _ := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
-		assert.Equal(t, true, ok)
+		assert.Equal(t, false, ok)
 	})
 	t.Run("no time difference", func(t *testing.T) {
 		oldLastCommitTime := "2021-02-19T00:00:00Z"
