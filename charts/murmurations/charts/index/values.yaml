@@ -1,0 +1,12 @@
+image: ""
+
+index:
+  replicas: 1
+  service:
+    port: 8080
+
+es:
+  replicas: 3
+
+mongo:
+  replicas: 1

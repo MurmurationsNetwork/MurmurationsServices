@@ -1,6 +1,6 @@
 apiVersion: v2
-name: murmurations
-description: Murmurations Services
+name: murmurations-dev
+description: Murmurations Services Development Mode
 
 # A chart can be either an 'application' or a 'library' chart.
 #

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: index-app
+spec:
+  selector:
+    app: index-app
+  ports:
+    - name: index-app
+      protocol: TCP
+      port: {{ .Values.index.service.port }}

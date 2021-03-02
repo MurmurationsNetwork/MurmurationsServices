@@ -1,11 +1,13 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )
 
 func listenToEvents() error {
-	err := event.HandleNodeCreated().Listen()
+	nodeHandler := event.NewNodeHandler(service.NewValidationService())
+	err := nodeHandler.NewNodeCreatedListener()
 	if err != nil {
 		return err
 	}

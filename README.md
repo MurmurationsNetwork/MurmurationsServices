@@ -12,21 +12,34 @@
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop) and enable Kubernetes
 
-2. Install [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/)
+2. Install [Helm](https://helm.sh/docs/intro/install/)
 
-3. Install [Skaffold](https://skaffold.dev/docs/install/)
+3. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
 
-4. Install [Helm](https://helm.sh/docs/intro/install/)
+4. Install [Skaffold](https://skaffold.dev/docs/install/)
 
-5. Add `127.0.0.1 index.murmurations.tech` & `127.0.0.1 library.murmurations.tech` to your host file
+5. [Create secrets](.doc/secrets.md) for each service
+
+6. Add `127.0.0.1 index.murmurations.dev` & `127.0.0.1 library.murmurations.dev` to your host file
 
 *After completing the setup*
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.tech/ping` or `library.murmurations.tech/ping`
+2. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
 
-## Directory Layout
+## Run in DigitalOcean
 
-* **common** contains packages that are shared across different services
-* **services** contains packages that compile to applications that are long-running processes (such as API servers)
+1. Create Kubernetes Clusters in DigitalOcean
+
+2. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
+
+3. [Create secrets](.doc/secrets.md) for each service
+
+4. [Create PVCs](.doc/pvcs.md) for each service
+
+5. [Deploy services](.doc/deploy-services.md)
+
+6. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+
+7. Try `index.murmurations.network/v1/ping` or `library.murmurations.network/v1/ping`

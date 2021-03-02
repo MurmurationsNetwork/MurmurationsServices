@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: library-app-config
+data:
+  SERVER_PORT: "8080"
+  SERVER_TIMEOUT_READ: 5s
+  SERVER_TIMEOUT_WRITE: 10s
+  SERVER_TIMEOUT_IDLE: 15s
+  MONGO_HOST: library-mongo:27017
+  MONGO_DB_NAME: murmurationsLibrary

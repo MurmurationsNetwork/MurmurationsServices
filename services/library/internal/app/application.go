@@ -5,18 +5,21 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/adapter/mongodb"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/global"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
-	config.Init()
-	mongodb.Init()
+	global.Init()
 }
 
 func StartApplication() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(gin.Recovery(), middleware.Logger(), CORS())
+
 	mapUrls(router)
 
 	server := getServer(router)

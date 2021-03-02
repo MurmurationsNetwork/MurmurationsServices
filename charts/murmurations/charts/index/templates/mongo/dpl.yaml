@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index-mongo
+spec:
+  replicas: {{ .Values.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: index-mongo
+  template:
+    metadata:
+      labels:
+        app: index-mongo
+    spec:
+      containers:
+        - name: index-mongo
+          image: mongo:4.4.2
+          {{- if not (eq .Values.global.env "development") }}
+          volumeMounts:
+          - mountPath: /data/db
+            name: mongo-storage
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: index-mongo-secret
+      {{- if not (eq .Values.global.env "development") }}
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: index-mongo-pvc
+      {{- end }}

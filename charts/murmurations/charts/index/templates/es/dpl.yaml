@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: index-es-cluster
+spec:
+  serviceName: index-es
+  replicas: {{ .Values.es.replicas }}
+  selector:
+    matchLabels:
+      app: index-es
+  template:
+    metadata:
+      labels:
+        app: index-es
+    spec:
+      containers:
+        - name: index-es
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+          {{- if not (eq .Values.global.env "development") }}
+          volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            name: index-es-storage
+          {{- end }}
+          ports:
+            - containerPort: 9200
+              name: rest
+              protocol: TCP
+            - containerPort: 9300
+              name: inter-node
+              protocol: TCP
+          env:
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: index-es-config
+      initContainers:
+        - name: increase-vm-max-map
+          image: busybox
+          command:
+            - sysctl
+            - '-w'
+            - vm.max_map_count=262144
+          securityContext:
+            privileged: true
+        - name: increase-fd-ulimit
+          image: busybox
+          command:
+            - sh
+            - '-c'
+            - ulimit -n 65536
+          securityContext:
+            privileged: true
+  {{- if not (eq .Values.global.env "development") }}
+        - name: file-permissions
+          image: busybox:1.32
+          command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/']
+          volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            name: index-es-storage
+  volumeClaimTemplates:
+  - metadata:
+      name: index-es-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: do-block-storage
+      resources:
+        requests:
+          {{- if eq .Values.global.env "production" }}
+          storage: 10Gi
+          {{- else if eq .Values.global.env "staging" }}
+          storage: 5Gi
+          {{- end }}
+  {{- end }}

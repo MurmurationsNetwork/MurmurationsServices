@@ -16,26 +16,30 @@ build:
       context: .
       docker:
         dockerfile: services/library/docker/Dockerfile-dev
-    - image: murmurations/nodecleanup
+    - image: murmurations/nodecleaner
       context: .
       docker:
-        dockerfile: services/cronjob/nodecleanup/docker/Dockerfile-dev
-    - image: murmurations/parseschema
+        dockerfile: services/cronjob/nodecleaner/docker/Dockerfile-dev
+    - image: murmurations/schemaparser
       context: .
       docker:
-        dockerfile: services/cronjob/parseschema/docker/Dockerfile-dev
+        dockerfile: services/cronjob/schemaparser/docker/Dockerfile-dev
+    - image: murmurations/revalidatenode
+      context: .
+      docker:
+        dockerfile: services/cronjob/revalidatenode/docker/Dockerfile-dev
 deploy:
   helm:
     releases:
     - name: development
       chartPath: charts/murmurations
       artifactOverrides:
-        indexServiceImage: murmurations/index
-        validationServiceImage: murmurations/validation
-        libraryServiceImage: murmurations/library
-        # cronjobs
-        nodecleanupImage: murmurations/nodecleanup
-        parseschemaImage: murmurations/parseschema
+        index.image: murmurations/index
+        validation.image: murmurations/validation
+        library.image: murmurations/library
+        nodecleaner.image: murmurations/nodecleaner
+        schemaparser.image: murmurations/schemaparser
+        revalidatenode.image: murmurations/revalidatenode
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
-        sourcepath: "{{.SOURCEPATH}}"
+        global.sourcepath: "{{.SOURCEPATH}}"

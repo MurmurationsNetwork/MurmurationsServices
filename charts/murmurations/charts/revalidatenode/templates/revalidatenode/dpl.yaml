@@ -1,0 +1,42 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: revalidatenode-app
+spec:
+  {{- if eq .Values.global.env "production" }}
+  schedule: "*/1 * * * *"  # every 1 minute
+  {{- else if eq .Values.global.env "staging" }}
+  schedule: "*/1 * * * *"  # every 1 minute
+  {{- else }}
+  schedule: "*/1 * * * *"  # every 1 minute
+  {{- end }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: revalidatenode-app
+              image: {{ .Values.image }}
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: NATS_CLIENT_ID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+              envFrom:
+                - configMapRef:
+                    name: revalidatenode-app-config
+                - secretRef:
+                    name: revalidatenode-secret
+          {{- if eq .Values.global.env "development" }}
+              command: ["go", "run"]
+              args: ["services/cronjob/revalidatenode/cmd/revalidatenode/main.go"]
+              volumeMounts:
+                - mountPath: /src
+                  name: source-path
+          volumes:
+            - name: source-path
+              hostPath:
+                path: {{ .Values.global.sourcepath }}
+          {{- end }}
+          restartPolicy: Never

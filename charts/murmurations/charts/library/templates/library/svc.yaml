@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: library-app
+spec:
+  selector:
+    app: library-app
+  ports:
+    - name: library
+      protocol: TCP
+      port: {{ .Values.library.service.port }}

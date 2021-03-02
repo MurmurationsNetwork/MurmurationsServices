@@ -22,6 +22,7 @@ type mongoClientInterface interface {
 	Ping() error
 	Disconnect()
 
+	GetClient() *mongo.Client
 	setClient(*mongo.Client, string)
 }
 

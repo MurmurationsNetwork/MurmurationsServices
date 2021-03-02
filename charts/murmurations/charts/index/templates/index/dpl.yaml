@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index-app
+spec:
+  replicas: {{ .Values.index.replicas }}
+  selector:
+    matchLabels:
+      app: index-app
+  template:
+    metadata:
+      labels:
+        app: index-app
+    spec:
+      containers:
+        - name: index-app
+          image: {{ .Values.image }}
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: index-app-config
+            - secretRef:
+                name: index-secret
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 35
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+      {{- if eq .Values.global.env "development" }}
+          volumeMounts:
+            - mountPath: /src/index
+              name: source-path
+      volumes:
+        - name: source-path
+          hostPath:
+            path: {{ .Values.global.sourcepath }}
+      {{- end }}
