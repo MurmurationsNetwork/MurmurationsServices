@@ -7,7 +7,7 @@ data:
   MONGO_DB_NAME: murmurationsLibrary
   {{- if eq .Values.global.env "production" }}
   LIBRARY_CDN_URL: https://cdn.murmurations.network
-  {{- else if eq .Values.global.env "staging" }}
+  {{- else }}
   LIBRARY_CDN_URL: https://test-cdn.murmurations.network
-  {{-end }}
+  {{- end }}
   REDIS_URL: schemaparser-redis:6379

@@ -11,6 +11,6 @@ data:
   NATS_URL: http://nats:4222
   {{- if eq .Values.global.env "production" }}
   LIBRARY_CDN_URL: https://cdn.murmurations.network
-  {{- else if eq .Values.global.env "staging" }}
+  {{- else }}
   LIBRARY_CDN_URL: https://test-cdn.murmurations.network
-  {{-end }}
+  {{- end }}
