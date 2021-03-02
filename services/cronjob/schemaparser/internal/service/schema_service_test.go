@@ -2,7 +2,6 @@ package service
 
 import (
 	"testing"
-	"time"
 
 	"github.com/go-playground/assert/v2"
 )
@@ -14,34 +13,29 @@ func TestGetSchemaURL(t *testing.T) {
 	assert.Equal(t, "/schemas/test1.json", url)
 }
 
-func TestSetLastCommit(t *testing.T) {
-	oldLastCommitTime := "2021-02-19T00:00:00Z"
-	newLastCommitTime := "2021-02-19T00:00:00Z"
-
-	t1, err := time.Parse(time.RFC3339, oldLastCommitTime)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	t2, err := time.Parse(time.RFC3339, newLastCommitTime)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
-	assert.Equal(t, true, int(t2.Sub(t1).Seconds()) < 180)
-}
-
-func TestSetLastCommit2(t *testing.T) {
-	oldLastCommitTime := "2021-02-19T00:00:00Z"
-	newLastCommitTime := "2021-02-19T00:04:00Z"
-
-	t1, err := time.Parse(time.RFC3339, oldLastCommitTime)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	t2, err := time.Parse(time.RFC3339, newLastCommitTime)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
-	assert.Equal(t, false, int(t2.Sub(t1).Seconds()) < 180)
+func TestShouldSetLastCommitTime(t *testing.T) {
+	t.Run("oldLastCommitTime is empty", func(t *testing.T) {
+		oldLastCommitTime := ""
+		newLastCommitTime := "2021-02-19T00:04:00Z"
+		ok, _ := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
+		assert.Equal(t, true, ok)
+	})
+	t.Run("newLastCommitTime is empty", func(t *testing.T) {
+		oldLastCommitTime := "2021-02-19T00:00:00Z"
+		newLastCommitTime := ""
+		ok, _ := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
+		assert.Equal(t, false, ok)
+	})
+	t.Run("no time difference", func(t *testing.T) {
+		oldLastCommitTime := "2021-02-19T00:00:00Z"
+		newLastCommitTime := "2021-02-19T00:00:00Z"
+		ok, _ := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
+		assert.Equal(t, false, ok)
+	})
+	t.Run("should set last commit time", func(t *testing.T) {
+		oldLastCommitTime := "2021-02-19T00:00:00Z"
+		newLastCommitTime := "2021-02-19T00:04:00Z"
+		ok, _ := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
+		assert.Equal(t, true, ok)
+	})
 }

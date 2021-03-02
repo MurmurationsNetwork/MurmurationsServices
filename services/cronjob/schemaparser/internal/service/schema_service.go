@@ -75,18 +75,11 @@ func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
 		return err
 	}
 
-	t1, err := time.Parse(time.RFC3339, oldLastCommitTime)
+	ok, err := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
 	if err != nil {
 		return err
 	}
-	t2, err := time.Parse(time.RFC3339, newLastCommitTime)
-	if err != nil {
-		return err
-	}
-
-	// To make sure DNS updates the content of schemas.
-	// The system won't update the last commit time until it passes a certain period.
-	if int(t2.Sub(t1).Seconds()) < 180 {
+	if !ok {
 		return nil
 	}
 
@@ -96,6 +89,32 @@ func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
 	}
 
 	return nil
+}
+
+func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
+	if oldTime == "" {
+		return true, nil
+	}
+	if newTime == "" {
+		return false, nil
+	}
+
+	t1, err := time.Parse(time.RFC3339, oldTime)
+	if err != nil {
+		return false, err
+	}
+	t2, err := time.Parse(time.RFC3339, newTime)
+	if err != nil {
+		return false, err
+	}
+
+	// To make sure DNS updates the content of schemas.
+	// The system won't update the last commit time until it passes a certain period.
+	if int(t2.Sub(t1).Seconds()) < 180 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (s *schemaService) updateSchema(json *domain.SchemaJSON) error {
