@@ -28,6 +28,8 @@ helm install \
 
 ```
 make helm-production-ingress
+# if for staging
+make helm-staging-ingress
 ```
 
 ## Debugging
