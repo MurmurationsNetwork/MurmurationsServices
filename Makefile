@@ -76,56 +76,56 @@ docker-push-revalidatenode: docker-tag-revalidatenode
 
 # ---------------------------------------------------------------
 
-helm-staging-ingress:
+deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=staging --install --wait --atomic
 
-helm-staging-mq:
+deploy-mq:
 	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=staging --install --wait --atomic
 
-helm-staging-index:
+deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=staging,image=murmurations/index:$(TAG) --install --wait --atomic
 
-helm-staging-validation:
+deploy-validation:
 	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=staging,image=murmurations/validation:$(TAG) --install --wait --atomic
 
-helm-staging-library:
+deploy-library:
 	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=staging,image=murmurations/library:$(TAG) --install --wait --atomic
 
-helm-staging-nodecleaner:
+deploy-nodecleaner:
 	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=staging,image=murmurations/nodecleaner:$(TAG) --install --wait --atomic
 
-helm-staging-schemaparser:
+deploy-schemaparser:
 	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=staging,image=murmurations/schemaparser:$(TAG) --install --wait --atomic
 
-helm-staging-revalidatenode:
+deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=staging,image=murmurations/revalidatenode:$(TAG) --install --wait --atomic
 
 # ---------------------------------------------------------------
 
-# Please make sure `latest` is the version you want to deploy to production,
-# otherwise please update to the correct version.
+# Please update to the version you want to deploy.
 SPECIFIC_TAG ?= latest
+ENV ?= staging
 
-helm-production-ingress:
-	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=production --install --wait --atomic
+manually-deploy-ingress:
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --wait --atomic
 
-helm-production-mq:
-	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=production --install --wait --atomic
+manually-deploy-mq:
+	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(ENV) --install --wait --atomic
 
-helm-production-index:
-	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=production,image=murmurations/index:$(SPECIFIC_TAG) --install --wait --atomic
+manually-deploy-index:
+	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=$(ENV),image=murmurations/index:$(SPECIFIC_TAG) --install --wait --atomic
 
-helm-production-validation:
-	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=production,image=murmurations/validation:$(SPECIFIC_TAG) --install --wait --atomic
+manually-deploy-validation:
+	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=$(ENV),image=murmurations/validation:$(SPECIFIC_TAG) --install --wait --atomic
 
-helm-production-library:
-	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=production,image=murmurations/library:$(SPECIFIC_TAG) --install --wait --atomic
+manually-deploy-library:
+	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=$(ENV),image=murmurations/library:$(SPECIFIC_TAG) --install --wait --atomic
 
-helm-production-nodecleaner:
-	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=production,image=murmurations/nodecleaner:$(SPECIFIC_TAG) --install --wait --atomic
+manually-deploy-nodecleaner:
+	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=$(ENV),image=murmurations/nodecleaner:$(SPECIFIC_TAG) --install --wait --atomic
 
-helm-production-schemaparser:
-	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=production,image=murmurations/schemaparser:$(SPECIFIC_TAG) --install --wait --atomic
+manually-deploy-schemaparser:
+	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=$(ENV),image=murmurations/schemaparser:$(SPECIFIC_TAG) --install --wait --atomic
 
-helm-production-revalidatenode:
-	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=production,image=murmurations/revalidatenode:$(SPECIFIC_TAG) --install --wait --atomic
+manually-deploy-revalidatenode:
+	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) --install --wait --atomic

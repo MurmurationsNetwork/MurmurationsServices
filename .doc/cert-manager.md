@@ -27,9 +27,7 @@ helm install \
 ## Install Issuer and Ingress
 
 ```
-make helm-production-ingress
-# if for staging
-make helm-staging-ingress
+make manually-deploy-ingress
 ```
 
 ## Debugging

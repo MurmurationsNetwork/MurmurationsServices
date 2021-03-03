@@ -53,7 +53,7 @@ jobs:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
     - name: Save DigitalOcean kubeconfig with short-lived credentials
-      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmdev-k8s
+      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
 
     - name: Restart revalidatenode deployment
-      run: make helm-staging-revalidatenode
+      run: make deploy-revalidatenode
