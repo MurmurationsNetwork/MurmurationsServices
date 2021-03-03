@@ -9,5 +9,5 @@ kubectl config get-contexts
 ## Delete a config
 
 ```
-kubectl config unset contexts.do-lon1-murmprod-k8s
+kubectl config unset contexts.<context_name>
 ```
