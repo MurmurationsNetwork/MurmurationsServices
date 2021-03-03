@@ -7,13 +7,13 @@
 ```
 helm repo add elastic https://Helm.elastic.co
 helm repo update
-helm upgrade elasticsearch elastic/elasticsearch --version="7.9.0" -f values-elasticsearch.yaml -n kube-logging --install
+helm upgrade elasticsearch elastic/elasticsearch --version="7.9.0" -f ./.doc/efk/values-elasticsearch.yaml -n kube-logging --install
 ```
 
 **install Kibana chart**
 
 ```
-helm upgrade kibana elastic/kibana --version="7.9.0" -f values-kibana.yaml -n kube-logging --install
+helm upgrade kibana elastic/kibana --version="7.9.0" -f ./.doc/efk/values-kibana.yaml -n kube-logging --install
 ```
 
 **install Fluentd**
@@ -26,9 +26,15 @@ helm upgrade fluentd bitnami/fluentd --version="2.0.1" -n kube-logging --install
 **apply Fluentd config**
 
 ```
-kubectl apply -f fluentd-config.yaml
+kubectl apply -f ./.doc/efk/fluentd-config.yaml
 kubectl rollout restart daemonset/fluentd -n kube-logging
 ```
+
+**create index in Kibana**
+
+1. Login to Kibana
+2. Choose Kibana > Discover from menu
+3. Create index with `*app*`
 
 ## Other useful commands
 
