@@ -8,7 +8,7 @@
 kubectl config use-context CONTEXT_NAME
 ```
 
-*Note: You can also change contexts on Docker Desktop*
+_Note: You can also change contexts on Docker Desktop_
 
 ### 2. Run the following commands to create secrets
 
@@ -62,9 +62,8 @@ kubectl \
 
 ```
 htpasswd -c ./auth <your-user>
-
+kubectl create namespace kube-logging
 kubectl -n kube-logging create secret generic kibana-basic-auth --from-file auth
-
 rm auth
 ```
 

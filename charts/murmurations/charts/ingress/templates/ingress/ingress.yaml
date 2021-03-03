@@ -20,15 +20,15 @@ spec:
   {{- else if eq .Values.global.env "staging" }}
   tls:
     - hosts:
-      - index.murmurations.tech
-      - library.murmurations.tech
+      - test-index.murmurations.network
+      - test-library.murmurations.network
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
     {{- if eq .Values.global.env "production" }}
     - host: index.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
-    - host: index.murmurations.tech
+    - host: test-index.murmurations.network
     {{- else }}
     - host: index.murmurations.dev
     {{- end }}
@@ -44,7 +44,7 @@ spec:
     {{- if eq .Values.global.env "production" }}
     - host: library.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
-    - host: library.murmurations.tech
+    - host: test-library.murmurations.network
     {{- else }}
     - host: library.murmurations.dev
     {{- end }}
@@ -80,14 +80,14 @@ spec:
   {{- else if eq .Values.global.env "staging" }}
   tls:
     - hosts:
-      - logging.murmurations.tech
+      - test-logging.murmurations.network
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
     {{- if eq .Values.global.env "production" }}
     - host: logging.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
-    - host: logging.murmurations.tech
+    - host: test-logging.murmurations.network
     {{- end }}
       http:
         paths:
