@@ -16,8 +16,6 @@ func waitForShutdown(server *http.Server, closed chan struct{}) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Info("Shutting down index service")
-
 	cleanup()
 
 	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.Server.TimeoutIdle)
