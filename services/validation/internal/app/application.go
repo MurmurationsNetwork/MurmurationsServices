@@ -35,7 +35,6 @@ func StartApplication() {
 	}
 
 	<-closed
-	logger.Info("The service exited successfully")
 }
 
 func getServer(router *gin.Engine) *http.Server {

@@ -44,7 +44,6 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 				return
 			}
 
-			logger.Info("Validating a new node: " + nodeCreatedData.ProfileURL)
 			handler.validationService.ValidateNode(&entity.Node{
 				ProfileURL: nodeCreatedData.ProfileURL,
 				Version:    nodeCreatedData.Version,
