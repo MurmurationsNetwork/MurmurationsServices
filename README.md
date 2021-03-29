@@ -32,7 +32,7 @@
 
 1. Create Kubernetes Clusters in DigitalOcean
 
-2. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
+2. Install [NGINX Ingress Controller](.doc/ingress-nginx)
 
 3. [Create secrets](.doc/secrets.md) for each service
 
