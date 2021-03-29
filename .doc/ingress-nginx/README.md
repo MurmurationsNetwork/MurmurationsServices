@@ -8,5 +8,5 @@ Follow [Official Installation Guide](https://kubernetes.github.io/ingress-nginx/
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 kubectl create namespace ingress-nginx
-helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx -f .doc/ingress-nginx/values-ingress-nginx.yaml -n ingress-nginx --install
 ```

@@ -1,0 +1,6 @@
+controller:
+  config:
+    use-proxy-protocol: "true"
+  service:
+    annotations:
+      service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"

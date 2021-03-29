@@ -7,26 +7,26 @@
 ```
 helm repo add elastic https://Helm.elastic.co
 helm repo update
-helm upgrade elasticsearch elastic/elasticsearch --version="7.9.0" -f ./.doc/efk/values-elasticsearch.yaml -n kube-logging --install
+helm upgrade elasticsearch elastic/elasticsearch -f .doc/efk/values-elasticsearch.yaml -n kube-logging --install
 ```
 
 **install Kibana chart**
 
 ```
-helm upgrade kibana elastic/kibana --version="7.9.0" -f ./.doc/efk/values-kibana.yaml -n kube-logging --install
+helm upgrade kibana elastic/kibana -f .doc/efk/values-kibana.yaml -n kube-logging --install
 ```
 
 **install Fluentd**
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm upgrade fluentd bitnami/fluentd --version="2.0.1" -n kube-logging --install
+helm upgrade fluentd bitnami/fluentd -n kube-logging --install
 ```
 
 **apply Fluentd config**
 
 ```
-kubectl apply -f ./.doc/efk/fluentd-config.yaml
+kubectl apply -f .doc/efk/fluentd-config.yaml
 kubectl rollout restart daemonset/fluentd -n kube-logging
 ```
 
