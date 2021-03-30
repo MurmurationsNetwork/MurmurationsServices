@@ -12,3 +12,6 @@ data:
   ELASTICSEARCH_URL: http://index-es:9200
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222
+  # Rate limit
+  # 10 reqs/minute: "10-M"
+  RATE_LIMIT_PERIOD: 10-M

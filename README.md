@@ -14,7 +14,7 @@
 
 2. Install [Helm](https://helm.sh/docs/intro/install/)
 
-3. Install [NGINX Ingress Controller](.doc/ingress-nginx.md)
+3. Install [NGINX Ingress Controller](.doc/ingress-nginx)
 
 4. Install [Skaffold](https://skaffold.dev/docs/install/)
 

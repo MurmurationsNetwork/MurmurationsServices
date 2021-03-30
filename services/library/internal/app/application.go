@@ -18,7 +18,7 @@ func init() {
 func StartApplication() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Use(gin.Recovery(), middleware.Logger(), CORS())
+	router.Use(gin.Recovery(), middleware.RateLimit(config.Conf.Server.RateLimitPeriod), middleware.Logger(), CORS())
 
 	mapUrls(router)
 
