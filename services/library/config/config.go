@@ -15,11 +15,12 @@ type config struct {
 }
 
 type serverConf struct {
-	Port            string        `env:"SERVER_PORT,required"`
-	TimeoutRead     time.Duration `env:"SERVER_TIMEOUT_READ,required"`
-	TimeoutWrite    time.Duration `env:"SERVER_TIMEOUT_WRITE,required"`
-	TimeoutIdle     time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
-	RateLimitPeriod string        `env:"RATE_LIMIT_PERIOD,required"`
+	Port                string        `env:"SERVER_PORT,required"`
+	TimeoutRead         time.Duration `env:"SERVER_TIMEOUT_READ,required"`
+	TimeoutWrite        time.Duration `env:"SERVER_TIMEOUT_WRITE,required"`
+	TimeoutIdle         time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
+	GetRateLimitPeriod  string        `env:"GET_RATE_LIMIT_PERIOD,required"`
+	PostRateLimitPeriod string        `env:"POST_RATE_LIMIT_PERIOD,required"`
 }
 
 type mongoConf struct {

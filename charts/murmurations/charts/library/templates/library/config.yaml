@@ -10,5 +10,5 @@ data:
   MONGO_HOST: library-mongo:27017
   MONGO_DB_NAME: murmurationsLibrary
   # Rate limit
-  # 10 reqs/minute: "10-M"
-  RATE_LIMIT_PERIOD: 10-M
+  GET_RATE_LIMIT_PERIOD: 30-M
+  POST_RATE_LIMIT_PERIOD: 10-M

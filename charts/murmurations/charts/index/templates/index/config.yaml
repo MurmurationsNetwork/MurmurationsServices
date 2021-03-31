@@ -13,5 +13,5 @@ data:
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222
   # Rate limit
-  # 10 reqs/minute: "10-M"
-  RATE_LIMIT_PERIOD: 10-M
+  GET_RATE_LIMIT_PERIOD: 30-M
+  POST_RATE_LIMIT_PERIOD: 10-M
