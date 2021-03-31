@@ -16,6 +16,7 @@ require (
 	github.com/nats-io/stan.go v0.8.3
 	github.com/olivere/elastic v6.2.35+incompatible
 	github.com/stretchr/testify v1.7.0
+	github.com/ulule/limiter/v3 v3.8.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.mongodb.org/mongo-driver v1.4.6
 	go.uber.org/zap v1.16.0

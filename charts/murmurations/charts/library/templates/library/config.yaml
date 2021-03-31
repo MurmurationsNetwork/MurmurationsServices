@@ -9,3 +9,6 @@ data:
   SERVER_TIMEOUT_IDLE: 15s
   MONGO_HOST: library-mongo:27017
   MONGO_DB_NAME: murmurationsLibrary
+  # Rate limit
+  GET_RATE_LIMIT_PERIOD: 60-M
+  POST_RATE_LIMIT_PERIOD: 6-M

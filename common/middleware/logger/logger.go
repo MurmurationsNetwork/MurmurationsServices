@@ -1,4 +1,4 @@
-package middleware
+package logger
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 var defaultSkipPaths = []string{"/ping"}
 
-func Logger() gin.HandlerFunc {
+func NewLogger() gin.HandlerFunc {
 	return LoggerWithConfig(gin.LoggerConfig{})
 }
 
