@@ -28,6 +28,13 @@ func NewBadRequestError(message string) RestErr {
 	}
 }
 
+func NewTooManyRequestsError(message string) RestErr {
+	return restErr{
+		ErrMessage: message,
+		ErrStatus:  http.StatusTooManyRequests,
+	}
+}
+
 func NewInternalServerError(message string, err error) RestErr {
 	result := restErr{
 		ErrMessage: message,
