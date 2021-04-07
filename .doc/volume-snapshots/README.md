@@ -52,3 +52,14 @@ Make sure you specify the correct image tag and environment.
 ```bash
 make manually-deploy-index
 ```
+
+## Delete a Persistent Volume Claim
+
+Before you delete a PVC, make sure you don't need it anymore. It cannot be restored once you deleted it.
+
+```bash
+# Get the list of PVC
+kubectl get pvc
+# Delete a PVC
+kubectl delete pvc <name>
+```
