@@ -1,7 +1,0 @@
-apiVersion: snapshot.storage.k8s.io/v1beta1
-kind: VolumeSnapshot
-metadata:
-  name: index-mongo-pvc-snapshot-1
-spec:
-  source:
-    persistentVolumeClaimName: index-mongo-pvc
