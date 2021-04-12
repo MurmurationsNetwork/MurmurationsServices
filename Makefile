@@ -103,8 +103,8 @@ deploy-revalidatenode:
 # ---------------------------------------------------------------
 
 # Please update to the version you want to deploy.
-SPECIFIC_TAG ?= latest
-ENV ?= staging
+SPECIFIC_TAG ?= <>
+ENV ?= <>
 
 manually-deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --wait --atomic
