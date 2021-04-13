@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: index-mongo-pvc
   labels:
-    app=index-mongo
+    app: index-mongo
 spec:
   accessModes:
     - ReadWriteOnce

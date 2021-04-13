@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: library-mongo-pvc
   labels:
-    app=library-mongo
+    app: library-mongo
 spec:
   accessModes:
     - ReadWriteOnce
