@@ -1,0 +1,50 @@
+# -- Resource requests and limits
+resources: {}
+#  limits:
+#    cpu: 200m
+#    memory: 128Mi
+#  requests:
+#    cpu: 100m
+#    memory: 128Mi
+
+
+# -- Extra environment variables from secrets or configmaps
+config:
+
+  lokiAddress: http://loki:3100/loki/api/v1/push
+
+  snippets:
+    scrapeConfigs: |
+      # See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
+
+      # Pods with a label 'prom'
+      - job_name: kubernetes-pods-app
+        pipeline_stages:
+          {{- toYaml .Values.config.snippets.pipelineStages | nindent 4 }}
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          # Drop pods with label 'app.kubernetes.io/name'. They are already considered above
+          - action: drop
+            regex: .+
+            source_labels:
+              - __meta_kubernetes_pod_label_app_kubernetes_io_name
+          - action: replace
+            source_labels:
+              - __meta_kubernetes_pod_label_prom
+            target_label: prom
+          - action: drop
+            regex: ^$
+            source_labels:
+              - prom
+          - action: replace
+            source_labels:
+              - __meta_kubernetes_pod_label_component
+            target_label: component
+          {{- if .Values.config.snippets.addScrapeJobLabel }}
+          - action: replace
+            replacement: kubernetes-pods-app
+            target_label: scrape_job
+          {{- end }}
+          {{- toYaml .Values.config.snippets.common | nindent 4 }}
+

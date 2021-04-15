@@ -1,5 +1,13 @@
 # Logging in Kubernetes with EFK Stack
 
+# Prerequisite
+
+## 1. Create a Name Space
+
+```
+kubectl create namespace kube-logging
+```
+
 ## Install Elastic Stack (EFK) Elastic, FluentD, Kibana
 
 **install elastic search chart**
@@ -7,13 +15,13 @@
 ```
 helm repo add elastic https://Helm.elastic.co
 helm repo update
-helm upgrade elasticsearch elastic/elasticsearch -f .doc/efk/values-elasticsearch.yaml -n kube-logging --install
+helm upgrade elasticsearch elastic/elasticsearch -f .doc/logging/values-elasticsearch.yaml -n kube-logging --install
 ```
 
 **install Kibana chart**
 
 ```
-helm upgrade kibana elastic/kibana -f .doc/efk/values-kibana.yaml -n kube-logging --install
+helm upgrade kibana elastic/kibana -f .doc/logging/values-kibana.yaml -n kube-logging --install
 ```
 
 **install Fluentd**
@@ -26,7 +34,7 @@ helm upgrade fluentd bitnami/fluentd -n kube-logging --install
 **apply Fluentd config**
 
 ```
-kubectl apply -f .doc/efk/fluentd-config.yaml
+kubectl apply -f .doc/logging/fluentd-config.yaml
 kubectl rollout restart daemonset/fluentd -n kube-logging
 ```
 

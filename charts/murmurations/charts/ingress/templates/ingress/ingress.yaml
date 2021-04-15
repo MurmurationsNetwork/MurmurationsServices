@@ -99,3 +99,42 @@ spec:
                 port:
                   number: 5601
 {{- end }}
+---
+{{- if not (eq .Values.global.env "development") }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: kube-monitoring
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  {{- if eq .Values.global.env "production" }}
+  tls:
+    - hosts:
+      - monitoring.murmurations.network
+      secretName: murmurations-network-tls
+  {{- else if eq .Values.global.env "staging" }}
+  tls:
+    - hosts:
+      - test-monitoring.murmurations.network
+      secretName: murmurations-tech-tls
+  {{- end }}
+  rules:
+    {{- if eq .Values.global.env "production" }}
+    - host: monitoring.murmurations.network
+    {{- else if eq .Values.global.env "staging" }}
+    - host: test-monitoring.murmurations.network
+    {{- end }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 80
+{{- end }}

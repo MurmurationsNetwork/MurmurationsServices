@@ -1,0 +1,58 @@
+alertmanager:
+  ## The URL prefix at which the container can be accessed. Useful in the case the '-web.external-url' includes a slug
+  ## so that the various internal URLs are still able to access as they are in the default case.
+  ## (Optional)
+  prefixURL: ""
+
+  ## External URL which can access alertmanager
+  baseURL: "http://localhost:9093"
+
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    existingClaim: ""
+    mountPath: /data
+    size: 2Gi
+    storageClass: do-block-storage
+    subPath: ""
+  emptyDir:
+    sizeLimit: ""
+  replicaCount: 1
+
+  resources:
+    {}
+    # limits:
+    #   cpu: 10m
+    #   memory: 32Mi
+    # requests:
+    #   cpu: 10m
+    #   memory: 32Mi
+
+server:
+  ## The URL prefix at which the container can be accessed. Useful in the case the '-web.external-url' includes a slug
+  ## so that the various internal URLs are still able to access as they are in the default case.
+  ## (Optional)
+  prefixURL: ""
+
+  ## External URL which can access prometheus
+  ## Maybe same with Ingress host name
+  ## This url will be used for the prometheus query
+  baseURL: ""
+
+  replicaCount: 1
+  resources:
+    {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 500m
+    #   memory: 512Mi
+
+  verticalAutoscaler:
+    ## If true a VPA object will be created for the controller (either StatefulSet or Deployemnt, based on above configs)
+    enabled: false
+    # updateMode: "Auto"
+    # containerPolicies:
+    # - containerName: 'prometheus-server'
