@@ -4,3 +4,6 @@ controller:
   service:
     annotations:
       service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+      # See: proxy_protocol mode breaks HTTP01 challenge Check stage
+      # https://github.com/jetstack/cert-manager/issues/466
+      service.beta.kubernetes.io/do-loadbalancer-hostname: "test-index.murmurations.network"
