@@ -17,7 +17,7 @@ config:
     scrapeConfigs: |
       # See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
 
-      # Pods with a label 'prom'
+      # Pods with a label 'app'
       - job_name: kubernetes-pods-app
         pipeline_stages:
           {{- toYaml .Values.config.snippets.pipelineStages | nindent 4 }}
@@ -31,12 +31,12 @@ config:
               - __meta_kubernetes_pod_label_app_kubernetes_io_name
           - action: replace
             source_labels:
-              - __meta_kubernetes_pod_label_prom
-            target_label: prom
-          - action: drop
-            regex: ^$
+              - __meta_kubernetes_pod_name
+            target_label: name
+          - action: keep
+            regex: ((index-app.*)|(validation-app.*)|(library-app.*)|(nodecleaner-app.*)|(schemaparser-app.*)|(revalidatenode-app.*))
             source_labels:
-              - prom
+              - name
           - action: replace
             source_labels:
               - __meta_kubernetes_pod_label_component
@@ -47,4 +47,3 @@ config:
             target_label: scrape_job
           {{- end }}
           {{- toYaml .Values.config.snippets.common | nindent 4 }}
-
