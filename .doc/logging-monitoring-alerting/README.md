@@ -23,13 +23,13 @@ kubectl create namespace kube-monitoring
 ## 1. Install Loki
 
 ```
-helm upgrade loki grafana/loki -f .doc/monitoring-alerting/loki.values.yaml -n kube-monitoring --install
+helm upgrade loki grafana/loki -f .doc/logging-monitoring-alerting/loki.values.yaml -n kube-monitoring --install
 ```
 
 ## 2. Install Promtail
 
 ```
-helm upgrade promtail grafana/promtail -f .doc/monitoring-alerting/promtail.values.yaml -n kube-monitoring --install
+helm upgrade promtail grafana/promtail -f .doc/logging-monitoring-alerting/promtail.values.yaml -n kube-monitoring --install
 ```
 
 After deployment do port-forward for promtail
@@ -75,24 +75,24 @@ Copy the `Webhook URL` and then use it wherever it is needed below.
 
 **Update slack-notification.yaml**
 
-Replace `<WEBHOOK_URL>` and `<CHANNEL_NAME>` in .doc/monitoring-alerting/slack-notification.yaml
+Replace `<WEBHOOK_URL>` and `<CHANNEL_NAME>` in .doc/logging-monitoring-alerting/slack-notification.yaml
 
 **Deploy Prometheus**
 
 ```
-helm upgrade prometheus prometheus-community/prometheus -f .doc/monitoring-alerting/prometheus.values.yaml -f .doc/monitoring-alerting/slack-notification.yaml -n kube-monitoring --install
+helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitoring-alerting/prometheus.values.yaml -f .doc/logging-monitoring-alerting/slack-notification.yaml -n kube-monitoring --install
 ```
 
 ## 3. Deploy Grafana
 
 **Update Grafana Password**
 
-Replace `<ADMIN_PASSWORD>` in .doc/monitoring-alerting/prometheus.values.yaml
+Replace `<ADMIN_PASSWORD>` in .doc/logging-monitoring-alerting/prometheus.values.yaml
 
 **Deploy Grafana**
 
 ```
-helm upgrade grafana grafana/grafana -f .doc/monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
+helm upgrade grafana grafana/grafana -f .doc/logging-monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
 ```
 
 ## 4. Setup the Monitoring and Dashboards

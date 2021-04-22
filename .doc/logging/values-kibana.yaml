@@ -1,9 +1,0 @@
-# healthCheckPath: /api/status
-# Allocate smaller chunks of memory per pod.
-resources:
-  requests:
-    cpu: "512m"
-    memory: "512M"
-  limits:
-    cpu: "1000m"
-    memory: "1000M"

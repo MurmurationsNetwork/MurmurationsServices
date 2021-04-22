@@ -46,5 +46,4 @@
 
 **Optional**
 
-- [Logging](.doc/logging/README.md)
-- [Monitoring and Alerting](.doc/monitoring-alerting/README.md)
+- [Logging, Monitoring and Alerting](.doc/logging-monitoring-alerting/README.md)
