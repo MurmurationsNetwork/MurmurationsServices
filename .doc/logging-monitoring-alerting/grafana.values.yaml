@@ -1,0 +1,86 @@
+# Administrator credentials when not using an existing secret (see below)
+adminUser: admin
+adminPassword: <ADMIN_PASSWORD>
+
+replicas: 1
+
+image:
+  repository: grafana/grafana
+  tag: 7.5.3
+  pullPolicy: IfNotPresent
+
+securityContext:
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+
+resources: {}
+#  limits:
+#    cpu: 100m
+#    memory: 128Mi
+#  requests:
+#    cpu: 100m
+#    memory: 128Mi
+
+persistence:
+  type: pvc
+  enabled: true
+  storageClassName: do-block-storage
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  # annotations: {}
+  finalizers:
+    - kubernetes.io/pvc-protection
+
+### Add plugins whichever is needed
+plugins:
+  - grafana-piechart-panel
+  - grafana-worldmap-panel
+
+datasources:
+ datasources.yaml:
+   apiVersion: 1
+   datasources:
+   - name: Prometheus
+     type: prometheus
+     url: http://prometheus-server:80
+     access: proxy
+     isDefault: true
+   - name: Loki
+     type: loki
+     url: http://loki:3100
+     access: proxy
+     isDefault: false
+
+
+### For pre-installing the dashboard
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'extra'
+      orgId: 1
+      disableDeletion: true
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/extra
+
+dashboards:
+  extra:
+    kubernetes-cluster:
+      gnetId: 7249
+      datasource: Prometheus
+    kubernetes-cluster-monitoring-prometheus:
+      gnetId: 1621
+      datasource: Prometheus
+    kubernetes-summary-cluster:
+      gnetId: 8685
+      datasource: Prometheus
+    node-exporter:
+      gnetId: 1860
+      datasource: Prometheus
+    logging-dashboard-via-loki:
+      gnetId: 12611
+      datasource: Loki
+

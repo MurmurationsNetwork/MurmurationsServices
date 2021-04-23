@@ -43,3 +43,7 @@
 6. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
 
 7. Try `index.murmurations.network/v1/ping` or `library.murmurations.network/v1/ping`
+
+**Optional**
+
+- [Logging, Monitoring and Alerting](.doc/logging-monitoring-alerting/README.md)

@@ -63,31 +63,28 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: kube-logging
+  namespace: kube-monitoring
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret:  kibana-basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required'
 spec:
   {{- if eq .Values.global.env "production" }}
   tls:
     - hosts:
-      - logging.murmurations.network
+      - monitoring.murmurations.network
       secretName: murmurations-network-tls
   {{- else if eq .Values.global.env "staging" }}
   tls:
     - hosts:
-      - test-logging.murmurations.network
+      - test-monitoring.murmurations.network
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
     {{- if eq .Values.global.env "production" }}
-    - host: logging.murmurations.network
+    - host: monitoring.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
-    - host: test-logging.murmurations.network
+    - host: test-monitoring.murmurations.network
     {{- end }}
       http:
         paths:
@@ -95,7 +92,7 @@ spec:
             path: /
             backend:
               service:
-                name: kibana-kibana
+                name: grafana
                 port:
-                  number: 5601
+                  number: 80
 {{- end }}

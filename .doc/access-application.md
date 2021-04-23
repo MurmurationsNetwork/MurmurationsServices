@@ -10,5 +10,5 @@ kubectl port-forward svc/library-mongo 27018:27017
 kubectl port-forward svc/index-kibana 5601:5601
 kubectl port-forward svc/schemaparser-redis 6379:6379
 
-kubectl port-forward deployment/kibana-kibana 5601 -n kube-logging
+kubectl port-forward svc/grafana 3000:80 -n kube-monitoring
 ```
