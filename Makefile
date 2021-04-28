@@ -26,6 +26,9 @@ docker-build-schemaparser:
 docker-build-revalidatenode:
 	$(MAKE) -C services/cronjob/revalidatenode/ docker-build
 
+docker-build-geoip:
+	$(MAKE) -C services/geoip/ docker-build
+
 # ---------------------------------------------------------------
 
 TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
@@ -47,6 +50,9 @@ docker-tag-schemaparser: docker-build-schemaparser
 
 docker-tag-revalidatenode: docker-build-revalidatenode
 	docker tag murmurations/revalidatenode murmurations/revalidatenode:${TAG}
+
+docker-tag-geoip: docker-build-geoip
+	docker tag murmurations/geoip murmurations/geoip:${TAG}
 
 # ---------------------------------------------------------------
 
@@ -74,6 +80,10 @@ docker-push-revalidatenode: docker-tag-revalidatenode
 	docker push murmurations/revalidatenode:latest
 	docker push murmurations/revalidatenode:$(TAG)
 
+docker-push-geoip: docker-tag-geoip
+	docker push murmurations/geoip:latest
+	docker push murmurations/geoip:$(TAG)
+
 # ---------------------------------------------------------------
 
 deploy-ingress:
@@ -99,6 +109,9 @@ deploy-schemaparser:
 
 deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=staging,image=murmurations/revalidatenode:$(TAG) --install --wait --atomic
+
+deploy-geoip:
+	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=staging,image=murmurations/geoip:$(TAG) --install --wait --atomic
 
 # ---------------------------------------------------------------
 
@@ -129,3 +142,6 @@ manually-deploy-schemaparser:
 
 manually-deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) --install --wait --atomic
+
+manually-deploy-geoip:
+	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) --install --wait --atomic

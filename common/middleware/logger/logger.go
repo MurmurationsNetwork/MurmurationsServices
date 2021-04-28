@@ -57,13 +57,20 @@ func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 
 			param.Path = path
 
+			// Get the user geographic information.
+			geoInfo := getGeoInfo(c)
+
 			logger.Info(
 				"Log Entry",
 				zap.Int("status", param.StatusCode),
 				zap.String("latency", fmt.Sprintf("%v", param.Latency)),
-				zap.String("ip", c.ClientIP()),
 				zap.String("method", param.Method),
 				zap.String("path", param.Path),
+				zap.String("ip", c.ClientIP()),
+				zap.String("city", geoInfo.City),
+				zap.String("country", geoInfo.Country),
+				zap.Float64("lat", geoInfo.Lat),
+				zap.Float64("lon", geoInfo.Lon),
 			)
 		}
 	}

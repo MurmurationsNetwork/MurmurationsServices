@@ -1,0 +1,13 @@
+FROM golang:alpine as build
+
+WORKDIR /src/geoip
+ADD . /src/geoip
+RUN CGO_ENABLED=0 go build -o /bin/geoip ./services/geoip/cmd/geoip
+
+FROM ubuntu:16.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+COPY --from=build /bin/geoip /app/geoip
+COPY ./services/geoip/global/GeoLite2-City.mmdb /app/GeoLite2-City.mmdb
+EXPOSE 8000
+CMD ["/app/geoip"]
