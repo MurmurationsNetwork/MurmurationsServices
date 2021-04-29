@@ -40,7 +40,7 @@ func (handler *nodeHandler) Validated() error {
 			var nodeValidatedData event.NodeValidatedData
 			err := json.Unmarshal(msg.Data, &nodeValidatedData)
 			if err != nil {
-				logger.Error("error when trying to parse nodeValidatedData", err)
+				logger.Error("Error when trying to parse nodeValidatedData", err)
 				return
 			}
 
@@ -72,7 +72,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 			var nodeValidationFailedData event.NodeValidationFailedData
 			err := json.Unmarshal(msg.Data, &nodeValidationFailedData)
 			if err != nil {
-				logger.Error("error when trying to parse nodeValidationFailedData", err)
+				logger.Error("Error when trying to parse nodeValidationFailedData", err)
 				return
 			}
 

@@ -90,7 +90,7 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		if err == mongo.ErrNoDocuments {
 			return nil
 		}
-		logger.Error("error when trying to update a node", err)
+		logger.Error("Error when trying to update a node", err)
 		return ErrUpdate
 	}
 
@@ -135,7 +135,7 @@ func (r *nodeRepository) setPostFailed(node *entity.Node) error {
 
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
-		logger.Error("error when trying to update a node", err)
+		logger.Error("Error when trying to update a node", err)
 		return err
 	}
 
@@ -151,7 +151,7 @@ func (r *nodeRepository) setPosted(node *entity.Node) error {
 
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
 	if err != nil {
-		logger.Error("error when trying to update a node", err)
+		logger.Error("Error when trying to update a node", err)
 		return err
 	}
 

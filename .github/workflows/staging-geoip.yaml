@@ -5,9 +5,9 @@ on:
     branches:
       - staging
     paths:
-      - 'services/common/**'
+      - 'common/**'
       - 'services/geoip/**'
-      - 'charts/murmurations/charts/geoip'
+      - 'charts/murmurations/charts/geoip/**'
 
 jobs:
   test:

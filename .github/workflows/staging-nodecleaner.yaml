@@ -5,9 +5,9 @@ on:
     branches:
       - staging
     paths:
-      - 'services/common/**'
+      - 'common/**'
       - 'services/cronjob/nodecleaner/**'
-      - 'charts/murmurations/charts/nodecleaner'
+      - 'charts/murmurations/charts/nodecleaner/**'
 
 jobs:
   test:
