@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var defaultSkipPaths = []string{"/ping"}
+var defaultSkipPaths = []string{"/ping", "/nodes/_search"}
 
 func NewLogger() gin.HandlerFunc {
 	return LoggerWithConfig(gin.LoggerConfig{})
@@ -30,6 +30,11 @@ func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+		fmt.Println("=========================")
+		fmt.Printf("c.ClientIP(): %v \n", c.ClientIP())
+		fmt.Printf("c.Request.Header: %+v \n", c.Request.Header)
+		fmt.Println("=========================")
+
 		start := time.Now()
 		path := c.Request.URL.Path
 		raw := c.Request.URL.RawQuery
@@ -58,7 +63,7 @@ func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 			param.Path = path
 
 			// Get the user geographic information.
-			geoInfo := getGeoInfo(c)
+			geoInfo := getGeoInfo(param.ClientIP)
 
 			logger.Info(
 				"Log Entry",
@@ -66,7 +71,7 @@ func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 				zap.String("latency", fmt.Sprintf("%v", param.Latency)),
 				zap.String("method", param.Method),
 				zap.String("path", param.Path),
-				zap.String("ip", c.ClientIP()),
+				zap.String("ip", param.ClientIP),
 				zap.String("city", geoInfo.City),
 				zap.String("country", geoInfo.Country),
 				zap.Float64("lat", geoInfo.Lat),

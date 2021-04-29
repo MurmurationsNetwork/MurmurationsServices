@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/gin-gonic/gin"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 )
 
 type respond struct {
@@ -19,9 +19,10 @@ type geoInfo struct {
 	Lon     float64 `json:"lon,omitempty"`
 }
 
-func getGeoInfo(c *gin.Context) *geoInfo {
-	bytes, err := httputil.GetByte(fmt.Sprintf("http://geoip-app:8080/city/%s", c.ClientIP()))
+func getGeoInfo(ip string) *geoInfo {
+	bytes, err := httputil.GetByte(fmt.Sprintf("http://geoip-app:8080/city/%s", ip))
 	if err != nil {
+		logger.Error(fmt.Sprintf("Error when trying get http://geoip-app:8080/city/%s", ip), err)
 		return &geoInfo{}
 	}
 
@@ -29,6 +30,7 @@ func getGeoInfo(c *gin.Context) *geoInfo {
 
 	err = json.Unmarshal(bytes, &respondData)
 	if err != nil {
+		logger.Error("Error when trying to unmarshal GeoInfo respond data", err)
 		return &geoInfo{}
 	}
 

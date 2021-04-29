@@ -34,7 +34,7 @@ config:
               - __meta_kubernetes_pod_name
             target_label: name
           - action: keep
-            regex: ((index-app.*)|(validation-app.*)|(library-app.*)|(nodecleaner-app.*)|(schemaparser-app.*)|(revalidatenode-app.*))
+            regex: ((index-app.*)|(validation-app.*)|(library-app.*)|(nodecleaner-app.*)|(schemaparser-app.*)|(revalidatenode-app.*)|(geoip-app.*))
             source_labels:
               - name
           - action: replace

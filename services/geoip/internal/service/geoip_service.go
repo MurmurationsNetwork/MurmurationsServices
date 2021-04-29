@@ -25,6 +25,11 @@ func NewGeoIPService() GeoIPService {
 func (s *geoIPService) GetCity(ipStr string) (*geoip2.City, resterr.RestErr) {
 	ip := net.ParseIP(ipStr)
 
+	fmt.Println("=========================")
+	fmt.Printf("ipStr : %+v \n", ipStr)
+	fmt.Printf("ip    : %+v \n", ip)
+	fmt.Println("=========================")
+
 	record, err := global.DB.City(ip)
 	if err != nil {
 		logger.Error(fmt.Sprintf("error when trying to get geographic info from an IP geress: %s", ipStr), err)

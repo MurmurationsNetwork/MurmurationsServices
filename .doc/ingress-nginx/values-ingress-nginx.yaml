@@ -1,6 +1,7 @@
 controller:
   config:
     use-proxy-protocol: "true"
+    use-forward-headers: "true"
   service:
     annotations:
       service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
@@ -8,4 +9,5 @@ controller:
       # https://github.com/jetstack/cert-manager/issues/466
       # Specifies the hostname used for the Service status.Hostname instead of assigning status.IP directly.
       # e.g. "index.murmurations.network", "test-index.murmurations.network"
-      service.beta.kubernetes.io/do-loadbalancer-hostname: <DO_LOADBALANCER_HOSTNAME>
+      service.beta.kubernetes.io/do-loadbalancer-hostname: <DO-LOADBALANCER-HOSTNAME>
+    externalTrafficPolicy: "Local"
