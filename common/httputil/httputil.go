@@ -21,6 +21,7 @@ func Get(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	// err http: read on closed response body
 	defer resp.Body.Close()
 	return resp, err
 }

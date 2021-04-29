@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geoip-app-config
+data:
+  SERVER_PORT: "8080"
+  SERVER_TIMEOUT_READ: 5s
+  SERVER_TIMEOUT_WRITE: 10s
+  SERVER_TIMEOUT_IDLE: 15s
+  {{- if eq .Values.global.env "development" }}
+  DATABASE_LOCATION: "./services/geoip/global/GeoLite2-City.mmdb"
+  {{- else }}
+  DATABASE_LOCATION: "/app/GeoLite2-City.mmdb"
+  {{- end }}
