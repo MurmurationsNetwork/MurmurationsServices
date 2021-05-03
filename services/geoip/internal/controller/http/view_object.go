@@ -1,8 +1,6 @@
 package http
 
 import (
-	"fmt"
-
 	"github.com/oschwald/geoip2-golang"
 )
 
@@ -24,10 +22,5 @@ func (handler *gepIPHandler) toCityVO(record *geoip2.City) interface{} {
 		Lat:     record.Location.Latitude,
 		Lon:     record.Location.Longitude,
 	}
-
-	fmt.Println("=========================")
-	fmt.Printf("res : %+v \n", res)
-	fmt.Println("=========================")
-
 	return respond{Data: res}
 }

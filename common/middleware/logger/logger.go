@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var defaultSkipPaths = []string{"/ping", "/nodes/_search"}
+var defaultSkipPaths = []string{"/ping"}
 
 func NewLogger() gin.HandlerFunc {
 	return LoggerWithConfig(gin.LoggerConfig{})
@@ -30,11 +30,6 @@ func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		fmt.Println("=========================")
-		fmt.Printf("c.ClientIP(): %v \n", c.ClientIP())
-		fmt.Printf("c.Request.Header: %+v \n", c.Request.Header)
-		fmt.Println("=========================")
-
 		start := time.Now()
 		path := c.Request.URL.Path
 		raw := c.Request.URL.RawQuery
