@@ -15,6 +15,13 @@ spec:
       containers:
         - name: library-mongo
           image: mongo:4.4.2
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "10m"
+            limits:
+              memory: "300Mi"
+              cpu: "30m"
           {{- if not (eq .Values.global.env "development") }}
           volumeMounts:
           - mountPath: /data/db
