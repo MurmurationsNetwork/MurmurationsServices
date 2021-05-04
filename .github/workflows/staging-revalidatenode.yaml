@@ -7,7 +7,6 @@ on:
     paths:
       - 'common/**'
       - 'services/cronjob/revalidatenode/**'
-      - 'charts/murmurations/charts/revalidatenode/**'
 
 jobs:
   test:
