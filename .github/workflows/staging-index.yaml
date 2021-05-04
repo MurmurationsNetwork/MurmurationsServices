@@ -7,7 +7,6 @@ on:
     paths:
       - 'common/**'
       - 'services/index/**'
-      - 'charts/murmurations/charts/index/**'
 
 jobs:
   test:
