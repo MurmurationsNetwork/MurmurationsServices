@@ -20,6 +20,6 @@ require (
 	github.com/ulule/limiter/v3 v3.8.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.mongodb.org/mongo-driver v1.5.2
-	go.uber.org/zap v1.16.0
+	go.uber.org/zap v1.17.0
 	google.golang.org/protobuf v1.25.0 // indirect
 )
