@@ -110,7 +110,7 @@ func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
 
 	// To make sure DNS updates the content of schemas.
 	// The system won't update the last commit time until it passes a certain period.
-	if int(t2.Sub(t1).Seconds()) < 180 {
+	if int(t2.Sub(t1).Minutes()) < 10 {
 		return false, nil
 	}
 
