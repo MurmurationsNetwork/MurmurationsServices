@@ -1,6 +1,7 @@
 package httputil
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -32,6 +33,10 @@ func GetByte(url string) ([]byte, error) {
 		return []byte{}, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return []byte{}, fmt.Errorf("error the requested URL %s returned 404 not found", url)
+	}
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
