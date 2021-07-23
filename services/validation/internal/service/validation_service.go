@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
@@ -140,7 +141,7 @@ func (svc *validationService) validateAgainstSchemas(linkedSchemas []string, pro
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
-			FailureReasons = append(FailureReasons, "Could not read from schema: "+schemaURL)
+			FailureReasons = append(FailureReasons, fmt.Sprintf("Error when trying to read from schema %s: %s", schemaURL, err.Error()))
 			continue
 		}
 
