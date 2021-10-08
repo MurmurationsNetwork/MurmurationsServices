@@ -38,7 +38,7 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 	}
 
 	// Validate against the default schema.
-	failureReasons := svc.validateAgainstSchemas([]string{"default-v1.0.0"}, node.ProfileURL)
+	failureReasons := svc.validateAgainstSchemas([]string{"default-v1"}, node.ProfileURL)
 	if len(failureReasons) != 0 {
 		logger.Info("Failed to validate against schemas: " + strings.Join(failureReasons, " "))
 		svc.sendNodeValidationFailedEvent(node, failureReasons)

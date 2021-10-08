@@ -8,7 +8,7 @@ type SchemaJSON struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Name        string `json:"name"`
-	Version     string `json:"version"`
+	Version     int    `json:"version"`
 	URL         string `json:"url"`
 }
 
