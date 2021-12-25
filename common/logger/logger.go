@@ -17,7 +17,6 @@ type commonLogger interface {
 }
 
 func init() {
-	fmt.Println("logger ok")
 	var err error
 	if log.log, err = newConfig().Build(); err != nil {
 		panic(err)

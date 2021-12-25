@@ -11,7 +11,6 @@ import (
 )
 
 func init() {
-	fmt.Println("application ok")
 	global.Init()
 }
 

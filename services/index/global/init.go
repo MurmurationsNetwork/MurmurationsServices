@@ -1,8 +1,6 @@
 package global
 
 import (
-	"fmt"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -13,40 +11,23 @@ import (
 
 func Init() {
 	config.Init()
-
-	fmt.Println("config Init ok")
-
 	mongoInit()
-
-	fmt.Println("mongoInit ok")
-
 	esInit()
-
-	fmt.Println("esInit ok")
-
 	natsInit()
-
-	fmt.Println("natsInit ok")
 }
 
 func mongoInit() {
 	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
-
-	fmt.Println("mongo uri", uri)
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
 		logger.Panic("Error when trying to connect to MongoDB", err)
 	}
 
-	fmt.Println("NewClient OK", uri)
-
 	err = mongo.Client.Ping()
 	if err != nil {
 		logger.Panic("Error when trying to ping the MongoDB", err)
 	}
-
-	fmt.Println("Client Ping", uri)
 }
 
 func esInit() {
@@ -97,8 +78,6 @@ func esInit() {
 			 }`,
 		},
 	}
-
-	fmt.Println("config.Conf.ES.URL ", config.Conf.ES.URL)
 
 	err := elastic.NewClient(config.Conf.ES.URL)
 	if err != nil {
