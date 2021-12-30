@@ -1,4 +1,4 @@
-FROM golang:alpine as build
+FROM golang:1.16-alpine as build
 
 WORKDIR /src/validation
 ADD . /src/validation

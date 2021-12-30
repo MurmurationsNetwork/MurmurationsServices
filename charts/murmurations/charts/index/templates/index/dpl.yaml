@@ -25,6 +25,14 @@ spec:
                 name: index-app-config
             - secretRef:
                 name: index-secret
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 350
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
       {{- if eq .Values.global.env "development" }}
           volumeMounts:
             - mountPath: /src/index

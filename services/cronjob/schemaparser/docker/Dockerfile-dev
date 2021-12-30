@@ -1,6 +1,6 @@
-FROM golang:alpine
+FROM golang:1.16-alpine
 
 WORKDIR /src
 
 COPY go.mod go.sum ./
-RUN go get -d ./...
+RUN go mod download
