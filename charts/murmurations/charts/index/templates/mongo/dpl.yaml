@@ -15,13 +15,13 @@ spec:
       containers:
         - name: index-mongo
           image: mongo:4.4.2
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "8m"
-            limits:
-              memory: "256Mi"
-              cpu: "16m"
+          # resources:
+          #   requests:
+          #     memory: "128Mi"
+          #     cpu: "8m"
+          #   limits:
+          #     memory: "256Mi"
+          #     cpu: "16m"
           {{- if not (eq .Values.global.env "development") }}
           volumeMounts:
           - mountPath: /data/db

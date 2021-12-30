@@ -1,12 +1,12 @@
-FROM golang:alpine
+FROM golang:1.17-alpine
 
 RUN apk update
 
 WORKDIR /src/index
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go get -d ./...
 
-RUN go get github.com/cespare/reflex
+RUN go install github.com/cespare/reflex@latest
 
 CMD ["reflex", "-c", "./services/index/reflex.conf"]

@@ -9,8 +9,9 @@ Follow [Official Installation Guide](https://kubernetes.github.io/ingress-nginx/
 ```
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
-kubectl create namespace ingress-nginx
-helm upgrade ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx --install
+helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace
 ```
 
 **Production / Staging**

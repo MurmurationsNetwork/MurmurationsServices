@@ -23,6 +23,7 @@ func mongoInit() {
 	if err != nil {
 		logger.Panic("Error when trying to connect to MongoDB", err)
 	}
+
 	err = mongo.Client.Ping()
 	if err != nil {
 		logger.Panic("Error when trying to ping the MongoDB", err)
