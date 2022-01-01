@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: index-es
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
           # resources:
           #   requests:
           #     memory: "1024Mi"
@@ -25,8 +25,8 @@ spec:
           #     cpu: "32m"
           {{- if not (eq .Values.global.env "development") }}
           volumeMounts:
-          - mountPath: /usr/share/elasticsearch/data
-            name: index-es-storage
+            - mountPath: /usr/share/elasticsearch/data
+              name: index-es-storage
           {{- end }}
           ports:
             - containerPort: 9200
@@ -46,38 +46,32 @@ spec:
       initContainers:
         - name: increase-vm-max-map
           image: busybox
-          command:
-            - sysctl
-            - '-w'
-            - vm.max_map_count=262144
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
           securityContext:
             privileged: true
         - name: increase-fd-ulimit
           image: busybox
-          command:
-            - sh
-            - '-c'
-            - ulimit -n 65536
+          command: ["sh", "-c", "ulimit -n 65536"]
           securityContext:
             privileged: true
   {{- if not (eq .Values.global.env "development") }}
         - name: file-permissions
-          image: busybox:1.32
+          image: busybox
           command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/']
           volumeMounts:
           - mountPath: /usr/share/elasticsearch/data
             name: index-es-storage
   volumeClaimTemplates:
-  - metadata:
-      name: index-es-storage
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: do-block-storage
-      resources:
-        requests:
-          {{- if eq .Values.global.env "production" }}
-          storage: 10Gi
-          {{- else if eq .Values.global.env "staging" }}
-          storage: 5Gi
-          {{- end }}
+    - metadata:
+        name: index-es-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: do-block-storage
+        resources:
+          requests:
+            {{- if eq .Values.global.env "production" }}
+            storage: 10Gi
+            {{- else if eq .Values.global.env "staging" }}
+            storage: 5Gi
+            {{- end }}
   {{- end }}
