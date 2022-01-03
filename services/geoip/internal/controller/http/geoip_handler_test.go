@@ -26,7 +26,7 @@ func (f fakeGeoIPService) GetCity(ip string) (*geoip2.City, resterr.RestErr) {
 		},
 	}, nil
 }
-func TestNewGepIPHandler(t *testing.T) {
+func TestGetCity(t *testing.T) {
 	tests := map[string]struct {
 		param   gin.Params
 		bodyStr string
