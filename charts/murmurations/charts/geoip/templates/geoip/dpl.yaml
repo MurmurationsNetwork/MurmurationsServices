@@ -34,9 +34,9 @@ spec:
             httpGet:
               path: /ping
               port: 8080
-            initialDelaySeconds: 100
-            periodSeconds: 15
-            timeoutSeconds: 5
+            initialDelaySeconds: 600
+            periodSeconds: 60
+            timeoutSeconds: 30
             failureThreshold: 3
       {{- if eq .Values.global.env "development" }}
           volumeMounts:
