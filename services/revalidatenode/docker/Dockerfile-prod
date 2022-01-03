@@ -1,0 +1,12 @@
+FROM golang:alpine as build
+
+WORKDIR /src/revalidatenode
+ADD . /src/revalidatenode
+RUN CGO_ENABLED=0 go build -o /bin/revalidatenode ./services/revalidatenode/cmd/revalidatenode
+
+FROM ubuntu:16.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+COPY --from=build /bin/revalidatenode /app/revalidatenode
+EXPOSE 8000
+CMD ["/app/revalidatenode"]

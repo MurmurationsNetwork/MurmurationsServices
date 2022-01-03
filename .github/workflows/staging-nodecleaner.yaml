@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'common/**'
-      - 'services/cronjob/nodecleaner/**'
+      - 'services/nodecleaner/**'
 
 jobs:
   test:

@@ -18,13 +18,13 @@ docker-build-library:
 	$(MAKE) -C services/library/ docker-build
 
 docker-build-nodecleaner:
-	$(MAKE) -C services/cronjob/nodecleaner/ docker-build
+	$(MAKE) -C services/nodecleaner/ docker-build
 
 docker-build-schemaparser:
-	$(MAKE) -C services/cronjob/schemaparser/ docker-build
+	$(MAKE) -C services/schemaparser/ docker-build
 
 docker-build-revalidatenode:
-	$(MAKE) -C services/cronjob/revalidatenode/ docker-build
+	$(MAKE) -C services/revalidatenode/ docker-build
 
 docker-build-geoip:
 	$(MAKE) -C services/geoip/ docker-build

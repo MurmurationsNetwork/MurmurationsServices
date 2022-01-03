@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'common/**'
-      - 'services/cronjob/revalidatenode/**'
+      - 'services/revalidatenode/**'
 
 jobs:
   test:

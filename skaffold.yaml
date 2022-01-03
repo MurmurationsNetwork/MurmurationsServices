@@ -19,15 +19,15 @@ build:
     - image: murmurations/nodecleaner
       context: .
       docker:
-        dockerfile: services/cronjob/nodecleaner/docker/Dockerfile-dev
+        dockerfile: services/nodecleaner/docker/Dockerfile-dev
     - image: murmurations/schemaparser
       context: .
       docker:
-        dockerfile: services/cronjob/schemaparser/docker/Dockerfile-dev
+        dockerfile: services/schemaparser/docker/Dockerfile-dev
     - image: murmurations/revalidatenode
       context: .
       docker:
-        dockerfile: services/cronjob/revalidatenode/docker/Dockerfile-dev
+        dockerfile: services/revalidatenode/docker/Dockerfile-dev
     - image: murmurations/geoip
       context: .
       docker:

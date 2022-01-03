@@ -25,7 +25,7 @@ spec:
                     name: nodecleaner-secret
           {{- if eq .Values.global.env "development" }}
               command: ["go", "run"]
-              args: ["services/cronjob/nodecleaner/cmd/nodecleaner/main.go"]
+              args: ["services/nodecleaner/cmd/nodecleaner/main.go"]
               volumeMounts:
                 - mountPath: /src
                   name: source-path

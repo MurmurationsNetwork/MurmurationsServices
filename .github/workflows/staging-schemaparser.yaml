@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'common/**'
-      - 'services/cronjob/schemaparser/**'
+      - 'services/schemaparser/**'
 
 jobs:
   test:
