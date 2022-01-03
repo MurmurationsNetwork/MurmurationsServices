@@ -1,10 +1,10 @@
-FROM golang:1.16-alpine as build
+FROM golang:1.17.5-alpine as build
 
 WORKDIR /src/validation
 ADD . /src/validation
 RUN CGO_ENABLED=0 go build -o /bin/validation ./services/validation/cmd/validation
 
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /bin/validation /app/validation
