@@ -7,3 +7,4 @@ data:
   discovery.seed_hosts: "index-es-cluster-0.index-es,index-es-cluster-1.index-es,index-es-cluster-2.index-es"
   cluster.initial_master_nodes: "index-es-cluster-0,index-es-cluster-1,index-es-cluster-2"
   ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+  xpack.security.enabled: "false"

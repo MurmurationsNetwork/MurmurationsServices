@@ -1,11 +1,11 @@
-FROM golang:alpine
+FROM golang:1.17.5-alpine
 
 RUN apk update
 
 WORKDIR /src/validation
 
 COPY go.mod go.sum ./
-RUN go get -d ./...
+RUN go mod download
 
 RUN go install github.com/cespare/reflex@latest
 

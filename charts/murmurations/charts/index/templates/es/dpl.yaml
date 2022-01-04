@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: index-es
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
           # resources:
           #   requests:
           #     memory: "1024Mi"
@@ -25,8 +25,8 @@ spec:
           #     cpu: "32m"
           {{- if not (eq .Values.global.env "development") }}
           volumeMounts:
-          - mountPath: /usr/share/elasticsearch/data
-            name: index-es-storage
+            - mountPath: /usr/share/elasticsearch/data
+              name: index-es-storage
           {{- end }}
           ports:
             - containerPort: 9200
