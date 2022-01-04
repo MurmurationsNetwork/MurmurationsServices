@@ -7,6 +7,8 @@ on:
     paths:
       - 'common/**'
       - 'services/cronjob/revalidatenode/**'
+      - '.github/workflows/staging-revalidatenode.yaml'
+      - 'charts/murmurations/charts/revalidatenode/**'
 
 jobs:
   test:
