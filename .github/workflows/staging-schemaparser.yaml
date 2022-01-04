@@ -7,6 +7,8 @@ on:
     paths:
       - 'common/**'
       - 'services/cronjob/schemaparser/**'
+      - '.github/workflows/staging-schemaparser.yaml'
+      - 'charts/murmurations/charts/schemaparser/**'
 
 jobs:
   test:

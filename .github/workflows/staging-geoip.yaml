@@ -7,6 +7,8 @@ on:
     paths:
       - 'common/**'
       - 'services/geoip/**'
+      - '.github/workflows/staging-geoip.yaml'
+      - 'charts/murmurations/charts/geoip/**'
 
 jobs:
   test:
