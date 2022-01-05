@@ -3,6 +3,11 @@ test:
 
 # ---------------------------------------------------------------
 
+newman-test:
+	newman run e2e-tests.json -e e2e-dev-env.json
+
+# ---------------------------------------------------------------
+
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
