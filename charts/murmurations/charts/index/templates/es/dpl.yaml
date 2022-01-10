@@ -79,7 +79,7 @@ spec:
         requests:
           {{- if eq .Values.global.env "production" }}
           storage: 10Gi
-          {{- else if eq .Values.global.env "staging" }}
+          {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
           storage: 5Gi
           {{- end }}
   {{- end }}

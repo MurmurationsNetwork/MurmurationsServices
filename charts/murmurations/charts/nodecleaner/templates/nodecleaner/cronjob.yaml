@@ -5,7 +5,7 @@ metadata:
 spec:
   {{- if eq .Values.global.env "production" }}
   schedule: "0 */12 * * *" # every 12 hrs
-  {{- else if eq .Values.global.env "staging" }}
+  {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   schedule: "*/2 * * * *"  # every 2 minutes
   {{- else }}
   schedule: "*/1 * * * *"  # every 1 minute
