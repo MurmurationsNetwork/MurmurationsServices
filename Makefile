@@ -3,8 +3,20 @@ test:
 
 # ---------------------------------------------------------------
 
+# if I don't set the DEPLOY_ENV, then default is local
+DEPLOY_ENV ?= local
+ENV_FILE ?= <>
+
+ifeq ($(DEPLOY_ENV), staging)
+	ENV_FILE = e2e-staging-env.json
+else ifeq ($(DEPLOY_ENV), pretest)
+	ENV_FILE = e2e-pretest-env.json
+else
+	ENV_FILE = e2e-local-env.json
+endif
+
 newman-test:
-	newman run e2e-tests.json -e e2e-dev-env.json
+	newman run e2e-tests.json -e $(ENV_FILE)
 
 # ---------------------------------------------------------------
 
