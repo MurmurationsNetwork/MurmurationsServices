@@ -8,7 +8,7 @@ spec:
   {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   schedule: "*/1 * * * *"  # every 1 minute
   {{- else }}
-  schedule: "*/1 * * * *"  # every 1 minute
+  schedule: "*/5 * * * *"  # every 5 minute
   {{- end }}
   jobTemplate:
     spec:
