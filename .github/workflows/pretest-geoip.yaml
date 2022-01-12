@@ -10,6 +10,9 @@ on:
       - '.github/workflows/pretest-geoip.yaml'
       - 'charts/murmurations/charts/geoip/**'
 
+concurrency:
+  group: environment-${{ github.ref }}
+
 jobs:
   test:
     name: Test

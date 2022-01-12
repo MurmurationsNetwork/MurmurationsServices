@@ -10,6 +10,9 @@ on:
       - '.github/workflows/pretest-validation.yaml'
       - 'charts/murmurations/charts/validation/**'
 
+concurrency:
+  group: environment-${{ github.ref }}
+
 jobs:
   test:
     name: Test

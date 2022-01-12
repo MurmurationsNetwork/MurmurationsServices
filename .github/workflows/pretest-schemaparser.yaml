@@ -10,6 +10,9 @@ on:
       - '.github/workflows/pretest-schemaparser.yaml'
       - 'charts/murmurations/charts/schemaparser/**'
 
+concurrency:
+  group: environment-${{ github.ref }}
+
 jobs:
   test:
     name: Test

@@ -10,6 +10,9 @@ on:
       - '.github/workflows/pretest-index.yaml'
       - 'charts/murmurations/charts/index/**'
 
+concurrency:
+  group: environment-${{ github.ref }}
+
 jobs:
   test:
     name: Test

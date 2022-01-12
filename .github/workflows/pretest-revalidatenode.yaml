@@ -10,6 +10,9 @@ on:
       - '.github/workflows/pretest-revalidatenode.yaml'
       - 'charts/murmurations/charts/revalidatenode/**'
 
+concurrency:
+  group: environment-${{ github.ref }}
+
 jobs:
   test:
     name: Test
