@@ -18,5 +18,5 @@ func NewPingHandler() PingHandler {
 }
 
 func (handler *pingHandler) Ping(c *gin.Context) {
-	c.String(http.StatusOK, "pong!")
+	c.String(http.StatusOK, "pong")
 }
