@@ -215,8 +215,7 @@
 							"})",
 							"",
 							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"node0\", jsonData.data.node_id)",
-							"setTimeout(function(){}, 5000);"
+							"pm.environment.set(\"node0\", jsonData.data.node_id)"
 						],
 						"type": "text/javascript"
 					}
@@ -269,8 +268,7 @@
 							"",
 							"pm.test(`${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
 							"    pm.expect(jsonData.data.failure_reasons[0]).to.contain(\"Could not read from profile_url\")",
-							"})",
-							"setTimeout(function(){}, 5000);"
+							"})"
 						],
 						"type": "text/javascript"
 					}
@@ -279,7 +277,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -320,6 +318,15 @@
 							"})",
 							"",
 							"pm.environment.unset(\"node0\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -450,7 +457,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -619,7 +626,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}

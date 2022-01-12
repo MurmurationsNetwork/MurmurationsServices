@@ -1,4 +1,4 @@
-name: pretest-revalidatenode
+name: pre-test-revalidatenode
 
 on:
   pull_request:
