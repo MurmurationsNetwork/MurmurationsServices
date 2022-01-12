@@ -1,4 +1,4 @@
-name: pre-test-validation
+name: pretest-validation
 
 on:
   pull_request:
