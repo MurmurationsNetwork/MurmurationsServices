@@ -76,7 +76,7 @@ jobs:
           npm install -g newman
 
       - name: Test Index
-        uses: ifaxity/wait-on-action
+        uses: ifaxity/wait-on-action@v1
         with:
           resource: https://pretest-index.murmurations.network/v1/ping
           delay: 30000
@@ -84,7 +84,7 @@ jobs:
           timeout: 300000
 
       - name: Test Library
-        uses: ifaxity/wait-on-action
+        uses: ifaxity/wait-on-action@v1
         with:
           resource: https://pretest-library.murmurations.network/v1/ping
           delay: 30000
