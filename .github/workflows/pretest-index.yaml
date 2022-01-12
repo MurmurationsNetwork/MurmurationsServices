@@ -76,20 +76,10 @@ jobs:
           npm install -g newman
 
       - name: Test Index
-        uses: ifaxity/wait-on-action@v1
-        with:
-          resource: https://pretest-index.murmurations.network/v1/ping
-          delay: 30000
-          interval: 30000
-          timeout: 300000
+        run: ./wait_for_timeout.sh https://pretest-index.murmurations.network/v1/ping 200 300
 
       - name: Test Library
-        uses: ifaxity/wait-on-action@v1
-        with:
-          resource: https://pretest-library.murmurations.network/v1/ping
-          delay: 30000
-          interval: 30000
-          timeout: 300000
+        run: ./wait_for_timeout.sh https://pretest-library.murmurations.network/v1/ping 200 300
 
       - name: Newman E2E Test
         run: make newman-test DEPLOY_ENV=pretest
