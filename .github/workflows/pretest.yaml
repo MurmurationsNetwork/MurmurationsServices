@@ -1,0 +1,284 @@
+name: pretest
+
+on:
+  pull_request:
+    branches:
+      - staging
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.5
+
+    - name: Test
+      run: make test
+
+  build-index:
+    name: Build Index
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1.10.0
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Publish index docker images
+      run: make docker-push-index
+
+  deploy-index:
+    name: Deploy Index
+    needs: [test, build-index]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    - name: Save DigitalOcean kubeconfig with short-lived credentials
+      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+    - name: Restart index deployment
+      run: make deploy-index DEPLOY_ENV=pretest
+
+  build-library:
+    name: Build Library
+    needs: [test, build-index, deploy-index]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish library docker images
+        run: make docker-push-library
+
+  deploy-library:
+    name: Deploy Library
+    needs: [test, build-index, deploy-index, build-library]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+      - name: Restart library deployment
+        run: make deploy-library DEPLOY_ENV=pretest
+
+  build-geoip:
+    name: Build Geoip
+    needs: [test, build-index, deploy-index, build-library, deploy-library]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish geoip docker images
+        run: make docker-push-geoip
+
+  deploy-geoip:
+    name: Deploy Geoip
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+      - name: Restart geoip deployment
+        run: make deploy-geoip DEPLOY_ENV=pretest
+
+  build-validation:
+    name: Build Validation
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish validation docker images
+        run: make docker-push-validation
+
+  deploy-validation:
+    name: Deploy Validation
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+      - name: Restart validation deployment
+        run: make deploy-validation DEPLOY_ENV=pretest
+
+  build-nodecleaner:
+    name: Build Nodecleaner
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish nodecleaner docker images
+        run: make docker-push-nodecleaner
+
+  deploy-nodecleaner:
+    name: Deploy Nodecleaner
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation, build-nodecleaner]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+      - name: Restart nodecleaner deployment
+        run: make deploy-nodecleaner DEPLOY_ENV=pretest
+
+  build-revalidatenode:
+    name: Build Revalidatenode
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation, build-nodecleaner, deploy-nodecleaner]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish revalidatenode docker images
+        run: make docker-push-revalidatenode
+
+  deploy-revalidatenode:
+    name: Deploy Revalidatenode
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation, build-nodecleaner, deploy-nodecleaner, build-revalidatenode]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+      - name: Restart revalidatenode deployment
+        run: make deploy-revalidatenode DEPLOY_ENV=pretest
+
+  build-schemaparser:
+    name: Build Schemaparser
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation, build-nodecleaner, deploy-nodecleaner, build-revalidatenode, deploy-revalidatenode]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish schemaparser docker images
+        run: make docker-push-schemaparser
+
+  deploy-schemaparser:
+    name: Deploy Schemaparser
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation, build-nodecleaner, deploy-nodecleaner, build-revalidatenode, deploy-revalidatenode, build-schemaparser]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
+
+      - name: Restart schemaparser deployment
+        run: make deploy-schemaparser DEPLOY_ENV=pretest
+
+  e2e_test:
+    name: E2E Test
+    needs: [test, build-index, deploy-index, build-library, deploy-library, build-geoip, deploy-geoip, build-validation, deploy-validation, build-nodecleaner, deploy-nodecleaner, build-revalidatenode, deploy-revalidatenode, build-schemaparser, deploy-schemaparser]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Newman Installation
+        run: |
+          npm install
+          npm install -g newman
+
+      - name: Test Index
+        run: ./wait_for_timeout.sh https://pretest-index.murmurations.network/v1/ping 200 300
+
+      - name: Test Library
+        run: ./wait_for_timeout.sh https://pretest-library.murmurations.network/v1/ping 200 300
+
+      - name: Newman E2E Test
+        run: make newman-test DEPLOY_ENV=pretest
