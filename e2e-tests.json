@@ -796,7 +796,7 @@
 							"var jsonData = pm.response.json();",
 							"",
 							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.eq(1)",
+							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
 							"})"
 						],
 						"type": "text/javascript"
@@ -881,7 +881,7 @@
 							"var jsonData = pm.response.json();",
 							"",
 							"pm.test(`${pm.info.requestName} - should return two results`, () => {",
-							"    pm.expect(jsonData.data.length).to.eq(2)",
+							"    pm.expect(jsonData.data.length).to.greaterThanOrEqual(2)",
 							"})"
 						],
 						"type": "text/javascript"
