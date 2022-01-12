@@ -20,8 +20,8 @@ jobs:
       - name: Test
         run: make test
 
-  build:
-    name: Build
+  build-index:
+    name: Build Index
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -36,27 +36,105 @@ jobs:
       - name: Publish index docker images
         run: make docker-push-index
 
+  build-library:
+    name: Build Library
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Publish library docker images
         run: make docker-push-library
+
+  build-geoip:
+    name: Build Geoip
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish geoip docker images
         run: make docker-push-geoip
 
+  build-validation:
+    name: Build Validation
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Publish validation docker images
         run: make docker-push-validation
+
+  build-nodecleaner:
+    name: Build Nodecleaner
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish nodecleaner docker images
         run: make docker-push-nodecleaner
 
+  build-revalidatenode:
+    name: Build Revalidatenode
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Publish revalidatenode docker images
         run: make docker-push-revalidatenode
+
+  build-schemaparser:
+    name: Build Schemaparser
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish schemaparser docker images
         run: make docker-push-schemaparser
 
   deploy:
     name: Deploy
-    needs: [test, build]
+    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -92,7 +170,7 @@ jobs:
 
   e2e_test:
     name: E2E Test
-    needs: [test, build, deploy]
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
