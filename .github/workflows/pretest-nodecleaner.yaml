@@ -10,9 +10,6 @@ on:
       - '.github/workflows/pretest-nodecleaner.yaml'
       - 'charts/murmurations/charts/nodecleaner/**'
 
-concurrency:
-  group: environment-test
-
 jobs:
   test:
     name: Test

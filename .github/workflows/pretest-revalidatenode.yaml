@@ -10,9 +10,6 @@ on:
       - '.github/workflows/pretest-revalidatenode.yaml'
       - 'charts/murmurations/charts/revalidatenode/**'
 
-concurrency:
-  group: environment-test
-
 jobs:
   test:
     name: Test

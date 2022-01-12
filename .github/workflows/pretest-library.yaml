@@ -10,9 +10,6 @@ on:
       - '.github/workflows/pretest-library.yaml'
       - 'charts/murmurations/charts/library/**'
 
-concurrency:
-  group: environment-test
-
 jobs:
   test:
     name: Test
