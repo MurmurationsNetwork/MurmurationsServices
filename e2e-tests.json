@@ -277,7 +277,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -318,6 +318,15 @@
 							"})",
 							"",
 							"pm.environment.unset(\"node0\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -448,7 +457,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -617,7 +626,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -797,7 +806,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}

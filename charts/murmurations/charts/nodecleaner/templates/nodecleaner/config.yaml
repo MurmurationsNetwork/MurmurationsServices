@@ -7,7 +7,7 @@ data:
   MONGO_DB_NAME: murmurationsIndex
   {{- if eq .Values.global.env "production" }}
   TTL: "86400" # 24 hrs
-  {{- else if eq .Values.global.env "staging" }}
+  {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   TTL: "240"   # 4 mins
   {{- else }}
   TTL: "120"   # 2 mins
