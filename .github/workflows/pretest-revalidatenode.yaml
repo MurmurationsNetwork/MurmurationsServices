@@ -1,4 +1,4 @@
-name: pretest-index
+name: pretest-revalidatenode
 
 on:
   pull_request:
@@ -6,9 +6,9 @@ on:
       - staging
     paths:
       - 'common/**'
-      - 'services/index/**'
-      - '.github/workflows/pretest-index.yaml'
-      - 'charts/murmurations/charts/index/**'
+      - 'services/cronjob/revalidatenode/**'
+      - '.github/workflows/pretest-revalidatenode.yaml'
+      - 'charts/murmurations/charts/revalidatenode/**'
 
 jobs:
   test:
@@ -38,8 +38,8 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Publish index docker images
-      run: make docker-push-index
+    - name: Publish revalidatenode docker images
+      run: make docker-push-revalidatenode
 
   deploy:
     name: Deploy
@@ -56,12 +56,12 @@ jobs:
     - name: Save DigitalOcean kubeconfig with short-lived credentials
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
 
-    - name: Restart index deployment
-      run: make deploy-index DEPLOY_ENV=pretest
+    - name: Restart revalidatenode deployment
+      run: make deploy-revalidatenode DEPLOY_ENV=pretest
 
   e2e_test:
     name: E2E Test
-    needs: [test, build, deploy]
+    needs: [ test, build, deploy ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
