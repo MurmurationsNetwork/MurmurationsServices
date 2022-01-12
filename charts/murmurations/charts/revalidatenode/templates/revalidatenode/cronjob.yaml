@@ -4,11 +4,11 @@ metadata:
   name: revalidatenode-app
 spec:
   {{- if eq .Values.global.env "production" }}
-  schedule: "*/1 * * * *"  # every 1 minute
+  schedule: "*/1 * * * *"  # every minute
   {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
-  schedule: "*/1 * * * *"  # every 1 minute
+  schedule: "*/1 * * * *"  # every minute
   {{- else }}
-  schedule: "*/5 * * * *"  # every 5 minute
+  schedule: "*/1 * * * *"  # every minute
   {{- end }}
   jobTemplate:
     spec:
