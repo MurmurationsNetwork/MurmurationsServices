@@ -797,7 +797,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"setTimeout(function(){}, 1000);"
+							"setTimeout(function(){}, 2000);"
 						],
 						"type": "text/javascript"
 					}
