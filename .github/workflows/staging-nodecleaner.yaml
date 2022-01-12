@@ -57,4 +57,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
 
     - name: Restart nodecleaner deployment
-      run: make deploy-nodecleaner
+      run: make deploy-nodecleaner DEPLOY_ENV=staging

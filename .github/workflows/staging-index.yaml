@@ -57,4 +57,4 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
 
     - name: Restart index deployment
-      run: make deploy-index
+      run: make deploy-index DEPLOY_ENV=staging
