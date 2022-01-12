@@ -17,7 +17,7 @@ endif
 # ---------------------------------------------------------------
 
 newman-test:
-	newman run e2e-tests.json -e $(ENV_FILE)
+	newman run e2e-tests.json -e $(ENV_FILE) --verbose
 
 # ---------------------------------------------------------------
 

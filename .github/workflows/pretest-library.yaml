@@ -1,4 +1,4 @@
-name: pretest-library
+name: pre-test-library
 
 on:
   pull_request:
