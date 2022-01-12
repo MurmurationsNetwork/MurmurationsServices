@@ -1,4 +1,4 @@
-name: pre-test-nodecleaner
+name: pretest-nodecleaner
 
 on:
   pull_request:
