@@ -1,4 +1,4 @@
-name: pre-test-index
+name: pretest-index
 
 on:
   pull_request:

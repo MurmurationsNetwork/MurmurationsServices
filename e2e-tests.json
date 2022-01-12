@@ -215,7 +215,8 @@
 							"})",
 							"",
 							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"node0\", jsonData.data.node_id)"
+							"pm.environment.set(\"node0\", jsonData.data.node_id)",
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}
@@ -268,7 +269,8 @@
 							"",
 							"pm.test(`${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
 							"    pm.expect(jsonData.data.failure_reasons[0]).to.contain(\"Could not read from profile_url\")",
-							"})"
+							"})",
+							"setTimeout(function(){}, 5000);"
 						],
 						"type": "text/javascript"
 					}

@@ -1,4 +1,4 @@
-name: pre-test-schemaparser
+name: pretest-schemaparser
 
 on:
   pull_request:

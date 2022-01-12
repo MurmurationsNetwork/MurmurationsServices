@@ -1,4 +1,4 @@
-name: pre-test-geoip
+name: pretest-geoip
 
 on:
   pull_request:
