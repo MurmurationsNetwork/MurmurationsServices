@@ -6,7 +6,7 @@ spec:
   {{- if eq .Values.global.env "production" }}
   schedule: "0 */12 * * *" # every 12 hours
   {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
-  schedule: "0 */1 * * *"  # every hour
+  schedule: "0 0 1 1 *"  # every hour
   {{- else }}
   schedule: "*/5 * * * *"  # every 5 minutes
   {{- end }}
