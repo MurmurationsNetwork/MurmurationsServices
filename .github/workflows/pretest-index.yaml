@@ -1,4 +1,4 @@
-name: staging-index
+name: pretest-index
 
 on:
   pull_request:
@@ -76,20 +76,20 @@ jobs:
           npm install -g newman
 
       - name: Test Index
-        uses: nev7n/wait_for_response@v1
+        uses: ifaxity/wait-on-action
         with:
-          url: 'https://pretest-index.murmurations.network/v1/ping'
-          responseCode: 200
+          resource: https://pretest-index.murmurations.network/v1/ping
+          delay: 30000
+          interval: 30000
           timeout: 300000
-          interval: 60000
 
       - name: Test Library
-        uses: nev7n/wait_for_response@v1
+        uses: ifaxity/wait-on-action
         with:
-          url: 'https://pretest-library.murmurations.network/v1/ping'
-          responseCode: 200
+          resource: https://pretest-library.murmurations.network/v1/ping
+          delay: 30000
+          interval: 30000
           timeout: 300000
-          interval: 60000
 
       - name: Newman E2E Test
         run: make newman-test DEPLOY_ENV=pretest
