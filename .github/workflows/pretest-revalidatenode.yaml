@@ -12,7 +12,6 @@ on:
 
 concurrency:
   group: environment-test
-  cancel-in-progress: false
 
 jobs:
   test:
