@@ -170,7 +170,7 @@ jobs:
 
   e2e_test:
     name: E2E Test
-    needs: [test, build, deploy]
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
