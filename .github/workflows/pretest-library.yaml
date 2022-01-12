@@ -11,7 +11,8 @@ on:
       - 'charts/murmurations/charts/library/**'
 
 concurrency:
-  group: environment-${{ github.ref }}
+  group: environment-test
+  cancel-in-progress: false
 
 jobs:
   test:
