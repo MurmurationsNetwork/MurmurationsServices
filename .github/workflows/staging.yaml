@@ -148,16 +148,22 @@ jobs:
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
 
       - name: Restart index deployment
-        run: make deploy-index DEPLOY_ENV=staging
+        run: |
+          make deploy-index DEPLOY_ENV=staging &&
+          kubectl rollout restart deployment/index-app
 
       - name: Restart library deployment
-        run: make deploy-library DEPLOY_ENV=staging
+        run: |
+          make deploy-library DEPLOY_ENV=staging &&
+          kubectl rollout restart deployment/library-app
 
       - name: Restart geoip deployment
         run: make deploy-geoip DEPLOY_ENV=staging
 
       - name: Restart validation deployment
-        run: make deploy-validation DEPLOY_ENV=staging
+        run: |
+          make deploy-validation DEPLOY_ENV=staging &&
+          kubectl rollout restart deployment/validation-app
 
       - name: Restart nodecleaner deployment
         run: make deploy-nodecleaner DEPLOY_ENV=staging
