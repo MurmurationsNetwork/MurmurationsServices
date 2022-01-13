@@ -148,22 +148,16 @@ jobs:
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmtest
 
     - name: Restart index deployment
-      run: |
-        make deploy-index DEPLOY_ENV=pretest &&
-        kubectl rollout restart deployment/index-app
+      run: make deploy-index DEPLOY_ENV=pretest
 
     - name: Restart library deployment
-      run: |
-        make deploy-library DEPLOY_ENV=pretest &&
-        kubectl rollout restart deployment/library-app
+      run: make deploy-library DEPLOY_ENV=pretest
 
     - name: Restart geoip deployment
       run: make deploy-geoip DEPLOY_ENV=pretest
 
     - name: Restart validation deployment
-      run: |
-        make deploy-validation DEPLOY_ENV=pretest &&
-        kubectl rollout restart deployment/validation-app
+      run: make deploy-validation DEPLOY_ENV=pretest
 
     - name: Restart nodecleaner deployment
       run: make deploy-nodecleaner DEPLOY_ENV=pretest
@@ -173,6 +167,15 @@ jobs:
 
     - name: Restart schemaparser deployment
       run: make deploy-schemaparser DEPLOY_ENV=pretest
+
+    - name: Rollout index deployment
+      run: kubectl rollout restart deployment/index-app
+
+    - name: Rollout library deployment
+      run: kubectl rollout restart deployment/library-app
+
+    - name: Rollout validation deployment
+      run: kubectl rollout restart deployment/validation-app
 
   e2e_test:
     name: E2E Test
