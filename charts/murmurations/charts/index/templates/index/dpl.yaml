@@ -12,7 +12,7 @@ spec:
       labels:
         app: index-app
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/index/config.yaml") . | sha256sum }}
+        rollme: {{ randAlphaNum 5 | quote }}
     spec:
       containers:
         - name: index-app

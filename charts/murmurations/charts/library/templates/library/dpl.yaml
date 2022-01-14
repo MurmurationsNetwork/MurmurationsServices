@@ -12,7 +12,7 @@ spec:
       labels:
         app: library-app
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/library/config.yaml") . | sha256sum }}
+        rollme: {{ randAlphaNum 5 | quote }}
     spec:
       containers:
         - name: library-app
