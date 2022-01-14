@@ -168,21 +168,6 @@ jobs:
     - name: Restart schemaparser deployment
       run: make deploy-schemaparser DEPLOY_ENV=pretest
 
-    - name: Rollout index deployment
-      uses: actions-hub/kubectl@master
-      with:
-        args: rollout restart deployment/index-app
-
-    - name: Rollout library deployment
-      uses: actions-hub/kubectl@master
-      with:
-        args: rollout restart deployment/library-app
-
-    - name: Rollout validation deployment
-      uses: actions-hub/kubectl@master
-      with:
-        args: rollout restart deployment/validation-app
-
   e2e_test:
     name: E2E Test
     needs: deploy
