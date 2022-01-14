@@ -169,13 +169,19 @@ jobs:
       run: make deploy-schemaparser DEPLOY_ENV=pretest
 
     - name: Rollout index deployment
-      run: kubectl rollout restart deployment/index-app
+      uses: actions-hub/kubectl@master
+      with:
+        args: rollout restart deployment/index-app
 
     - name: Rollout library deployment
-      run: kubectl rollout restart deployment/library-app
+      uses: actions-hub/kubectl@master
+      with:
+        args: rollout restart deployment/library-app
 
     - name: Rollout validation deployment
-      run: kubectl rollout restart deployment/validation-app
+      uses: actions-hub/kubectl@master
+      with:
+        args: rollout restart deployment/validation-app
 
   e2e_test:
     name: E2E Test
