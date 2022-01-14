@@ -165,6 +165,9 @@ jobs:
       - name: Restart revalidatenode deployment
         run: make deploy-revalidatenode DEPLOY_ENV=staging
 
+      - name: Restart schemaparser deployment
+        run: make deploy-schemaparser DEPLOY_ENV=pretest
+
   e2e_test:
     name: E2E Test
     needs: deploy
