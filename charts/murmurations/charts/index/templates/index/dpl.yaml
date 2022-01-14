@@ -12,7 +12,7 @@ spec:
       labels:
         app: index-app
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "./config.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
     spec:
       containers:
         - name: index-app
