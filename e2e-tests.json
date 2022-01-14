@@ -116,8 +116,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
+							"pm.test(`${pm.info.requestName} - should return status code 404`, () => {",
+							"    pm.response.to.have.status(404)",
 							"})",
 							"",
 							"var jsonData = pm.response.json();",

@@ -49,5 +49,6 @@ func NewInternalServerError(message string, err error) RestErr {
 func NewNotFoundError(message string) RestErr {
 	return restErr{
 		ErrMessage: message,
+		ErrStatus:  http.StatusNotFound,
 	}
 }
