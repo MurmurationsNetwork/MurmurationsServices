@@ -442,12 +442,16 @@
 							"    pm.expect(jsonData.data.status).to.eq(\"posted\")",
 							"})",
 							"",
-							"pm.test(`${pm.info.requestName} - should have last_validated property`, () => {",
-							"    pm.expect(jsonData.data).to.have.property(\"last_validated\")",
+							"pm.test(`${pm.info.requestName} - should have not last_validated property`, () => {",
+							"    pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
 							"})",
 							"",
-							"pm.test(`${pm.info.requestName} - last_validated property should be a number`, () => {",
-							"    pm.expect(jsonData.data.last_validated).to.be.a(\"number\")",
+							"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
+							"    pm.expect(jsonData.data).to.have.property(\"last_updated\")",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - last_updated property should be a number`, () => {",
+							"    pm.expect(jsonData.data.last_updated).to.be.a(\"number\")",
 							"})"
 						],
 						"type": "text/javascript"
@@ -613,8 +617,8 @@
 							"    pm.expect(jsonData.data.status).to.eq(\"validation_failed\")",
 							"})",
 							"",
-							"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
+							"pm.test(`${pm.info.requestName} - should not have last_updated property`, () => {",
+							"    pm.expect(jsonData.data).to.not.have.property(\"last_updated\")",
 							"})",
 							"",
 							"pm.environment.unset(\"node2\")"
@@ -795,8 +799,20 @@
 							"",
 							"var jsonData = pm.response.json();",
 							"",
-							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
+							"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
 							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
+							"    _.each(jsonData.data, (item) => {",
+							"        pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
+							"    })",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
+							"    _.each(jsonData.data, (item) => {",
+							"        pm.expect(item).to.have.property(\"last_updated\")",
+							"    })",
 							"})"
 						],
 						"type": "text/javascript"
@@ -830,7 +846,7 @@
 							"disabled": true
 						},
 						{
-							"key": "last_validated",
+							"key": "last_updated",
 							"value": "1605031963",
 							"disabled": true
 						},
@@ -880,8 +896,20 @@
 							"",
 							"var jsonData = pm.response.json();",
 							"",
-							"pm.test(`${pm.info.requestName} - should return two results`, () => {",
+							"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
 							"    pm.expect(jsonData.data.length).to.greaterThanOrEqual(2)",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
+							"    _.each(jsonData.data, (item) => {",
+							"        pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
+							"    })",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
+							"    _.each(jsonData.data, (item) => {",
+							"        pm.expect(item).to.have.property(\"last_updated\")",
+							"    })",
 							"})"
 						],
 						"type": "text/javascript"
@@ -906,7 +934,7 @@
 							"disabled": true
 						},
 						{
-							"key": "last_validated",
+							"key": "last_updated",
 							"value": "1605031963",
 							"disabled": true
 						},

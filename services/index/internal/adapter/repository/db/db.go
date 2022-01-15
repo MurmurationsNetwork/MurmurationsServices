@@ -98,7 +98,7 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 	if node.Status == constant.NodeStatus.Validated {
 		profileJSON := jsonutil.ToJSON(node.ProfileStr)
 		profileJSON["profile_url"] = node.ProfileURL
-		profileJSON["last_validated"] = node.LastValidated
+		profileJSON["last_updated"] = node.LastUpdated
 
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {

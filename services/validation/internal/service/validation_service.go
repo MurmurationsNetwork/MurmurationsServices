@@ -68,11 +68,11 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client.Client()).Publish(event.NodeValidatedData{
-		ProfileURL:    node.ProfileURL,
-		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
-		ProfileStr:    jsonStr,
-		LastValidated: dateutil.GetNowUnix(),
-		Version:       node.Version,
+		ProfileURL:  node.ProfileURL,
+		ProfileHash: cryptoutil.GetSHA256(jsonStr),
+		ProfileStr:  jsonStr,
+		LastUpdated: dateutil.GetNowUnix(),
+		Version:     node.Version,
 	})
 }
 

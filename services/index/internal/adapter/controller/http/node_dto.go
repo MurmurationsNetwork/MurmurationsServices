@@ -10,7 +10,7 @@ type nodeDTO struct {
 	ProfileURL     string    `json:"profile_url" `
 	ProfileHash    *string   `json:"profile_hash" `
 	Status         string    `json:"status" `
-	LastValidated  *int64    `json:"last_validated" `
+	LastUpdated    *int64    `json:"last_updated" `
 	FailureReasons *[]string `json:"failure_reasons" `
 }
 
@@ -27,7 +27,7 @@ func toDTO(node *entity.Node) *nodeDTO {
 		ProfileURL:     node.ProfileURL,
 		ProfileHash:    node.ProfileHash,
 		Status:         node.Status,
-		LastValidated:  node.LastValidated,
+		LastUpdated:    node.LastUpdated,
 		FailureReasons: node.FailureReasons,
 	}
 }
