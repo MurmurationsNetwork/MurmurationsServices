@@ -13,8 +13,8 @@ func (q *EsQuery) Build() *elastic.Query {
 	if q.Schema != nil {
 		subQueries = append(subQueries, elastic.NewMatchQuery("linked_schemas", *q.Schema))
 	}
-	if q.LastValidated != nil {
-		subQueries = append(subQueries, elastic.NewRangeQuery("last_validated").Gte(q.LastValidated))
+	if q.LastUpdated != nil {
+		subQueries = append(subQueries, elastic.NewRangeQuery("last_updated").Gte(q.LastUpdated))
 	}
 	if q.Locality != nil {
 		subQueries = append(subQueries, elastic.NewTextQuery("location.locality", *q.Locality))

@@ -80,8 +80,8 @@ func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
 	node.Status = constant.NodeStatus.ValidationFailed
 	emptystr := ""
 	node.ProfileHash = &emptystr
-	lastValidated := dateutil.GetZeroValueUnix()
-	node.LastValidated = &lastValidated
+	lastUpdated := dateutil.GetZeroValueUnix()
+	node.LastUpdated = &lastUpdated
 
 	if err := s.nodeRepo.Update(node); err != nil {
 		return err

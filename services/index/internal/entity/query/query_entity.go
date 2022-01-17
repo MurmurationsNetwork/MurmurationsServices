@@ -1,8 +1,8 @@
 package query
 
 type EsQuery struct {
-	Schema        *string `form:"schema"`
-	LastValidated *int64  `form:"last_validated,default=0"`
+	Schema      *string `form:"schema"`
+	LastUpdated *int64  `form:"last_updated,default=0"`
 
 	Lat   *float64 `form:"lat"`
 	Lon   *float64 `form:"lon"`

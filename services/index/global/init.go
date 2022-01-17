@@ -40,7 +40,7 @@ func esInit() {
 				   "_source":{
 					  "includes":[
 						 "geolocation",
-						 "last_validated",
+						 "last_updated",
 						 "linked_schemas",
 						 "location",
 						 "profile_url"
@@ -50,7 +50,7 @@ func esInit() {
 					  "geolocation":{
 						 "type":"geo_point"
 					  },
-					  "last_validated":{
+					  "last_updated":{
 						 "type":"date",
 						 "format":"epoch_second"
 					  },
