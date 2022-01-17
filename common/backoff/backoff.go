@@ -2,10 +2,10 @@ package backoff
 
 import (
 	"fmt"
+	"github.com/cenkalti/backoff/v4"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/cenkalti/backoff"
 )
 
 func NewBackoff(operation func() error, message string) error {

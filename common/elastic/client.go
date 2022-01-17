@@ -3,9 +3,9 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"github.com/olivere/elastic/v7"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/olivere/elastic"
 )
 
 type esClient struct {

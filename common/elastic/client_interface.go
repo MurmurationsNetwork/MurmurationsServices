@@ -1,12 +1,12 @@
 package elastic
 
 import (
+	"github.com/olivere/elastic/v7"
 	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/olivere/elastic"
 )
 
 var (

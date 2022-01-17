@@ -1,9 +1,8 @@
 package elastic
 
 import (
+	"github.com/olivere/elastic/v7"
 	"strings"
-
-	"github.com/olivere/elastic"
 )
 
 type Query struct {
