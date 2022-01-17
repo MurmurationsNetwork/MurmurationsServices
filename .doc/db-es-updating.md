@@ -26,7 +26,7 @@ PUT /nodes2
             "geolocation": {
                "type": "geo_point"
             },
-            "last_validated": {
+            "last_updated": {
                "type": "date",
                "format": "epoch_second"
             },
@@ -102,7 +102,7 @@ PUT /nodes
             "geolocation": {
                "type": "geo_point"
             },
-            "last_validated": {
+            "last_updated": {
                "type": "date",
                "format": "epoch_second"
             },
