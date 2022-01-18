@@ -48,3 +48,15 @@ deploy:
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
         global.sourcepath: "{{.SOURCEPATH}}"
+
+portForward:
+  - resourceType: service
+    resourceName: index-mongo
+    namespace: default
+    port: 27017
+    localPort: 27017
+  - resourceType: service
+    resourceName: library-mongo
+    namespace: default
+    port: 27017
+    localPort: 27018
