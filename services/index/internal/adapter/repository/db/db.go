@@ -103,8 +103,16 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		// if we can find latitude and longitude in the root, move them into geolocation [#208]
 		if profileJSON["latitude"] != nil || profileJSON["longitude"] != nil {
 			geoLocation := make(map[string]interface{})
-			geoLocation["lat"] = profileJSON["latitude"]
-			geoLocation["lon"] = profileJSON["longitude"]
+			if profileJSON["latitude"] != nil {
+				geoLocation["lat"] = profileJSON["latitude"]
+			} else {
+				geoLocation["lat"] = 0
+			}
+			if profileJSON["longitude"] != nil {
+				geoLocation["lon"] = profileJSON["longitude"]
+			} else {
+				geoLocation["lon"] = 0
+			}
 			profileJSON["geolocation"] = geoLocation
 		}
 
