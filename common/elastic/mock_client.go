@@ -1,5 +1,7 @@
 package elastic
 
+import "github.com/olivere/elastic/v7"
+
 type mockClient struct {
 }
 
