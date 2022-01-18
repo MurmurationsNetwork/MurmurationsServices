@@ -94,11 +94,24 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		return ErrUpdate
 	}
 
-	// NOTE: Maybe it's better to conver into another event?
+	// NOTE: Maybe it's better to convert into another event?
 	if node.Status == constant.NodeStatus.Validated {
 		profileJSON := jsonutil.ToJSON(node.ProfileStr)
 		profileJSON["profile_url"] = node.ProfileURL
 		profileJSON["last_updated"] = node.LastUpdated
+
+		//if we can find latitude and longitude in the root, move them into location [#208]
+		if profileJSON["latitude"] != nil || profileJSON["longitude"] != nil {
+			loc := make(map[string]interface{})
+			// get original data
+			origLoc := profileJSON["location"].(map[string]interface{})
+			for k, v := range origLoc {
+				loc[k] = v
+			}
+			loc["lat"] = profileJSON["latitude"]
+			loc["lon"] = profileJSON["longitude"]
+			profileJSON["location"] = loc
+		}
 
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
