@@ -180,8 +180,8 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 
 	return &query.QueryResults{
 		Result:          queryResults,
-		NumberOfResults: result.Hits.TotalHits,
-		TotalPages:      pagination.TotalPages(result.Hits.TotalHits, q.PageSize),
+		NumberOfResults: result.Hits.TotalHits.Value,
+		TotalPages:      pagination.TotalPages(result.Hits.TotalHits.Value, q.PageSize),
 	}, nil
 }
 

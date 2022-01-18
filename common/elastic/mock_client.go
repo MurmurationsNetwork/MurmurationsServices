@@ -1,9 +1,5 @@
 package elastic
 
-import (
-	"github.com/olivere/elastic"
-)
-
 type mockClient struct {
 }
 
