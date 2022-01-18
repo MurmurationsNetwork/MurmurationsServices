@@ -100,17 +100,12 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		profileJSON["profile_url"] = node.ProfileURL
 		profileJSON["last_updated"] = node.LastUpdated
 
-		//if we can find latitude and longitude in the root, move them into location [#208]
+		// if we can find latitude and longitude in the root, move them into geolocation [#208]
 		if profileJSON["latitude"] != nil || profileJSON["longitude"] != nil {
-			loc := make(map[string]interface{})
-			// get original data
-			origLoc := profileJSON["location"].(map[string]interface{})
-			for k, v := range origLoc {
-				loc[k] = v
-			}
-			loc["lat"] = profileJSON["latitude"]
-			loc["lon"] = profileJSON["longitude"]
-			profileJSON["location"] = loc
+			geoLocation := make(map[string]interface{})
+			geoLocation["lat"] = profileJSON["latitude"]
+			geoLocation["lon"] = profileJSON["longitude"]
+			profileJSON["geolocation"] = geoLocation
 		}
 
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
