@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
@@ -17,6 +15,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type NodeRepository interface {
@@ -99,6 +100,16 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		profileJSON := jsonutil.ToJSON(node.ProfileStr)
 		profileJSON["profile_url"] = node.ProfileURL
 		profileJSON["last_updated"] = node.LastUpdated
+
+		// if the geolocation is array type, make it as object type for consistent [#208]
+		if _, ok := profileJSON["geolocation"].(string); ok {
+			g := strings.Split(profileJSON["geolocation"].(string), ",")
+			profileJSON["latitude"], err = strconv.ParseFloat(g[0], 64)
+			profileJSON["longitude"], err = strconv.ParseFloat(g[1], 64)
+			if err != nil {
+				return err
+			}
+		}
 
 		// if we can find latitude and longitude in the root, move them into geolocation [#208]
 		if profileJSON["latitude"] != nil || profileJSON["longitude"] != nil {
