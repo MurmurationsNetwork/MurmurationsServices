@@ -50,11 +50,61 @@ PUT /nodes2
     }
 }
 
+PUT _ingest/pipeline/move-location
+{
+   "description" : "move location",
+   "processors" : [
+      {
+         "rename": {
+         "field": "location.country",
+         "target_field": "country"
+         }
+      },
+      {
+         "rename": {
+         "field": "location.locality",
+         "target_field": "locality"
+         }
+      },
+      {
+         "rename": {
+         "field": "location.region",
+         "target_field": "region"
+         }
+      }
+   ]
+}
+
 POST _reindex
 {
    "source": {
-      "index": "nodes"
+      "index": "nodes",
+      "query": {
+        "exists": {
+          "field": "location"
+        }
+      }
    },
+   "dest": {
+      "index": "nodes2",
+      "pipeline": "move-location"
+   }
+}
+
+POST _reindex
+{
+   "source": {
+      "index": "nodes",
+      "query": {
+        "bool": { 
+          "must_not": {
+            "exists": {
+              "field": "location"
+            }
+          }
+        }
+      }
+    },
    "dest": {
       "index": "nodes2"
    }
