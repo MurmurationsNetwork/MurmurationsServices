@@ -431,7 +431,7 @@
 							"})",
 							"",
 							"pm.test(`${pm.info.requestName} - should return correct profile_hash`, () => {",
-							"    pm.expect(jsonData.data.profile_hash).to.eq(\"520e7cb00c474c0ad6b438badde533342daaabcfeefcfe3bb4606b333bc71eae\")",
+							"    pm.expect(jsonData.data.profile_hash).to.eq(\"363048e2ba3628cca263d5eef799bc337e8777e064596ca6ced4bbceb1b03a11\")",
 							"})",
 							"",
 							"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
@@ -1048,7 +1048,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=51.5075&lon=0.1279&range=1km",
+					"raw": "{{indexBaseUrl}}/nodes?lat=12.121212&lon=13.131313&range=1km",
 					"host": [
 						"{{indexBaseUrl}}"
 					],
@@ -1058,11 +1058,11 @@
 					"query": [
 						{
 							"key": "lat",
-							"value": "51.5075"
+							"value": "12.121212"
 						},
 						{
 							"key": "lon",
-							"value": "0.1279"
+							"value": "13.131313"
 						},
 						{
 							"key": "range",
