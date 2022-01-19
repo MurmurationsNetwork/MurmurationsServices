@@ -6,285 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "Issue-208",
-			"item": [
-				{
-					"name": "Add node with geopoints in latitude/longitude fields",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"// var jsonData = pm.response.json();",
-									"// pm.environment.set(\"search_node_4\", jsonData.data.node_id)"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-1.json\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Search by geolocation range 1km",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"setTimeout(function(){}, 5000);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?lat=51.5075&lon=0.1279&range=1km",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							],
-							"query": [
-								{
-									"key": "lat",
-									"value": "51.5075"
-								},
-								{
-									"key": "lon",
-									"value": "0.1279"
-								},
-								{
-									"key": "range",
-									"value": "1km"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Check latitude/longitude are returned as an object",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
-									"    pm.expect(jsonData.data.length).to.greaterThanOrEqual(1)",
-									"})",
-									"",
-									"pm.test(`${pm.info.requestName} - geolocation field should be an object`, () => {",
-									"    pm.expect(jsonData.data[0].geolocation).to.be.an(\"object\")",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"setTimeout(function(){}, 5000);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?lat=12.121212&lon=13.131313&range=1km&schema=test_schema-v2.0.0",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							],
-							"query": [
-								{
-									"key": "lat",
-									"value": "12.121212"
-								},
-								{
-									"key": "lon",
-									"value": "13.131313"
-								},
-								{
-									"key": "range",
-									"value": "1km"
-								},
-								{
-									"key": "schema",
-									"value": "test_schema-v2.0.0"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add node with geopoints in array",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"// var jsonData = pm.response.json();",
-									"// pm.environment.set(\"murmkvm1\", jsonData.data.node_id)"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmkvm1.json\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Search returns geopoints in an object",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
-									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-									"})",
-									"",
-									"pm.test(`${pm.info.requestName} - geolocation field should be an object`, () => {",
-									"    pm.expect(jsonData.data[0].geolocation).to.be.an(\"object\")",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"setTimeout(function(){}, 5000);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?lat=52.5244&lon=13.4105&range=1km",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							],
-							"query": [
-								{
-									"key": "lat",
-									"value": "52.5244"
-								},
-								{
-									"key": "lon",
-									"value": "13.4105"
-								},
-								{
-									"key": "range",
-									"value": "1km"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Index is live - GET /ping",
 			"event": [
 				{
@@ -1245,6 +966,280 @@
 						{
 							"key": "range",
 							"value": "100mi"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add node with geopoints in latitude/longitude fields",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"// var jsonData = pm.response.json();",
+							"// pm.environment.set(\"search_node_4\", jsonData.data.node_id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-1.json\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search by geolocation range 1km",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
+							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 5000);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes?lat=51.5075&lon=0.1279&range=1km",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "51.5075"
+						},
+						{
+							"key": "lon",
+							"value": "0.1279"
+						},
+						{
+							"key": "range",
+							"value": "1km"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check latitude/longitude are returned as an object",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+							"    pm.expect(jsonData.data.length).to.greaterThanOrEqual(1)",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - geolocation field should be an object`, () => {",
+							"    pm.expect(jsonData.data[0].geolocation).to.be.an(\"object\")",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 5000);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes?lat=12.121212&lon=13.131313&range=1km&schema=test_schema-v2.0.0",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "12.121212"
+						},
+						{
+							"key": "lon",
+							"value": "13.131313"
+						},
+						{
+							"key": "range",
+							"value": "1km"
+						},
+						{
+							"key": "schema",
+							"value": "test_schema-v2.0.0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add node with geopoints in array",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"// var jsonData = pm.response.json();",
+							"// pm.environment.set(\"murmkvm1\", jsonData.data.node_id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmkvm1.json\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search returns geopoints in an object",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - geolocation field should be an object`, () => {",
+							"    pm.expect(jsonData.data[0].geolocation).to.be.an(\"object\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 5000);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes?lat=52.5244&lon=13.4105&range=1km",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "52.5244"
+						},
+						{
+							"key": "lon",
+							"value": "13.4105"
+						},
+						{
+							"key": "range",
+							"value": "1km"
 						}
 					]
 				}
