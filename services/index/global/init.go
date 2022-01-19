@@ -35,47 +35,45 @@ func esInit() {
 		{
 			Name: constant.ESIndex.Node,
 			Body: `{
-				"mappings":{
-				   "dynamic":"false",
-				   "_source":{
-					  "includes":[
-						 "geolocation",
-						 "last_updated",
-						 "linked_schemas",
-						 "location",
-						 "profile_url"
-					  ]
-				   },
-				   "properties":{
-					  "geolocation":{
-						 "type":"geo_point"
-					  },
-					  "last_updated":{
-						 "type":"date",
-						 "format":"epoch_second"
-					  },
-					  "linked_schemas":{
-						 "type":"keyword"
-					  },
-					  "location":{
-						 "properties":{
-							"country":{
-							   "type":"text"
-							},
-							"locality":{
-							   "type":"text"
-							},
-							"region":{
-							   "type":"text"
-							}
-						 }
-					  },
-					  "profile_url":{
-						 "type":"keyword"
-					  }
-				   }
+				"mappings": {
+					"dynamic": "false",
+					"_source": {
+						"includes": [
+							"geolocation",
+							"last_updated",
+							"linked_schemas",
+							"country",
+							"locality",
+							"region",
+							"profile_url"
+						]
+					},
+					"properties": {
+						"geolocation": {
+							"type": "geo_point"
+						},
+						"last_updated": {
+							"type": "date",
+							"format": "epoch_second"
+						},
+						"linked_schemas": {
+							"type": "keyword"
+						},
+						"country": {
+							"type": "keyword"
+						},
+						"locality": {
+							"type": "keyword"
+						},
+						"region": {
+							"type": "keyword"
+						},
+						"profile_url": {
+							"type": "keyword"
+						}
+					}
 				}
-			 }`,
+			}`,
 		},
 	}
 
