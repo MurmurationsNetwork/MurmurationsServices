@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -125,6 +126,26 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				geoLocation["lon"] = 0
 			}
 			profileJSON["geolocation"] = geoLocation
+		}
+
+		if profileJSON["country_iso_3166_1"] != nil {
+			delete(profileJSON, "country")
+		} else {
+			countryCode, err := countries.FindAlpha2ByName(profileJSON["country_name"])
+			if err != nil {
+				return err
+			}
+			if countryCode != "undefined" {
+				profileJSON["country_iso_3166_1"] = countryCode
+			} else {
+				if profileJSON["country"] == nil {
+					delete(profileJSON, "country")
+				}
+				// can't find countryCode, log to server
+				countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
+				profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
+				fmt.Println("Can't find the country code:" + countryStr + "(Profile_url" + profileUrlStr + ")")
+			}
 		}
 
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)

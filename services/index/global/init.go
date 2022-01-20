@@ -42,6 +42,7 @@ func esInit() {
 							"geolocation",
 							"last_updated",
 							"linked_schemas",
+							"country_iso_3166_1",
 							"country",
 							"locality",
 							"region",
@@ -57,6 +58,9 @@ func esInit() {
 							"format": "epoch_second"
 						},
 						"linked_schemas": {
+							"type": "keyword"
+						},
+						"country_iso_3166_1": {
 							"type": "keyword"
 						},
 						"country": {
