@@ -128,8 +128,8 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 			profileJSON["geolocation"] = geoLocation
 		}
 
-		if profileJSON["country_iso_3166_1"] != nil {
-			profileJSON["country"] = profileJSON["country_iso_3166_1"]
+		if profileJSON["country_iso_3166"] != nil {
+			profileJSON["country"] = profileJSON["country_iso_3166"]
 		} else {
 			countryCode, err := countries.FindAlpha2ByName(profileJSON["country_name"])
 			if err != nil {
