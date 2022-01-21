@@ -1245,6 +1245,116 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Add node with flattened locality fields",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-2.json\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search returns flattened locality fields",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
+							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should have locality property`, () => {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"locality\")",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should have region property`, () => {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"region\")",
+							"})",
+							"",
+							"pm.test(`${pm.info.requestName} - should have country property`, () => {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"country\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 2000);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{indexBaseUrl}}/nodes?lat=13.131313&lon=14.141414&range=1km",
+					"host": [
+						"{{indexBaseUrl}}"
+					],
+					"path": [
+						"nodes"
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "13.131313"
+						},
+						{
+							"key": "lon",
+							"value": "14.141414"
+						},
+						{
+							"key": "range",
+							"value": "1km"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
