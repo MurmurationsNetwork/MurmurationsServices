@@ -2,9 +2,29 @@
 
 This was necessitated by [issue #210](https://github.com/MurmurationsNetwork/MurmurationsServices/issues/210).
 
+## Close/open K8s ingress
+
+1. Change makefile
+    ```
+    ENV ?= staging
+    ```
+2. change ingress.yaml
+    - test-index.murmurations.network -> test-index1.murmurations.network
+    - test-library.murmurations.network -> test-library1.murmurations.network
+3. Make manually-deploy-ingress
+4. Use Postman make sure service is done
+5. Upgrade Elasticsearch
+6. Deploy new branch
+7. Change ingress.yaml
+    - test-index1.murmurations.network -> test-index.murmurations.network
+    - test-library1.murmurations.network -> test-library.murmurations.network
+8. Make manually-deploy-ingress
+9. Restore makefile
+10. kubectl config delete-context do-lon1-murmtest
+
 ## Update ElasticSearch
 
-Copy the commands into ElasticSearch Dev Tool and execute one by one. 
+Copy the commands into ElasticSearch Dev Tool and execute one by one.
 
 ```
 # Create a temporary index called nodes2 with the new mappings
