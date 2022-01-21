@@ -129,15 +129,16 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		}
 
 		if profileJSON["country_iso_3166_1"] != nil {
-			delete(profileJSON, "country")
+			profileJSON["country"] = profileJSON["country_iso_3166_1"]
 		} else {
 			countryCode, err := countries.FindAlpha2ByName(profileJSON["country_name"])
 			if err != nil {
 				return err
 			}
 			if countryCode != "undefined" {
-				profileJSON["country_iso_3166_1"] = countryCode
+				profileJSON["country"] = countryCode
 			} else {
+				// todo: if country has value, we can still let it write into ElasticSearch
 				if profileJSON["country"] == nil {
 					delete(profileJSON, "country")
 				}

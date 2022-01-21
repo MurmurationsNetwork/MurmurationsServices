@@ -19,8 +19,6 @@ func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
 
 	countryStr := fmt.Sprintf("%v", country)
 
-	fmt.Println(countryStr)
-
 	for countryCode, countryName := range countryNames {
 		for _, alias := range countryName {
 			if countryStr == alias {
