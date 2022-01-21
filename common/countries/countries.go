@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
@@ -18,10 +19,11 @@ func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
 	}
 
 	countryStr := fmt.Sprintf("%v", country)
+	countryLowerStr := strings.ToLower(countryStr)
 
 	for countryCode, countryName := range countryNames {
 		for _, alias := range countryName {
-			if countryStr == alias {
+			if countryLowerStr == alias {
 				return countryCode, nil
 			}
 		}
