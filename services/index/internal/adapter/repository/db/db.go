@@ -139,6 +139,7 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				}
 				if countryCode != "undefined" {
 					profileJSON["country"] = countryCode
+					fmt.Println(profileJSON["country"])
 				} else {
 					// todo: if country has value, we can still let it write into ElasticSearch
 					if profileJSON["country"] == nil {
@@ -151,6 +152,8 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				}
 			}
 		}
+
+		fmt.Println("Successfully deal with country")
 
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
