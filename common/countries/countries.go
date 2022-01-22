@@ -9,7 +9,7 @@ import (
 )
 
 func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
-	f, err := os.Open("./countries.json")
+	f, err := os.Open("countries.json")
 	fmt.Println(err)
 	if err != nil {
 		return "undefined", err
