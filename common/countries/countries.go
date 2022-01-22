@@ -4,11 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
 func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
-	file, _ := ioutil.ReadFile("./common/countries/countries.json")
+	f, err := os.Open("countries.json")
+	if err != nil {
+		return "undefined", err
+	}
+
+	file, err := ioutil.ReadAll(f)
+	if err != nil {
+		return "undefined", err
+	}
 
 	var countryNames map[string][]string
 
