@@ -148,8 +148,6 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 			}
 		}
 
-		fmt.Println("Successfully deal with country")
-
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
