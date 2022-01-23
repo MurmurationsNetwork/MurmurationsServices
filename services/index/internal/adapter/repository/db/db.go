@@ -138,12 +138,13 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				if err != nil {
 					return err
 				}
+				countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
+				profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
 				if countryCode != "undefined" {
 					profileJSON["country"] = countryCode
+					fmt.Println("Country code matched: " + countryStr + " = " + countryCode + " --- profile_url: " + profileUrlStr)
 				} else {
 					// can't find countryCode, log to server
-					countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
-					profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
 					fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileUrlStr)
 				}
 			}
