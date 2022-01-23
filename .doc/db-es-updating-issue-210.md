@@ -9,15 +9,15 @@ This was necessitated by [issue #210](https://github.com/MurmurationsNetwork/Mur
     ENV ?= staging
     ```
 2. change ingress.yaml
-    - test-index.murmurations.network -> test-index1.murmurations.network
-    - test-library.murmurations.network -> test-library1.murmurations.network
+   - test-index.murmurations.network -> test-index1.murmurations.network
+   - test-library.murmurations.network -> test-library1.murmurations.network
 3. Make manually-deploy-ingress
 4. Use Postman make sure service is done
 5. Upgrade Elasticsearch
 6. Deploy new branch
 7. Change ingress.yaml
-    - test-index1.murmurations.network -> test-index.murmurations.network
-    - test-library1.murmurations.network -> test-library.murmurations.network
+   - test-index1.murmurations.network -> test-index.murmurations.network
+   - test-library1.murmurations.network -> test-library.murmurations.network
 8. Make manually-deploy-ingress
 9. Restore makefile
 10. kubectl config delete-context do-lon1-murmtest

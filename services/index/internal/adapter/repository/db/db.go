@@ -4,7 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -15,9 +20,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type NodeRepository interface {
@@ -125,6 +127,27 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				geoLocation["lon"] = 0
 			}
 			profileJSON["geolocation"] = geoLocation
+		}
+
+		if profileJSON["country_iso_3166"] != nil || profileJSON["country_name"] != nil || profileJSON["country"] != nil {
+			if profileJSON["country_iso_3166"] != nil {
+				profileJSON["country"] = profileJSON["country_iso_3166"]
+				delete(profileJSON, "country_iso_3166")
+			} else if profileJSON["country"] == nil && profileJSON["country_name"] != nil {
+				countryCode, err := countries.FindAlpha2ByName(profileJSON["country_name"])
+				if err != nil {
+					return err
+				}
+				countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
+				profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
+				if countryCode != "undefined" {
+					profileJSON["country"] = countryCode
+					fmt.Println("Country code matched: " + countryStr + " = " + countryCode + " --- profile_url: " + profileUrlStr)
+				} else {
+					// can't find countryCode, log to server
+					fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileUrlStr)
+				}
+			}
 		}
 
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
