@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
@@ -16,9 +20,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type NodeRepository interface {
@@ -143,7 +144,7 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 					// can't find countryCode, log to server
 					countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
 					profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
-					fmt.Println("Can't find the country code:" + countryStr + "(Profile_url" + profileUrlStr + ")")
+					fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileUrlStr)
 				}
 			}
 		}
