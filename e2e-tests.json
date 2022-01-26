@@ -1,1681 +1,1147 @@
 {
 	"info": {
-		"_postman_id": "6514e2d1-3973-41ad-8fcf-1ce8328fd26d",
+		"_postman_id": "c985860d-4b36-44da-9d69-79f8a19af2c8",
 		"name": "Murmurations API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Index is live - GET /ping",
-			"event": [
+			"name": "Initial checks",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"pong!\"`, () => {",
-							"    pm.response.to.have.body(\"pong!\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/ping",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"ping"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Library is live - GET /ping",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"pong\"`, () => {",
-							"    pm.response.to.have.body(\"pong\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{libraryBaseUrl}}/ping",
-					"host": [
-						"{{libraryBaseUrl}}"
-					],
-					"path": [
-						"ping"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Library returns a list of schemas - GET /schemas",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return at least 1 result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThan(0)",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{libraryBaseUrl}}/schemas",
-					"host": [
-						"{{libraryBaseUrl}}"
-					],
-					"path": [
-						"schemas"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index does not find non-existent node - GET /node",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
-							"    pm.expect(jsonData).to.have.property(\"message\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"Could not find node_id\" message`, () => {",
-							"    pm.expect(jsonData.message).to.contain(\"Could not find node_id\")",
-							"})",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes/:node_id",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes",
-						":node_id"
-					],
-					"variable": [
+					"name": "Index is online",
+					"event": [
 						{
-							"key": "node_id",
-							"value": "999999",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"pong!\"`, () => {",
+									"    pm.response.to.have.body(\"pong!\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index does not accept missing profile_url - POST /nodes",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
-							"    pm.response.to.have.status(400)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return missing profile_url error message`, () => {",
-							"    pm.expect(jsonData.message).to.eq(\"The profile_url parameter is missing.\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index accepts non-existent profile_url - POST /nodes",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"node0\", jsonData.data.node_id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmtest0.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/ping",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"ping"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index returns failure info about non-existent profile_url - GET /node",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
-							"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"validation_failed\" message`, () => {",
-							"    pm.expect(jsonData.data.status).to.contain(\"validation_failed\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
-							"    pm.expect(jsonData.data.failure_reasons[0]).to.contain(\"Could not read from profile_url\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes/:node_id",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes",
-						":node_id"
-					],
-					"variable": [
+					"name": "Library is online",
+					"event": [
 						{
-							"key": "node_id",
-							"value": "ee1014917fb0a89743af3e6600e860a7c19fb79941d53ac893a80b84eaf485c6",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"pong\"`, () => {",
+									"    pm.response.to.have.body(\"pong\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index removes non-existent profile_url - DELETE /nodes/{nodeId}",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"pm.environment.unset(\"node0\")"
-						],
-						"type": "text/javascript"
-					}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{libraryBaseUrl}}/ping",
+							"host": [
+								"{{libraryBaseUrl}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes/:node_id",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes",
-						":node_id"
-					],
-					"variable": [
+					"name": "Library returns a list of schemas",
+					"event": [
 						{
-							"key": "node_id",
-							"value": "{{node0}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return at least 1 result`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThan(0)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index accepts valid profile_url - POST /nodes",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"node1\", jsonData.data.node_id)",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct hash of profile_url`, () => {",
-							"    pm.expect(jsonData.data.node_id).to.eq(\"b58552b11bb4aaec01cd50351d6476e0d094999e6a2ed24343597956ae78c93a\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmtest1.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					]
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{libraryBaseUrl}}/schemas",
+							"host": [
+								"{{libraryBaseUrl}}"
+							],
+							"path": [
+								"schemas"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Index returns details of validated profile - GET /nodes/{node_id}",
-			"event": [
+			"name": "Handles missing nodes & invalid profiles",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have _id property`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"_id\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have node_id property`, () => {",
-							"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct node_id`, () => {",
-							"    pm.expect(jsonData.data.node_id).to.eq(\"b58552b11bb4aaec01cd50351d6476e0d094999e6a2ed24343597956ae78c93a\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct profile_url`, () => {",
-							"    pm.expect(jsonData.data.profile_url).to.eq(\"https://ic3.dev/murmtest1.json\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct profile_hash`, () => {",
-							"    pm.expect(jsonData.data.profile_hash).to.eq(\"363048e2ba3628cca263d5eef799bc337e8777e064596ca6ced4bbceb1b03a11\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"linked_schemas\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct status`, () => {",
-							"    pm.expect(jsonData.data.status).to.eq(\"posted\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
-							"    pm.expect(jsonData.data).to.have.property(\"last_updated\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - last_updated property should be a number`, () => {",
-							"    pm.expect(jsonData.data.last_updated).to.be.a(\"number\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
+					"name": "Does not find non-existent node",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"    pm.expect(jsonData).to.have.property(\"message\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"Could not find node_id\" message`, () => {",
+									"    pm.expect(jsonData.message).to.contain(\"Could not find node_id\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "999999",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes/:node_id",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes",
-						":node_id"
-					],
-					"variable": [
+					"name": "Does not accept blank/missing profile_url",
+					"event": [
 						{
-							"key": "node_id",
-							"value": "{{node1}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return missing profile_url error message`, () => {",
+									"    pm.expect(jsonData.message).to.eq(\"The profile_url parameter is missing.\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index does not remove existing profile_url - DELETE /nodes/{nodeId}",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
-							"    pm.response.to.have.status(400)",
-							"})",
-							"",
-							"pm.environment.unset(\"node1\")"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes/:node_id",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes",
-						":node_id"
-					],
-					"variable": [
-						{
-							"key": "node_id",
-							"value": "{{node1}}",
-							"type": "string"
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index accepts profile with validation errors - POST /nodes",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"node2\", jsonData.data.node_id)",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct hash of profile_url`, () => {",
-							"    pm.expect(jsonData.data.node_id).to.eq(\"34fb67186ffa3b5c9481edf4c5edcc6564fba96ced7d069f9e96bdebce8d7e1c\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmtest2.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Index returns details of invalid profile - GET /nodes/{node_id}",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have _id property`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"_id\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have node_id property`, () => {",
-							"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct node_id`, () => {",
-							"    pm.expect(jsonData.data.node_id).to.eq(\"34fb67186ffa3b5c9481edf4c5edcc6564fba96ced7d069f9e96bdebce8d7e1c\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct profile_url`, () => {",
-							"    pm.expect(jsonData.data.profile_url).to.eq(\"https://ic3.dev/murmtest2.json\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have profile_hash property`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"profile_hash\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"linked_schemas\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
-							"    pm.expect(jsonData.data.status).to.eq(\"validation_failed\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have last_updated property`, () => {",
-							"    pm.expect(jsonData.data).to.not.have.property(\"last_updated\")",
-							"})",
-							"",
-							"pm.environment.unset(\"node2\")"
-						],
-						"type": "text/javascript"
-					}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes/:node_id",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes",
-						":node_id"
-					],
-					"variable": [
+					"name": "Accepts non-existent profile",
+					"event": [
 						{
-							"key": "node_id",
-							"value": "{{node2}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"node0\", jsonData.data.node_id)",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add search node 1",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"// var jsonData = pm.response.json();",
-							"// pm.environment.set(\"search_node_1\", jsonData.data.node_id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmsearch1.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add search node 2",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"// var jsonData = pm.response.json();",
-							"// pm.environment.set(\"search_node_2\", jsonData.data.node_id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmsearch2.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/non-existent-profile-url.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add search node 3",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"// var jsonData = pm.response.json();",
-							"// pm.environment.set(\"search_node_3\", jsonData.data.node_id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmsearch3.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search by geolocation range 10km",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"// Tests for Issue 184",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
-							"    _.each(jsonData.data, (item) => {",
-							"        pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
-							"    })",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
-							"    _.each(jsonData.data, (item) => {",
-							"        pm.expect(item).to.have.property(\"last_updated\")",
-							"    })",
-							"})"
-						],
-						"type": "text/javascript"
-					}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=10km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Returns failure info about non-existent profile",
+					"event": [
 						{
-							"key": "schema",
-							"value": "demo-v2",
-							"disabled": true
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"node_id\" parameter`, () => {",
+									"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"validation_failed\" status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain(\"validation_failed\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
+									"    pm.expect(jsonData.data.failure_reasons[0]).to.contain(\"Could not read from profile_url\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "last_updated",
-							"value": "1605031963",
-							"disabled": true
-						},
-						{
-							"key": "country",
-							"value": "tw",
-							"disabled": true
-						},
-						{
-							"key": "locality",
-							"value": "Paris",
-							"disabled": true
-						},
-						{
-							"key": "region",
-							"value": "Greater London",
-							"disabled": true
-						},
-						{
-							"key": "lat",
-							"value": "51.493518"
-						},
-						{
-							"key": "lon",
-							"value": "0.009199"
-						},
-						{
-							"key": "range",
-							"value": "10km"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 3000);",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search by geolocation range 100mi",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
-							"    pm.expect(jsonData.data.length).to.greaterThanOrEqual(2)",
-							"})",
-							"",
-							"// Tests for Issue 184",
-							"",
-							"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
-							"    _.each(jsonData.data, (item) => {",
-							"        pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
-							"    })",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
-							"    _.each(jsonData.data, (item) => {",
-							"        pm.expect(item).to.have.property(\"last_updated\")",
-							"    })",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=100mi",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					],
-					"query": [
-						{
-							"key": "schema",
-							"value": "demo-v2",
-							"disabled": true
-						},
-						{
-							"key": "last_updated",
-							"value": "1605031963",
-							"disabled": true
-						},
-						{
-							"key": "country",
-							"value": "tw",
-							"disabled": true
-						},
-						{
-							"key": "locality",
-							"value": "Paris",
-							"disabled": true
-						},
-						{
-							"key": "region",
-							"value": "Greater London",
-							"disabled": true
-						},
-						{
-							"key": "lat",
-							"value": "51.493518"
-						},
-						{
-							"key": "lon",
-							"value": "0.009199"
-						},
-						{
-							"key": "range",
-							"value": "100mi"
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node0}}",
+									"type": "string"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add node with geopoints in latitude/longitude fields",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"// var jsonData = pm.response.json();",
-							"// pm.environment.set(\"search_node_4\", jsonData.data.node_id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-1.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search by geolocation range 1km",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})"
-						],
-						"type": "text/javascript"
-					}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=12.121212&lon=13.131313&range=1km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Removes non-existent profile",
+					"event": [
 						{
-							"key": "lat",
-							"value": "12.121212"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "lon",
-							"value": "13.131313"
-						},
-						{
-							"key": "range",
-							"value": "1km"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Check latitude/longitude are returned as an object",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - geolocation field should be an object`, () => {",
-							"    pm.expect(jsonData.data[0].geolocation).to.be.an(\"object\")",
-							"})",
-							""
-						],
-						"type": "text/javascript"
-					}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node0}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=12.121212&lon=13.131313&range=1km&schema=test_schema-v2.0.0",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Does not find deleted record for non-existent profile_url",
+					"event": [
 						{
-							"key": "lat",
-							"value": "12.121212"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"    pm.expect(jsonData).to.have.property(\"message\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"could not find node_id\" message`, () => {",
+									"    pm.expect(jsonData.message).to.contain(`Could not find node_id: ${pm.environment.get(\"node0\")}`)",
+									"})",
+									"",
+									"pm.environment.unset(\"node0\")",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "lon",
-							"value": "13.131313"
-						},
-						{
-							"key": "range",
-							"value": "1km"
-						},
-						{
-							"key": "schema",
-							"value": "test_schema-v2.0.0"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 3000);",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add node with geopoints in array",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"// var jsonData = pm.response.json();",
-							"// pm.environment.set(\"murmkvm1\", jsonData.data.node_id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmkvm1.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search returns geopoints in an object",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - geolocation field should be an object`, () => {",
-							"    pm.expect(jsonData.data[0].geolocation).to.be.an(\"object\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node0}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=52.5244&lon=13.4105&range=1km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Accepts profile with validation errors",
+					"event": [
 						{
-							"key": "lat",
-							"value": "52.5244"
-						},
-						{
-							"key": "lon",
-							"value": "13.4105"
-						},
-						{
-							"key": "range",
-							"value": "1km"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.environment.set(\"node00\", jsonData.data.node_id)",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+									"    pm.expect(jsonData.data.node_id).to.eq(\"98af871c2ba20bc1a5a3dc4fa39d49a1a0bea14787d698a39d46e0d04cb9269c\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add node with flattened locality fields",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-2.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search returns flattened locality fields",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have locality property`, () => {",
-							"    pm.expect(jsonData.data[0]).to.have.property(\"locality\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have region property`, () => {",
-							"    pm.expect(jsonData.data[0]).to.have.property(\"region\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have country property`, () => {",
-							"    pm.expect(jsonData.data[0]).to.have.property(\"country\")",
-							"})"
-						],
-						"type": "text/javascript"
-					}
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/invalid-geopoints.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 2000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=13.131313&lon=14.141414&range=1km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Returns details of invalid profile",
+					"event": [
 						{
-							"key": "lat",
-							"value": "13.131313"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should not have _id property`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"_id\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should have node_id property`, () => {",
+									"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct node_id`, () => {",
+									"    pm.expect(jsonData.data.node_id).to.eq(\"98af871c2ba20bc1a5a3dc4fa39d49a1a0bea14787d698a39d46e0d04cb9269c\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct profile_url`, () => {",
+									"    pm.expect(jsonData.data.profile_url).to.eq(\"https://ic3.dev/murmurations/invalid-geopoints.json\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should not have profile_hash property`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"profile_hash\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"linked_schemas\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.eq(\"validation_failed\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should not have last_updated property`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"last_updated\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "lon",
-							"value": "14.141414"
-						},
-						{
-							"key": "range",
-							"value": "1km"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 3000);"
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add node with ISO country field - node 1",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-3.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
 					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add node with country_name field - node 2",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-4.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node00}}",
+									"type": "string"
+								}
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add node with both ISO and country_name fields - node 3",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"profile_url\": \"https://ic3.dev/murm-geo-test-5.json\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search returns correct ISO code for node 1",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have country property`, () => {",
-							"    pm.expect(jsonData.data[0]).to.have.property(\"country\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct country ISO code`, () => {",
-							"    pm.expect(jsonData.data[0].country).to.eq(\"TD\")",
-							"})",
-							""
-						],
-						"type": "text/javascript"
-					}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"setTimeout(function(){}, 5000);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=14.141414&lon=15.151515&range=1km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Cannot delete invalid profile",
+					"event": [
 						{
-							"key": "lat",
-							"value": "14.141414"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"    pm.expect(jsonData).to.have.property(\"message\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+									"    pm.expect(jsonData.message).to.contain(\"Profile still exists\")",
+									"})",
+									"",
+									"pm.environment.unset(\"node00\")",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "lon",
-							"value": "15.151515"
-						},
-						{
-							"key": "range",
-							"value": "1km"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node00}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Search returns correct ISO code for node 2",
-			"event": [
+			"name": "Handles valid profile",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have country property`, () => {",
-							"    pm.expect(jsonData.data[0]).to.have.property(\"country\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct country ISO code`, () => {",
-							"    pm.expect(jsonData.data[0].country).to.eq(\"TD\")",
-							"})",
-							""
-						],
-						"type": "text/javascript"
-					}
+					"name": "Accepts valid profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"node000\", jsonData.data.node_id)",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+									"    pm.expect(jsonData.data.node_id).to.eq(\"8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=15.151515&lon=16.161616&range=1km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Returns details of validated profile",
+					"event": [
 						{
-							"key": "lat",
-							"value": "15.151515"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should not have _id property`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"_id\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should have node_id property`, () => {",
+									"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct node_id`, () => {",
+									"    pm.expect(jsonData.data.node_id).to.eq(\"8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct profile_url`, () => {",
+									"    pm.expect(jsonData.data.profile_url).to.eq(\"https://ic3.dev/murmurations/valid-profile.json\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct profile_hash`, () => {",
+									"    pm.expect(jsonData.data.profile_hash).to.eq(\"363048e2ba3628cca263d5eef799bc337e8777e064596ca6ced4bbceb1b03a11\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"linked_schemas\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct status`, () => {",
+									"    pm.expect(jsonData.data.status).to.eq(\"posted\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
+									"    pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
+									"    pm.expect(jsonData.data).to.have.property(\"last_updated\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - last_updated property should be a number`, () => {",
+									"    pm.expect(jsonData.data.last_updated).to.be.a(\"number\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "lon",
-							"value": "16.161616"
-						},
-						{
-							"key": "range",
-							"value": "1km"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 3000);",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node000}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cannot delete posted profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"    pm.expect(jsonData).to.have.property(\"message\")",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+									"    pm.expect(jsonData.message).to.contain(\"Profile still exists\")",
+									"})",
+									"",
+									"pm.environment.unset(\"node000\")",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "{{node000}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Search returns correct ISO code for node 3",
-			"event": [
+			"name": "Add test profiles",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-							"    pm.response.to.have.status(200)",
-							"})",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(`${pm.info.requestName} - should return one result`, () => {",
-							"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should have country property`, () => {",
-							"    pm.expect(jsonData.data[0]).to.have.property(\"country\")",
-							"})",
-							"",
-							"pm.test(`${pm.info.requestName} - should return correct country ISO code`, () => {",
-							"    pm.expect(jsonData.data[0].country).to.eq(\"TD\")",
-							"})",
-							""
-						],
-						"type": "text/javascript"
-					}
+					"name": "Post node 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-1.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{indexBaseUrl}}/nodes?lat=16.161616&lon=17.171717&range=1km",
-					"host": [
-						"{{indexBaseUrl}}"
-					],
-					"path": [
-						"nodes"
-					],
-					"query": [
+					"name": "Post node 2",
+					"event": [
 						{
-							"key": "lat",
-							"value": "16.161616"
-						},
-						{
-							"key": "lon",
-							"value": "17.171717"
-						},
-						{
-							"key": "range",
-							"value": "1km"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-2.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-3.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
+		},
+		{
+			"name": "Returns expected search results",
+			"item": [
+				{
+					"name": "Search by geolocation range 10km",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 5000);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=10km",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "51.493518"
+								},
+								{
+									"key": "lon",
+									"value": "0.009199"
+								},
+								{
+									"key": "range",
+									"value": "10km"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by geolocation range 100mi",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=100mi",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "51.493518"
+								},
+								{
+									"key": "lon",
+									"value": "0.009199"
+								},
+								{
+									"key": "range",
+									"value": "100mi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by locality fuzzy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?locality=Londn",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "locality",
+									"value": "Londn"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search with pagination",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return two results`, () => {",
+									"    pm.expect(jsonData.data.length).to.eq(2)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?page_size=2",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "page_size",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
