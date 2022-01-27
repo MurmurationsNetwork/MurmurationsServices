@@ -59,7 +59,12 @@ func (r *nodeRepository) Add(node *entity.Node) resterr.RestErr {
 }
 
 func (r *nodeRepository) Get(nodeID string) (*entity.Node, resterr.RestErr) {
-	filter := bson.M{"_id": nodeID}
+	filter := bson.M{
+		"_id": nodeID,
+		"status": bson.M{
+			"$ne": "deleted",
+		},
+	}
 
 	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
 	if result.Err() != nil {
@@ -150,6 +155,9 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 			}
 		}
 
+		// Default node's status is posted [#217]
+		profileJSON["status"] = "posted"
+
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
@@ -236,15 +244,30 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 }
 
 func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
-	filter := bson.M{"_id": node.ID}
-
-	err := mongo.Client.DeleteOne(constant.MongoIndex.Node, filter)
+	err := r.setDeleted(node)
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
 	}
-	err = elastic.Client.Delete(constant.ESIndex.Node, node.ID)
+
+	err = elastic.Client.Update(constant.ESIndex.Node, node.ID, map[string]interface{}{"status": "deleted"})
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) setDeleted(node *entity.Node) error {
+	node.Version = nil
+	node.Status = constant.NodeStatus.Deleted
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": r.toDAO(node)}
+
+	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
+	if err != nil {
+		logger.Error("Error when trying to update a node", err)
+		return err
 	}
 
 	return nil

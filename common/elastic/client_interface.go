@@ -18,6 +18,7 @@ type esClientInterface interface {
 	Index(string, interface{}) (*elastic.IndexResponse, error)
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
 	Search(string, *Query) (*elastic.SearchResult, error)
+	Update(string, string, map[string]interface{}) error
 	Delete(string, string) error
 
 	setClient(*elastic.Client)

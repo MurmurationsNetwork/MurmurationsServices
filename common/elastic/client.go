@@ -82,6 +82,25 @@ func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error)
 	return result, nil
 }
 
+func (c *esClient) Update(index string, id string, update map[string]interface{}) error {
+	ctx := context.Background()
+	_, err := c.client.Update().
+		Index(index).
+		Type(docType).
+		Id(id).
+		Doc(update).
+		Do(ctx)
+	if err != nil {
+		// Don't need to tell the client data doesn't exist.
+		if elastic.IsNotFound(err) {
+			return nil
+		}
+		logger.Error(fmt.Sprintf("error when trying to delete a document in index %s", index), err)
+		return err
+	}
+	return nil
+}
+
 func (c *esClient) Delete(index string, id string) error {
 	ctx := context.Background()
 	_, err := c.client.Delete().
