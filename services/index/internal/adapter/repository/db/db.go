@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
@@ -260,6 +261,8 @@ func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
 func (r *nodeRepository) setDeleted(node *entity.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.Deleted
+	currentTime := time.Now().Unix()
+	node.LastUpdated = &currentTime
 
 	filter := bson.M{"_id": node.ID}
 	update := bson.M{"$set": r.toDAO(node)}

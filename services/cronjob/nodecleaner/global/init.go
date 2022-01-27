@@ -1,6 +1,7 @@
 package global
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
@@ -9,6 +10,7 @@ import (
 func Init() {
 	config.Init()
 	mongoInit()
+	esInit()
 }
 
 func mongoInit() {
@@ -21,5 +23,13 @@ func mongoInit() {
 	err = mongo.Client.Ping()
 	if err != nil {
 		logger.Panic("error when trying to ping the MongoDB", err)
+	}
+}
+
+func esInit() {
+	err := elastic.NewClient(config.Conf.ES.URL)
+	if err != nil {
+		logger.Panic("Error when trying to ping the ElasticSearch", err)
+		return
 	}
 }

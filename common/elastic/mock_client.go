@@ -31,3 +31,7 @@ func (c *mockClient) Update(index string, id string, update map[string]interface
 func (c *mockClient) Delete(index string, id string) error {
 	return nil
 }
+
+func (c *mockClient) DeleteMany(index string, query *Query) error {
+	return nil
+}

@@ -20,6 +20,7 @@ type esClientInterface interface {
 	Search(string, *Query) (*elastic.SearchResult, error)
 	Update(string, string, map[string]interface{}) error
 	Delete(string, string) error
+	DeleteMany(string, *Query) error
 
 	setClient(*elastic.Client)
 }

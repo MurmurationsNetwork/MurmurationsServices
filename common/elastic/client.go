@@ -118,3 +118,21 @@ func (c *esClient) Delete(index string, id string) error {
 	}
 	return nil
 }
+
+func (c *esClient) DeleteMany(index string, q *Query) error {
+	ctx := context.Background()
+	_, err := c.client.DeleteByQuery().
+		Index(index).
+		Query(q.Query).
+		Type(docType).
+		Do(ctx)
+	if err != nil {
+		// Don't need to tell the client data doesn't exist.
+		if elastic.IsNotFound(err) {
+			return nil
+		}
+		logger.Error(fmt.Sprintf("error when trying to delete documents"), err)
+		return err
+	}
+	return nil
+}
