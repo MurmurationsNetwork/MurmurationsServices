@@ -29,6 +29,7 @@ type NodeRepository interface {
 	GetOne(nodeID string) *entity.Node
 	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
+	SoftDelete(node *entity.Node) resterr.RestErr
 	Delete(node *entity.Node) resterr.RestErr
 }
 
@@ -268,6 +269,21 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 }
 
 func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
+	filter := bson.M{"_id": node.ID}
+
+	err := mongo.Client.DeleteOne(constant.MongoIndex.Node, filter)
+	if err != nil {
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+	err = elastic.Client.Delete(constant.ESIndex.Node, node.ID)
+	if err != nil {
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) SoftDelete(node *entity.Node) resterr.RestErr {
 	err := r.setDeleted(node)
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))

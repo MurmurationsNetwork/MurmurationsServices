@@ -122,11 +122,19 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		err := s.nodeRepo.Delete(node)
-		if err != nil {
-			return err
+		if node.Status == constant.NodeStatus.Posted {
+			err := s.nodeRepo.SoftDelete(node)
+			if err != nil {
+				return err
+			}
+			return nil
+		} else {
+			err := s.nodeRepo.Delete(node)
+			if err != nil {
+				return err
+			}
+			return nil
 		}
-		return nil
 	}
 
 	return resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
