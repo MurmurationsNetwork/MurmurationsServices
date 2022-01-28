@@ -26,6 +26,7 @@ import (
 type NodeRepository interface {
 	Add(node *entity.Node) resterr.RestErr
 	Get(nodeID string) (*entity.Node, resterr.RestErr)
+	GetOne(nodeID string) *entity.Node
 	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
 	Delete(node *entity.Node) resterr.RestErr
@@ -84,6 +85,28 @@ func (r *nodeRepository) Get(nodeID string) (*entity.Node, resterr.RestErr) {
 	}
 
 	return node.toEntity(), nil
+}
+
+func (r *nodeRepository) GetOne(nodeID string) *entity.Node {
+	filter := bson.M{"_id": nodeID}
+
+	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
+	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return nil
+		}
+		return nil
+	}
+
+	var node nodeDAO
+	err := result.Decode(&node)
+	if err != nil {
+		fmt.Println(err)
+		logger.Error("Error when trying to parse database response", result.Err())
+		return nil
+	}
+
+	return node.toEntity()
 }
 
 func (r *nodeRepository) Update(node *entity.Node) error {
@@ -250,7 +273,7 @@ func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
 	}
 
-	err = elastic.Client.Update(constant.ESIndex.Node, node.ID, map[string]interface{}{"status": "deleted"})
+	err = elastic.Client.Update(constant.ESIndex.Node, node.ID, map[string]interface{}{"status": "deleted", "last_updated": node.LastUpdated})
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
 	}

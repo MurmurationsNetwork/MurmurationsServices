@@ -1,11 +1,16 @@
 package service
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/db"
+	"time"
 )
 
 type NodesService interface {
-	Remove(status string, timeBefore int64) error
+	Remove() error
+	RemoveDeleted(status string, timeBefore int64) error
 	RemoveES(status string, timeBefore int64) error
 }
 
@@ -19,8 +24,15 @@ func NewNodeService(nodeRepo db.NodeRepository) NodesService {
 	}
 }
 
-func (svc *nodesService) Remove(status string, timeBefore int64) error {
-	return svc.nodeRepo.Remove(status, timeBefore)
+func (svc *nodesService) Remove() error {
+	return svc.nodeRepo.Remove(
+		constant.NodeStatus.ValidationFailed,
+		dateutil.NowSubtract(time.Duration(config.Conf.TTL)*time.Second),
+	)
+}
+
+func (svc *nodesService) RemoveDeleted(status string, timeBefore int64) error {
+	return svc.nodeRepo.RemoveDeleted(status, timeBefore)
 }
 
 func (svc *nodesService) RemoveES(status string, timeBefore int64) error {

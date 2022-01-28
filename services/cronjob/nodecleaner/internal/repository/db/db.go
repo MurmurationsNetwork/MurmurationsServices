@@ -15,6 +15,7 @@ import (
 
 type NodeRepository interface {
 	Remove(status string, timeBefore int64) error
+	RemoveDeleted(status string, timeBefore int64) error
 	RemoveES(status string, timeBefore int64) error
 }
 
@@ -33,6 +34,26 @@ func (r *nodeRepository) Remove(status string, timeBefore int64) error {
 		"status": status,
 		"createdAt": bson.M{
 			"$lt": timeBefore,
+		},
+	}
+
+	result, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Node).DeleteMany(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount != 0 {
+		logger.Info(fmt.Sprintf("Delete %d nodes with %s status", result.DeletedCount, status))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) RemoveDeleted(status string, timeBefore int64) error {
+	filter := bson.M{
+		"status": status,
+		"last_updated": bson.M{
+			"$lte": timeBefore,
 		},
 	}
 

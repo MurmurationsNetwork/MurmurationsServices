@@ -124,7 +124,6 @@ func (c *esClient) DeleteMany(index string, q *Query) error {
 	_, err := c.client.DeleteByQuery().
 		Index(index).
 		Query(q.Query).
-		Type(docType).
 		Do(ctx)
 	if err != nil {
 		// Don't need to tell the client data doesn't exist.

@@ -2,8 +2,6 @@ package usecase
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
@@ -14,6 +12,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
+	"net/http"
 )
 
 type NodeUsecase interface {
@@ -43,6 +42,15 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr)
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()
+
+	// check if the node is deleted, don't move forward [#217]
+	result := s.nodeRepo.GetOne(node.ID)
+
+	if result != nil {
+		if result.Status == constant.NodeStatus.Deleted {
+			return nil, resterr.NewBadRequestError("This node has been deleted, can't add again.")
+		}
+	}
 
 	if err := s.nodeRepo.Add(node); err != nil {
 		return nil, err

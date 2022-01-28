@@ -19,9 +19,7 @@ func init() {
 func main() {
 	svc := service.NewNodeService(db.NewNodeRepository(mongo.Client.GetClient()))
 
-	validatedFailedTimeout := dateutil.NowSubtract(time.Duration(config.Conf.TTL) * time.Second)
-
-	err := svc.Remove(constant.NodeStatus.ValidationFailed, validatedFailedTimeout)
+	err := svc.Remove()
 	if err != nil {
 		logger.Panic("Error when trying to delete nodes with validation_failed status", err)
 		return
@@ -30,7 +28,7 @@ func main() {
 	// delete mongoDB data
 	deletedTimeout := dateutil.NowSubtract(time.Duration(config.Conf.DELETEDTTL) * time.Second)
 
-	err = svc.Remove(constant.NodeStatus.Deleted, deletedTimeout)
+	err = svc.RemoveDeleted(constant.NodeStatus.Deleted, deletedTimeout)
 	if err != nil {
 		logger.Panic("Error when trying to delete nodes with deleted status", err)
 		return
