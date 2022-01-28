@@ -14,5 +14,5 @@ data:
   DELETED_TTL: "240" # 4 mins
   {{- else }}
   TTL: "120"   # 2 mins
-  DELETED_TTL: "240" # 2 mins
+  DELETED_TTL: "120" # 2 mins
   {{- end }}
