@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
@@ -27,6 +28,7 @@ type NodeRepository interface {
 	Get(nodeID string) (*entity.Node, resterr.RestErr)
 	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
+	SoftDelete(node *entity.Node) resterr.RestErr
 	Delete(node *entity.Node) resterr.RestErr
 }
 
@@ -150,6 +152,9 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 			}
 		}
 
+		// Default node's status is posted [#217]
+		profileJSON["status"] = "posted"
+
 		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
@@ -245,6 +250,38 @@ func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
 	err = elastic.Client.Delete(constant.ESIndex.Node, node.ID)
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) SoftDelete(node *entity.Node) resterr.RestErr {
+	err := r.setDeleted(node)
+	if err != nil {
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	err = elastic.Client.Update(constant.ESIndex.Node, node.ID, map[string]interface{}{"status": "deleted", "last_updated": node.LastUpdated})
+	if err != nil {
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) setDeleted(node *entity.Node) error {
+	node.Version = nil
+	node.Status = constant.NodeStatus.Deleted
+	currentTime := time.Now().Unix()
+	node.LastUpdated = &currentTime
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": r.toDAO(node)}
+
+	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
+	if err != nil {
+		logger.Error("Error when trying to update a node", err)
+		return err
 	}
 
 	return nil

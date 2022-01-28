@@ -25,6 +25,9 @@ func (q *EsQuery) Build() *elastic.Query {
 	if q.Country != nil {
 		subQueries = append(subQueries, elastic.NewTextQuery("country", *q.Country))
 	}
+	if q.Status != nil {
+		subQueries = append(subQueries, elastic.NewMatchQuery("status", *q.Status))
+	}
 
 	filters := elastic.NewQueries()
 	if q.Lat != nil && q.Lon != nil && q.Range != nil {

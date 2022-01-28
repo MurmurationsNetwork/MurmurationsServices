@@ -2,8 +2,6 @@ package usecase
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
@@ -14,6 +12,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
+	"net/http"
 )
 
 type NodeUsecase interface {
@@ -114,11 +113,19 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		err := s.nodeRepo.Delete(node)
-		if err != nil {
-			return err
+		if node.Status == constant.NodeStatus.Posted {
+			err := s.nodeRepo.SoftDelete(node)
+			if err != nil {
+				return err
+			}
+			return nil
+		} else {
+			err := s.nodeRepo.Delete(node)
+			if err != nil {
+				return err
+			}
+			return nil
 		}
-		return nil
 	}
 
 	return resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
