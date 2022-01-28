@@ -43,15 +43,6 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr)
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()
 
-	// check if the node is deleted, don't move forward [#217]
-	result := s.nodeRepo.GetOne(node.ID)
-
-	if result != nil {
-		if result.Status == constant.NodeStatus.Deleted {
-			return nil, resterr.NewBadRequestError("This node has been deleted, can't add again.")
-		}
-	}
-
 	if err := s.nodeRepo.Add(node); err != nil {
 		return nil, err
 	}

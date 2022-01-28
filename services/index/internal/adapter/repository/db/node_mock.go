@@ -18,12 +18,6 @@ func (r *mockNodeRepository) Get(nodeID string) (*entity.Node, resterr.RestErr) 
 	}, nil
 }
 
-func (r *mockNodeRepository) GetOne(nodeID string) *entity.Node {
-	return &entity.Node{
-		ID: nodeID,
-	}
-}
-
 func (r *mockNodeRepository) Update(node *entity.Node) error {
 	return nil
 }

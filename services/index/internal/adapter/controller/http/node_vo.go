@@ -37,7 +37,7 @@ func (handler *nodeHandler) toAddNodeVO(node *entity.Node) interface{} {
 }
 
 func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {
-	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted {
+	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted && node.Status != constant.NodeStatus.Deleted {
 		node.ProfileHash = nil
 		node.LastUpdated = nil
 	}
