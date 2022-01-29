@@ -9,8 +9,10 @@ import (
 var Conf = config{}
 
 type config struct {
-	Mongo mongoConf
-	TTL   int `env:"TTL,required"`
+	Mongo      mongoConf
+	ES         esConf
+	TTL        int `env:"TTL,required"`
+	DELETEDTTL int `env:"DELETED_TTL,required"`
 }
 
 type mongoConf struct {
@@ -18,6 +20,10 @@ type mongoConf struct {
 	PASSWORD string `env:"MONGO_PASSWORD,required"`
 	HOST     string `env:"MONGO_HOST,required"`
 	DBName   string `env:"MONGO_DB_NAME,required"`
+}
+
+type esConf struct {
+	URL string `env:"ELASTICSEARCH_URL,required"`
 }
 
 func Init() {

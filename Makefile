@@ -105,31 +105,31 @@ docker-push-geoip: docker-tag-geoip
 # ---------------------------------------------------------------
 
 deploy-ingress:
-	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(DEPLOY_ENV) --install --wait --atomic
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-mq:
-	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(DEPLOY_ENV) --install --wait --atomic
+	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-index:
-	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=$(DEPLOY_ENV),image=murmurations/index:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=$(DEPLOY_ENV),image=murmurations/index:$(TAG) --install --atomic
 
 deploy-validation:
-	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(TAG) --install --atomic
 
 deploy-library:
-	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=$(DEPLOY_ENV),image=murmurations/library:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=$(DEPLOY_ENV),image=murmurations/library:$(TAG) --install --atomic
 
 deploy-nodecleaner:
-	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=$(DEPLOY_ENV),image=murmurations/nodecleaner:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=$(DEPLOY_ENV),image=murmurations/nodecleaner:$(TAG) --install --atomic
 
 deploy-schemaparser:
-	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(TAG) --install --atomic
 
 deploy-revalidatenode:
-	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(TAG) --install --atomic
 
 deploy-geoip:
-	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) --install --wait --atomic
+	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) --install --atomic
 
 # ---------------------------------------------------------------
 
@@ -138,28 +138,28 @@ SPECIFIC_TAG ?= <>
 ENV ?= <>
 
 manually-deploy-ingress:
-	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --wait --atomic
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --atomic
 
 manually-deploy-mq:
-	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(ENV) --install --wait --atomic
+	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(ENV) --install --atomic
 
 manually-deploy-index:
-	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=$(ENV),image=murmurations/index:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=$(ENV),image=murmurations/index:$(SPECIFIC_TAG) --install --atomic
 
 manually-deploy-validation:
-	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=$(ENV),image=murmurations/validation:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=$(ENV),image=murmurations/validation:$(SPECIFIC_TAG) --install --atomic
 
 manually-deploy-library:
-	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=$(ENV),image=murmurations/library:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=$(ENV),image=murmurations/library:$(SPECIFIC_TAG) --install --atomic
 
 manually-deploy-nodecleaner:
-	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=$(ENV),image=murmurations/nodecleaner:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=$(ENV),image=murmurations/nodecleaner:$(SPECIFIC_TAG) --install --atomic
 
 manually-deploy-schemaparser:
-	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=$(ENV),image=murmurations/schemaparser:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=$(ENV),image=murmurations/schemaparser:$(SPECIFIC_TAG) --install --atomic
 
 manually-deploy-revalidatenode:
-	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) --install --atomic
 
 manually-deploy-geoip:
-	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) --install --wait --atomic
+	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) --install --atomic
