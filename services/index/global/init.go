@@ -61,13 +61,13 @@ func esInit() {
 							"type": "keyword"
 						},
 						"country": {
-							"type": "keyword"
+							"type": "text"
 						},
 						"locality": {
-							"type": "keyword"
+							"type": "text"
 						},
 						"region": {
-							"type": "keyword"
+							"type": "text"
 						},
 						"profile_url": {
 							"type": "keyword"
