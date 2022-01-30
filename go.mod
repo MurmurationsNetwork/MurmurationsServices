@@ -11,7 +11,7 @@ require (
 	github.com/go-redis/redis/v8 v8.8.3
 	github.com/nats-io/stan.go v0.8.3
 	github.com/olivere/elastic/v7 v7.0.31
-	github.com/oschwald/geoip2-golang v1.5.0
+	github.com/oschwald/geoip2-golang v1.6.1
 	github.com/stretchr/testify v1.7.0
 	github.com/ulule/limiter/v3 v3.8.0
 	github.com/xeipuuv/gojsonschema v1.2.0
