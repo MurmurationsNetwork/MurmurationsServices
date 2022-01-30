@@ -1099,94 +1099,6 @@
 					"response": []
 				},
 				{
-					"name": "Search with pagination",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(`${pm.info.requestName} - should return two results`, () => {",
-									"    pm.expect(jsonData.data.length).to.eq(2)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?page_size=2",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							],
-							"query": [
-								{
-									"key": "page_size",
-									"value": "2"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Issue 228",
-			"item": [
-				{
-					"name": "Post node 2 Copy",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-2.json\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Search by locality fuzzy case-insensitive",
 					"event": [
 						{
@@ -1223,6 +1135,49 @@
 								{
 									"key": "locality",
 									"value": "lONDN"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search with pagination",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return two results`, () => {",
+									"    pm.expect(jsonData.data.length).to.eq(2)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?page_size=2",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "page_size",
+									"value": "2"
 								}
 							]
 						}
