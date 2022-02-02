@@ -46,7 +46,8 @@ func esInit() {
 							"locality",
 							"region",
 							"profile_url",
-							"status"
+							"status",
+							"tags"
 						]
 					},
 					"properties": {
@@ -74,6 +75,9 @@ func esInit() {
 						},
 						"status": {
 							"type": "keyword"
+						},
+						"tags": {
+							"type": "text"
 						}
 					}
 				}
