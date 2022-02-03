@@ -14,6 +14,9 @@ type EsQuery struct {
 
 	Status *string `form:"status"`
 
+	Tags       *string `form:"tags"`
+	TagsFilter *string `form:"tags_filter"`
+
 	Page     int64 `form:"page,default=0"`
 	PageSize int64 `form:"page_size,default=30"`
 }

@@ -1,8 +1,10 @@
 package query
 
 import (
+	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
+	"strings"
 )
 
 func (q *EsQuery) Build() *elastic.Query {
@@ -27,6 +29,16 @@ func (q *EsQuery) Build() *elastic.Query {
 	}
 	if q.Status != nil {
 		subQueries = append(subQueries, elastic.NewMatchQuery("status", *q.Status))
+	}
+
+	if q.Tags != nil {
+		tags := strings.Replace(*q.Tags, ",", " ", -1)
+		fmt.Println(tags)
+		if q.TagsFilter != nil && *q.TagsFilter == "and" {
+			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness("2"))
+		} else {
+			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Fuzziness("2"))
+		}
 	}
 
 	filters := elastic.NewQueries()
