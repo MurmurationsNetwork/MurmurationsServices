@@ -19,6 +19,7 @@ data:
   TAGS_ARRAY_SIZE: "5"
   TAGS_STRING_LENGTH: "10"
   {{- end }}
+  TAGS_FUZZINESS: "3"
   # Rate limit
   GET_RATE_LIMIT_PERIOD: 60-M
   {{- if eq .Values.global.env "production" }}

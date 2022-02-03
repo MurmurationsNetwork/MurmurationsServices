@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"strings"
 )
 
@@ -35,9 +36,9 @@ func (q *EsQuery) Build() *elastic.Query {
 		tags := strings.Replace(*q.Tags, ",", " ", -1)
 		fmt.Println(tags)
 		if q.TagsFilter != nil && *q.TagsFilter == "and" {
-			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness("2"))
+			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness(config.Conf.Server.TagsFuzziness))
 		} else {
-			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Fuzziness("2"))
+			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Fuzziness(config.Conf.Server.TagsFuzziness))
 		}
 	}
 
