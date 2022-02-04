@@ -1,7 +1,6 @@
 package query
 
 import (
-	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
@@ -33,13 +32,15 @@ func (q *EsQuery) Build() *elastic.Query {
 	}
 
 	if q.Tags != nil {
+		tagsQueries := elastic.NewQueries()
 		tags := strings.Replace(*q.Tags, ",", " ", -1)
-		fmt.Println(tags)
 		if q.TagsFilter != nil && *q.TagsFilter == "and" {
-			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness(config.Conf.Server.TagsFuzziness))
+			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness("0").Boost(3), elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness(config.Conf.Server.TagsFuzziness))
 		} else {
-			subQueries = append(subQueries, elastic.NewMatchQuery("tags", tags).Fuzziness(config.Conf.Server.TagsFuzziness))
+			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Fuzziness("0").Boost(3))
+			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Fuzziness(config.Conf.Server.TagsFuzziness))
 		}
+		query.Should(tagsQueries...).MinimumShouldMatch("1")
 	}
 
 	filters := elastic.NewQueries()
