@@ -35,7 +35,8 @@ func (q *EsQuery) Build() *elastic.Query {
 		tagsQueries := elastic.NewQueries()
 		tags := strings.Replace(*q.Tags, ",", " ", -1)
 		if q.TagsFilter != nil && *q.TagsFilter == "and" {
-			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness("0").Boost(3), elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness(config.Conf.Server.TagsFuzziness))
+			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness("0").Boost(3))
+			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness(config.Conf.Server.TagsFuzziness))
 		} else {
 			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Fuzziness("0").Boost(3))
 			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Fuzziness(config.Conf.Server.TagsFuzziness))
