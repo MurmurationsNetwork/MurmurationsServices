@@ -938,6 +938,126 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Post node 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-4.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-5.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-6.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -969,7 +1089,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 5000);"
+									"setTimeout(function(){}, 6000);"
 								],
 								"type": "text/javascript"
 							}
@@ -1183,131 +1303,6 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Issue 227",
-			"item": [
-				{
-					"name": "Post node 4",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-4.json\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Post node 5",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-5.json\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Post node 6",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-6.json\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
 				},
 				{
 					"name": "Search by tag with exact match",
@@ -1336,7 +1331,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 3000);"
+									""
 								],
 								"type": "text/javascript"
 							}
