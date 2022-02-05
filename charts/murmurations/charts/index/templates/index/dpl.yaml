@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: index-app
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/index/config.yaml") . | sha256sum }}
     spec:
       containers:
         - name: index-app
