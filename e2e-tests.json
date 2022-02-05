@@ -1317,10 +1317,14 @@
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"// the profiles with the \"beer\" tag should be returned first",
-									"// the profile with the \"bees\" tag should be returned after (3rd position)",
-									"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
-									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
+									"pm.test(`${pm.info.requestName} - should only return results with an exactly matched tag`, () => {",
+									"    let notFoundInAll = false",
+									"    jsonData.data.forEach(e => {",
+									"        let found",
+									"        e.tags.find(e => e.toUpperCase() === 'BEER' ? found = true : null )",
+									"        if (!found) notFoundInAll = true",
+									"    })",
+									"    pm.expect(notFoundInAll).to.be.false",
 									"})",
 									""
 								],
@@ -1341,7 +1345,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?tags=Beer",
+							"raw": "{{indexBaseUrl}}/nodes?tags=Beer&tags_exact=true",
 							"host": [
 								"{{indexBaseUrl}}"
 							],
@@ -1352,6 +1356,10 @@
 								{
 									"key": "tags",
 									"value": "Beer"
+								},
+								{
+									"key": "tags_exact",
+									"value": "true"
 								}
 							]
 						}
