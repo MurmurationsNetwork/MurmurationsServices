@@ -23,6 +23,9 @@ type serverConf struct {
 	TimeoutIdle         time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
 	GetRateLimitPeriod  string        `env:"GET_RATE_LIMIT_PERIOD,required"`
 	PostRateLimitPeriod string        `env:"POST_RATE_LIMIT_PERIOD,required"`
+	TagsArraySize       string        `env:"TAGS_ARRAY_SIZE,required"`
+	TagsStringLength    string        `env:"TAGS_STRING_LENGTH,required"`
+	TagsFuzziness       string        `env:"TAGS_FUZZINESS,required"`
 }
 
 type mongoConf struct {

@@ -938,6 +938,126 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Post node 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-4.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-5.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-6.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -969,7 +1089,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 5000);"
+									"setTimeout(function(){}, 6000);"
 								],
 								"type": "text/javascript"
 							}
@@ -1178,6 +1298,208 @@
 								{
 									"key": "page_size",
 									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by tag with exact match",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should only return results with an exactly matched tag`, () => {",
+									"    let notFoundInAll = false",
+									"    jsonData.data.forEach(e => {",
+									"        let found",
+									"        e.tags.find(e => e.toUpperCase() === 'BEER' ? found = true : null )",
+									"        if (!found) notFoundInAll = true",
+									"    })",
+									"    pm.expect(notFoundInAll).to.be.false",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?tags=Beer&tags_exact=true",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "Beer"
+								},
+								{
+									"key": "tags_exact",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by tag with fuzzy match",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// the profiles with \"beer\" and \"bees\" should be fuzzy matched to \"beez\"",
+									"pm.test(`${pm.info.requestName} - should return at least three results`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(3)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?tags=Beez&tags_filter=or",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "Beez"
+								},
+								{
+									"key": "tags_filter",
+									"value": "or"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by tags with AND filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// should only return the one profile with both tags",
+									"pm.test(`${pm.info.requestName} - should return one result`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.eq(1)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?tags=Beer,Sausages&tags_filter=and",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "Beer,Sausages"
+								},
+								{
+									"key": "tags_filter",
+									"value": "and"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by tag with spelling error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// should fuzzy match the profile with \"friuts\" as a tag",
+									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?tags=fruit",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "fruit"
 								}
 							]
 						}

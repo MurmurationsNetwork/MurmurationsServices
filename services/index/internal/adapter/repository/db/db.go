@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"os"
 	"strconv"
 	"strings"
@@ -155,7 +157,19 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		// Default node's status is posted [#217]
 		profileJSON["status"] = "posted"
 
-		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
+		// Deal with tags [#227]
+		arraySize, _ := strconv.Atoi(config.Conf.Server.TagsArraySize)
+		stringLength, _ := strconv.Atoi(config.Conf.Server.TagsStringLength)
+		tags, err := tagsfilter.Filter(arraySize, stringLength, node.ProfileStr)
+		if err != nil {
+			return err
+		}
+
+		if tags != nil {
+			profileJSON["tags"] = tags
+		}
+
+		_, err = elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
 			err = r.setPostFailed(node)
