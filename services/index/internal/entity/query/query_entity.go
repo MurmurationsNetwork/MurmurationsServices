@@ -16,6 +16,7 @@ type EsQuery struct {
 
 	Tags       *string `form:"tags"`
 	TagsFilter *string `form:"tags_filter"`
+	TagsExact  *string `form:"tags_exact"`
 
 	Page     int64 `form:"page,default=0"`
 	PageSize int64 `form:"page_size,default=30"`

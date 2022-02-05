@@ -34,12 +34,18 @@ func (q *EsQuery) Build() *elastic.Query {
 	if q.Tags != nil {
 		tagsQueries := elastic.NewQueries()
 		tags := strings.Replace(*q.Tags, ",", " ", -1)
+		tagQuery := elastic.NewMatchQuery("tags", tags)
 		if q.TagsFilter != nil && *q.TagsFilter == "and" {
-			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness("0").Boost(3))
-			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Operator("AND").Fuzziness(config.Conf.Server.TagsFuzziness))
+			tagQuery = tagQuery.Operator("AND")
+			tagsQueries = append(tagsQueries, tagQuery.Fuzziness("0").Boost(3))
+			if !(q.TagsExact != nil && *q.TagsExact == "true") {
+				tagsQueries = append(tagsQueries, tagQuery.Fuzziness(config.Conf.Server.TagsFuzziness))
+			}
 		} else {
-			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Fuzziness("0").Boost(3))
-			tagsQueries = append(tagsQueries, elastic.NewMatchQuery("tags", tags).Fuzziness(config.Conf.Server.TagsFuzziness))
+			tagsQueries = append(tagsQueries, tagQuery.Fuzziness("0").Boost(3))
+			if !(q.TagsExact != nil && *q.TagsExact == "true") {
+				tagsQueries = append(tagsQueries, tagQuery.Fuzziness(config.Conf.Server.TagsFuzziness))
+			}
 		}
 		query.Should(tagsQueries...).MinimumShouldMatch("1")
 	}
