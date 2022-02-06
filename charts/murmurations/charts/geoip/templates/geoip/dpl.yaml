@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: geoip-app
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/geoip/config.yaml") . | sha256sum }}
     spec:
       containers:
         - name: geoip-app

@@ -13,6 +13,9 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          annotations:
+            checksum/config: {{ include (print $.Template.BasePath "/nodecleaner/config.yaml") . | sha256sum }}
         spec:
           containers:
             - name: nodecleaner-app

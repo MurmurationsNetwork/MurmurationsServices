@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: library-app
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/library/config.yaml") . | sha256sum }}
     spec:
       containers:
         - name: library-app

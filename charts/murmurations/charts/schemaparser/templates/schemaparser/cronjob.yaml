@@ -13,6 +13,9 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          annotations:
+            checksum/config: {{ include (print $.Template.BasePath "/schemaparser/config.yaml") . | sha256sum }}
         spec:
           containers:
             - name: schemaparser-app
