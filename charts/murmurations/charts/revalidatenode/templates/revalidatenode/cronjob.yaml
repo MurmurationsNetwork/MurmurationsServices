@@ -13,6 +13,9 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          annotations:
+            checksum/config: {{ include (print $.Template.BasePath "/revalidatenode/config.yaml") . | sha256sum }}
         spec:
           containers:
             - name: revalidatenode-app
