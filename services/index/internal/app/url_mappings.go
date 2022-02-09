@@ -14,6 +14,9 @@ func mapUrls(router *gin.Engine) {
 	router.GET("/nodes", nodeHandler.Search)
 	router.DELETE("/nodes/:nodeId", nodeHandler.Delete)
 
+	// synchronously response
+	router.POST("/nodes-sync", nodeHandler.AddSync)
+
 	pingHandler := http.NewPingHandler()
 	router.GET("/ping", pingHandler.Ping)
 }
