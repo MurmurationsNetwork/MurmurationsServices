@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"net/http"
 	"time"
@@ -138,8 +137,6 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 			c.JSON(err.Status(), err)
 			return
 		}
-
-		fmt.Println(nodeInfo.Status)
 
 		if nodeInfo.Status == constant.NodeStatus.ValidationFailed || nodeInfo.Status == constant.NodeStatus.PostFailed || nodeInfo.Status == constant.NodeStatus.Posted {
 			c.JSON(http.StatusOK, handler.toGetNodeVO(nodeInfo))
