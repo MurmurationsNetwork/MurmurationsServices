@@ -144,10 +144,9 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		}
 
 		time.Sleep(waitInterval)
-
 		retries--
 	}
 
-	// if server can't get the node with posted or failed information, return the node id for user to get the node.
+	// if server can't get the node with posted or failed information, return the node id for user to get the node in the future.
 	c.JSON(http.StatusOK, handler.toAddNodeVO(result))
 }
