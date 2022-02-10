@@ -138,8 +138,13 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 			return
 		}
 
-		if nodeInfo.Status == constant.NodeStatus.ValidationFailed || nodeInfo.Status == constant.NodeStatus.PostFailed || nodeInfo.Status == constant.NodeStatus.Posted {
+		if nodeInfo.Status == constant.NodeStatus.Posted {
 			c.JSON(http.StatusOK, handler.toGetNodeVO(nodeInfo))
+			return
+		}
+
+		if nodeInfo.Status == constant.NodeStatus.ValidationFailed || nodeInfo.Status == constant.NodeStatus.PostFailed {
+			c.JSON(http.StatusBadRequest, handler.toGetNodeVO(nodeInfo))
 			return
 		}
 
