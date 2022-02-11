@@ -14,12 +14,7 @@ func mapUrls(router *gin.Engine) {
 
 	v1 := router.Group("/v1")
 	{
-		v1.GET("/ping", deprecationHandler.DeprecationV1)
-		v1.POST("/nodes", deprecationHandler.DeprecationV1)
-		v1.GET("/nodes/:nodeId", deprecationHandler.DeprecationV1)
-		v1.GET("/nodes", deprecationHandler.DeprecationV1)
-		v1.DELETE("/nodes/:nodeId", deprecationHandler.DeprecationV1)
-		v1.POST("/nodes-sync", deprecationHandler.DeprecationV1)
+		v1.Any("/*any", deprecationHandler.DeprecationV1)
 	}
 
 	v2 := router.Group("/v2")

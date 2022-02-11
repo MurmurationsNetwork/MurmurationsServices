@@ -185,10 +185,10 @@ jobs:
           npm install -g newman
 
       - name: Test Index
-        run: ./wait_for_timeout.sh https://pretest-index.murmurations.network/v1/ping 200 300
+        run: ./wait_for_timeout.sh https://pretest-index.murmurations.network/v2/ping 200 300
 
       - name: Test Library
-        run: ./wait_for_timeout.sh https://pretest-library.murmurations.network/v1/ping 200 300
+        run: ./wait_for_timeout.sh https://pretest-library.murmurations.network/v2/ping 200 300
 
       - name: Newman E2E Test
         run: make newman-test DEPLOY_ENV=pretest

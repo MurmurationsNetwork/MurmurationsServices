@@ -14,8 +14,7 @@ func mapUrls(router *gin.Engine) {
 
 	v1 := router.Group("/v1")
 	{
-		v1.GET("/ping", deprecationHandler.DeprecationV1)
-		v1.GET("/schemas", deprecationHandler.DeprecationV1)
+		v1.Any("/*any", deprecationHandler.DeprecationV1)
 	}
 
 	v2 := router.Group("/v2")
