@@ -1509,7 +1509,7 @@
 			]
 		},
 		{
-			"name": "Issue 152 - Post node with synchronous response",
+			"name": "Post node with synchronous response",
 			"item": [
 				{
 					"name": "Returns posted status for a valid profile",
