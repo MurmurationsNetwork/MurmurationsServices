@@ -1507,6 +1507,195 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Post node with synchronous response",
+			"item": [
+				{
+					"name": "Returns posted status for a valid profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return posted status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('posted')",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-1.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes-sync",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes-sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Returns validation failed status for non-existent profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/does-not-exist.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes-sync",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes-sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Returns validation failed status for invalid JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/invalid.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes-sync",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes-sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Returns validation failed status for failed schema validation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/invalid-geopoints.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes-sync",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes-sync"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
