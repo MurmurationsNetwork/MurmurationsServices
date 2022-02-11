@@ -43,7 +43,7 @@ spec:
       http:
         paths:
           - pathType: Prefix
-            path: /v1(/|$)(.*)
+            path: /(|$)(.*)
             backend:
               service:
                 name: index-app
@@ -61,7 +61,7 @@ spec:
       http:
         paths:
           - pathType: Prefix
-            path: /v1(/|$)(.*)
+            path: /(|$)(.*)
             backend:
               service:
                 name: library-app

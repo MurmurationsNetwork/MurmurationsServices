@@ -8,15 +8,30 @@ import (
 )
 
 func mapUrls(router *gin.Engine) {
-	nodeHandler := http.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
-	router.POST("/nodes", nodeHandler.Add)
-	router.GET("/nodes/:nodeId", nodeHandler.Get)
-	router.GET("/nodes", nodeHandler.Search)
-	router.DELETE("/nodes/:nodeId", nodeHandler.Delete)
-
-	// synchronously response
-	router.POST("/nodes-sync", nodeHandler.AddSync)
-
+	deprecationHandler := http.NewDeprecationHandler()
 	pingHandler := http.NewPingHandler()
-	router.GET("/ping", pingHandler.Ping)
+	nodeHandler := http.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
+
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/ping", deprecationHandler.DeprecationV1)
+		v1.POST("/nodes", deprecationHandler.DeprecationV1)
+		v1.GET("/nodes/:nodeId", deprecationHandler.DeprecationV1)
+		v1.GET("/nodes", deprecationHandler.DeprecationV1)
+		v1.DELETE("/nodes/:nodeId", deprecationHandler.DeprecationV1)
+		v1.POST("/nodes-sync", deprecationHandler.DeprecationV1)
+	}
+
+	v2 := router.Group("/v2")
+	{
+		v2.GET("/ping", pingHandler.Ping)
+
+		v2.POST("/nodes", nodeHandler.Add)
+		v2.GET("/nodes/:nodeId", nodeHandler.Get)
+		v2.GET("/nodes", nodeHandler.Search)
+		v2.DELETE("/nodes/:nodeId", nodeHandler.Delete)
+
+		// synchronously response
+		v2.POST("/nodes-sync", nodeHandler.AddSync)
+	}
 }
