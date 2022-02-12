@@ -1696,6 +1696,247 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "V1 routes are deprecated",
+			"item": [
+				{
+					"name": "POST /nodes v1 410",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"    pm.response.to.have.status(410)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrlV1}}/nodes",
+							"host": [
+								"{{indexBaseUrlV1}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /nodes-sync v1 410",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"    pm.response.to.have.status(410)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrlV1}}/nodes-sync",
+							"host": [
+								"{{indexBaseUrlV1}}"
+							],
+							"path": [
+								"nodes-sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /nodes v1 410",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"    pm.response.to.have.status(410)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrlV1}}/nodes",
+							"host": [
+								"{{indexBaseUrlV1}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /nodes/:node_id v1 410",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"    pm.response.to.have.status(410)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrlV1}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrlV1}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /nodes/:node_id v1 410",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"    pm.response.to.have.status(410)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrlV1}}/nodes/:node_id",
+							"host": [
+								"{{indexBaseUrlV1}}"
+							],
+							"path": [
+								"nodes",
+								":node_id"
+							],
+							"variable": [
+								{
+									"key": "node_id",
+									"value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /nodes v2 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
