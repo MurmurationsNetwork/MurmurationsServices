@@ -1698,7 +1698,7 @@
 			]
 		},
 		{
-			"name": "Issue 240",
+			"name": "V1 routes are deprecated",
 			"item": [
 				{
 					"name": "POST /nodes v1 410",
