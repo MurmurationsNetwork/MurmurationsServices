@@ -1937,6 +1937,171 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Issue 245",
+			"item": [
+				{
+					"name": "Profile with invalid property type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"linked_schemas\": [\n    \"test_schema-v1\"\n  ],\n  \"name\": \"IC3 Dev\",\n  \"geolocation\": {\n    \"lat\": \"11.111111\",\n    \"lon\": \"12.121212\"\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/validate",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile with missing schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"linked_schemas\": [\n    \"test_schema-v1\",\n    \"test_schema-ver0\"\n  ],\n  \"name\": \"IC3 Dev\",\n  \"geolocation\": {\n    \"lat\": 11.111111,\n    \"lon\": 12.121212\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/validate",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile with no linked schemas",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"IC3 Dev\",\n  \"geolocation\": {\n    \"lat\": 11.111111,\n    \"lon\": 12.121212\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/validate",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile that validates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"linked_schemas\": [\n    \"test_schema-v1\"\n  ],\n  \"name\": \"IC3 Dev\",\n  \"geolocation\": {\n    \"lat\": 11.111111,\n    \"lon\": 12.121212\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/validate",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

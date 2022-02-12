@@ -27,3 +27,8 @@ data:
   {{- else }}
   POST_RATE_LIMIT_PERIOD: 60-M
   {{- end }}
+  {{- if eq .Values.global.env "production" }}
+  LIBRARY_CDN_URL: https://cdn.murmurations.network
+  {{- else }}
+  LIBRARY_CDN_URL: https://test-cdn.murmurations.network
+  {{- end }}

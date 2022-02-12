@@ -25,6 +25,7 @@ func mapUrls(router *gin.Engine) {
 		v2.GET("/nodes/:nodeId", nodeHandler.Get)
 		v2.GET("/nodes", nodeHandler.Search)
 		v2.DELETE("/nodes/:nodeId", nodeHandler.Delete)
+		v2.POST("/validate", nodeHandler.Validate)
 
 		// synchronously response
 		v2.POST("/nodes-sync", nodeHandler.AddSync)
