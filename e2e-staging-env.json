@@ -8,11 +8,6 @@
 			"enabled": true
 		},
 		{
-			"key": "libraryBaseUrlV1",
-			"value": "http://library.murmurations.network/v1",
-			"enabled": true
-		},
-		{
 			"key": "indexBaseUrl",
 			"value": "http://index.murmurations.network/v2",
 			"type": "default",
@@ -20,7 +15,7 @@
 		},
 		{
 			"key": "libraryBaseUrl",
-			"value": "http://library.murmurations.network/v2",
+			"value": "http://library.murmurations.network/v1",
 			"type": "default",
 			"enabled": true
 		}

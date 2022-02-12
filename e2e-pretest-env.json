@@ -9,12 +9,6 @@
 			"enabled": true
 		},
 		{
-			"key": "libraryBaseUrlV1",
-			"value": "https://pretest-library.murmurations.network/v1",
-			"type": "default",
-			"enabled": true
-		},
-		{
 			"key": "indexBaseUrl",
 			"value": "https://pretest-index.murmurations.network/v2",
 			"type": "default",
@@ -22,7 +16,7 @@
 		},
 		{
 			"key": "libraryBaseUrl",
-			"value": "https://pretest-library.murmurations.network/v2",
+			"value": "https://pretest-library.murmurations.network/v1",
 			"type": "default",
 			"enabled": true
 		}
