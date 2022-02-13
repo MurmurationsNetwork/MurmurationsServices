@@ -1939,7 +1939,7 @@
 			]
 		},
 		{
-			"name": "Issue 245",
+			"name": "Validate profiles",
 			"item": [
 				{
 					"name": "Profile with invalid property type",
@@ -1950,6 +1950,16 @@
 								"exec": [
 									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct failure reason`, () => {",
+									"    pm.expect(jsonData.data.failure_reasons).to.contain('Invalid type')",
 									"})",
 									""
 								],
@@ -1991,6 +2001,16 @@
 									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct failure reason`, () => {",
+									"    pm.expect(jsonData.data.failure_reasons).to.contain('response status is 404')",
+									"})",
 									""
 								],
 								"type": "text/javascript"
@@ -2030,6 +2050,16 @@
 								"exec": [
 									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
+									"})",
+									"",
+									"pm.test(`${pm.info.requestName} - should return correct failure reason`, () => {",
+									"    pm.expect(jsonData.data.failure_reasons).to.contain('Could not read linked_schemas')",
 									"})",
 									""
 								],
