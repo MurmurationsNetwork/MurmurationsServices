@@ -18,6 +18,8 @@ type EsQuery struct {
 	TagsFilter *string `form:"tags_filter"`
 	TagsExact  *string `form:"tags_exact"`
 
+	PrimaryUrl *string `form:"primary_url"`
+
 	Page     int64 `form:"page,default=0"`
 	PageSize int64 `form:"page_size,default=30"`
 }

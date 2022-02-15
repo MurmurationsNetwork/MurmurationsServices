@@ -1630,7 +1630,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/invalid.json\"\n}\n",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/invalid-json.json\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2126,6 +2126,235 @@
 							],
 							"path": [
 								"validate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Issue 238",
+			"item": [
+				{
+					"name": "Post node 9",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-9.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 10",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-10.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 11",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-11.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by primary_url 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 3000);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?primary_url=ic3.dev",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "primary_url",
+									"value": "ic3.dev"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by primary_url 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes?primary_url=third.ic3.dev",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							],
+							"query": [
+								{
+									"key": "primary_url",
+									"value": "third.ic3.dev"
+								}
 							]
 						}
 					},
