@@ -22,6 +22,7 @@ PUT /nodes2
               "region",
               "profile_url",
               "status",
+              "tags",
               "primary_url"
           ]
       },
@@ -50,6 +51,9 @@ PUT /nodes2
           },
           "status": {
               "type": "keyword"
+          },
+          "tags": {
+              "type": "text"
           },
           "primary_url": {
               "type": "keyword"
@@ -88,6 +92,7 @@ PUT /nodes
                 "region",
                 "profile_url",
                 "status",
+                "tags",
                 "primary_url"
             ]
         },
@@ -117,8 +122,11 @@ PUT /nodes
             "status": {
                 "type": "keyword"
             },
+            "tags": {
+                "type": "text"
+            },
             "primary_url": {
-              "type": "keyword"
+                "type": "keyword"
             }
         }
     }
