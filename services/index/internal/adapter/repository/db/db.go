@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/validateurl"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"os"
 	"strconv"
@@ -167,6 +168,14 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 
 		if tags != nil {
 			profileJSON["tags"] = tags
+		}
+
+		// validate primary_url [#238]
+		if profileJSON["primary_url"] != nil {
+			profileJSON["primary_url"], err = validateurl.Validate(profileJSON["primary_url"].(string))
+			if err != nil {
+				return err
+			}
 		}
 
 		_, err = elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)

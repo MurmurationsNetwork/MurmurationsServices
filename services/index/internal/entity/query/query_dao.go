@@ -30,6 +30,9 @@ func (q *EsQuery) Build() *elastic.Query {
 	if q.Status != nil {
 		subQueries = append(subQueries, elastic.NewMatchQuery("status", *q.Status))
 	}
+	if q.PrimaryUrl != nil {
+		subQueries = append(subQueries, elastic.NewMatchQuery("primary_url", *q.PrimaryUrl))
+	}
 
 	if q.Tags != nil {
 		tagsQueries := elastic.NewQueries()
