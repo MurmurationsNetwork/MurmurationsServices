@@ -2134,7 +2134,7 @@
 			]
 		},
 		{
-			"name": "Issue 238",
+			"name": "Store and query by primary_url",
 			"item": [
 				{
 					"name": "Post node 9",
