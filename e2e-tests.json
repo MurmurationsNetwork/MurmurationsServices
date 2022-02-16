@@ -15,11 +15,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"pong!\"`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"pong!\"`, () => {",
 									"    pm.response.to.have.body(\"pong!\")",
 									"})",
 									""
@@ -50,11 +50,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"pong\"`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"pong\"`, () => {",
 									"    pm.response.to.have.body(\"pong\")",
 									"})",
 									""
@@ -85,15 +85,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least 1 result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least 1 result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThan(0)",
 									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -115,6 +117,28 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Initial checks');",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -127,17 +151,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"Could not find node_id\" message`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"Could not find node_id\" message`, () => {",
 									"    pm.expect(jsonData.message).to.contain(\"Could not find node_id\")",
 									"})",
 									""
@@ -176,13 +200,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return missing profile_url error message`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return missing profile_url error message`, () => {",
 									"    pm.expect(jsonData.message).to.eq(\"The profile_url parameter is missing.\")",
 									"})",
 									""
@@ -222,7 +246,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
@@ -265,21 +289,21 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"node_id\" parameter`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"node_id\" parameter`, () => {",
 									"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"validation_failed\" status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"validation_failed\" status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain(\"validation_failed\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
 									"    pm.expect(jsonData.data.failure_reasons[0]).to.contain(\"Could not read from profile_url\")",
 									"})",
 									""
@@ -328,7 +352,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -376,17 +400,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"could not find node_id\" message`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"could not find node_id\" message`, () => {",
 									"    pm.expect(jsonData.message).to.contain(`Could not find node_id: ${pm.environment.get(\"node0\")}`)",
 									"})",
 									"",
@@ -437,7 +461,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
@@ -445,7 +469,7 @@
 									"",
 									"pm.environment.set(\"node00\", jsonData.data.node_id)",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct hash of profile_url`, () => {",
 									"    pm.expect(jsonData.data.node_id).to.eq(\"98af871c2ba20bc1a5a3dc4fa39d49a1a0bea14787d698a39d46e0d04cb9269c\")",
 									"})",
 									""
@@ -485,41 +509,41 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should not have _id property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not have _id property`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"_id\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should have node_id property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should have node_id property`, () => {",
 									"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct node_id`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct node_id`, () => {",
 									"    pm.expect(jsonData.data.node_id).to.eq(\"98af871c2ba20bc1a5a3dc4fa39d49a1a0bea14787d698a39d46e0d04cb9269c\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct profile_url`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct profile_url`, () => {",
 									"    pm.expect(jsonData.data.profile_url).to.eq(\"https://ic3.dev/murmurations/invalid-geopoints.json\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should not have profile_hash property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not have profile_hash property`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"profile_hash\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not return linked_schemas list`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"linked_schemas\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.eq(\"validation_failed\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should not have last_updated property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not have last_updated property`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"last_updated\")",
 									"})",
 									""
@@ -567,21 +591,23 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
 									"    pm.expect(jsonData.message).to.contain(\"Profile still exists\")",
 									"})",
 									"",
 									"pm.environment.unset(\"node00\")",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -620,6 +646,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Handles missing nodes & invalid profiles');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -632,14 +678,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"pm.environment.set(\"node000\", jsonData.data.node_id)",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct hash of profile_url`, () => {",
 									"    pm.expect(jsonData.data.node_id).to.eq(\"8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8\")",
 									"})",
 									""
@@ -679,49 +725,49 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should not have _id property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not have _id property`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"_id\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should have node_id property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should have node_id property`, () => {",
 									"    pm.expect(jsonData.data).to.have.property(\"node_id\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct node_id`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct node_id`, () => {",
 									"    pm.expect(jsonData.data.node_id).to.eq(\"8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct profile_url`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct profile_url`, () => {",
 									"    pm.expect(jsonData.data.profile_url).to.eq(\"https://ic3.dev/murmurations/valid-profile.json\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct profile_hash`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct profile_hash`, () => {",
 									"    pm.expect(jsonData.data.profile_hash).to.eq(\"363048e2ba3628cca263d5eef799bc337e8777e064596ca6ced4bbceb1b03a11\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should not return linked_schemas list`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not return linked_schemas list`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"linked_schemas\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct status`, () => {",
 									"    pm.expect(jsonData.data.status).to.eq(\"posted\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should not have last_validated property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not have last_validated property`, () => {",
 									"    pm.expect(jsonData.data).to.not.have.property(\"last_validated\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should have last_updated property`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should have last_updated property`, () => {",
 									"    pm.expect(jsonData.data).to.have.property(\"last_updated\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - last_updated property should be a number`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - last_updated property should be a number`, () => {",
 									"    pm.expect(jsonData.data.last_updated).to.be.a(\"number\")",
 									"})",
 									""
@@ -770,21 +816,23 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
 									"    pm.expect(jsonData.message).to.contain(\"Profile still exists\")",
 									"})",
 									"",
 									"pm.environment.unset(\"node000\")",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -814,6 +862,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Handles valid profile');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -826,7 +894,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -866,7 +934,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -906,7 +974,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -946,7 +1014,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -986,7 +1054,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -1026,9 +1094,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -1059,6 +1129,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Add test profiles');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -1071,13 +1161,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least one result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
 									"})",
 									""
@@ -1131,13 +1221,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least two results`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
 									"})",
 									""
@@ -1182,13 +1272,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least one result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
 									"})",
 									""
@@ -1225,13 +1315,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least one result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
 									"})",
 									""
@@ -1268,13 +1358,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return two results`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return two results`, () => {",
 									"    pm.expect(jsonData.data.length).to.eq(2)",
 									"})",
 									""
@@ -1311,13 +1401,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should only return results with an exactly matched tag`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should only return results with an exactly matched tag`, () => {",
 									"    let notFoundInAll = false",
 									"    jsonData.data.forEach(e => {",
 									"        let found",
@@ -1373,14 +1463,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
 									"// the profiles with \"beer\" and \"bees\" should be fuzzy matched to \"beez\"",
-									"pm.test(`${pm.info.requestName} - should return at least three results`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least three results`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(3)",
 									"})",
 									""
@@ -1421,14 +1511,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
 									"// should only return the one profile with both tags",
-									"pm.test(`${pm.info.requestName} - should return one result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return one result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.eq(1)",
 									"})",
 									""
@@ -1469,16 +1559,18 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
 									"// should fuzzy match the profile with \"friuts\" as a tag",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least one result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
 									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -1506,6 +1598,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Returns expected search results');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -1518,13 +1630,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return posted status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return posted status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('posted')",
 									"})",
 									""
@@ -1564,13 +1676,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
 									"})",
 									""
@@ -1610,13 +1722,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
 									"})",
 									""
@@ -1656,15 +1768,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
 									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -1695,6 +1809,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Post node with synchronous response');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -1707,7 +1841,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 410`, () => {",
 									"    pm.response.to.have.status(410)",
 									"})",
 									""
@@ -1747,7 +1881,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 410`, () => {",
 									"    pm.response.to.have.status(410)",
 									"})",
 									""
@@ -1787,7 +1921,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 410`, () => {",
 									"    pm.response.to.have.status(410)",
 									"})"
 								],
@@ -1817,7 +1951,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 410`, () => {",
 									"    pm.response.to.have.status(410)",
 									"})",
 									""
@@ -1865,7 +1999,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 410`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 410`, () => {",
 									"    pm.response.to.have.status(410)",
 									"})",
 									""
@@ -1913,9 +2047,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
-									"})"
+									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1936,6 +2073,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','V1 routes are deprecated');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -1948,17 +2105,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct failure reason`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure reason`, () => {",
 									"    pm.expect(jsonData.data.failure_reasons).to.contain('Invalid type')",
 									"})",
 									""
@@ -1998,17 +2155,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct failure reason`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure reason`, () => {",
 									"    pm.expect(jsonData.data.failure_reasons).to.contain('response status is 404')",
 									"})",
 									""
@@ -2048,17 +2205,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 400`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
 									"    pm.response.to.have.status(400)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return validation_failed status`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return validation_failed status`, () => {",
 									"    pm.expect(jsonData.data.status).to.contain('validation_failed')",
 									"})",
 									"",
-									"pm.test(`${pm.info.requestName} - should return correct failure reason`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure reason`, () => {",
 									"    pm.expect(jsonData.data.failure_reasons).to.contain('Could not read linked_schemas')",
 									"})",
 									""
@@ -2098,9 +2255,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)",
 									""
 								],
 								"type": "text/javascript"
@@ -2131,6 +2290,26 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Validate profiles');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -2143,7 +2322,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -2183,7 +2362,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -2223,7 +2402,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									""
@@ -2263,13 +2442,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least two results`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least two results`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
 									"})",
 									""
@@ -2315,16 +2494,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.info.requestName} - should return status code 200`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.info.requestName} - should return at least one result`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least one result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
 									"})",
-									""
+									"",
+									"pm.variables.set(\"test_counter\", 0)"
 								],
 								"type": "text/javascript"
 							}
@@ -2360,7 +2540,57 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Store and query by primary_url');"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"let currentCount = pm.variables.get(\"test_counter\")",
+					"currentCount++",
+					"pm.variables.set(\"test_counter\", currentCount)",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "test_counter",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
