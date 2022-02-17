@@ -133,8 +133,8 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		return
 	}
 
-	// default time interval is 5 seconds
-	waitInterval := 5 * time.Second
+	// try the 1st time in 1 second, 2nd time in 2 seconds, 3rd in 4, 4th in 8, 5th in 16 seconds.
+	waitInterval := 1 * time.Second
 	retries := 5
 
 	for retries != 0 {
@@ -155,6 +155,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		}
 
 		time.Sleep(waitInterval)
+		waitInterval *= 2
 		retries--
 	}
 
