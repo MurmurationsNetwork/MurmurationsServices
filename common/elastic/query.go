@@ -37,3 +37,9 @@ func NewTextQuery(name, text string) *elastic.BoolQuery {
 	q.Should(elastic.NewRegexpQuery(name, ".*"+strings.ToLower(text)+".*"))
 	return q
 }
+
+func NewWildcardQuery(name, wildcard string) *elastic.WildcardQuery {
+	q := elastic.NewWildcardQuery(name, wildcard)
+	q.CaseInsensitive(true)
+	return q
+}
