@@ -13,7 +13,7 @@ func (q *EsQuery) Build() *elastic.Query {
 	subQueries := elastic.NewQueries()
 
 	if q.Schema != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("linked_schemas", *q.Schema))
+		subQueries = append(subQueries, elastic.NewWildcardQuery("linked_schemas", *q.Schema+"*"))
 	}
 	if q.LastUpdated != nil {
 		subQueries = append(subQueries, elastic.NewRangeQuery("last_updated").Gte(q.LastUpdated))
