@@ -105,29 +105,22 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 
 	// TODO: Maybe we should avoid network requests in the index server?
 	resp, err := httputil.Get(node.ProfileURL)
+	// defer here to avoid error
+	defer resp.Body.Close()
 	if err != nil {
 		return resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
 	}
 
-	if resp.StatusCode == http.StatusOK {
-		// if the response is invalid json, then do the softDeleted (issue-266)
-		decoder := json.NewDecoder(resp.Body)
-		var bodyJson interface{}
-		err = decoder.Decode(&bodyJson)
-		if err != nil {
-			err := s.nodeRepo.SoftDelete(node)
-			if err != nil {
-				return err
-			}
-			// todo: response need to change, this response is only for passing the tests
-			// todo: related to the test: Handles missing nodes & invalid profiles(9)
-			return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
-		}
-
-		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
+	// check the response is json or not (issue-266)
+	var bodyJson interface{}
+	isJson := true
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&bodyJson)
+	if err != nil {
+		isJson = false
 	}
 
-	if resp.StatusCode == http.StatusNotFound {
+	if resp.StatusCode == http.StatusNotFound || isJson == false {
 		if node.Status == constant.NodeStatus.Posted {
 			err := s.nodeRepo.SoftDelete(node)
 			if err != nil {
@@ -141,6 +134,10 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 			}
 			return nil
 		}
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
 	}
 
 	return resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
