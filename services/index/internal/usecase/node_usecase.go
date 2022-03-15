@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
@@ -104,15 +105,22 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 
 	// TODO: Maybe we should avoid network requests in the index server?
 	resp, err := httputil.Get(node.ProfileURL)
+	// defer here to avoid error
+	defer resp.Body.Close()
 	if err != nil {
 		return resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
 	}
 
-	if resp.StatusCode == http.StatusOK {
-		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
+	// check the response is json or not (issue-266)
+	var bodyJson interface{}
+	isJson := true
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&bodyJson)
+	if err != nil {
+		isJson = false
 	}
 
-	if resp.StatusCode == http.StatusNotFound {
+	if resp.StatusCode == http.StatusNotFound || isJson == false {
 		if node.Status == constant.NodeStatus.Posted {
 			err := s.nodeRepo.SoftDelete(node)
 			if err != nil {
@@ -126,6 +134,10 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 			}
 			return nil
 		}
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
 	}
 
 	return resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
