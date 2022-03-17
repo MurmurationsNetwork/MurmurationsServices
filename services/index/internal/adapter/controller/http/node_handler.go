@@ -182,13 +182,13 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	}
 
 	// Validate against schemes specify inside the profile data.
-	failureReasons := handler.validateAgainstSchemas(linkedSchemas, node)
+	failureReasons, errorStatus := handler.validateAgainstSchemas(linkedSchemas, node)
 	if len(failureReasons) != 0 {
 		message := "Failed to validate against schemas: " + strings.Join(failureReasons, " ")
 		logger.Info(message)
 		c.JSON(http.StatusOK, gin.H{
 			"failure_reasons": failureReasons,
-			"status":          http.StatusBadRequest,
+			"status":          errorStatus,
 		})
 		return
 	}
@@ -225,8 +225,9 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 	return linkedSchemas, true
 }
 
-func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData interface{}) []string {
+func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData interface{}) ([]string, int) {
 	FailureReasons := []string{}
+	errorStatus := 0
 
 	for _, linkedSchema := range linkedSchemas {
 		schemaURL := getSchemaURL(linkedSchema)
@@ -234,21 +235,30 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
 			FailureReasons = append(FailureReasons, fmt.Sprintf("Error when trying to read from schema %s: %s", schemaURL, err.Error()))
+			if errorStatus == 0 {
+				errorStatus = http.StatusNotFound
+			}
 			continue
 		}
 
 		result, err := schema.Validate(gojsonschema.NewRawLoader(validateData))
 		if err != nil {
 			FailureReasons = append(FailureReasons, "Error when trying to validate document: ", err.Error())
+			if errorStatus == 0 {
+				errorStatus = http.StatusBadRequest
+			}
 			continue
 		}
 
 		if !result.Valid() {
 			FailureReasons = append(FailureReasons, handler.parseValidateError(linkedSchema, result.Errors())...)
+			if errorStatus == 0 {
+				errorStatus = http.StatusBadRequest
+			}
 		}
 	}
 
-	return FailureReasons
+	return FailureReasons, errorStatus
 }
 
 func getSchemaURL(linkedSchema string) string {
