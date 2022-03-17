@@ -174,9 +174,9 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	linkedSchemas, ok := getLinkedSchemas(node)
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":          "validation_failed",
+		c.JSON(http.StatusOK, gin.H{
 			"failure_reasons": []string{"Could not read linked_schemas"},
+			"status":          http.StatusBadRequest,
 		})
 		return
 	}
@@ -186,14 +186,16 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	if len(failureReasons) != 0 {
 		message := "Failed to validate against schemas: " + strings.Join(failureReasons, " ")
 		logger.Info(message)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":          "validation_failed",
+		c.JSON(http.StatusOK, gin.H{
 			"failure_reasons": failureReasons,
+			"status":          http.StatusBadRequest,
 		})
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+	})
 }
 
 func getLinkedSchemas(data interface{}) ([]string, bool) {
