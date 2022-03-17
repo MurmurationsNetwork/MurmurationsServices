@@ -52,13 +52,13 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 	}
 
 	if err := node.Validate(); err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
 	result, err := handler.nodeUsecase.AddNode(node.toEntity())
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
@@ -168,7 +168,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&node); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
-		c.JSON(restErr.Status(), restErr)
+		c.JSON(restErr.StatusCode(), restErr)
 		return
 	}
 
