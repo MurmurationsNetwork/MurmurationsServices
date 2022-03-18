@@ -8,7 +8,7 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/assert/v2 v2.0.1
-	github.com/go-redis/redis/v8 v8.11.4
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/nats-io/stan.go v0.8.3
 	github.com/olivere/elastic/v7 v7.0.31
 	github.com/oschwald/geoip2-golang v1.6.1
