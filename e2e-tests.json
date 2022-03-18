@@ -410,6 +410,10 @@
 									"",
 									"var jsonData = pm.response.json();",
 									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 404`, () => {",
+									"    pm.expect(jsonData.status).to.equal(404)",
+									"})",
+									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
 									"})",
@@ -595,11 +599,15 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
-									"    pm.response.to.have.status(400)",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 400`, () => {",
+									"    pm.expect(jsonData.status).to.equal(400)",
+									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
@@ -820,11 +828,15 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
-									"    pm.response.to.have.status(400)",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 400`, () => {",
+									"    pm.expect(jsonData.status).to.equal(400)",
+									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
 									"    pm.expect(jsonData).to.have.property(\"message\")",
@@ -1680,8 +1692,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
-									"    pm.response.to.have.status(400)",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
@@ -1726,8 +1738,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
-									"    pm.response.to.have.status(400)",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
@@ -1772,8 +1784,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
-									"    pm.response.to.have.status(400)",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
 									"})",
 									"",
 									"var jsonData = pm.response.json();",
@@ -2220,7 +2232,7 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure reason`, () => {",
-									"    pm.expect(jsonData.failure_reasons[0]).to.contain('Could not read linked_schemas')",
+									"    pm.expect(jsonData.failure_reasons[0]).to.contain('The submitted profile does not contain the linked_schemas property.')",
 									"})",
 									""
 								],

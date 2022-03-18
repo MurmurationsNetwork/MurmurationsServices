@@ -68,13 +68,13 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 func (handler *nodeHandler) Get(c *gin.Context) {
 	nodeId, err := handler.getNodeId(c.Params)
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
 	node, err := handler.nodeUsecase.GetNode(nodeId)
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
@@ -85,13 +85,13 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 	var query query.EsQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
-		c.JSON(restErr.Status(), restErr)
+		c.JSON(restErr.StatusCode(), restErr)
 		return
 	}
 
 	searchResult, err := handler.nodeUsecase.Search(&query)
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
@@ -101,13 +101,13 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 func (handler *nodeHandler) Delete(c *gin.Context) {
 	nodeId, err := handler.getNodeId(c.Params)
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
 	err = handler.nodeUsecase.Delete(nodeId)
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
@@ -118,18 +118,18 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 	var node nodeDTO
 	if err := c.ShouldBindJSON(&node); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
-		c.JSON(restErr.Status(), restErr)
+		c.JSON(restErr.StatusCode(), restErr)
 		return
 	}
 
 	if err := node.Validate(); err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
 	result, err := handler.nodeUsecase.AddNode(node.toEntity())
 	if err != nil {
-		c.JSON(err.Status(), err)
+		c.JSON(err.StatusCode(), err)
 		return
 	}
 
@@ -140,17 +140,12 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 	for retries != 0 {
 		nodeInfo, err := handler.nodeUsecase.GetNode(result.ID)
 		if err != nil {
-			c.JSON(err.Status(), err)
+			c.JSON(err.StatusCode(), err)
 			return
 		}
 
-		if nodeInfo.Status == constant.NodeStatus.Posted {
+		if nodeInfo.Status == constant.NodeStatus.Posted || nodeInfo.Status == constant.NodeStatus.ValidationFailed || nodeInfo.Status == constant.NodeStatus.PostFailed {
 			c.JSON(http.StatusOK, handler.toGetNodeVO(nodeInfo))
-			return
-		}
-
-		if nodeInfo.Status == constant.NodeStatus.ValidationFailed || nodeInfo.Status == constant.NodeStatus.PostFailed {
-			c.JSON(http.StatusBadRequest, handler.toGetNodeVO(nodeInfo))
 			return
 		}
 
@@ -175,7 +170,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas, ok := getLinkedSchemas(node)
 	if !ok {
 		c.JSON(http.StatusOK, gin.H{
-			"failure_reasons": []string{"Could not read linked_schemas"},
+			"failure_reasons": []string{"The submitted profile does not contain the linked_schemas property."},
 			"status":          http.StatusBadRequest,
 		})
 		return
