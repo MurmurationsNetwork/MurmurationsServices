@@ -47,7 +47,7 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 	var node nodeDTO
 	if err := c.ShouldBindJSON(&node); err != nil {
 		restErr := resterr.NewBadRequestError("Invalid JSON body.")
-		c.JSON(restErr.Status(), restErr)
+		c.JSON(restErr.StatusCode(), restErr)
 		return
 	}
 
