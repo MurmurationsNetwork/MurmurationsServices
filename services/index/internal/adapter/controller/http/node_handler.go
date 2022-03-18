@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -173,6 +174,13 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 		return
 	}
 
+	jsonString, err := json.Marshal(node)
+	if err != nil {
+		restErr := resterr.NewBadRequestError("Cannot parse JSON body.")
+		c.JSON(restErr.StatusCode(), restErr)
+		return
+	}
+
 	linkedSchemas, ok := getLinkedSchemas(node)
 	if !ok {
 		c.JSON(http.StatusOK, gin.H{
@@ -183,7 +191,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	}
 
 	// Validate against schemes specify inside the profile data.
-	failureReasons, errorStatus := handler.validateAgainstSchemas(linkedSchemas, node)
+	failureReasons, errorStatus := handler.validateAgainstSchemas(linkedSchemas, string(jsonString))
 	if len(failureReasons) != 0 {
 		message := "Failed to validate against schemas: " + strings.Join(failureReasons, " ")
 		logger.Info(message)
@@ -226,7 +234,7 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 	return linkedSchemas, true
 }
 
-func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData interface{}) ([]string, int) {
+func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData string) ([]string, int) {
 	FailureReasons := []string{}
 	errorStatus := 0
 
@@ -242,7 +250,7 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 			continue
 		}
 
-		result, err := schema.Validate(gojsonschema.NewRawLoader(validateData))
+		result, err := schema.Validate(gojsonschema.NewStringLoader(validateData))
 		if err != nil {
 			FailureReasons = append(FailureReasons, "Error when trying to validate document: ", err.Error())
 			if errorStatus == 0 {
