@@ -99,19 +99,28 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 }
 
 func (handler *nodeHandler) Delete(c *gin.Context) {
+	if c.Params.ByName("nodeId") == "" {
+		restErr := resterr.NewBadRequestError("The node_id path parameter is missing.")
+		c.JSON(restErr.StatusCode(), restErr)
+		return
+	}
+
 	nodeId, err := handler.getNodeId(c.Params)
 	if err != nil {
 		c.JSON(err.StatusCode(), err)
 		return
 	}
 
-	err = handler.nodeUsecase.Delete(nodeId)
+	profileUrl, err := handler.nodeUsecase.Delete(nodeId)
 	if err != nil {
 		c.JSON(err.StatusCode(), err)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Removed profile at " + profileUrl,
+		"status":  http.StatusOK,
+	})
 }
 
 func (handler *nodeHandler) AddSync(c *gin.Context) {
