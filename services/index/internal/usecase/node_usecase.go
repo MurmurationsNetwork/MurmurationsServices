@@ -22,7 +22,7 @@ type NodeUsecase interface {
 	SetNodeValid(node *entity.Node) error
 	SetNodeInvalid(node *entity.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
-	Delete(nodeID string) resterr.RestErr
+	Delete(nodeID string) (string, resterr.RestErr)
 }
 
 type nodeUsecase struct {
@@ -97,10 +97,10 @@ func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr
 	return result, nil
 }
 
-func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
+func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
 	node, getErr := s.nodeRepo.Get(nodeID)
 	if getErr != nil {
-		return getErr
+		return "", getErr
 	}
 
 	// TODO: Maybe we should avoid network requests in the index server?
@@ -108,7 +108,7 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 	// defer here to avoid error
 	defer resp.Body.Close()
 	if err != nil {
-		return resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
+		return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
 	}
 
 	// check the response is json or not (issue-266)
@@ -124,21 +124,21 @@ func (s *nodeUsecase) Delete(nodeID string) resterr.RestErr {
 		if node.Status == constant.NodeStatus.Posted {
 			err := s.nodeRepo.SoftDelete(node)
 			if err != nil {
-				return err
+				return node.ProfileURL, err
 			}
-			return nil
+			return node.ProfileURL, nil
 		} else {
 			err := s.nodeRepo.Delete(node)
 			if err != nil {
-				return err
+				return node.ProfileURL, err
 			}
-			return nil
+			return node.ProfileURL, nil
 		}
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		return resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
+		return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
 	}
 
-	return resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
+	return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
 }
