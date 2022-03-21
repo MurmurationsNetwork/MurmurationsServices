@@ -370,7 +370,7 @@
 									"    pm.expect(jsonData).to.have.property(\"message\")",
 									"})",
 									"",
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"removed profile\" message`, () => {",
 									"    pm.expect(jsonData.message).to.contain(\"Removed profile at\")",
 									"})"
 								],
@@ -2178,6 +2178,56 @@
 					"response": []
 				},
 				{
+					"name": "Profile with invalid mix/max amounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 400`, () => {",
+									"    pm.expect(jsonData.status).to.equal(400)",
+									"})",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure reason`, () => {",
+									"    pm.expect(jsonData.failure_reasons[0]).to.contain('than or equal to')",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"linked_schemas\": [\n    \"test_schema-v1\"\n  ],\n  \"name\": \"IC3 Dev\",\n  \"geolocation\": {\n    \"lat\": 91,\n    \"lon\": -181\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/validate",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Profile with missing schema",
 					"event": [
 						{
@@ -2653,8 +2703,8 @@
 									"",
 									"var jsonData = pm.response.json();",
 									"",
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least eleven result`, () => {",
-									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(11)",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least ten results`, () => {",
+									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(10)",
 									"})",
 									""
 								],
