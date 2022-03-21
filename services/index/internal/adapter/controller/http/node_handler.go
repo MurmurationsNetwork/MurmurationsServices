@@ -101,7 +101,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 
 func (handler *nodeHandler) Delete(c *gin.Context) {
 	if c.Params.ByName("nodeId") == "" {
-		restErr := resterr.NewBadRequestError("<nodeId> parameter is missing.")
+		restErr := resterr.NewBadRequestError("The node_id path parameter is missing.")
 		c.JSON(restErr.StatusCode(), restErr)
 		return
 	}
