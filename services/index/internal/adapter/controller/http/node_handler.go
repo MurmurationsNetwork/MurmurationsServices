@@ -111,13 +111,16 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = handler.nodeUsecase.Delete(nodeId)
+	profileUrl, err := handler.nodeUsecase.Delete(nodeId)
 	if err != nil {
 		c.JSON(err.StatusCode(), err)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Removed profile at " + profileUrl,
+		"status":  http.StatusOK,
+	})
 }
 
 func (handler *nodeHandler) AddSync(c *gin.Context) {

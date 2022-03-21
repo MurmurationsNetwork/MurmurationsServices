@@ -359,7 +359,20 @@
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
 									"})",
-									""
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 200`, () => {",
+									"    pm.expect(jsonData.status).to.equal(200)",
+									"})",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"message\" parameter`, () => {",
+									"    pm.expect(jsonData).to.have.property(\"message\")",
+									"})",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+									"    pm.expect(jsonData.message).to.contain(\"Removed profile at\")",
+									"})"
 								],
 								"type": "text/javascript"
 							}
