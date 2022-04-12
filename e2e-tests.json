@@ -773,7 +773,7 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct profile_hash`, () => {",
-									"    pm.expect(jsonData.data.profile_hash).to.eq(\"363048e2ba3628cca263d5eef799bc337e8777e064596ca6ced4bbceb1b03a11\")",
+									"    pm.expect(jsonData.data.profile_hash).to.eq(\"6f2e7a7d74538dc393ee090ca72a5c97931c558ab8aadbedd456f35daeed950b\")",
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not return linked_schemas list`, () => {",
@@ -2401,6 +2401,86 @@
 			"name": "Store and query by primary_url",
 			"item": [
 				{
+					"name": "Post node 7",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-7.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post node 8",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-8.json\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/nodes",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Post node 9",
 					"event": [
 						{
@@ -2422,86 +2502,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-9.json\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Post node 10",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-10.json\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{indexBaseUrl}}/nodes",
-							"host": [
-								"{{indexBaseUrl}}"
-							],
-							"path": [
-								"nodes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Post node 11",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
-									"    pm.response.to.have.status(200)",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-11.json\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2651,7 +2651,7 @@
 			"name": "Multi-version schema search",
 			"item": [
 				{
-					"name": "Post node 7",
+					"name": "Post node 10",
 					"event": [
 						{
 							"listen": "test",
@@ -2671,7 +2671,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-7.json\"\n}\n",
+							"raw": "{\n    \"profile_url\": \"https://ic3.dev/murmurations/test-profile-10.json\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2743,7 +2743,7 @@
 					"response": []
 				},
 				{
-					"name": "Search v3.x.x",
+					"name": "Search v2.x.x",
 					"event": [
 						{
 							"listen": "test",
@@ -2777,7 +2777,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?schema=Test_Schema-v3",
+							"raw": "{{indexBaseUrl}}/nodes?schema=Test_Schema-v2",
 							"host": [
 								"{{indexBaseUrl}}"
 							],
@@ -2787,7 +2787,7 @@
 							"query": [
 								{
 									"key": "schema",
-									"value": "Test_Schema-v3"
+									"value": "Test_Schema-v2"
 								}
 							]
 						}
@@ -2795,7 +2795,7 @@
 					"response": []
 				},
 				{
-					"name": "Search v3.1.x",
+					"name": "Search v2.1.x",
 					"event": [
 						{
 							"listen": "test",
@@ -2830,7 +2830,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{indexBaseUrl}}/nodes?schema=test_schema-v3.1",
+							"raw": "{{indexBaseUrl}}/nodes?schema=test_schema-v2.1",
 							"host": [
 								"{{indexBaseUrl}}"
 							],
@@ -2840,7 +2840,7 @@
 							"query": [
 								{
 									"key": "schema",
-									"value": "test_schema-v3.1"
+									"value": "test_schema-v2.1"
 								}
 							]
 						}
