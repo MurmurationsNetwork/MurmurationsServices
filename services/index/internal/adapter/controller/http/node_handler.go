@@ -193,6 +193,9 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 		return
 	}
 
+	// Validate against the default schema.
+	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
+
 	// Validate against schemes specify inside the profile data.
 	failureReasons, errorStatus := handler.validateAgainstSchemas(linkedSchemas, string(jsonString))
 	if len(failureReasons) != 0 {
