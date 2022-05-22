@@ -131,6 +131,9 @@ deploy-revalidatenode:
 deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) --install --atomic
 
+deploy-profile:
+	helm upgrade murmurations-profile ./charts/murmurations/charts/profile --set global.env=staging --install --atomic
+
 # ---------------------------------------------------------------
 
 # Please update to the version you want to deploy.
@@ -163,3 +166,6 @@ manually-deploy-revalidatenode:
 
 manually-deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) --install --atomic
+
+manually-deploy-profile:
+	helm upgrade murmurations-profile ./charts/murmurations/charts/profile --set global.env=$(ENV) --install --atomic

@@ -24,6 +24,11 @@ kubectl \
   create secret generic library-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
   --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
+  
+kubectl \
+  create secret generic profile-mongo-secret \
+  --from-literal="MONGO_INITDB_ROOT_USERNAME=profile-admin" \
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
 ```
 
 **Create secrets for services**

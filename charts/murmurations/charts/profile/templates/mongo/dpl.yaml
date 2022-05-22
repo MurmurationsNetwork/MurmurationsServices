@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-mongo
+spec:
+  replicas: {{ .Values.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: profile-mongo
+  template:
+    metadata:
+      labels:
+        app: profile-mongo
+    spec:
+      containers:
+        - name: profile-mongo
+          image: mongo:5.0.8
+          {{- if not (eq .Values.global.env "development") }}
+          volumeMounts:
+          - mountPath: /data/db
+            name: mongo-storage
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: profile-mongo-secret
+      {{- if not (eq .Values.global.env "development") }}
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: profile-mongo-pvc
+      {{- end }}
