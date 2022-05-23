@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: profile-mongo
 spec:
+  type: NodePort
   selector:
     app: profile-mongo
   ports:
-    - name: db
-      protocol: TCP
+    - name: profile-mongo-port
       port: 27017
-      targetPort: {{ .Values.mongo.service.port }}
+      protocol: TCP
+      nodePort: {{ .Values.mongo.service.port }}

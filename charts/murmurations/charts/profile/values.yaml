@@ -3,4 +3,4 @@ image: ""
 mongo:
   replicas: 1
   service:
-    port: 28000
+    port: 31000

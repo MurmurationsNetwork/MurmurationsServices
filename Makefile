@@ -132,7 +132,7 @@ deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) --install --atomic
 
 deploy-profile:
-	helm upgrade murmurations-profile ./charts/murmurations/charts/profile --set global.env=staging --install --atomic
+	helm upgrade murmurations-profile ./charts/murmurations/charts/profile --set global.env=$(DEPLOY_ENV) --install --atomic
 
 # ---------------------------------------------------------------
 
