@@ -9,7 +9,9 @@ data:
   SERVER_TIMEOUT_IDLE: 15s
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222
-  {{- if eq .Values.global.env "production" }}
+  {{- if eq .Values.global.env "live" }}
+  LIBRARY_CDN_URL: https://main-cdn.murmurations.network
+  {{- else if eq .Values.global.env "production" }}
   LIBRARY_CDN_URL: https://cdn.murmurations.network
   {{- else }}
   LIBRARY_CDN_URL: https://test-cdn.murmurations.network
