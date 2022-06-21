@@ -14,8 +14,8 @@ spec:
   {{- if eq .Values.global.env "live" }}
   tls:
     - hosts:
-        - main-index.murmurations.network
-        - main-library.murmurations.network
+      - main-index.murmurations.network
+      - main-library.murmurations.network
       secretName: murmurations-network-tls
   {{- else if eq .Values.global.env "production" }}
   tls:
@@ -92,7 +92,7 @@ spec:
   {{- if eq .Values.global.env "live" }}
   tls:
     - hosts:
-        - main-monitoring.murmurations.network
+      - main-monitoring.murmurations.network
       secretName: murmurations-network-tls
   {{- else if eq .Values.global.env "production" }}
   tls:
