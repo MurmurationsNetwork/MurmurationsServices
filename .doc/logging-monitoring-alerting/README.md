@@ -45,7 +45,7 @@ You will see all the pods which are getting scraped by promtail for logs.
 
 # Monitoring
 
-## 1. Setup Webhook API Slack
+<!-- ## 1. Setup Webhook API Slack
 
 Goto this link https://api.slack.com/messaging/webhooks and create a slack app.
 
@@ -69,9 +69,9 @@ After selecting and allowing it.
 
 Test it with curl whether you are receiving the slack notification or not.
 
-Copy the `Webhook URL` and then use it wherever it is needed below.
+Copy the `Webhook URL` and then use it wherever it is needed below. -->
 
-## 2. Deploy Prometheus
+## 1. Deploy Prometheus
 
 **Update slack-notification.yaml**
 
@@ -79,11 +79,15 @@ Replace `<WEBHOOK_URL>` and `<CHANNEL_NAME>` in .doc/logging-monitoring-alerting
 
 **Deploy Prometheus**
 
-```
+<!-- ```
 helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitoring-alerting/prometheus.values.yaml -f .doc/logging-monitoring-alerting/slack-notification.yaml -n kube-monitoring --install
+``` -->
+
+```
+helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitoring-alerting/prometheus.values.yaml -n kube-monitoring --install
 ```
 
-## 3. Deploy Grafana
+## 2. Deploy Grafana
 
 **Update Grafana Password**
 
@@ -95,7 +99,7 @@ Replace `<ADMIN_PASSWORD>` in .doc/logging-monitoring-alerting/prometheus.values
 helm upgrade grafana grafana/grafana -f .doc/logging-monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
 ```
 
-## 4. Setup the Monitoring and Dashboards
+## 3. Setup the Monitoring and Dashboards
 
 ```
 kubectl port-forward svc/grafana 3000:80 -n kube-monitoring
@@ -119,8 +123,7 @@ Check these boxes as well
 
 ![image](https://user-images.githubusercontent.com/11765228/115104205-79ef6480-9f89-11eb-804c-c8e1828ccca1.png)
 
-## 5. Configure the Grafana Dashboard
-
+## 4. Configure the Grafana Dashboard
 
 ![image](https://user-images.githubusercontent.com/11765228/115194754-780bd980-a120-11eb-9284-c01458983f6b.png)
 
@@ -136,15 +139,15 @@ Now again add one more dashboard: 8685
 
 # Alerting
 
-If want to add alert on pre-built specific property.
+If you want to add an alert on a pre-built specific property.
 
 ![](https://i.imgur.com/aXYWiPy.png)
 
-After clicking on edit, you will reach to this page. 
+After clicking on edit, you will reach this page. 
 
 ![](https://i.imgur.com/wo4GiAM.png)
 
-*Note Alert option will only appear in Graph visualization only*
+*Note: Alert option will only appear in Graph visualization*
 
 - For 1, You may use any [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/)
 
@@ -158,6 +161,6 @@ Specify the number for which the alert should be triggered.
 
 ![](https://user-images.githubusercontent.com/11765228/115198719-f79ba780-a124-11eb-9e43-508a4659c06a.png)
 
-You may add any detail in the message for particular message and save it.
+You may add any detail in the message for a particular alert and save it.
 
 ![](https://i.imgur.com/34OHpjS.png)
