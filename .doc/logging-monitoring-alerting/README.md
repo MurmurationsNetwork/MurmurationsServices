@@ -73,9 +73,9 @@ Copy the `Webhook URL` and then use it wherever it is needed below. -->
 
 ## 1. Deploy Prometheus
 
-**Update slack-notification.yaml**
+<!--**Update slack-notification.yaml**
 
-Replace `<WEBHOOK_URL>` and `<CHANNEL_NAME>` in .doc/logging-monitoring-alerting/slack-notification.yaml
+Replace `<WEBHOOK_URL>` and `<CHANNEL_NAME>` in .doc/logging-monitoring-alerting/slack-notification.yaml -->
 
 **Deploy Prometheus**
 
@@ -109,7 +109,7 @@ kubectl port-forward svc/grafana 3000:80 -n kube-monitoring
 
 Navigate to http://localhost:3000
 
-**Add Alert Webhook**
+<!--**Add Alert Webhook**
 
 Adding alert for certain things from dashboard.
 
@@ -121,7 +121,7 @@ Add Webhook Url
 
 Check these boxes as well
 
-![image](https://user-images.githubusercontent.com/11765228/115104205-79ef6480-9f89-11eb-804c-c8e1828ccca1.png)
+![image](https://user-images.githubusercontent.com/11765228/115104205-79ef6480-9f89-11eb-804c-c8e1828ccca1.png)-->
 
 ## 4. Configure the Grafana Dashboard
 

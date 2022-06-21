@@ -25,6 +25,12 @@ helm install \
   --set installCRDs=true
 ```
 
+## Create Namespace
+
+```
+kubectl create namespace kube-monitoring
+```
+
 ## Install Issuer and Ingress
 
 ```
