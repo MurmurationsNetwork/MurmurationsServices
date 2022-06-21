@@ -138,7 +138,7 @@ SPECIFIC_TAG ?= <>
 ENV ?= <>
 
 manually-deploy-ingress:
-	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --atomic
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --atomic --create-namespace
 
 manually-deploy-mq:
 	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(ENV) --install --atomic
