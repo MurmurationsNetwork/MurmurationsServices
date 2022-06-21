@@ -33,7 +33,7 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 1. Install [Helm](https://helm.sh/docs/intro/install/) and [doctl](https://github.com/digitalocean/doctl#installing-doctl)
 
-2. Create Kubernetes Clusters in DigitalOcean
+2. Create Kubernetes Clusters in DigitalOcean and install [metrics-server](https://github.com/kubernetes-sigs/metrics-server#installation) for monitoring CPU/MEM
 
 3. Install [NGINX Ingress Controller](.doc/ingress-nginx)
 
