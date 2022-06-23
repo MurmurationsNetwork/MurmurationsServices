@@ -8,6 +8,12 @@ You’ll need to ensure that your domains are pointed to the Load Balancer via `
 Create A records for index.murmurations.network and library.murmurations.network, both pointing to 139.59.201.176
 ```
 
+## Create Namespace
+
+```
+kubectl create namespace kube-monitoring
+```
+
 ## Install cert-manager with Helm
 
 ```
@@ -23,12 +29,6 @@ helm install \
   --create-namespace \
   --version v1.8.0 \
   --set installCRDs=true
-```
-
-## Create Namespace
-
-```
-kubectl create namespace kube-monitoring
 ```
 
 ## Install Issuer and Ingress

@@ -2,7 +2,13 @@
 
 # Prerequisite
 
-## 1. Add Helm Charts
+## 1. Create a Name Space
+
+```
+kubectl create namespace kube-monitoring
+```
+
+## 2. Add Helm Charts
 
 ```
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -10,12 +16,6 @@ helm repo add kube-state-metrics https://kubernetes.github.io/kube-state-metrics
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add loki https://grafana.github.io/loki/charts
 helm repo update
-```
-
-## 2. Create a Name Space
-
-```
-kubectl create namespace kube-monitoring
 ```
 
 # Logging
