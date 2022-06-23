@@ -1,14 +1,14 @@
 # Logging, Monitoring and Alerting
 
-# Prerequisite
+## Prerequisite
 
-## 1. Create a Name Space
+### 1. Create a Name Space
 
 ```
 kubectl create namespace kube-monitoring
 ```
 
-## 2. Add Helm Charts
+### 2. Add Helm Charts
 
 ```
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -18,15 +18,15 @@ helm repo add loki https://grafana.github.io/loki/charts
 helm repo update
 ```
 
-# Logging
+## Logging
 
-## 1. Install Loki
+### 1. Install Loki
 
 ```
 helm upgrade loki grafana/loki -f .doc/logging-monitoring-alerting/loki.values.yaml -n kube-monitoring --install
 ```
 
-## 2. Install Promtail
+### 2. Install Promtail
 
 ```
 helm upgrade promtail grafana/promtail -f .doc/logging-monitoring-alerting/promtail.values.yaml -n kube-monitoring --install
@@ -43,7 +43,7 @@ on http://localhost:3101/targets
 You will see all the pods which are getting scraped by promtail for logs.
 
 
-# Monitoring
+## Monitoring
 
 <!-- ## 1. Setup Webhook API Slack
 
@@ -71,7 +71,7 @@ Test it with curl whether you are receiving the slack notification or not.
 
 Copy the `Webhook URL` and then use it wherever it is needed below. -->
 
-## 1. Deploy Prometheus
+### 1. Deploy Prometheus
 
 <!--**Update slack-notification.yaml**
 
@@ -87,7 +87,7 @@ helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitori
 helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitoring-alerting/prometheus.values.yaml -n kube-monitoring --install
 ```
 
-## 2. Deploy Grafana
+### 2. Deploy Grafana
 
 **Update Grafana Password**
 
@@ -99,7 +99,7 @@ Replace `<ADMIN_PASSWORD>` in .doc/logging-monitoring-alerting/prometheus.values
 helm upgrade grafana grafana/grafana -f .doc/logging-monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
 ```
 
-## 3. Setup the Monitoring and Dashboards
+### 3. Setup the Monitoring and Dashboards
 
 ```
 kubectl port-forward svc/grafana 3000:80 -n kube-monitoring
@@ -123,7 +123,7 @@ Check these boxes as well
 
 ![image](https://user-images.githubusercontent.com/11765228/115104205-79ef6480-9f89-11eb-804c-c8e1828ccca1.png)-->
 
-## 4. Configure the Grafana Dashboard
+### 4. Configure the Grafana Dashboard
 
 ![image](https://user-images.githubusercontent.com/11765228/115194754-780bd980-a120-11eb-9284-c01458983f6b.png)
 
@@ -137,7 +137,7 @@ Now again add one more dashboard: 8685
 
 ![image](https://user-images.githubusercontent.com/11765228/115195120-f49eb800-a120-11eb-971a-993c668e6af4.png)
 
-# Alerting
+## Alerting
 
 If you want to add an alert on a pre-built specific property.
 

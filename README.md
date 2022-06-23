@@ -1,7 +1,5 @@
 # Murmurations Services
 
-**Copyright 2020-2022 Murmurations Foundation. All rights reserved.**
-
 _This project is licensed under the terms of the GNU General Public License v3.0_
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MurmurationsNetwork/MurmurationsServices/CI?style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions?query=workflow:CI)
@@ -27,7 +25,7 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
+2. Try `index.murmurations.dev/v2/ping` or `library.murmurations.dev/v1/ping`
 
 ## Run in DigitalOcean
 
@@ -45,7 +43,7 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 7. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
 
-8. Try `index.murmurations.network/v1/ping` or `library.murmurations.network/v1/ping`
+8. Try `index.murmurations.network/v2/ping` or `library.murmurations.network/v1/ping`
 
 **Optional**
 

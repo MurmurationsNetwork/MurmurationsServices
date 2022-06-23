@@ -13,12 +13,6 @@ monitoring.murmurations.network
 All pointing to the IP address assigned to the load balancer of the K8s cluster.
 ```
 
-## Create Namespace
-
-```
-kubectl create namespace kube-monitoring
-```
-
 ## Install cert-manager with Helm
 
 ```
