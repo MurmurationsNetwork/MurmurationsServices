@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: schemaparser-app
 spec:
-  {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") }}
+  {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") }}
   schedule: "*/1 * * * *"  # every minute
   {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   schedule: "*/1 * * * *"  # every minute
