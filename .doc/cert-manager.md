@@ -5,7 +5,12 @@
 You’ll need to ensure that your domains are pointed to the Load Balancer via `A` records. This is done through your DNS provider.
 
 ```
-Create A records for index.murmurations.network and library.murmurations.network, both pointing to 139.59.201.176
+Create A records for:
+index.murmurations.network
+library.murmurations.network
+monitoring.murmurations.network
+
+All pointing to the IP address assigned to the load balancer of the K8s cluster.
 ```
 
 ## Create Namespace
