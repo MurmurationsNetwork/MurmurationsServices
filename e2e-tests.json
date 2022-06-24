@@ -54,8 +54,8 @@
 									"    pm.response.to.have.status(200)",
 									"})",
 									"",
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"pong\"`, () => {",
-									"    pm.response.to.have.body(\"pong\")",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"pong!\"`, () => {",
+									"    pm.response.to.have.body(\"pong!\")",
 									"})",
 									""
 								],
