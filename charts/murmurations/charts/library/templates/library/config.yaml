@@ -10,9 +10,10 @@ data:
   MONGO_HOST: library-mongo:27017
   MONGO_DB_NAME: murmurationsLibrary
   # Rate limit
-  GET_RATE_LIMIT_PERIOD: 60-M
-  {{- if eq .Values.global.env "production" }}
-  POST_RATE_LIMIT_PERIOD: 6-M
+  {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") }}
+  GET_RATE_LIMIT_PERIOD: 600-M
+  POST_RATE_LIMIT_PERIOD: 600-M
   {{- else }}
-  POST_RATE_LIMIT_PERIOD: 60-M
+  GET_RATE_LIMIT_PERIOD: 6000-M
+  POST_RATE_LIMIT_PERIOD: 6000-M
   {{- end }}

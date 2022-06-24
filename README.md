@@ -1,7 +1,5 @@
 # Murmurations Services
 
-**Copyright 2020-2022 Murmurations Foundation. All rights reserved.**
-
 _This project is licensed under the terms of the GNU General Public License v3.0_
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MurmurationsNetwork/MurmurationsServices/CI?style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions?query=workflow:CI)
@@ -27,23 +25,25 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.dev/v1/ping` or `library.murmurations.dev/v1/ping`
+2. Try `index.murmurations.dev/v2/ping` or `library.murmurations.dev/v1/ping`
 
 ## Run in DigitalOcean
 
-1. Create Kubernetes Clusters in DigitalOcean
+1. Install [Helm](https://helm.sh/docs/intro/install/) and [doctl](https://github.com/digitalocean/doctl#installing-doctl)
 
-2. Install [NGINX Ingress Controller](.doc/ingress-nginx)
+2. Create Kubernetes Clusters in DigitalOcean and install [metrics-server](https://github.com/kubernetes-sigs/metrics-server#installation) for monitoring CPU/MEM
 
-3. [Create secrets](.doc/secrets.md) for each service
+3. Install [NGINX Ingress Controller](.doc/ingress-nginx)
 
-4. [Create PVCs](.doc/pvcs.md) for each service
+4. [Create secrets](.doc/secrets.md) for each service
 
-5. [Deploy services](.doc/deploy-services.md)
+5. [Create PVCs](.doc/pvcs.md) for each service
 
-6. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+6. [Deploy services](.doc/deploy-services.md)
 
-7. Try `index.murmurations.network/v1/ping` or `library.murmurations.network/v1/ping`
+7. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+
+8. Try `index.murmurations.network/v2/ping` or `library.murmurations.network/v1/ping`
 
 **Optional**
 

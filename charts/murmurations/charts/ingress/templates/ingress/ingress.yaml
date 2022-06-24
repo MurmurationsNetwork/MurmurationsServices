@@ -11,7 +11,13 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}
 spec:
-  {{- if eq .Values.global.env "production" }}
+  {{- if eq .Values.global.env "main" }}
+  tls:
+    - hosts:
+      - main-index.murmurations.network
+      - main-library.murmurations.network
+      secretName: murmurations-network-tls
+  {{- else if eq .Values.global.env "production" }}
   tls:
     - hosts:
       - index.murmurations.network
@@ -31,7 +37,9 @@ spec:
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "production" }}
+    {{- if eq .Values.global.env "main" }}
+    - host: main-index.murmurations.network
+    {{- else if eq .Values.global.env "production" }}
     - host: index.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-index.murmurations.network
@@ -49,7 +57,9 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    {{- if eq .Values.global.env "production" }}
+    {{- if eq .Values.global.env "main" }}
+    - host: main-library.murmurations.network
+    {{- else if eq .Values.global.env "production" }}
     - host: library.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-library.murmurations.network
@@ -79,7 +89,12 @@ metadata:
     cert-manager.io/issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
-  {{- if eq .Values.global.env "production" }}
+  {{- if eq .Values.global.env "main" }}
+  tls:
+    - hosts:
+      - main-monitoring.murmurations.network
+      secretName: murmurations-network-tls
+  {{- else if eq .Values.global.env "production" }}
   tls:
     - hosts:
       - monitoring.murmurations.network
@@ -96,7 +111,9 @@ spec:
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "production" }}
+    {{- if eq .Values.global.env "main" }}
+    - host: main-monitoring.murmurations.network
+    {{- else if eq .Values.global.env "production" }}
     - host: monitoring.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-monitoring.murmurations.network

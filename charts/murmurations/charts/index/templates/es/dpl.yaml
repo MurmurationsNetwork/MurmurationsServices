@@ -77,7 +77,7 @@ spec:
       storageClassName: do-block-storage
       resources:
         requests:
-          {{- if eq .Values.global.env "production" }}
+          {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") }}
           storage: 10Gi
           {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
           storage: 5Gi
