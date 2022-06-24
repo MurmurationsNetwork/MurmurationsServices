@@ -1,18 +1,21 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: nodecleaner-app
 spec:
-  {{- if eq .Values.global.env "production" }}
-  schedule: "0 */12 * * *" # every 12 hrs
-  {{- else if eq .Values.global.env "staging" }}
+  {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") }}
+  schedule: "0 */12 * * *" # every 12 hours
+  {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   schedule: "*/2 * * * *"  # every 2 minutes
   {{- else }}
-  schedule: "*/1 * * * *"  # every 1 minute
+  schedule: "*/2 * * * *"  # every 2 minutes
   {{- end }}
   jobTemplate:
     spec:
       template:
+        metadata:
+          annotations:
+            checksum/config: {{ include (print $.Template.BasePath "/nodecleaner/config.yaml") . | sha256sum }}
         spec:
           containers:
             - name: nodecleaner-app

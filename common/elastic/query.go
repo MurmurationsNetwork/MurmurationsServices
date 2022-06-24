@@ -1,9 +1,8 @@
 package elastic
 
 import (
+	"github.com/olivere/elastic/v7"
 	"strings"
-
-	"github.com/olivere/elastic"
 )
 
 type Query struct {
@@ -36,5 +35,11 @@ func NewTextQuery(name, text string) *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
 	q.Should(elastic.NewMatchQuery(name, text).Fuzziness("AUTO"))
 	q.Should(elastic.NewRegexpQuery(name, ".*"+strings.ToLower(text)+".*"))
+	return q
+}
+
+func NewWildcardQuery(name, wildcard string) *elastic.WildcardQuery {
+	q := elastic.NewWildcardQuery(name, wildcard)
+	q.CaseInsensitive(true)
 	return q
 }

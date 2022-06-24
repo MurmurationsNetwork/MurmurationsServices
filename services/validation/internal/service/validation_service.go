@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
@@ -37,7 +38,7 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 	}
 
 	// Validate against the default schema.
-	failureReasons := svc.validateAgainstSchemas([]string{"default-v1"}, node.ProfileURL)
+	failureReasons := svc.validateAgainstSchemas([]string{"default-v2.0.0"}, node.ProfileURL)
 	if len(failureReasons) != 0 {
 		logger.Info("Failed to validate against schemas: " + strings.Join(failureReasons, " "))
 		svc.sendNodeValidationFailedEvent(node, failureReasons)
@@ -67,11 +68,11 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client.Client()).Publish(event.NodeValidatedData{
-		ProfileURL:    node.ProfileURL,
-		ProfileHash:   cryptoutil.GetSHA256(jsonStr),
-		ProfileStr:    jsonStr,
-		LastValidated: dateutil.GetNowUnix(),
-		Version:       node.Version,
+		ProfileURL:  node.ProfileURL,
+		ProfileHash: cryptoutil.GetSHA256(jsonStr),
+		ProfileStr:  jsonStr,
+		LastUpdated: dateutil.GetNowUnix(),
+		Version:     node.Version,
 	})
 }
 
@@ -140,7 +141,7 @@ func (svc *validationService) validateAgainstSchemas(linkedSchemas []string, pro
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
-			FailureReasons = append(FailureReasons, "Could not read from schema: "+schemaURL)
+			FailureReasons = append(FailureReasons, fmt.Sprintf("Error when trying to read from schema %s: %s", schemaURL, err.Error()))
 			continue
 		}
 

@@ -15,11 +15,20 @@ spec:
     spec:
       containers:
         - name: index-es
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+          # Make sure stateful image can update automatically
+          imagePullPolicy: Always
+          # resources:
+          #   requests:
+          #     memory: "1024Mi"
+          #     cpu: "16m"
+          #   limits:
+          #     memory: "2000Mi"
+          #     cpu: "32m"
           {{- if not (eq .Values.global.env "development") }}
           volumeMounts:
-          - mountPath: /usr/share/elasticsearch/data
-            name: index-es-storage
+            - mountPath: /usr/share/elasticsearch/data
+              name: index-es-storage
           {{- end }}
           ports:
             - containerPort: 9200
@@ -68,9 +77,9 @@ spec:
       storageClassName: do-block-storage
       resources:
         requests:
-          {{- if eq .Values.global.env "production" }}
+          {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") }}
           storage: 10Gi
-          {{- else if eq .Values.global.env "staging" }}
+          {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
           storage: 5Gi
           {{- end }}
   {{- end }}

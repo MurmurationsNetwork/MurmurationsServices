@@ -8,9 +8,12 @@ import (
 )
 
 func mapUrls(router *gin.Engine) {
-	schemaHandler := http.NewSchemaHandler(service.NewSchemaService(db.NewSchemaRepo()))
-	router.GET("/schemas", schemaHandler.Search)
-
 	pingHandler := http.NewPingHandler()
-	router.GET("/ping", pingHandler.Ping)
+	schemaHandler := http.NewSchemaHandler(service.NewSchemaService(db.NewSchemaRepo()))
+
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/ping", pingHandler.Ping)
+		v1.GET("/schemas", schemaHandler.Search)
+	}
 }

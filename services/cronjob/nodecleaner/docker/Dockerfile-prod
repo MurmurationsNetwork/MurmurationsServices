@@ -1,10 +1,10 @@
-FROM golang:alpine as build
+FROM golang:1.17.5-alpine as build
 
 WORKDIR /src/nodecleaner
 ADD . /src/nodecleaner
 RUN CGO_ENABLED=0 go build -o /bin/nodecleaner ./services/cronjob/nodecleaner/cmd/nodecleaner
 
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /bin/nodecleaner /app/nodecleaner

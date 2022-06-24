@@ -5,7 +5,7 @@ type Node struct {
 	ProfileURL     string
 	ProfileHash    *string
 	Status         string
-	LastValidated  *int64
+	LastUpdated    *int64
 	FailureReasons *[]string
 	Version        *int32
 	CreatedAt      int64

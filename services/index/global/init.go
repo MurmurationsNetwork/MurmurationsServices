@@ -23,6 +23,7 @@ func mongoInit() {
 	if err != nil {
 		logger.Panic("Error when trying to connect to MongoDB", err)
 	}
+
 	err = mongo.Client.Ping()
 	if err != nil {
 		logger.Panic("Error when trying to ping the MongoDB", err)
@@ -34,47 +35,57 @@ func esInit() {
 		{
 			Name: constant.ESIndex.Node,
 			Body: `{
-				"mappings":{
-				   "dynamic":"false",
-				   "_source":{
-					  "includes":[
-						 "geolocation",
-						 "last_validated",
-						 "linked_schemas",
-						 "location",
-						 "profile_url"
-					  ]
-				   },
-				   "properties":{
-					  "geolocation":{
-						 "type":"geo_point"
-					  },
-					  "last_validated":{
-						 "type":"date",
-						 "format":"epoch_second"
-					  },
-					  "linked_schemas":{
-						 "type":"keyword"
-					  },
-					  "location":{
-						 "properties":{
-							"country":{
-							   "type":"text"
-							},
-							"locality":{
-							   "type":"text"
-							},
-							"region":{
-							   "type":"text"
-							}
-						 }
-					  },
-					  "profile_url":{
-						 "type":"keyword"
-					  }
-				   }
+				"mappings": {
+					"dynamic": "false",
+					"_source": {
+						"includes": [
+							"geolocation",
+							"last_updated",
+							"linked_schemas",
+							"country",
+							"locality",
+							"region",
+							"profile_url",
+							"status",
+							"tags",
+							"primary_url"
+						]
+					},
+					"properties": {
+						"geolocation": {
+							"type": "geo_point"
+						},
+						"last_updated": {
+							"type": "date",
+							"format": "epoch_second"
+						},
+						"linked_schemas": {
+							"type": "keyword"
+						},
+						"country": {
+							"type": "text"
+						},
+						"locality": {
+							"type": "text"
+						},
+						"region": {
+							"type": "text"
+						},
+						"profile_url": {
+							"type": "keyword"
+						},
+						"status": {
+							"type": "keyword"
+						},
+						"tags": {
+							"type": "text"
+						},
+						"primary_url": {
+							"type": "keyword"
+						}
+					}
 				}
-			 }`,
+			}`,
 		},
 	}
 

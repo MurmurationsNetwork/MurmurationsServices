@@ -4,9 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/validateurl"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"os"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -24,6 +31,7 @@ type NodeRepository interface {
 	Get(nodeID string) (*entity.Node, resterr.RestErr)
 	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
+	SoftDelete(node *entity.Node) resterr.RestErr
 	Delete(node *entity.Node) resterr.RestErr
 }
 
@@ -94,13 +102,83 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		return ErrUpdate
 	}
 
-	// NOTE: Maybe it's better to conver into another event?
+	// NOTE: Maybe it's better to convert into another event?
 	if node.Status == constant.NodeStatus.Validated {
 		profileJSON := jsonutil.ToJSON(node.ProfileStr)
 		profileJSON["profile_url"] = node.ProfileURL
-		profileJSON["last_validated"] = node.LastValidated
+		profileJSON["last_updated"] = node.LastUpdated
 
-		_, err := elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
+		// if the geolocation is array type, make it as object type for consistent [#208]
+		if _, ok := profileJSON["geolocation"].(string); ok {
+			g := strings.Split(profileJSON["geolocation"].(string), ",")
+			profileJSON["latitude"], err = strconv.ParseFloat(g[0], 64)
+			profileJSON["longitude"], err = strconv.ParseFloat(g[1], 64)
+			if err != nil {
+				return err
+			}
+		}
+
+		// if we can find latitude and longitude in the root, move them into geolocation [#208]
+		if profileJSON["latitude"] != nil || profileJSON["longitude"] != nil {
+			geoLocation := make(map[string]interface{})
+			if profileJSON["latitude"] != nil {
+				geoLocation["lat"] = profileJSON["latitude"]
+			} else {
+				geoLocation["lat"] = 0
+			}
+			if profileJSON["longitude"] != nil {
+				geoLocation["lon"] = profileJSON["longitude"]
+			} else {
+				geoLocation["lon"] = 0
+			}
+			profileJSON["geolocation"] = geoLocation
+		}
+
+		if profileJSON["country_iso_3166"] != nil || profileJSON["country_name"] != nil || profileJSON["country"] != nil {
+			if profileJSON["country_iso_3166"] != nil {
+				profileJSON["country"] = profileJSON["country_iso_3166"]
+				delete(profileJSON, "country_iso_3166")
+			} else if profileJSON["country"] == nil && profileJSON["country_name"] != nil {
+				countryCode, err := countries.FindAlpha2ByName(profileJSON["country_name"])
+				if err != nil {
+					return err
+				}
+				countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
+				profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
+				if countryCode != "undefined" {
+					profileJSON["country"] = countryCode
+					fmt.Println("Country code matched: " + countryStr + " = " + countryCode + " --- profile_url: " + profileUrlStr)
+				} else {
+					// can't find countryCode, log to server
+					fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileUrlStr)
+				}
+			}
+		}
+
+		// Default node's status is posted [#217]
+		profileJSON["status"] = "posted"
+
+		// Deal with tags [#227]
+		arraySize, _ := strconv.Atoi(config.Conf.Server.TagsArraySize)
+		stringLength, _ := strconv.Atoi(config.Conf.Server.TagsStringLength)
+		tags, err := tagsfilter.Filter(arraySize, stringLength, node.ProfileStr)
+		if err != nil {
+			return err
+		}
+
+		if tags != nil {
+			profileJSON["tags"] = tags
+		}
+
+		// validate primary_url [#238]
+		if profileJSON["primary_url"] != nil {
+			profileJSON["primary_url"], err = validateurl.Validate(profileJSON["primary_url"].(string))
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = elastic.Client.IndexWithID(constant.ESIndex.Node, node.ID, profileJSON)
 		if err != nil {
 			// Fail to parse into ElasticSearch, set the statue to 'post_failed'.
 			err = r.setPostFailed(node)
@@ -180,8 +258,8 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 
 	return &query.QueryResults{
 		Result:          queryResults,
-		NumberOfResults: result.Hits.TotalHits,
-		TotalPages:      pagination.TotalPages(result.Hits.TotalHits, q.PageSize),
+		NumberOfResults: result.Hits.TotalHits.Value,
+		TotalPages:      pagination.TotalPages(result.Hits.TotalHits.Value, q.PageSize),
 	}, nil
 }
 
@@ -195,6 +273,38 @@ func (r *nodeRepository) Delete(node *entity.Node) resterr.RestErr {
 	err = elastic.Client.Delete(constant.ESIndex.Node, node.ID)
 	if err != nil {
 		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) SoftDelete(node *entity.Node) resterr.RestErr {
+	err := r.setDeleted(node)
+	if err != nil {
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	err = elastic.Client.Update(constant.ESIndex.Node, node.ID, map[string]interface{}{"status": "deleted", "last_updated": node.LastUpdated})
+	if err != nil {
+		return resterr.NewInternalServerError("Error when trying to delete a node.", errors.New("database error"))
+	}
+
+	return nil
+}
+
+func (r *nodeRepository) setDeleted(node *entity.Node) error {
+	node.Version = nil
+	node.Status = constant.NodeStatus.Deleted
+	currentTime := time.Now().Unix()
+	node.LastUpdated = &currentTime
+
+	filter := bson.M{"_id": node.ID}
+	update := bson.M{"$set": r.toDAO(node)}
+
+	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update)
+	if err != nil {
+		logger.Error("Error when trying to update a node", err)
+		return err
 	}
 
 	return nil

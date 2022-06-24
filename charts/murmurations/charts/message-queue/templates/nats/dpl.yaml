@@ -14,7 +14,14 @@ spec:
     spec:
       containers:
         - name: nats
-          image: nats-streaming:0.18.0
+          image: nats-streaming:0.23.2
+          # resources:
+          #   requests:
+          #     memory: "32Mi"
+          #     cpu: "4m"
+          #   limits:
+          #     memory: "64Mi"
+          #     cpu: "8m"
           args:
             [
               '-p',

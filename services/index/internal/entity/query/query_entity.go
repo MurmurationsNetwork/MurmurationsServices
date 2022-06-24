@@ -1,8 +1,8 @@
 package query
 
 type EsQuery struct {
-	Schema        *string `form:"schema"`
-	LastValidated *int64  `form:"last_validated,default=0"`
+	Schema      *string `form:"schema"`
+	LastUpdated *int64  `form:"last_updated,default=0"`
 
 	Lat   *float64 `form:"lat"`
 	Lon   *float64 `form:"lon"`
@@ -11,6 +11,14 @@ type EsQuery struct {
 	Locality *string `form:"locality"`
 	Region   *string `form:"region"`
 	Country  *string `form:"country"`
+
+	Status *string `form:"status"`
+
+	Tags       *string `form:"tags"`
+	TagsFilter *string `form:"tags_filter"`
+	TagsExact  *string `form:"tags_exact"`
+
+	PrimaryUrl *string `form:"primary_url"`
 
 	Page     int64 `form:"page,default=0"`
 	PageSize int64 `form:"page_size,default=30"`

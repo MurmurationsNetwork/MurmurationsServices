@@ -8,12 +8,27 @@ import (
 )
 
 func mapUrls(router *gin.Engine) {
-	nodeHandler := http.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
-	router.POST("/nodes", nodeHandler.Add)
-	router.GET("/nodes/:nodeId", nodeHandler.Get)
-	router.GET("/nodes", nodeHandler.Search)
-	router.DELETE("/nodes/:nodeId", nodeHandler.Delete)
-
+	deprecationHandler := http.NewDeprecationHandler()
 	pingHandler := http.NewPingHandler()
-	router.GET("/ping", pingHandler.Ping)
+	nodeHandler := http.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
+
+	v1 := router.Group("/v1")
+	{
+		v1.Any("/*any", deprecationHandler.DeprecationV1)
+	}
+
+	v2 := router.Group("/v2")
+	{
+		v2.GET("/ping", pingHandler.Ping)
+
+		v2.POST("/nodes", nodeHandler.Add)
+		v2.GET("/nodes/:nodeId", nodeHandler.Get)
+		v2.GET("/nodes", nodeHandler.Search)
+		v2.DELETE("/nodes", nodeHandler.Delete)
+		v2.DELETE("/nodes/:nodeId", nodeHandler.Delete)
+		v2.POST("/validate", nodeHandler.Validate)
+
+		// synchronously response
+		v2.POST("/nodes-sync", nodeHandler.AddSync)
+	}
 }

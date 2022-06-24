@@ -1,12 +1,12 @@
 package elastic
 
 import (
+	"github.com/olivere/elastic/v7"
 	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/olivere/elastic"
 )
 
 var (
@@ -18,7 +18,9 @@ type esClientInterface interface {
 	Index(string, interface{}) (*elastic.IndexResponse, error)
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
 	Search(string, *Query) (*elastic.SearchResult, error)
+	Update(string, string, map[string]interface{}) error
 	Delete(string, string) error
+	DeleteMany(string, *Query) error
 
 	setClient(*elastic.Client)
 }

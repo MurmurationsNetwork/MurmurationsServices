@@ -51,5 +51,5 @@ func TestSetNodeInvalid(t *testing.T) {
 
 	assert.Equal(t, constant.NodeStatus.ValidationFailed, node.Status)
 	assert.Equal(t, "", *node.ProfileHash)
-	assert.Equal(t, dateutil.GetZeroValueUnix(), *node.LastValidated)
+	assert.Equal(t, dateutil.GetZeroValueUnix(), *node.LastUpdated)
 }

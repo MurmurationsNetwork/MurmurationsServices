@@ -29,3 +29,7 @@ func (r *mockNodeRepository) Search(q *query.EsQuery) (*query.QueryResults, rest
 func (r *mockNodeRepository) Delete(node *entity.Node) resterr.RestErr {
 	return nil
 }
+
+func (r *mockNodeRepository) SoftDelete(node *entity.Node) resterr.RestErr {
+	return nil
+}

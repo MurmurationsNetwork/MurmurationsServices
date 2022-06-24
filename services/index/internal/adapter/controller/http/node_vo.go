@@ -20,13 +20,13 @@ type getNodeVO struct {
 	ProfileURL     string    `json:"profile_url,omitempty"`
 	ProfileHash    *string   `json:"profile_hash,omitempty"`
 	Status         string    `json:"status,omitempty"`
-	LastValidated  *int64    `json:"last_validated,omitempty"`
+	LastUpdated    *int64    `json:"last_updated,omitempty"`
 	FailureReasons *[]string `json:"failure_reasons,omitempty"`
 }
 
 type searchNodeVO struct {
-	ProfileURL    string `json:"profile_url,omitempty"`
-	LastValidated *int64 `json:"last_validated,omitempty"`
+	ProfileURL  string `json:"profile_url,omitempty"`
+	LastUpdated *int64 `json:"last_updated,omitempty"`
 }
 
 func (handler *nodeHandler) toAddNodeVO(node *entity.Node) interface{} {
@@ -37,9 +37,9 @@ func (handler *nodeHandler) toAddNodeVO(node *entity.Node) interface{} {
 }
 
 func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {
-	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted {
+	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted && node.Status != constant.NodeStatus.Deleted && node.Status != constant.NodeStatus.PostFailed {
 		node.ProfileHash = nil
-		node.LastValidated = nil
+		node.LastUpdated = nil
 	}
 	if node.Status != constant.NodeStatus.ValidationFailed {
 		node.FailureReasons = nil

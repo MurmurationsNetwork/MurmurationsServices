@@ -45,11 +45,11 @@ func (handler *nodeHandler) Validated() error {
 			}
 
 			err = handler.nodeUsecase.SetNodeValid(&entity.Node{
-				ProfileURL:    nodeValidatedData.ProfileURL,
-				ProfileHash:   &nodeValidatedData.ProfileHash,
-				ProfileStr:    nodeValidatedData.ProfileStr,
-				LastValidated: &nodeValidatedData.LastValidated,
-				Version:       &nodeValidatedData.Version,
+				ProfileURL:  nodeValidatedData.ProfileURL,
+				ProfileHash: &nodeValidatedData.ProfileHash,
+				ProfileStr:  nodeValidatedData.ProfileStr,
+				LastUpdated: &nodeValidatedData.LastUpdated,
+				Version:     &nodeValidatedData.Version,
 			})
 			if err != nil {
 				return

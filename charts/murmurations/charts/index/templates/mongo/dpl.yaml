@@ -4,6 +4,8 @@ metadata:
   name: index-mongo
 spec:
   replicas: {{ .Values.mongo.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: index-mongo
@@ -14,7 +16,14 @@ spec:
     spec:
       containers:
         - name: index-mongo
-          image: mongo:4.4.2
+          image: mongo:5.0.6
+          # resources:
+          #   requests:
+          #     memory: "128Mi"
+          #     cpu: "8m"
+          #   limits:
+          #     memory: "256Mi"
+          #     cpu: "16m"
           {{- if not (eq .Values.global.env "development") }}
           volumeMounts:
           - mountPath: /data/db

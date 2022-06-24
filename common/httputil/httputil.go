@@ -1,6 +1,7 @@
 package httputil
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -21,8 +22,8 @@ func Get(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	// err http: read on closed response body
-	defer resp.Body.Close()
+	// IMPORTANT: defer in the sub-function to avoid err http: read on closed response body
+	// defer resp.Body.Close()
 	return resp, err
 }
 
@@ -32,6 +33,10 @@ func GetByte(url string) ([]byte, error) {
 		return []byte{}, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return []byte{}, fmt.Errorf("error the requested URL %s returned 404 not found", url)
+	}
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

@@ -12,6 +12,26 @@ data:
   ELASTICSEARCH_URL: http://index-es:9200
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222
+  {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
+  TAGS_ARRAY_SIZE: "100"
+  TAGS_STRING_LENGTH: "100"
+  {{- else }}
+  TAGS_ARRAY_SIZE: "5"
+  TAGS_STRING_LENGTH: "10"
+  {{- end }}
+  TAGS_FUZZINESS: "3"
   # Rate limit
-  GET_RATE_LIMIT_PERIOD: 60-M
-  POST_RATE_LIMIT_PERIOD: 6-M
+  {{- if or (eq .Values.global.env "main") (eq .Values.global.env "production") }}
+  GET_RATE_LIMIT_PERIOD: 600-M
+  POST_RATE_LIMIT_PERIOD: 600-M
+  {{- else }}
+  GET_RATE_LIMIT_PERIOD: 6000-M
+  POST_RATE_LIMIT_PERIOD: 6000-M
+  {{- end }}
+  {{- if eq .Values.global.env "main" }}
+  LIBRARY_CDN_URL: https://main-cdn.murmurations.network
+  {{- else if eq .Values.global.env "production" }}
+  LIBRARY_CDN_URL: https://cdn.murmurations.network
+  {{- else }}
+  LIBRARY_CDN_URL: https://test-cdn.murmurations.network
+  {{- end }}
