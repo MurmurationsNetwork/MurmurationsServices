@@ -73,7 +73,6 @@ func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error)
 		From(int(q.From)).
 		Size(int(q.Size)).
 		RestTotalHitsAsInt(true).
-		TrackTotalHits(true).
 		Do(ctx)
 	if err != nil {
 		logger.Error(fmt.Sprintf("error when trying to search documents in index %s", index), err)

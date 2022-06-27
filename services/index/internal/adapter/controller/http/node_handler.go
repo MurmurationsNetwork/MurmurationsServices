@@ -90,6 +90,12 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		return
 	}
 
+	if query.Page*query.PageSize > 10000 {
+		restErr := resterr.NewBadRequestError("No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results.")
+		c.JSON(restErr.StatusCode(), restErr)
+		return
+	}
+
 	searchResult, err := handler.nodeUsecase.Search(&query)
 	if err != nil {
 		c.JSON(err.StatusCode(), err)
