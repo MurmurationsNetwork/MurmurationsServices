@@ -46,6 +46,8 @@ func NewClient(url string) error {
 				elastic.SetHealthcheckInterval(10*time.Second),
 				elastic.SetErrorLog(log),
 				elastic.SetInfoLog(log),
+				// If you found any errors in ES, uncomment the following line to see the request and response
+				//elastic.SetTraceLog(log),
 			)
 			if err != nil {
 				return err
