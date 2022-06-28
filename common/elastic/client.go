@@ -69,7 +69,6 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 	result, err := c.client.Search(index).
-		TrackTotalHits(true).
 		Query(q.Query).
 		From(int(q.From)).
 		Size(int(q.Size)).
