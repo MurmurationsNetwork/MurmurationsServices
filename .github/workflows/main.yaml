@@ -148,25 +148,25 @@ jobs:
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmmain
 
       - name: Restart index deployment
-        run: make deploy-index DEPLOY_ENV=main
+        run: make deploy-index DEPLOY_ENV=live
 
       - name: Restart library deployment
-        run: make deploy-library DEPLOY_ENV=main
+        run: make deploy-library DEPLOY_ENV=live
 
       - name: Restart geoip deployment
-        run: make deploy-geoip DEPLOY_ENV=main
+        run: make deploy-geoip DEPLOY_ENV=live
 
       - name: Restart validation deployment
-        run: make deploy-validation DEPLOY_ENV=main
+        run: make deploy-validation DEPLOY_ENV=live
 
       - name: Restart nodecleaner deployment
-        run: make deploy-nodecleaner DEPLOY_ENV=main
+        run: make deploy-nodecleaner DEPLOY_ENV=live
 
       - name: Restart revalidatenode deployment
-        run: make deploy-revalidatenode DEPLOY_ENV=main
+        run: make deploy-revalidatenode DEPLOY_ENV=live
 
       - name: Restart schemaparser deployment
-        run: make deploy-schemaparser DEPLOY_ENV=main
+        run: make deploy-schemaparser DEPLOY_ENV=live
 
   # Disabled because tests reference test schemas not in the main-cdn
 
@@ -193,4 +193,4 @@ jobs:
   #       run: ./wait_for_timeout.sh https://test-library.murmurations.network/v1/ping 200 300
 
   #     - name: Newman E2E Test
-  #       run: make newman-test DEPLOY_ENV=main
+  #       run: make newman-test DEPLOY_ENV=live
