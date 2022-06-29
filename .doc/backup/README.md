@@ -71,6 +71,31 @@ Execute the following command for updating the deployment to use the secret
 kubectl patch deployment/velero -p "$(cat .doc/backup/velero-deployment.patch.yaml)" --namespace velero
 ```
 
+## 8. Setup backup
+
+```
+velero create schedule index-mongo-backup \
+  --schedule="@every 24h" \
+  --include-namespaces default \
+  --include-resources persistentvolumeclaims,persistentvolumes \
+  --ttl 168h0m0s \
+  --selector app=index-mongo
+
+velero create schedule index-es-backup \
+  --schedule="@every 24h" \
+  --include-namespaces default \
+  --include-resources persistentvolumeclaims,persistentvolumes \
+  --ttl 168h0m0s \
+  --selector app=index-es
+
+velero create schedule library-mongo-backup \
+  --schedule="@every 24h" \
+  --include-namespaces default \
+  --include-resources persistentvolumeclaims,persistentvolumes \
+  --ttl 168h0m0s \
+  --selector app=library-mongo
+```
+
 # Creating backup using Velero
 
 **Apply a label to the PV object**
