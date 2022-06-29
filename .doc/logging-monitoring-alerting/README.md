@@ -23,13 +23,13 @@ helm repo update
 ### 1. Install Loki
 
 ```
-helm upgrade loki grafana/loki -f .doc/logging-monitoring-alerting/loki.values.yaml -n kube-monitoring --install
+helm upgrade loki grafana/loki --version 2.5.0 -f .doc/logging-monitoring-alerting/loki.values.yaml -n kube-monitoring --install
 ```
 
 ### 2. Install Promtail
 
 ```
-helm upgrade promtail grafana/promtail -f .doc/logging-monitoring-alerting/promtail.values.yaml -n kube-monitoring --install
+helm upgrade promtail grafana/promtail --version 3.5.0 -f .doc/logging-monitoring-alerting/promtail.values.yaml -n kube-monitoring --install
 ```
 
 After deployment do port-forward for promtail
@@ -84,7 +84,7 @@ helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitori
 ``` -->
 
 ```
-helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitoring-alerting/prometheus.values.yaml -n kube-monitoring --install
+helm upgrade prometheus prometheus-community/prometheus --version 13.8.0 -f .doc/logging-monitoring-alerting/prometheus.values.yaml -n kube-monitoring --install
 ```
 
 ### 2. Deploy Grafana
@@ -96,7 +96,7 @@ Replace `<ADMIN_PASSWORD>` in .doc/logging-monitoring-alerting/prometheus.values
 **Deploy Grafana**
 
 ```
-helm upgrade grafana grafana/grafana -f .doc/logging-monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
+helm upgrade grafana grafana/grafana --version 6.8.0 -f .doc/logging-monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
 ```
 
 ### 3. Setup the Monitoring and Dashboards
