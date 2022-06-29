@@ -5,7 +5,7 @@ metadata:
 data:
   MONGO_HOST: library-mongo:27017
   MONGO_DB_NAME: murmurationsLibrary
-  {{- if eq .Values.global.env "main" }}
+  {{- if eq .Values.global.env "live" }}
   LIBRARY_CDN_URL: https://main-cdn.murmurations.network
   {{- else if eq .Values.global.env "production" }}
   LIBRARY_CDN_URL: https://cdn.murmurations.network

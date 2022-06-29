@@ -6,7 +6,7 @@ data:
   MONGO_HOST: index-mongo:27017
   MONGO_DB_NAME: murmurationsIndex
   ELASTICSEARCH_URL: http://index-es:9200
-  {{- if eq .Values.global.env "production" }}
+  {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") }}
   TTL: "86400" # 24 hrs
   DELETED_TTL: "15552000" # 6 months = 180 days * 24 hrs * 60 mins * 60 secs
   {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}

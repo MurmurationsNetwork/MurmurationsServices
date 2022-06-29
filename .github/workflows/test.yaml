@@ -1,9 +1,9 @@
-name: staging
+name: test
 
 on:
   push:
     branches:
-      - staging
+      - test
 
 jobs:
   test:
