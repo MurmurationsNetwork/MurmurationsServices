@@ -25,16 +25,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 32,
-  "iteration": 1656699736205,
+  "id": 28,
+  "iteration": 1656867070090,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "fromq6q7k"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -94,7 +91,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "fieldConfig": {
         "defaults": {
@@ -141,7 +138,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "editorMode": "code",
           "expr": "sum(count_over_time({namespace=\"default\"} | json |= `Log Entry` | status=`404` [$__interval]))",
@@ -155,7 +152,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "fieldConfig": {
         "defaults": {
@@ -202,7 +199,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "editorMode": "code",
           "expr": "sum(count_over_time({namespace=\"default\"} | json |= `Log Entry` | status=`500` [$__interval]))",
@@ -217,7 +214,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "fieldConfig": {
         "defaults": {
@@ -267,7 +264,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "sum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))",
           "refId": "A"
@@ -286,7 +283,7 @@
       "dashes": false,
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "fieldConfig": {
         "defaults": {
@@ -334,7 +331,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "(sum(count_over_time(({namespace=\"default\"} | json |= \"Log Entry\" | status = `200`)[$__interval])) / sum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
           "legendFormat": "Status 200",
@@ -343,7 +340,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "(sum(count_over_time(({namespace=\"default\"} | json |= \"Log Entry\" | status = `404`)[$__interval])) / \nsum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
           "hide": false,
@@ -353,7 +350,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "(sum(count_over_time(({namespace=\"default\"} | json |= \"Log Entry\" | status = `500`)[$__interval])) / \nsum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
           "hide": false,
@@ -399,7 +396,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "fieldConfig": {
         "defaults": {
@@ -455,7 +452,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "sum by (ip, country, city) (count_over_time(({namespace=\"default\"} |= \"Log Entry\" | json)[$__interval]))",
           "instant": false,
@@ -493,7 +490,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "gridPos": {
         "h": 8,
@@ -512,12 +509,12 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "7.5.3",
+      "pluginVersion": "9.0.1",
       "targets": [
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "{namespace=\"default\"} |~ \"err|error\"",
           "refId": "A"
@@ -529,7 +526,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "fromq6q7k"
+        "uid": "KZaRV7e7k"
       },
       "gridPos": {
         "h": 8,
@@ -548,12 +545,12 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "7.5.3",
+      "pluginVersion": "9.0.1",
       "targets": [
         {
           "datasource": {
             "type": "loki",
-            "uid": "fromq6q7k"
+            "uid": "KZaRV7e7k"
           },
           "expr": "{namespace=\"default\"} |~ \"(?i)$searchable_pattern\"",
           "refId": "A"
@@ -613,6 +610,6 @@
   "timezone": "",
   "title": "Logging",
   "uid": "1Umbi6uGz",
-  "version": 6,
+  "version": 4,
   "weekStart": ""
 }
