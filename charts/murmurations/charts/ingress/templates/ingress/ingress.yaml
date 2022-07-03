@@ -11,7 +11,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}
 spec:
-  {{- if eq .Values.global.env "main" }}
+  {{- if eq .Values.global.env "live" }}
   tls:
     - hosts:
       - main-index.murmurations.network
@@ -37,7 +37,7 @@ spec:
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "main" }}
+    {{- if eq .Values.global.env "live" }}
     - host: main-index.murmurations.network
     {{- else if eq .Values.global.env "production" }}
     - host: index.murmurations.network
@@ -57,7 +57,7 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    {{- if eq .Values.global.env "main" }}
+    {{- if eq .Values.global.env "live" }}
     - host: main-library.murmurations.network
     {{- else if eq .Values.global.env "production" }}
     - host: library.murmurations.network
@@ -89,7 +89,7 @@ metadata:
     cert-manager.io/issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
-  {{- if eq .Values.global.env "main" }}
+  {{- if eq .Values.global.env "live" }}
   tls:
     - hosts:
       - main-monitoring.murmurations.network
@@ -111,7 +111,7 @@ spec:
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "main" }}
+    {{- if eq .Values.global.env "live" }}
     - host: main-monitoring.murmurations.network
     {{- else if eq .Values.global.env "production" }}
     - host: monitoring.murmurations.network
@@ -126,7 +126,7 @@ spec:
             path: /
             backend:
               service:
-                name: grafana
+                name: kube-prom-stack-grafana
                 port:
                   number: 80
 {{- end }}

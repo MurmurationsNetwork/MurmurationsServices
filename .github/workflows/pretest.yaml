@@ -3,7 +3,7 @@ name: pretest
 on:
   pull_request:
     branches:
-      - staging
+      - test
 
 jobs:
   test:

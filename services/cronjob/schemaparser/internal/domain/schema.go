@@ -11,6 +11,7 @@ type Schema struct {
 type DnsInfo struct {
 	LastCommit string   `json:"last_commit"`
 	SchemaList []string `json:"schema_list"`
+	Error      string   `json:"error"`
 }
 
 type SchemaJSON struct {

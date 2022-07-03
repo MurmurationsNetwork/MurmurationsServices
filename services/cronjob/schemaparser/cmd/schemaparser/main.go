@@ -26,6 +26,11 @@ func main() {
 		return
 	}
 
+	if dnsInfo.Error != "" {
+		logger.Error("Error when trying to get last_commit and schema_list from: "+dnsInfo.Error, err)
+		return
+	}
+
 	hasNewCommit, err := svc.HasNewCommit(dnsInfo.LastCommit)
 	if err != nil {
 		logger.Error("Error when trying to get schemas:lastCommit", err)
