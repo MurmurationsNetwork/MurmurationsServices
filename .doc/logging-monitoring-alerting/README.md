@@ -18,94 +18,60 @@ helm repo add loki https://grafana.github.io/loki/charts
 helm repo update
 ```
 
-## Logging
+## Deployment (Updated at 2022/07/01)
+[Ref](https://github.com/digitalocean/Kubernetes-Starter-Kit-Developers/tree/main/04-setup-prometheus-stack)
 
-### 1. Install Loki
+### 1. Update Ingress
 
+- Change `ENV` in Makefile 
 ```
-helm upgrade loki grafana/loki --version 2.5.0 -f .doc/logging-monitoring-alerting/loki.values.yaml -n kube-monitoring --install
-```
-
-### 2. Install Promtail
-
-```
-helm upgrade promtail grafana/promtail --version 3.5.0 -f .doc/logging-monitoring-alerting/promtail.values.yaml -n kube-monitoring --install
+make manually-deploy-ingress
 ```
 
-After deployment do port-forward for promtail
+### 1. Deploy Prometheus with Grafana
+
+- Revise `adminPassword` in .doc/logging-monitoring-alerting/prom-stack-values.yaml.
 
 ```
-kubectl port-forward daemonset/promtail 3101 --namespace kube-monitoring
+helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 36.2.0 -n kube-monitoring -f .doc/logging-monitoring-alerting/prom-stack-values.yaml --install
+```
+
+- Check the available resources
+```
+kubectl get all -n kube-monitoring
+```
+
+- Connect to the services
+```
+kubectl port-forward svc/kube-prom-stack-grafana 3000:80 -n kube-monitoring
+kubectl port-forward svc/kube-prom-stack-kube-prome-prometheus 9090:9090 -n kube-monitoring
+kubectl port-forward alertmanager-kube-prom-stack-kube-prome-alertmanager-0 9093 -n kube-monitoring
+```
+
+### 3. Install Loki & Promtail
+
+```
+helm upgrade loki grafana/loki --version 2.8.6 --namespace=kube-monitoring --create-namespace -f .doc/logging-monitoring-alerting/loki.values.yaml --install
+
+helm upgrade promtail grafana/promtail --version 3.9.2 --namespace=kube-monitoring --create-namespace -f .doc/logging-monitoring-alerting/promtail.values.yaml --install
+```
+
+- Navigate to Grafana: https://localhost:3000
+```
+kubectl port-forward svc/kube-prom-stack-grafana 3000:80 -n kube-monitoring
+```
+
+- Configuration -> Data Source -> Add data source -> Select Loki -> set url as `http://loki:3100` -> Save & Test -> The page shows 'Data source connected and labels found.' (Successful!)
+
+```
+kubectl port-forward daemonset/loki-promtail 3101 -n kube-monitoring
 ```
 
 on http://localhost:3101/targets
 
 You will see all the pods which are getting scraped by promtail for logs.
 
-
-## Monitoring
-
-<!-- ## 1. Setup Webhook API Slack
-
-Goto this link https://api.slack.com/messaging/webhooks and create a slack app.
-
-![image](https://user-images.githubusercontent.com/11765228/114982939-9ffe0180-9ec2-11eb-9d45-4da79125951f.png)
-
-After creating the slack app, click on incoming webhooks.
-
-![image](https://user-images.githubusercontent.com/11765228/114983126-ce7bdc80-9ec2-11eb-8ac0-0240e045d164.png)
-
-![image](https://user-images.githubusercontent.com/11765228/114983254-f5d2a980-9ec2-11eb-80d2-8fcaf2e53ad8.png)
-
-After clicking the add new webhook to workspace.
-
-Select the channel.
-
-![image](https://user-images.githubusercontent.com/11765228/114983572-5d88f480-9ec3-11eb-9733-43e92c734eab.png)
-
-After selecting and allowing it.
-
-![image](https://user-images.githubusercontent.com/11765228/114983936-c7090300-9ec3-11eb-95ca-8b557fa7ac2a.png)
-
-Test it with curl whether you are receiving the slack notification or not.
-
-Copy the `Webhook URL` and then use it wherever it is needed below. -->
-
-### 1. Deploy Prometheus
-
-<!--**Update slack-notification.yaml**
-
-Replace `<WEBHOOK_URL>` and `<CHANNEL_NAME>` in .doc/logging-monitoring-alerting/slack-notification.yaml -->
-
-**Deploy Prometheus**
-
-<!-- ```
-helm upgrade prometheus prometheus-community/prometheus -f .doc/logging-monitoring-alerting/prometheus.values.yaml -f .doc/logging-monitoring-alerting/slack-notification.yaml -n kube-monitoring --install
-``` -->
-
-```
-helm upgrade prometheus prometheus-community/prometheus --version 13.8.0 -f .doc/logging-monitoring-alerting/prometheus.values.yaml -n kube-monitoring --install
-```
-
-### 2. Deploy Grafana
-
-**Update Grafana Password**
-
-Replace `<ADMIN_PASSWORD>` in .doc/logging-monitoring-alerting/prometheus.values.yaml
-
-**Deploy Grafana**
-
-```
-helm upgrade grafana grafana/grafana --version 6.8.0 -f .doc/logging-monitoring-alerting/grafana.values.yaml -n kube-monitoring  --install
-```
-
-### 3. Setup the Monitoring and Dashboards
-
-```
-kubectl port-forward svc/grafana 3000:80 -n kube-monitoring
-```
-
-**Setup Grafana**
+### 4. Setup Grafana
 
 Navigate to http://localhost:3000
 
@@ -136,6 +102,8 @@ Type 1860 for Node Exporter Full Dashboard
 Now again add one more dashboard: 8685
 
 ![image](https://user-images.githubusercontent.com/11765228/115195120-f49eb800-a120-11eb-971a-993c668e6af4.png)
+
+Now again and Import via panel json (.doc/logging-monitoring-alerting/grafana-logging.json)
 
 ## Alerting
 
