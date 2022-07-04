@@ -23,7 +23,7 @@ helm repo update
 
 ### 1. Update Ingress
 
-- Change Makefile's `ENV` and `SPECIFIC_TAG`(check [tags](https://hub.docker.com/r/murmurations/index/tags)). 
+- Change Makefile's `ENV`.
 ```
 make manually-deploy-ingress
 ```
