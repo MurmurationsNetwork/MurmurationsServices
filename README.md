@@ -17,9 +17,16 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 4. Install [Skaffold](https://skaffold.dev/docs/install/)
 
-5. [Create secrets](.doc/secrets.md) for each service
+5. Download large docker files
 
-6. Add `127.0.0.1 index.murmurations.dev` & `127.0.0.1 library.murmurations.dev` to your host file
+```
+docker pull elasticsearch:7.16.2
+docker pull kibana:7.16.2
+```
+
+7. [Create secrets](.doc/secrets.md) for each service
+
+8. Add `127.0.0.1 index.murmurations.dev` & `127.0.0.1 library.murmurations.dev` to your host file
 
 *After completing the setup*
 
