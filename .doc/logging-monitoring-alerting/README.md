@@ -21,19 +21,12 @@ helm repo update
 ## Deployment (Updated at 2022/07/01)
 [Ref](https://github.com/digitalocean/Kubernetes-Starter-Kit-Developers/tree/main/04-setup-prometheus-stack)
 
-### 1. Update Ingress
-
-- Change `ENV` in Makefile 
-```
-make manually-deploy-ingress
-```
-
 ### 1. Deploy Prometheus with Grafana
 
-- Revise `adminPassword` in .doc/logging-monitoring-alerting/prom-stack-values.yaml.
+- Revise `adminPassword` in .doc/logging-monitoring-alerting/prom-stack-values.yaml
 
 ```
-helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 36.2.0 -n kube-monitoring -f .doc/logging-monitoring-alerting/prom-stack-values.yaml --install
+helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 36.2.1 -n kube-monitoring -f .doc/logging-monitoring-alerting/prom-stack-values.yaml --install
 ```
 
 - Check the available resources
@@ -48,7 +41,7 @@ kubectl port-forward svc/kube-prom-stack-kube-prome-prometheus 9090:9090 -n kube
 kubectl port-forward alertmanager-kube-prom-stack-kube-prome-alertmanager-0 9093 -n kube-monitoring
 ```
 
-### 3. Install Loki & Promtail
+### 2. Install Loki & Promtail
 
 ```
 helm upgrade loki grafana/loki --version 2.8.6 --namespace=kube-monitoring --create-namespace -f .doc/logging-monitoring-alerting/loki.values.yaml --install
@@ -64,14 +57,14 @@ kubectl port-forward svc/kube-prom-stack-grafana 3000:80 -n kube-monitoring
 - Configuration -> Data Source -> Add data source -> Select Loki -> set url as `http://loki:3100` -> Save & Test -> The page shows 'Data source connected and labels found.' (Successful!)
 
 ```
-kubectl port-forward daemonset/loki-promtail 3101 -n kube-monitoring
+kubectl port-forward daemonset/promtail 3101 -n kube-monitoring
 ```
 
 on http://localhost:3101/targets
 
 You will see all the pods which are getting scraped by promtail for logs.
 
-### 4. Setup Grafana
+### 3. Setup Grafana
 
 Navigate to http://localhost:3000
 
@@ -89,7 +82,7 @@ Check these boxes as well
 
 ![image](https://user-images.githubusercontent.com/11765228/115104205-79ef6480-9f89-11eb-804c-c8e1828ccca1.png)-->
 
-### 4. Configure the Grafana Dashboard
+### 6. Configure the Grafana Dashboard
 
 ![image](https://user-images.githubusercontent.com/11765228/115194754-780bd980-a120-11eb-9284-c01458983f6b.png)
 
@@ -103,7 +96,9 @@ Now again add one more dashboard: 8685
 
 ![image](https://user-images.githubusercontent.com/11765228/115195120-f49eb800-a120-11eb-971a-993c668e6af4.png)
 
-Now again and Import via panel json (.doc/logging-monitoring-alerting/grafana-logging.json)
+- Find loki's uid in setting > datasources
+- Replace all of loki with new uid (`"uid": "pvuSqSenk"`) in [(.doc/logging-monitoring-alerting/grafana-logging.json)](.doc/logging-monitoring-alerting/grafana-logging.json)
+- Import via panel json [(.doc/logging-monitoring-alerting/grafana-logging.json)](.doc/logging-monitoring-alerting/grafana-logging.json)
 
 ## Alerting
 
