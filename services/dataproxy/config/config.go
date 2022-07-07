@@ -10,8 +10,9 @@ import (
 var Conf = config{}
 
 type config struct {
-	Server serverConf
-	Mongo  mongoConf
+	Server  serverConf
+	Library libraryConf
+	Mongo   mongoConf
 }
 
 type serverConf struct {
@@ -21,6 +22,10 @@ type serverConf struct {
 	TimeoutIdle         time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
 	GetRateLimitPeriod  string        `env:"GET_RATE_LIMIT_PERIOD,required"`
 	PostRateLimitPeriod string        `env:"POST_RATE_LIMIT_PERIOD,required"`
+}
+
+type libraryConf struct {
+	URL string `env:"LIBRARY_CDN_URL,required"`
 }
 
 type mongoConf struct {
