@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-proxy-app
+spec:
+  replicas: {{ .Values.proxy.replicas }}
+  selector:
+    matchLabels:
+      app: data-proxy-app
+  template:
+    metadata:
+      labels:
+        app: data-proxy-app
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/dataproxy/config.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: data-proxy-app
+          image: {{ .Values.image }}
+          # resources:
+          #   requests:
+          #     memory: "32Mi"
+          #     cpu: "8m"
+          #   limits:
+          #     memory: "64Mi"
+          #     cpu: "16m"
+          envFrom:
+            - configMapRef:
+                name: data-proxy-app-config
+            - secretRef:
+                name: data-proxy-secret
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 600
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 3
+      {{- if eq .Values.global.env "development" }}
+          volumeMounts:
+            - mountPath: /src/dataproxy
+              name: source-path
+      volumes:
+        - name: source-path
+          hostPath:
+            path: {{ .Values.global.sourcepath }}
+      {{- end }}

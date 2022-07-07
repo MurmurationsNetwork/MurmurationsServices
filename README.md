@@ -26,13 +26,19 @@ docker pull kibana:7.16.2
 
 7. [Create secrets](.doc/secrets.md) for each service
 
-8. Add `127.0.0.1 index.murmurations.dev` & `127.0.0.1 library.murmurations.dev` to your host file
+8. Add the following to your host file `sudo vim /etc/hosts`
+
+```
+127.0.0.1   index.murmurations.dev
+127.0.0.1   library.murmurations.dev
+127.0.0.1   data-proxy.murmurations.dev
+```
 
 *After completing the setup*
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.dev/v2/ping` or `library.murmurations.dev/v1/ping`
+2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v1/ping` and `data-proxy.murmurations.dev/v1/ping`
 
 ## Run in DigitalOcean
 

@@ -47,6 +47,9 @@ docker-build-revalidatenode:
 docker-build-geoip:
 	$(MAKE) -C services/geoip/ docker-build
 
+docker-build-dataproxy:
+	$(MAKE) -C services/dataproxy/ docker-build
+
 # ---------------------------------------------------------------
 
 TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
@@ -71,6 +74,9 @@ docker-tag-revalidatenode: docker-build-revalidatenode
 
 docker-tag-geoip: docker-build-geoip
 	docker tag murmurations/geoip murmurations/geoip:${TAG}
+
+docker-tag-dataproxy: docker-build-dataproxy
+	docker tag murmurations/dataproxy murmurations/dataproxy:${TAG}
 
 # ---------------------------------------------------------------
 
@@ -102,6 +108,10 @@ docker-push-geoip: docker-tag-geoip
 	docker push murmurations/geoip:latest
 	docker push murmurations/geoip:$(TAG)
 
+docker-push-dataproxy: docker-tag-dataproxy
+	docker push murmurations/dataproxy:latest
+	docker push murmurations/dataproxy:$(TAG)
+
 # ---------------------------------------------------------------
 
 deploy-ingress:
@@ -130,6 +140,9 @@ deploy-revalidatenode:
 
 deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) --install --atomic
+
+deploy-dataproxy:
+	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(TAG) --install --atomic
 
 # ---------------------------------------------------------------
 
@@ -163,3 +176,6 @@ manually-deploy-revalidatenode:
 
 manually-deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) --install --atomic
+
+manually-deploy-data-proxy:
+	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy --set global.env=$(ENV),image=murmurations/dataproxy:$(SPECIFIC_TAG) --install --atomic

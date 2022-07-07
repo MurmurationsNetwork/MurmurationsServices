@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-proxy-app-config
+data:
+  SERVER_PORT: "8080"
+  SERVER_TIMEOUT_READ: 5s
+  SERVER_TIMEOUT_WRITE: 10s
+  SERVER_TIMEOUT_IDLE: 15s
+  MONGO_HOST: data-proxy-mongo:27017
+  MONGO_DB_NAME: murmurationsDataProxy
+  GET_RATE_LIMIT_PERIOD: 6000-M
+  POST_RATE_LIMIT_PERIOD: 6000-M
