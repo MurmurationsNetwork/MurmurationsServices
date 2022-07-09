@@ -61,3 +61,5 @@ docker pull kibana:7.16.2
 **Optional**
 
 - [Logging, Monitoring and Alerting](.doc/logging-monitoring-alerting/README.md)
+
+- [Seed the data](.doc/seed.md)
