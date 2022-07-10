@@ -12,6 +12,7 @@ var Conf = config{}
 type config struct {
 	Server  serverConf
 	Library libraryConf
+	Index   indexConf
 	Mongo   mongoConf
 }
 
@@ -22,6 +23,10 @@ type serverConf struct {
 	TimeoutIdle         time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
 	GetRateLimitPeriod  string        `env:"GET_RATE_LIMIT_PERIOD,required"`
 	PostRateLimitPeriod string        `env:"POST_RATE_LIMIT_PERIOD,required"`
+}
+
+type indexConf struct {
+	URL string `env:"INDEX_HOST,required"`
 }
 
 type libraryConf struct {

@@ -22,6 +22,22 @@ func (c *mongoClient) FindOne(collection string, filter primitive.M) *mongo.Sing
 	return c.db.Collection(collection).FindOne(context.Background(), filter)
 }
 
+func (c *mongoClient) Count(collection string, filter primitive.M) (int64, error) {
+	return c.db.Collection(collection).CountDocuments(context.Background(), filter)
+}
+
+func (c *mongoClient) InsertOne(collection string, document interface{},
+	opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
+	mergedOpt := options.MergeInsertOneOptions(opts...)
+
+	result, err := c.db.Collection(collection).InsertOne(context.Background(), document, mergedOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (c *mongoClient) FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error) {
 	opts = append(opts, options.FindOneAndUpdate().SetReturnDocument(options.After))
 	mergedOpt := options.MergeFindOneAndUpdateOptions(opts...)

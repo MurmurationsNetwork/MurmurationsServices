@@ -24,9 +24,9 @@ docker pull elasticsearch:7.16.2
 docker pull kibana:7.16.2
 ```
 
-7. [Create secrets](.doc/secrets.md) for each service
+6[Create secrets](.doc/secrets.md) for each service
 
-8. Add the following to your host file `sudo vim /etc/hosts`
+7Add the following to your host file `sudo vim /etc/hosts`
 
 ```
 127.0.0.1   index.murmurations.dev
