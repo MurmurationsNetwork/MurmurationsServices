@@ -28,5 +28,5 @@ data:
   {{- else if eq .Values.global.env "pretest" }}
   EXTERNAL_DATA_PROXY_URL: https://pretest-data-proxy.murmurations.network
   {{- else }}
-  EXTERNAL_DATA_PROXY_URL: http://data-proxy.murmurations.dev
+  EXTERNAL_DATA_PROXY_URL: http://data-proxy-app:8080
   {{- end }}
