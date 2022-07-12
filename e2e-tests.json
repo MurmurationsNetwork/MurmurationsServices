@@ -3,7 +3,7 @@
 		"_postman_id": "c985860d-4b36-44da-9d69-79f8a19af2c8",
 		"name": "Murmurations API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "10168004"
+		"_exporter_id": "1062898"
 	},
 	"item": [
 		{
@@ -71,6 +71,41 @@
 							"raw": "{{libraryBaseUrl}}/ping",
 							"host": [
 								"{{libraryBaseUrl}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataProxy is online",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"pong!\"`, () => {",
+									"    pm.response.to.have.body(\"pong!\")",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dataProxyBaseUrl}}/ping",
+							"host": [
+								"{{dataProxyBaseUrl}}"
 							],
 							"path": [
 								"ping"

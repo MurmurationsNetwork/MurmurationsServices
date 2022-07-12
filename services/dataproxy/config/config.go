@@ -10,10 +10,11 @@ import (
 var Conf = config{}
 
 type config struct {
-	Server  serverConf
-	Library libraryConf
-	Index   indexConf
-	Mongo   mongoConf
+	Server    serverConf
+	Index     indexConf
+	Library   libraryConf
+	DataProxy dataProxyConf
+	Mongo     mongoConf
 }
 
 type serverConf struct {
@@ -31,6 +32,10 @@ type indexConf struct {
 
 type libraryConf struct {
 	URL string `env:"LIBRARY_CDN_URL,required"`
+}
+
+type dataProxyConf struct {
+	URL string `env:"EXTERNAL_DATA_PROXY_URL,required"`
 }
 
 type mongoConf struct {

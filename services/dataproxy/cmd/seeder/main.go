@@ -151,8 +151,10 @@ func main() {
 		}
 	}
 
+	count := 0
+	skipCount := 0
 	for i := from; i <= to; i++ {
-		json := make(map[string]interface{})
+		profileJson := make(map[string]interface{})
 		for index, value := range excelMap {
 			axis := value + strconv.Itoa(i)
 			cell, err := f.GetCellValue("sheet1", axis)
@@ -160,46 +162,67 @@ func main() {
 				fmt.Println("read Excel error, axis=", axis, " error message: ", err)
 				os.Exit(1)
 			}
-			json[index] = cell
+			profileJson[index] = cell
 		}
 
 		// validate data
-		isValid, failureReasons, err := validate(schemaName, json)
+		isValid, failureReasons, err := validate(schemaName, profileJson)
 		if err != nil {
 			fmt.Println("Error when trying to validate a profile", err)
 			os.Exit(1)
 		}
 		if !isValid {
-			fmt.Println("Error: skip importing this row, validate profile failed, row=", i, " id=", json["oid"], "failure reasons =", failureReasons)
+			fmt.Println("Error: skip importing this row, validate profile failed, row=", i, ",id=", profileJson["oid"], ",failure reasons=", failureReasons)
 			continue
 		}
 
 		// if database has same oid item, skip it and show warning message
-		filter := bson.M{"oid": json["oid"]}
+		filter := bson.M{"oid": profileJson["oid"]}
 		result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
 		if err != nil {
 			fmt.Println("Error when trying to find a profile", err)
 			os.Exit(1)
 		}
 		if result > 0 {
-			fmt.Println("Warning: skip importing this row, profile exist, row=", i, " id=", json["oid"])
+			skipCount++
+			fmt.Println("Warning: skip importing this row, profile exist, row=", i, "id=", profileJson["oid"])
 			continue
 		}
 
 		// generate cid for item
-		json["cuid"] = cuid.New()
+		profileJson["cuid"] = cuid.New()
 
 		// save to MongoDB, return url to post index
-		profile, err := mongo.Client.InsertOne(constant.MongoIndex.Profile, json)
+		_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
 		if err != nil {
 			fmt.Println("Error when trying to save a profile", err)
 			os.Exit(1)
 		}
-		fmt.Println(profile)
-		fmt.Println(json["cuid"])
+
+		// post to index service
+		postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
+		postProfile := make(map[string]string)
+		postProfile["profile_url"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
+		postProfileJson, err := json.Marshal(postProfile)
+		if err != nil {
+			fmt.Println("Error when trying to parse a post profile", err)
+			os.Exit(1)
+		}
+		res, err := http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
+		if err != nil {
+			fmt.Println("Error when trying to post a profile", err)
+			os.Exit(1)
+		}
+		if res.StatusCode != 200 {
+			err = fmt.Errorf("Post failed, the status code is " + strconv.Itoa(res.StatusCode))
+			os.Exit(1)
+		}
+		count++
 	}
+	fmt.Println("successfully imported profiles, total profiles:", to-from+1, ", success:", count, ",skipped:", skipCount, ", failed:", (to-from+1)-count-skipCount)
 
 	// turn off connection with MongoDB
+	mongo.Client.Disconnect()
 
 	// delete the local file
 	err = os.Remove(fileName)
