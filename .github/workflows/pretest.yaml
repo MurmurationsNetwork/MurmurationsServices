@@ -132,9 +132,25 @@ jobs:
       - name: Publish schemaparser docker images
         run: make docker-push-schemaparser
 
+  build-dataproxy:
+    name: Build Dataproxy
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish dataproxy docker images
+        run: make docker-push-dataproxy
+
   deploy:
     name: Deploy
-    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser ]
+    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -167,6 +183,9 @@ jobs:
 
     - name: Restart schemaparser deployment
       run: make deploy-schemaparser DEPLOY_ENV=pretest
+
+    - name: Restart dataproxy deployment
+      run: make deploy-dataproxy DEPLOY_ENV=pretest
 
   e2e_test:
     name: E2E Test
