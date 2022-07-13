@@ -172,12 +172,22 @@ func validate(schema string, profile map[string]interface{}) (bool, string, erro
 			delete(profile, k)
 			continue
 		}
-		num, err := strconv.ParseFloat(v.(string), 64)
-		if err != nil {
-			profile[k] = v
-		} else {
-			profile[k] = num
+		// Array type
+		if k == "tags" {
+			profile[k] = strings.Split(v.(string), ",")
+			continue
 		}
+		// Number type
+		if k == "latitude" || k == "longitude" {
+			num, err := strconv.ParseFloat(v.(string), 64)
+			if err != nil {
+				return false, "", fmt.Errorf("error when parsing number type data, error message: %s", err)
+			}
+			profile[k] = num
+			continue
+		}
+		// Default is String type
+		profile[k] = v
 	}
 
 	// Add linked_schemas
