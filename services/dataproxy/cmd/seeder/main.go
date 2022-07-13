@@ -316,6 +316,7 @@ func main() {
 	f, err := excelize.OpenFile(fileName)
 	if err != nil {
 		fmt.Printf("error while reading excel, error message: %s\n", err)
+		os.Exit(1)
 	}
 	defer f.Close()
 
