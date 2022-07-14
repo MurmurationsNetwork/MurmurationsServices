@@ -10,6 +10,7 @@ import (
 	"github.com/lucsky/cuid"
 	"github.com/xuri/excelize/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io"
 	"net/http"
 	"os"
@@ -259,23 +260,37 @@ func importData(row int, schemaName string, headerMap map[string]string, file *e
 		return true, fmt.Errorf("warning: skip importing this row, validate profile failed, row: %v, id: %s, failure reasons: %s", row, profileJson["oid"], failureReasons)
 	}
 
-	// If database has same oid item, skip it and show warning message
+	// If database has same oid item, overwrite old data and show warning message
 	filter := bson.M{"oid": profileJson["oid"]}
 	result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
 	if err != nil {
 		return false, fmt.Errorf("error when trying to find a profile, error message: %s", err)
 	}
+	isDuplicate := false
 	if result > 0 {
-		return true, fmt.Errorf("warning: skip importing this row, profile exist, row: %v, id: %s", row, profileJson["oid"])
+		isDuplicate = true
+		fmt.Printf("warning: profile exist, overwrite the old data, row: %v, id: %s\n", row, profileJson["oid"])
 	}
 
-	// Generate cid for item
-	profileJson["cuid"] = cuid.New()
-
 	// Save to MongoDB, return url to post index
-	_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
-	if err != nil {
-		return false, fmt.Errorf("error when trying to save a profile, error message: %s", err)
+	if isDuplicate {
+		update := bson.M{"$set": profileJson}
+		opt := options.FindOneAndUpdate().SetUpsert(true)
+		profileRaw, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)
+		if err != nil {
+			return false, fmt.Errorf("error when trying to update a profile, error message: %s", err)
+		}
+		// get cuid
+		profile := make(map[string]interface{})
+		profileRaw.Decode(&profile)
+		profileJson["cuid"] = profile["cuid"]
+	} else {
+		// Generate cid for item
+		profileJson["cuid"] = cuid.New()
+		_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
+		if err != nil {
+			return false, fmt.Errorf("error when trying to save a profile, error message: %s", err)
+		}
 	}
 
 	// Post to index service

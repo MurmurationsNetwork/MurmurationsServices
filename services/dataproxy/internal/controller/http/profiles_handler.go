@@ -28,8 +28,9 @@ func (handler *profilesHandler) Get(c *gin.Context) {
 		return
 	}
 
-	// remove id, cuid, oid
+	// remove id, __v, cuid, oid
 	delete(profile, "_id")
+	delete(profile, "__v")
 	delete(profile, "cuid")
 	delete(profile, "oid")
 
