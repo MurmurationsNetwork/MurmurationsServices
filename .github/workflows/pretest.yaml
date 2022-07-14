@@ -53,7 +53,7 @@ jobs:
         run: make docker-push-library
 
   build-geoip:
-    name: Build Geoip
+    name: Build Geo IP
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +85,7 @@ jobs:
         run: make docker-push-validation
 
   build-nodecleaner:
-    name: Build Nodecleaner
+    name: Build Node Cleaner
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -101,7 +101,7 @@ jobs:
         run: make docker-push-nodecleaner
 
   build-revalidatenode:
-    name: Build Revalidatenode
+    name: Build Revalidate Node
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +117,7 @@ jobs:
         run: make docker-push-revalidatenode
 
   build-schemaparser:
-    name: Build Schemaparser
+    name: Build Schema Parser
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -133,7 +133,7 @@ jobs:
         run: make docker-push-schemaparser
 
   build-dataproxy:
-    name: Build Dataproxy
+    name: Build Data Proxy
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -208,6 +208,9 @@ jobs:
 
       - name: Test Library
         run: ./wait_for_timeout.sh https://pretest-library.murmurations.network/v1/ping 200 300
+
+      - name: Test Data Proxy
+        run: ./wait_for_timeout.sh https://pretest-data-proxy.murmurations.network/v1/ping 200 300
 
       - name: Newman E2E Test
         run: make newman-test DEPLOY_ENV=pretest
