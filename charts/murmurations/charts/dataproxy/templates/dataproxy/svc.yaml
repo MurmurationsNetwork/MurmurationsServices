@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-proxy-app
+spec:
+  selector:
+    app: data-proxy-app
+  ports:
+    - name: data-proxy
+      protocol: TCP
+      port: {{ .Values.proxy.service.port }}

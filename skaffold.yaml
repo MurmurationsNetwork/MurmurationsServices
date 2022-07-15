@@ -32,6 +32,10 @@ build:
       context: .
       docker:
         dockerfile: services/geoip/docker/Dockerfile-dev
+    - image: murmurations/dataproxy
+      context: .
+      docker:
+        dockerfile: services/dataproxy/docker/Dockerfile-dev
 deploy:
   helm:
     releases:
@@ -45,6 +49,7 @@ deploy:
         schemaparser.image: murmurations/schemaparser
         revalidatenode.image: murmurations/revalidatenode
         geoip.image: murmurations/geoip
+        dataproxy.image: murmurations/dataproxy
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
         global.sourcepath: "{{.SOURCEPATH}}"
@@ -60,3 +65,8 @@ portForward:
     namespace: default
     port: 27017
     localPort: 27018
+  - resourceType: service
+    resourceName: data-proxy-mongo
+    namespace: default
+    port: 27017
+    localPort: 27019

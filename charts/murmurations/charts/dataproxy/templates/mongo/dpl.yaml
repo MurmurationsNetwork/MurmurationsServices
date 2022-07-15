@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-proxy-mongo
+spec:
+  replicas: {{ .Values.mongo.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: data-proxy-mongo
+  template:
+    metadata:
+      labels:
+        app: data-proxy-mongo
+    spec:
+      containers:
+        - name: data-proxy-mongo
+          image: mongo:5.0.6
+          # resources:
+          #   requests:
+          #     memory: "100Mi"
+          #     cpu: "10m"
+          #   limits:
+          #     memory: "300Mi"
+          #     cpu: "30m"
+          {{- if not (eq .Values.global.env "development") }}
+          volumeMounts:
+          - mountPath: /data/db
+            name: mongo-storage
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: data-proxy-mongo-secret
+      {{- if not (eq .Values.global.env "development") }}
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: data-proxy-mongo-pvc
+      {{- end }}
