@@ -15,6 +15,15 @@ func (c *mockClient) FindOne(collection string, filter primitive.M) *mongo.Singl
 	return nil
 }
 
+func (c *mockClient) Count(collection string, filter primitive.M) (int64, error) {
+	return 0, nil
+}
+
+func (c *mockClient) InsertOne(collection string, document interface{},
+	opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
+	return &mongo.InsertOneResult{}, nil
+}
+
 func (c *mockClient) FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error) {
 	return &mongo.SingleResult{}, nil
 }

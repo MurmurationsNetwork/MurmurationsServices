@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-proxy-mongo
+spec:
+  selector:
+    app: data-proxy-mongo
+  ports:
+    - name: db
+      protocol: TCP
+      port: 27017

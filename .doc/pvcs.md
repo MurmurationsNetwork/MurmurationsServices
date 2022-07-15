@@ -7,4 +7,5 @@ _PVCs should be created only once and never remove them unless it's needed._
 ```
 kubectl apply -f .doc/pvc/index.yaml
 kubectl apply -f .doc/pvc/library.yaml
+kubectl apply -f .doc/pvc/dataproxy.yaml
 ```

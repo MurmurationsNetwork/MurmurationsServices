@@ -1,0 +1,19 @@
+FROM golang:1.17.5-alpine as build
+
+WORKDIR /src/dataproxy
+ADD . /src/dataproxy
+RUN CGO_ENABLED=0 go build -o /bin/dataproxy ./services/dataproxy/cmd/dataproxy
+
+FROM golang:1.17.5-alpine as seeder-build
+
+WORKDIR /src/dataproxy
+ADD . /src/dataproxy
+RUN CGO_ENABLED=0 go build -o /bin/seeder ./services/dataproxy/cmd/seeder
+
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+COPY --from=build /bin/dataproxy /app/dataproxy
+COPY --from=seeder-build /bin/seeder /app/seeder
+EXPOSE 8000
+CMD ["/app/dataproxy"]
