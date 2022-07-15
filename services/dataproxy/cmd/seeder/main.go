@@ -144,9 +144,6 @@ func headerMapping(schema map[string]interface{}, f *excelize.File) (map[string]
 	headerMap := make(map[string]string)
 	headerMap["oid"] = "A"
 
-	for i := 0; i < 1; i++ {
-
-	}
 	for rowIndex, row := range rows {
 		// only need the header
 		if rowIndex != 0 {
