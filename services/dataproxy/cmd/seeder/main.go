@@ -192,15 +192,13 @@ func validate(schema string, profile map[string]interface{}) (bool, string, erro
 	s := []string{schema}
 	profile["linked_schemas"] = s
 	// Add metadata
-	metadata := []interface{}{
-		map[string]interface{}{
-			"source": map[int]interface{}{
-				0: map[string]interface{}{
-					"name":             "Karte von Morgen / Map of Tomorrow",
-					"url":              "https://kartevonmorgen.org",
-					"profile_data_url": "https://api.ofdb.io/v0/entries/" + profile["oid"].(string),
-					"access_time":      1646697600,
-				},
+	metadata := map[string]interface{}{
+		"sources": []map[string]interface{}{
+			{
+				"name":             "Karte von Morgen / Map of Tomorrow",
+				"url":              "https://kartevonmorgen.org",
+				"profile_data_url": "https://api.ofdb.io/v0/entries/" + profile["oid"].(string),
+				"access_time":      1646697600,
 			},
 		},
 	}
