@@ -8,6 +8,6 @@ var MongoIndex = struct {
 }{
 	Node:    "nodes",
 	Schema:  "schemas",
-	Mapping: "mapping",
-	Profile: "profile",
+	Mapping: "mappings",
+	Profile: "profiles",
 }
