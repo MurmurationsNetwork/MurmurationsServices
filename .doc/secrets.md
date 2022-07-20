@@ -66,6 +66,12 @@ kubectl \
   create secret generic revalidatenode-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
   --from-literal="MONGO_PASSWORD=password"
+  
+# dataproxyupdater connects to DataProxy MongoDB.
+kubectl \
+  create secret generic dataproxyupdater-secret \
+  --from-literal="MONGO_USERNAME=data-proxy-admin" \
+  --from-literal="MONGO_PASSWORD=password"
 ```
 
 ## Delete a Secret

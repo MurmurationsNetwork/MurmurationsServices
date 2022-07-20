@@ -36,6 +36,10 @@ build:
       context: .
       docker:
         dockerfile: services/dataproxy/docker/Dockerfile-dev
+    - image: murmurations/dataproxyupdater
+      context: .
+      docker:
+        dockerfile: services/cronjob/dataproxyupdater/docker/Dockerfile-dev
 deploy:
   helm:
     releases:
@@ -50,6 +54,7 @@ deploy:
         revalidatenode.image: murmurations/revalidatenode
         geoip.image: murmurations/geoip
         dataproxy.image: murmurations/dataproxy
+        dataproxyupdater.image: murmurations/dataproxyupdater
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
         global.sourcepath: "{{.SOURCEPATH}}"
