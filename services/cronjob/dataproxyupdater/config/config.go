@@ -10,7 +10,7 @@ var Conf = config{}
 
 type config struct {
 	Mongo      mongoConf
-	DELETEDTTL int `env:"DELETED_TTL,required"`
+	DeletedTTL int `env:"DELETED_TTL,required"`
 }
 
 type mongoConf struct {
