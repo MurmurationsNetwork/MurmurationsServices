@@ -28,11 +28,12 @@ func (handler *profilesHandler) Get(c *gin.Context) {
 		return
 	}
 
-	// remove id, __v, cuid, oid
+	// remove id, __v, cuid, oid, node_id
 	delete(profile, "_id")
 	delete(profile, "__v")
 	delete(profile, "cuid")
 	delete(profile, "oid")
+	delete(profile, "node_id")
 
 	c.JSON(http.StatusOK, profile)
 }

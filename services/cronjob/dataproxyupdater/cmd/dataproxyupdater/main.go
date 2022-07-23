@@ -1,26 +1,37 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/service"
 	"github.com/lucsky/cuid"
+	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
 )
+
+type Node struct {
+	NodeId string `json:"node_id"`
+}
+type NodeData struct {
+	Data Node
+}
 
 func init() {
 	global.Init()
 }
 
 func errCleanUp(schemaName string, svc service.UpdatesService, errStr string) {
-	err := svc.SaveError(schemaName, time.Now().Unix(), errStr)
+	err := svc.SaveError(schemaName, errStr)
 	if err != nil {
 		logger.Fatal("save error message failed", err)
 	}
@@ -112,7 +123,50 @@ func main() {
 			}
 			total++
 
-			// todo: post update to Index
+			// post update to Index
+			postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
+			postProfile := make(map[string]string)
+			postProfile["profile_url"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
+			postProfileJson, err := json.Marshal(postProfile)
+			if err != nil {
+				errStr := "error when trying to marshal a profile, url: " + postProfile["profile_url"]
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+			res, err := http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
+			if err != nil {
+				errStr := "error when trying to post a profile"
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+			if res.StatusCode != 200 {
+				errStr := "post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"]
+				logger.Info(errStr)
+				errCleanUp(schemaName, svc, errStr)
+			}
+
+			// get post node body response
+			bodyBytes, err := io.ReadAll(res.Body)
+			if err != nil {
+				errStr := "read post body failed. url: " + postProfile["profile_url"]
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+
+			var nodeData NodeData
+			err = json.Unmarshal(bodyBytes, &nodeData)
+			if err != nil {
+				errStr := "unmarshal body failed. url: " + postProfile["profile_url"]
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+			// save node_id to profile
+			err = profileSvc.UpdateNodeId(oid, nodeData.Data.NodeId)
+			if err != nil {
+				errStr := "update node id failed. profile id is " + oid
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
 		}
 		// if the data total is less than limit, no need to request data again
 		if total < limit {
@@ -143,13 +197,9 @@ func getUrl(entry string, since int64, until int64, limit int, offset int) strin
 	sinceStr := strconv.FormatInt(since, 10)
 	limitStr := strconv.Itoa(limit)
 	offsetStr := strconv.Itoa(offset)
-	apiUrl := entry + "/?since=" + sinceStr + "&limit=" + limitStr + "&offset=" + offsetStr
+	untilStr := strconv.FormatInt(until, 10)
+	apiUrl := entry + "/?since=" + sinceStr + "&limit=" + limitStr + "&offset=" + offsetStr + "&until=" + untilStr
 
-	curTime := time.Now().Unix()
-	if until < curTime {
-		untilStr := strconv.FormatInt(until, 10)
-		apiUrl += "&until=" + untilStr
-	}
 	return apiUrl
 }
 

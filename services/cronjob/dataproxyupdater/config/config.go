@@ -9,7 +9,17 @@ import (
 var Conf = config{}
 
 type config struct {
-	Mongo mongoConf
+	Index     indexConf
+	DataProxy dataProxyConf
+	Mongo     mongoConf
+}
+
+type indexConf struct {
+	URL string `env:"INDEX_HOST,required"`
+}
+
+type dataProxyConf struct {
+	URL string `env:"EXTERNAL_DATA_PROXY_URL,required"`
 }
 
 type mongoConf struct {
