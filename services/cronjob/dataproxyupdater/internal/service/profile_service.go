@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/db"
 )
 
@@ -9,6 +10,8 @@ type ProfilesService interface {
 	Add(profileJson map[string]interface{}) error
 	Update(schemaName string, profileJson map[string]interface{}) error
 	UpdateNodeId(profileId string, nodeId string) error
+	GetNotPosted() ([]entity.Profile, error)
+	UpdateIsPosted(nodeId string) error
 }
 
 type profilesService struct {
@@ -35,4 +38,12 @@ func (svc *profilesService) Update(profileId string, profileJson map[string]inte
 
 func (svc *profilesService) UpdateNodeId(profileId string, nodeId string) error {
 	return svc.profileRepo.UpdateNodeId(profileId, nodeId)
+}
+
+func (svc *profilesService) GetNotPosted() ([]entity.Profile, error) {
+	return svc.profileRepo.GetNotPosted()
+}
+
+func (svc *profilesService) UpdateIsPosted(nodeId string) error {
+	return svc.profileRepo.UpdateIsPosted(nodeId)
 }

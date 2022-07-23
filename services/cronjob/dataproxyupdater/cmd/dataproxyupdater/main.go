@@ -20,7 +20,10 @@ import (
 )
 
 type Node struct {
-	NodeId string `json:"node_id"`
+	NodeId         string   `json:"node_id"`
+	ProfileUrl     string   `json:"profile_url"`
+	Status         string   `json:"status"`
+	FailureReasons []string `json:"failure_reasons"`
 }
 type NodeData struct {
 	Data Node
@@ -188,6 +191,51 @@ func main() {
 		errStr := "failed to update the updates" + err.Error()
 		logger.Error("failed to update the updates", err)
 		errCleanUp(schemaName, svc, errStr)
+	}
+
+	// get profile with not posted
+	notPostedProfiles, err := profileSvc.GetNotPosted()
+	if err != nil {
+		errStr := "failed to get not posted nodes" + err.Error()
+		logger.Error("failed to get not posted nodes", err)
+		errCleanUp(schemaName, svc, errStr)
+	}
+
+	for _, notPostedProfile := range notPostedProfiles {
+		getNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + notPostedProfile.NodeId
+		res, err := http.Get(getNodeUrl)
+		if err != nil {
+			errStr := "failed to get not posted nodes, node id is " + notPostedProfile.NodeId + err.Error()
+			logger.Error("failed to get not posted nodes", err)
+			errCleanUp(schemaName, svc, errStr)
+		}
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			errStr := "read post body failed. node id is " + notPostedProfile.NodeId + err.Error()
+			logger.Error(errStr, err)
+			errCleanUp(schemaName, svc, errStr)
+		}
+
+		var nodeData NodeData
+		err = json.Unmarshal(bodyBytes, &nodeData)
+		if err != nil {
+			errStr := "unmarshal body failed. node id is " + notPostedProfile.NodeId + err.Error()
+			logger.Error(errStr, err)
+			errCleanUp(schemaName, svc, errStr)
+		}
+
+		if nodeData.Data.Status == "posted" {
+			err = profileSvc.UpdateIsPosted(notPostedProfile.NodeId)
+			if err != nil {
+				errStr := "update isPosted failed. node id is " + notPostedProfile.NodeId + err.Error()
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+		} else {
+			// todo: the data might be cleaned by node cleaner service(bug)
+			failureReasons := fmt.Sprint(nodeData.Data.FailureReasons)
+			logger.Info(notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". error messages" + failureReasons)
+		}
 	}
 
 	cleanUp()
