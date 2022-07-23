@@ -19,6 +19,14 @@ func init() {
 	global.Init()
 }
 
+func errCleanUp(schemaName string, svc service.UpdatesService, errStr string) {
+	err := svc.SaveError(schemaName, time.Now().Unix(), errStr)
+	if err != nil {
+		logger.Fatal("save error message failed", err)
+	}
+	cleanUp()
+}
+
 func cleanUp() {
 	mongo.Client.Disconnect()
 	os.Exit(0)
@@ -35,40 +43,45 @@ func main() {
 	update := svc.Get(schemaName)
 	mapping := mappingSvc.Get(schemaName)
 
-	if len(mapping) == 0 {
-		logger.Info("can't find the mapping: " + schemaName)
-		cleanUp()
-	}
-
 	if update == nil {
 		// last_updated: according to recent_changes API, it can't retrieve the data before 100 days ago, so set default as 100 days ago.
 		lastUpdated := time.Now().AddDate(0, 0, -100).Unix()
 		err := svc.Save(schemaName, lastUpdated, apiEntry)
 		if err != nil {
-			logger.Error("save update status to server failed, error message:", err)
-			cleanUp()
+			errStr := "save update status to server failed" + err.Error()
+			logger.Error("save update status to server failed", err)
+			errCleanUp(schemaName, svc, errStr)
 		}
 		// get newer update again
 		update = svc.Get(schemaName)
 	}
 
+	// if the last error didn't solve, don't run
 	if update.HasError {
 		logger.Info("last error didn't solve, can't continue the cronjob")
+		logger.Info("last error: " + update.ErrorMessage)
 		cleanUp()
 	}
 
+	if len(mapping) == 0 {
+		errStr := "can't find the mapping: " + schemaName
+		logger.Info(errStr)
+		errCleanUp(schemaName, svc, errStr)
+	}
+
 	// recent-changes API
-	// only process 100 data in once and process only 7 days
+	// only process 100 data in once
 	entry := update.ApiEntry + "/entries/recently-changed"
 	limit := 100
 	offset := 0
-	until := time.Unix(update.LastUpdated, 0).AddDate(0, 0, 7).Unix()
+	until := time.Now().Unix()
 
 	url := getUrl(entry, update.LastUpdated, until, limit, offset)
 	profiles, err := getProfiles(url)
 	if err != nil {
-		logger.Info("get profile failed, error message: " + err.Error())
-		cleanUp()
+		errStr := "get profile failed" + err.Error()
+		logger.Error("get profile failed", err)
+		errCleanUp(schemaName, svc, errStr)
 	}
 	for len(profiles) > 0 {
 		total := 0
@@ -82,15 +95,17 @@ func main() {
 			}
 			count, err := profileSvc.Count(oid)
 			if err != nil {
-				logger.Info("can't count profile, profile id is " + oid)
-				cleanUp()
+				errStr := "can't count profile, profile id is " + oid
+				logger.Info(errStr)
+				errCleanUp(schemaName, svc, errStr)
 			}
 			if count <= 0 {
 				profileJson["cuid"] = cuid.New()
 				err = profileSvc.Add(profileJson)
 				if err != nil {
-					logger.Info("can't add profile, profile id is " + oid)
-					cleanUp()
+					errStr := "can't add profile, profile id is " + oid
+					logger.Info(errStr)
+					errCleanUp(schemaName, svc, errStr)
 				}
 			} else {
 				profileSvc.Update(oid, profileJson)
@@ -107,15 +122,21 @@ func main() {
 		url = getUrl(entry, update.LastUpdated, until, limit, offset)
 		profiles, err = getProfiles(url)
 		if err != nil {
-			logger.Info("get profile failed, error message: " + err.Error())
-			cleanUp()
+			errStr := "get profile failed" + err.Error()
+			logger.Error("get profile failed", err)
+			errCleanUp(schemaName, svc, errStr)
 		}
 	}
 
 	// save back to update
-	svc.Update(schemaName, until)
+	err = svc.Update(schemaName, until)
+	if err != nil {
+		errStr := "failed to update the updates" + err.Error()
+		logger.Error("failed to update the updates", err)
+		errCleanUp(schemaName, svc, errStr)
+	}
 
-	// todo: error handling
+	cleanUp()
 }
 
 func getUrl(entry string, since int64, until int64, limit int, offset int) string {

@@ -8,7 +8,8 @@ import (
 type UpdatesService interface {
 	Get(schemaName string) *entity.Update
 	Save(schemaName string, lastUpdated int64, apiEntry string) error
-	Update(schemaName string, lastUpdated int64)
+	Update(schemaName string, lastUpdated int64) error
+	SaveError(schemaName string, lastUpdated int64, errorMessage string) error
 }
 
 type updatesService struct {
@@ -29,6 +30,10 @@ func (svc *updatesService) Save(schemaName string, lastUpdated int64, apiEntry s
 	return svc.updateRepo.Save(schemaName, lastUpdated, apiEntry)
 }
 
-func (svc *updatesService) Update(schemaName string, lastUpdated int64) {
-	svc.updateRepo.Update(schemaName, lastUpdated)
+func (svc *updatesService) Update(schemaName string, lastUpdated int64) error {
+	return svc.updateRepo.Update(schemaName, lastUpdated)
+}
+
+func (svc *updatesService) SaveError(schemaName string, lastUpdated int64, errorMessage string) error {
+	return svc.updateRepo.SaveError(schemaName, lastUpdated, errorMessage)
 }
