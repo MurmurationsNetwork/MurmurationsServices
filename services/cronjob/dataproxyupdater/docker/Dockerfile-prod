@@ -1,7 +1,7 @@
 FROM golang:1.17.5-alpine as build
 
-WORKDIR /src/nodecleaner
-ADD . /src/nodecleaner
+WORKDIR /src/dataproxyupdater
+ADD . /src/dataproxyupdater
 RUN CGO_ENABLED=0 go build -o /bin/dataproxyupdater ./services/cronjob/dataproxyupdater/cmd/dataproxyupdater
 
 FROM ubuntu:20.04

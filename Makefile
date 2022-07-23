@@ -53,6 +53,9 @@ docker-build-dataproxy:
 docker-build-dataproxyupdater:
 	$(MAKE) -C services/cronjob/dataproxyupdater/ docker-build
 
+docker-build-dataproxycleaner:
+	$(MAKE) -C services/cronjob/dataproxycleaner/ docker-build
+
 # ---------------------------------------------------------------
 
 TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
@@ -83,6 +86,9 @@ docker-tag-dataproxy: docker-build-dataproxy
 
 docker-tag-dataproxyupdater: docker-build-dataproxyupdater
 	docker tag murmurations/dataproxyupdater murmurations/dataproxyupdater:${TAG}
+
+docker-tag-dataproxycleaner: docker-build-dataproxycleaner
+	docker tag murmurations/dataproxycleaner murmurations/dataproxycleaner:${TAG}
 
 # ---------------------------------------------------------------
 
@@ -122,6 +128,10 @@ docker-push-dataproxyupdater: docker-tag-dataproxyupdater
 	docker push murmurations/dataproxyupdater:latest
 	docker push murmurations/dataproxyupdater:$(TAG)
 
+docker-push-dataproxycleaner: docker-tag-dataproxycleaner
+	docker push murmurations/dataproxycleaner:latest
+	docker push murmurations/dataproxycleaner:$(TAG)
+
 # ---------------------------------------------------------------
 
 deploy-ingress:
@@ -156,6 +166,9 @@ deploy-dataproxy:
 
 deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(TAG) --install --atomic
+
+deploy-dataproxycleaner:
+	helm upgrade murmurations-dataproxycleaner ./charts/murmurations/charts/dataproxycleaner --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxycleaner:$(TAG) --install --atomic
 
 # ---------------------------------------------------------------
 
@@ -195,3 +208,6 @@ manually-deploy-dataproxy:
 
 manually-deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater --set global.env=$(ENV),image=murmurations/dataproxyupdater:$(SPECIFIC_TAG) --install --atomic
+
+manually-deploy-dataproxycleaner:
+	helm upgrade murmurations-dataproxycleaner ./charts/murmurations/charts/dataproxycleaner --set global.env=$(ENV),image=murmurations/dataproxycleaner:$(SPECIFIC_TAG) --install --atomic

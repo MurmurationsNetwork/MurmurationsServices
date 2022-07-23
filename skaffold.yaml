@@ -40,6 +40,10 @@ build:
       context: .
       docker:
         dockerfile: services/cronjob/dataproxyupdater/docker/Dockerfile-dev
+    - image: murmurations/dataproxycleaner
+      context: .
+      docker:
+        dockerfile: services/cronjob/dataproxycleaner/docker/Dockerfile-dev
 deploy:
   helm:
     releases:
@@ -55,6 +59,7 @@ deploy:
         geoip.image: murmurations/geoip
         dataproxy.image: murmurations/dataproxy
         dataproxyupdater.image: murmurations/dataproxyupdater
+        dataproxycleaner.image: murmurations/dataproxycleaner
       # Skaffold will try to parse the value part of each key-value pair using environment variables in the system
       setValueTemplates:
         global.sourcepath: "{{.SOURCEPATH}}"

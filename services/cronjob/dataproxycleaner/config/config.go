@@ -9,7 +9,8 @@ import (
 var Conf = config{}
 
 type config struct {
-	Mongo mongoConf
+	Mongo      mongoConf
+	DeletedTTL int64 `env:"DELETED_TTL,required"`
 }
 
 type mongoConf struct {

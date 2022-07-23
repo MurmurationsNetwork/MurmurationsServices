@@ -72,6 +72,12 @@ kubectl \
   create secret generic dataproxyupdater-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
   --from-literal="MONGO_PASSWORD=password"
+  
+# dataproxycleaner connects to DataProxy MongoDB.
+kubectl \
+  create secret generic dataproxycleaner-secret \
+  --from-literal="MONGO_USERNAME=data-proxy-admin" \
+  --from-literal="MONGO_PASSWORD=password"
 ```
 
 ## Delete a Secret

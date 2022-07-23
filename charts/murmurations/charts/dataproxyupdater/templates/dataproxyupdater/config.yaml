@@ -5,8 +5,3 @@ metadata:
 data:
   MONGO_HOST: data-proxy-mongo:27017
   MONGO_DB_NAME: murmurationsDataProxy
-  {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") }}
-  DELETED_TTL: "7776000" # 90 days * 24 hrs * 60 mins * 60 secs
-  {{- else }}
-  DELETED_TTL: "7776000"
-  {{- end }}
