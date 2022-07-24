@@ -102,10 +102,51 @@ func main() {
 	for len(profiles) > 0 {
 		total := 0
 		for _, value := range profiles {
-			var profileJson map[string]interface{}
-			profileJson = mapData(value, mapping, schemaName)
-			oid := profileJson["oid"].(string)
-			if profileJson["primary_url"] == nil {
+			var profile map[string]interface{}
+			profile = mapData(value, mapping, schemaName)
+			oid := profile["oid"].(string)
+
+			// validate data
+			validateUrl := config.Conf.Index.URL + "/v2/validate"
+			profileJson, err := json.Marshal(profile)
+			if err != nil {
+				errStr := "marshall profile failed, profile id is " + oid + ". error message: " + err.Error()
+				logger.Error("marshall profile failed", err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+			res, err := http.Post(validateUrl, "application/json", bytes.NewBuffer(profileJson))
+			if err != nil {
+				errStr := "validate profile failed, profile id is " + oid + ". error message: " + err.Error()
+				logger.Error("validate profile failed", err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+			if res.StatusCode != 200 {
+				errStr := "validate failed, profile id is " + oid + ". the status code is" + strconv.Itoa(res.StatusCode)
+				logger.Info(errStr)
+				errCleanUp(schemaName, svc, errStr)
+			}
+
+			var resBody map[string]interface{}
+			json.NewDecoder(res.Body).Decode(&resBody)
+			statusCode := int64(resBody["status"].(float64))
+			if statusCode != 200 {
+				if resBody["failure_reasons"] != nil {
+					var failureReasons []string
+					for _, item := range resBody["failure_reasons"].([]interface{}) {
+						failureReasons = append(failureReasons, item.(string))
+					}
+					failureReasonsStr := strings.Join(failureReasons, ",")
+					errStr := "validate failed, profile id is " + oid + ". error message: " + failureReasonsStr
+					logger.Info(errStr)
+					errCleanUp(schemaName, svc, errStr)
+				}
+				errStr := "validate profile failed without reason, profile id is " + oid
+				logger.Info(errStr)
+				errCleanUp(schemaName, svc, errStr)
+			}
+
+			// save to Mongo
+			if profile["primary_url"] == nil {
 				logger.Info("primary_url is empty, profile id is " + oid)
 				continue
 			}
@@ -116,15 +157,15 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 			if count <= 0 {
-				profileJson["cuid"] = cuid.New()
-				err = profileSvc.Add(profileJson)
+				profile["cuid"] = cuid.New()
+				err = profileSvc.Add(profile)
 				if err != nil {
 					errStr := "can't add a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
 			} else {
-				err = profileSvc.Update(oid, profileJson)
+				err = profileSvc.Update(oid, profile)
 				if err != nil {
 					errStr := "can't update a profile, profile id is " + oid
 					logger.Info(errStr)
@@ -136,14 +177,14 @@ func main() {
 			// post update to Index
 			postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
 			postProfile := make(map[string]string)
-			postProfile["profile_url"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
+			postProfile["profile_url"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profile["cuid"].(string)
 			postProfileJson, err := json.Marshal(postProfile)
 			if err != nil {
 				errStr := "error when trying to marshal a profile, url: " + postProfile["profile_url"]
 				logger.Error(errStr, err)
 				errCleanUp(schemaName, svc, errStr)
 			}
-			res, err := http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
+			res, err = http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
 			if err != nil {
 				errStr := "error when trying to post a profile"
 				logger.Error(errStr, err)
