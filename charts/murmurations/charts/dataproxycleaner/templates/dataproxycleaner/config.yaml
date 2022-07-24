@@ -11,14 +11,3 @@ data:
   {{- else }}
   DELETED_TTL: "600" # 10 mins * 60 seconds
   {{- end }}
-  {{- if eq .Values.global.env "live" }}
-  EXTERNAL_DATA_PROXY_URL: https://main-data-proxy.murmurations.network
-  {{- else if eq .Values.global.env "production" }}
-  EXTERNAL_DATA_PROXY_URL: https://data-proxy.murmurations.network
-  {{- else if eq .Values.global.env "test" }}
-  EXTERNAL_DATA_PROXY_URL: https://test-data-proxy.murmurations.network
-  {{- else if eq .Values.global.env "pretest" }}
-  EXTERNAL_DATA_PROXY_URL: https://pretest-data-proxy.murmurations.network
-  {{- else }}
-  EXTERNAL_DATA_PROXY_URL: http://data-proxy-app:8080
-  {{- end }}

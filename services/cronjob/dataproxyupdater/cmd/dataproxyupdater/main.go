@@ -233,6 +233,7 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 		} else {
+			// todo: there is a situation which the node is not validated and the node is cleaned by node cleaner
 			failureReasons := strings.Join(nodeData.Data.FailureReasons, ",")
 			logger.Info(notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + failureReasons)
 		}

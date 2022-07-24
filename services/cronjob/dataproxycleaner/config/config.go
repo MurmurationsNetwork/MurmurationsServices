@@ -10,17 +10,12 @@ var Conf = config{}
 
 type config struct {
 	Index      indexConf
-	DataProxy  dataProxyConf
 	Mongo      mongoConf
 	DeletedTTL int64 `env:"DELETED_TTL,required"`
 }
 
 type indexConf struct {
 	URL string `env:"INDEX_HOST,required"`
-}
-
-type dataProxyConf struct {
-	URL string `env:"EXTERNAL_DATA_PROXY_URL,required"`
 }
 
 type mongoConf struct {
