@@ -21,13 +21,14 @@ import (
 )
 
 type Node struct {
-	NodeId         string   `json:"node_id"`
-	ProfileUrl     string   `json:"profile_url"`
-	Status         string   `json:"status"`
-	FailureReasons []string `json:"failure_reasons"`
+	NodeId         string   `json:"node_id,omitempty"`
+	ProfileUrl     string   `json:"profile_url,omitempty"`
+	Status         string   `json:"status,omitempty"`
+	FailureReasons []string `json:"failure_reasons,omitempty"`
 }
 type NodeData struct {
-	Data Node
+	Data   Node
+	Status int `json:"status,omitempty"`
 }
 
 func init() {
@@ -118,12 +119,17 @@ func main() {
 				profileJson["cuid"] = cuid.New()
 				err = profileSvc.Add(profileJson)
 				if err != nil {
-					errStr := "can't add profile, profile id is " + oid
+					errStr := "can't add a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
 			} else {
-				profileSvc.Update(oid, profileJson)
+				err = profileSvc.Update(oid, profileJson)
+				if err != nil {
+					errStr := "can't update a profile, profile id is " + oid
+					logger.Info(errStr)
+					errCleanUp(schemaName, svc, errStr)
+				}
 			}
 			total++
 
@@ -225,6 +231,15 @@ func main() {
 			errCleanUp(schemaName, svc, errStr)
 		}
 
+		if nodeData.Status == 404 {
+			err = profileSvc.Delete(notPostedProfile.Cuid)
+			if err != nil {
+				errStr := "delete profile failed. node cuid is " + notPostedProfile.Cuid + err.Error()
+				logger.Error(errStr, err)
+				errCleanUp(schemaName, svc, errStr)
+			}
+		}
+
 		if nodeData.Data.Status == "posted" {
 			err = profileSvc.UpdateIsPosted(notPostedProfile.NodeId)
 			if err != nil {
@@ -233,9 +248,8 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 		} else {
-			// todo: there is a situation which the node is not validated and the node is cleaned by node cleaner
 			failureReasons := strings.Join(nodeData.Data.FailureReasons, ",")
-			logger.Info(notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + failureReasons)
+			logger.Info("node id " + notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + failureReasons)
 		}
 	}
 

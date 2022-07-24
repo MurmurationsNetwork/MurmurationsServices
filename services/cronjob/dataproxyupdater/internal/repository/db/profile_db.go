@@ -17,6 +17,7 @@ type ProfileRepository interface {
 	UpdateNodeId(profileId string, nodeId string) error
 	GetNotPosted() ([]entity.Profile, error)
 	UpdateIsPosted(nodeId string) error
+	Delete(profileId string) error
 }
 
 func NewProfileRepository(client *mongo.Client) ProfileRepository {
@@ -102,6 +103,18 @@ func (r *profileRepository) UpdateIsPosted(nodeId string) error {
 
 	if result.Err() != nil {
 		return result.Err()
+	}
+
+	return nil
+}
+
+func (r *profileRepository) Delete(profileId string) error {
+	filter := bson.M{"cuid": profileId}
+
+	_, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Profile).DeleteOne(context.Background(), filter)
+
+	if err != nil {
+		return err
 	}
 
 	return nil

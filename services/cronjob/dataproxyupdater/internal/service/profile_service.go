@@ -12,6 +12,7 @@ type ProfilesService interface {
 	UpdateNodeId(profileId string, nodeId string) error
 	GetNotPosted() ([]entity.Profile, error)
 	UpdateIsPosted(nodeId string) error
+	Delete(profileId string) error
 }
 
 type profilesService struct {
@@ -46,4 +47,8 @@ func (svc *profilesService) GetNotPosted() ([]entity.Profile, error) {
 
 func (svc *profilesService) UpdateIsPosted(nodeId string) error {
 	return svc.profileRepo.UpdateIsPosted(nodeId)
+}
+
+func (svc *profilesService) Delete(profileId string) error {
+	return svc.profileRepo.Delete(profileId)
 }
