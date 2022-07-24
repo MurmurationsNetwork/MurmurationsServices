@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -232,9 +233,8 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 		} else {
-			// todo: the data might be cleaned by node cleaner service(bug)
-			failureReasons := fmt.Sprint(nodeData.Data.FailureReasons)
-			logger.Info(notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". error messages" + failureReasons)
+			failureReasons := strings.Join(nodeData.Data.FailureReasons, ",")
+			logger.Info(notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + failureReasons)
 		}
 	}
 

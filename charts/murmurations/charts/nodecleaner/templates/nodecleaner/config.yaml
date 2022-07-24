@@ -10,9 +10,9 @@ data:
   TTL: "86400" # 24 hrs
   DELETED_TTL: "15552000" # 6 months = 180 days * 24 hrs * 60 mins * 60 secs
   {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
-  TTL: "240"   # 4 mins
+  TTL: "2400"   # 40 mins
   DELETED_TTL: "240" # 4 mins
   {{- else }}
-  TTL: "120"   # 2 mins
+  TTL: "1200"   # 20 mins
   DELETED_TTL: "120" # 2 mins
   {{- end }}
