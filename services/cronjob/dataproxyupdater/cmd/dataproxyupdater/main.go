@@ -172,12 +172,13 @@ func main() {
 					errCleanUp(schemaName, svc, errStr)
 				}
 			} else {
-				err = profileSvc.Update(oid, profile)
+				result, err := profileSvc.Update(oid, profile)
 				if err != nil {
 					errStr := "can't update a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
+				profile["cuid"] = result["cuid"]
 			}
 			total++
 

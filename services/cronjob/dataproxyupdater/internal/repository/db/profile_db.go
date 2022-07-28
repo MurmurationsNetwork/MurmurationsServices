@@ -13,7 +13,7 @@ import (
 type ProfileRepository interface {
 	Count(profileId string) (int64, error)
 	Add(profileJson map[string]interface{}) error
-	Update(schemaName string, profileJson map[string]interface{}) error
+	Update(schemaName string, profileJson map[string]interface{}) (map[string]interface{}, error)
 	UpdateNodeId(profileId string, nodeId string) error
 	GetNotPosted() ([]entity.Profile, error)
 	UpdateIsPosted(nodeId string) error
@@ -33,7 +33,7 @@ type profileRepository struct {
 func (r *profileRepository) Count(profileId string) (int64, error) {
 	filter := bson.M{"oid": profileId}
 
-	count, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Update).CountDocuments(context.Background(), filter)
+	count, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Profile).CountDocuments(context.Background(), filter)
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +50,7 @@ func (r *profileRepository) Add(profileJson map[string]interface{}) error {
 	return nil
 }
 
-func (r *profileRepository) Update(profileId string, profileJson map[string]interface{}) error {
+func (r *profileRepository) Update(profileId string, profileJson map[string]interface{}) (map[string]interface{}, error) {
 	filter := bson.M{"oid": profileId}
 	update := bson.M{"$set": profileJson}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
@@ -58,10 +58,16 @@ func (r *profileRepository) Update(profileId string, profileJson map[string]inte
 	result := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Profile).FindOneAndUpdate(context.Background(), filter, update, opt)
 
 	if result.Err() != nil {
-		return result.Err()
+		return nil, result.Err()
 	}
 
-	return nil
+	var profile map[string]interface{}
+	err := result.Decode(&profile)
+	if err != nil {
+		return nil, err
+	}
+
+	return profile, nil
 }
 
 func (r *profileRepository) UpdateNodeId(profileId string, nodeId string) error {
