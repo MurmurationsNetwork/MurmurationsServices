@@ -47,6 +47,12 @@ var headerAlphabets = map[int]string{
 	25: "Z",
 }
 
+var kvmCategory = map[string]string{
+	"2cd00bebec0c48ba9db761da48678134": "#non-profit",
+	"77b3c33a92554bcf8e8c2c86cedd6f6f": "#commercial",
+	"c2dc278a2d6a4b9b8a50cb606fc017ed": "#event",
+}
+
 // global variables
 var fileName = "schema.xlsx"
 var sheetName = "sheet1"
@@ -173,6 +179,18 @@ func validate(schema string, profile map[string]interface{}) (bool, string, erro
 		// Array type
 		if k == "tags" {
 			profile[k] = strings.Split(v.(string), ",")
+			continue
+		}
+		if k == "kvm_category" {
+			categorySlice := strings.Split(v.(string), ",")
+			for ci, cv := range categorySlice {
+				categoryName := kvmCategory[cv]
+				if categoryName == "" {
+					return false, "", fmt.Errorf("can't find category name, category string is %s", cv)
+				}
+				categorySlice[ci] = categoryName
+			}
+			profile[k] = categorySlice
 			continue
 		}
 		// Number type
