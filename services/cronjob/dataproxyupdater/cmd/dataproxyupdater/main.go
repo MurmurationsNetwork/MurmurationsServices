@@ -20,6 +20,12 @@ import (
 	"time"
 )
 
+var kvmCategory = map[string]string{
+	"2cd00bebec0c48ba9db761da48678134": "#non-profit",
+	"77b3c33a92554bcf8e8c2c86cedd6f6f": "#commercial",
+	"c2dc278a2d6a4b9b8a50cb606fc017ed": "#event",
+}
+
 type Node struct {
 	NodeId         string   `json:"node_id,omitempty"`
 	ProfileUrl     string   `json:"profile_url,omitempty"`
@@ -106,6 +112,11 @@ func main() {
 			profile = mapData(value, mapping, schemaName)
 			oid := profile["oid"].(string)
 
+			if profile["primary_url"] == nil {
+				logger.Info("primary_url is empty, profile id is " + oid)
+				continue
+			}
+
 			// validate data
 			validateUrl := config.Conf.Index.URL + "/v2/validate"
 			profileJson, err := json.Marshal(profile)
@@ -146,10 +157,6 @@ func main() {
 			}
 
 			// save to Mongo
-			if profile["primary_url"] == nil {
-				logger.Info("primary_url is empty, profile id is " + oid)
-				continue
-			}
 			count, err := profileSvc.Count(oid)
 			if err != nil {
 				errStr := "can't count profile, profile id is " + oid
@@ -352,6 +359,16 @@ func mapData(profile map[string]interface{}, mapping map[string]string, schema s
 		},
 	}
 	profileJson["metadata"] = metadata
+
+	// replace kvm_category with real name
+	if profileJson["kvm_category"] != nil {
+		categoriesInterface := profileJson["kvm_category"].([]interface{})
+		categoriesString := make([]string, len(categoriesInterface))
+		for i, v := range categoriesInterface {
+			categoriesString[i] = kvmCategory[v.(string)]
+		}
+		profileJson["kvm_category"] = categoriesString
+	}
 
 	return profileJson
 }
