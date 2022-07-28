@@ -106,7 +106,6 @@ func main() {
 		errCleanUp(schemaName, svc, errStr)
 	}
 	for len(profiles) > 0 {
-		total := 0
 		for _, value := range profiles {
 			var profile map[string]interface{}
 			profile = mapData(value, mapping, schemaName)
@@ -180,7 +179,6 @@ func main() {
 				}
 				profile["cuid"] = result["cuid"]
 			}
-			total++
 
 			// post update to Index
 			postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
@@ -226,10 +224,6 @@ func main() {
 				logger.Error(errStr, err)
 				errCleanUp(schemaName, svc, errStr)
 			}
-		}
-		// if the data total is less than limit, no need to request data again
-		if total < limit {
-			break
 		}
 		offset += limit
 		url = getUrl(entry, update.LastUpdated, until, limit, offset)
