@@ -165,7 +165,7 @@ jobs:
         run: make docker-push-dataproxyupdater
 
   build-dataproxyrefresher:
-    name: Build Data Proxy Cleaner
+    name: Build Data Proxy Refresher
     needs: test
     runs-on: ubuntu-latest
     steps:
