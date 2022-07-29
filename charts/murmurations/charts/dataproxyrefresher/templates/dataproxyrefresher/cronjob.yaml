@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: dataproxycleaner-app
+  name: dataproxyrefresher-app
 spec:
   {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   schedule: "0 1 * * *" # every day at 1 a.m.
@@ -13,20 +13,20 @@ spec:
       template:
         metadata:
           annotations:
-            checksum/config: {{ include (print $.Template.BasePath "/dataproxycleaner/config.yaml") . | sha256sum }}
+            checksum/config: {{ include (print $.Template.BasePath "/dataproxyrefresher/config.yaml") . | sha256sum }}
         spec:
           containers:
-            - name: dataproxycleaner-app
+            - name: dataproxyrefresher-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
               envFrom:
                 - configMapRef:
-                    name: dataproxycleaner-app-config
+                    name: dataproxyrefresher-app-config
                 - secretRef:
-                    name: dataproxycleaner-secret
+                    name: dataproxyrefresher-secret
           {{- if eq .Values.global.env "development" }}
               command: ["go", "run"]
-              args: ["services/cronjob/dataproxycleaner/cmd/dataproxycleaner/main.go"]
+              args: ["services/cronjob/dataproxyrefresher/cmd/dataproxyrefresher/main.go"]
               volumeMounts:
                 - mountPath: /src
                   name: source-path

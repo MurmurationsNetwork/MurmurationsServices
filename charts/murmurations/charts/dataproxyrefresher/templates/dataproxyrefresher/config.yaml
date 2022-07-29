@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dataproxycleaner-app-config
+  name: dataproxyrefresher-app-config
 data:
   MONGO_HOST: data-proxy-mongo:27017
   MONGO_DB_NAME: murmurationsDataProxy
   INDEX_HOST: http://index-app:8080
   {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
-  DELETED_TTL: "7776000" # 90 days * 24 hrs * 60 mins * 60 secs
+  REFRESH_TTL: "7776000" # 90 days * 24 hrs * 60 mins * 60 secs
   {{- else }}
-  DELETED_TTL: "600" # 10 mins * 60 seconds
+  REFRESH_TTL: "600" # 10 mins * 60 seconds
   {{- end }}

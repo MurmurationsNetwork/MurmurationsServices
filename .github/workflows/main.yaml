@@ -164,7 +164,7 @@ jobs:
       - name: Publish dataproxyupdater docker images
         run: make docker-push-dataproxyupdater
 
-  build-dataproxycleaner:
+  build-dataproxyrefresher:
     name: Build Data Proxy Cleaner
     needs: test
     runs-on: ubuntu-latest
@@ -177,12 +177,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Publish dataproxycleaner docker images
-        run: make docker-push-dataproxycleaner
+      - name: Publish dataproxyrefresher docker images
+        run: make docker-push-dataproxyrefresher
 
   deploy:
     name: Deploy
-    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy, build-dataproxyupdater, build-dataproxycleaner ]
+    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy, build-dataproxyupdater, build-dataproxyrefresher ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -222,8 +222,8 @@ jobs:
       - name: Restart dataproxyupdater deployment
         run: make deploy-dataproxyupdater DEPLOY_ENV=live
 
-      - name: Restart dataproxycleaner deployment
-        run: make deploy-dataproxycleaner DEPLOY_ENV=live
+      - name: Restart dataproxyrefresher deployment
+        run: make deploy-dataproxyrefresher DEPLOY_ENV=live
 
   # Disabled because tests reference test schemas not in the main-cdn
 

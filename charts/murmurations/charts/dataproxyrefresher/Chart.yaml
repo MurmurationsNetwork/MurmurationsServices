@@ -1,6 +1,6 @@
 apiVersion: v2
-name: dataproxycleaner
-description: murmurations dataproxycleaner
+name: dataproxyrefresher
+description: murmurations dataproxyrefresher
 
 # A chart can be either an 'application' or a 'library' chart.
 #

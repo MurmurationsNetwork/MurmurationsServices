@@ -11,7 +11,7 @@ var Conf = config{}
 type config struct {
 	Index      indexConf
 	Mongo      mongoConf
-	DeletedTTL int64 `env:"DELETED_TTL,required"`
+	RefreshTTL int64 `env:"REFRESH_TTL,required"`
 }
 
 type indexConf struct {

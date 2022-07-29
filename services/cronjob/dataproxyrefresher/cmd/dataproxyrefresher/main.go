@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxycleaner/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxycleaner/global"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxycleaner/internal/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxycleaner/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/global"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/service"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -35,8 +35,8 @@ func main() {
 	svc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
 
 	curTime := time.Now().Unix()
-	deleteBefore := curTime - config.Conf.DeletedTTL
-	profiles, err := svc.FindLessThan(deleteBefore)
+	refreshBefore := curTime - config.Conf.RefreshTTL
+	profiles, err := svc.FindLessThan(refreshBefore)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			logger.Error("no profile found", err)
