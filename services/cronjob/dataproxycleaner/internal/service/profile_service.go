@@ -7,6 +7,7 @@ import (
 
 type ProfilesService interface {
 	FindLessThan(timestamp int64) ([]entity.Profile, error)
+	UpdateAccessTime(profileId string) error
 	Delete(profileId string) error
 }
 
@@ -22,6 +23,10 @@ func NewProfileService(profileRepo db.ProfileRepository) ProfilesService {
 
 func (svc *profilesService) FindLessThan(timestamp int64) ([]entity.Profile, error) {
 	return svc.profileRepo.FindLessThan(timestamp)
+}
+
+func (svc *profilesService) UpdateAccessTime(profileId string) error {
+	return svc.profileRepo.UpdateAccessTime(profileId)
 }
 
 func (svc *profilesService) Delete(profileId string) error {
