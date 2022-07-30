@@ -34,4 +34,7 @@ make manually-deploy-library
 make manually-deploy-nodecleaner
 make manually-deploy-schemaparser
 make manually-deploy-revalidatenode
+make manually-deploy-dataproxy
+make manually-deploy-dataproxyupdater
+make manually-deploy-dataproxyrefresher
 ```
