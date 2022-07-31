@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
@@ -19,23 +19,6 @@ import (
 	"strings"
 	"time"
 )
-
-var kvmCategory = map[string]string{
-	"2cd00bebec0c48ba9db761da48678134": "#non-profit",
-	"77b3c33a92554bcf8e8c2c86cedd6f6f": "#commercial",
-	"c2dc278a2d6a4b9b8a50cb606fc017ed": "#event",
-}
-
-type Node struct {
-	NodeId         string   `json:"node_id,omitempty"`
-	ProfileUrl     string   `json:"profile_url,omitempty"`
-	Status         string   `json:"status,omitempty"`
-	FailureReasons []string `json:"failure_reasons,omitempty"`
-}
-type NodeData struct {
-	Data   Node
-	Status int `json:"status,omitempty"`
-}
 
 func init() {
 	global.Init()
@@ -59,11 +42,9 @@ func main() {
 	apiEntry := "https://api.ofdb.io/v0"
 
 	svc := service.NewUpdateService(db.NewUpdateRepository(mongo.Client.GetClient()))
-	mappingSvc := service.NewMappingService(db.NewMappingRepository(mongo.Client.GetClient()))
 	profileSvc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
 
 	update := svc.Get(schemaName)
-	mapping := mappingSvc.Get(schemaName)
 
 	if update == nil {
 		// last_updated: according to recent_changes API, it can't retrieve the data before 100 days ago, so set default as 100 days ago.
@@ -83,6 +64,13 @@ func main() {
 		logger.Info("last error didn't solve, can't continue the cronjob")
 		logger.Info("last error: " + update.ErrorMessage)
 		cleanUp()
+	}
+
+	mapping, err := importutil.GetMapping(schemaName)
+	if err != nil {
+		errStr := "get mapping failed" + err.Error()
+		logger.Error("get mapping failed", err)
+		errCleanUp(schemaName, svc, errStr)
 	}
 
 	if len(mapping) == 0 {
@@ -106,51 +94,25 @@ func main() {
 		errCleanUp(schemaName, svc, errStr)
 	}
 	for len(profiles) > 0 {
-		for _, value := range profiles {
-			var profile map[string]interface{}
-			profile = mapData(value, mapping, schemaName)
-			oid := profile["oid"].(string)
+		for _, oldProfile := range profiles {
+			profileJson := importutil.MapProfile(oldProfile, mapping, schemaName)
+			oid := profileJson["oid"].(string)
 
-			if profile["primary_url"] == nil {
+			if profileJson["primary_url"] == nil {
 				logger.Info("primary_url is empty, profile id is " + oid)
 				continue
 			}
-
+			
 			// validate data
 			validateUrl := config.Conf.Index.URL + "/v2/validate"
-			profileJson, err := json.Marshal(profile)
-			if err != nil {
-				errStr := "marshall profile failed, profile id is " + oid + ". error message: " + err.Error()
-				logger.Error("marshall profile failed", err)
-				errCleanUp(schemaName, svc, errStr)
-			}
-			res, err := http.Post(validateUrl, "application/json", bytes.NewBuffer(profileJson))
+			isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
 			if err != nil {
 				errStr := "validate profile failed, profile id is " + oid + ". error message: " + err.Error()
 				logger.Error("validate profile failed", err)
 				errCleanUp(schemaName, svc, errStr)
 			}
-			if res.StatusCode != 200 {
-				errStr := "validate failed, profile id is " + oid + ". the status code is" + strconv.Itoa(res.StatusCode)
-				logger.Info(errStr)
-				errCleanUp(schemaName, svc, errStr)
-			}
-
-			var resBody map[string]interface{}
-			json.NewDecoder(res.Body).Decode(&resBody)
-			statusCode := int64(resBody["status"].(float64))
-			if statusCode != 200 {
-				if resBody["failure_reasons"] != nil {
-					var failureReasons []string
-					for _, item := range resBody["failure_reasons"].([]interface{}) {
-						failureReasons = append(failureReasons, item.(string))
-					}
-					failureReasonsStr := strings.Join(failureReasons, ",")
-					errStr := "validate failed, profile id is " + oid + ". error message: " + failureReasonsStr
-					logger.Info(errStr)
-					errCleanUp(schemaName, svc, errStr)
-				}
-				errStr := "validate profile failed without reason, profile id is " + oid
+			if !isValid {
+				errStr := "validate profile failed, profile id is " + oid + ". failure reasons: " + failureReasons
 				logger.Info(errStr)
 				errCleanUp(schemaName, svc, errStr)
 			}
@@ -163,62 +125,35 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 			if count <= 0 {
-				profile["cuid"] = cuid.New()
-				err = profileSvc.Add(profile)
+				profileJson["cuid"] = cuid.New()
+				err := profileSvc.Add(profileJson)
 				if err != nil {
 					errStr := "can't add a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
 			} else {
-				result, err := profileSvc.Update(oid, profile)
+				result, err := profileSvc.Update(oid, profileJson)
 				if err != nil {
 					errStr := "can't update a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
-				profile["cuid"] = result["cuid"]
+				profileJson["cuid"] = result["cuid"]
 			}
 
 			// post update to Index
 			postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
-			postProfile := make(map[string]string)
-			postProfile["profile_url"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profile["cuid"].(string)
-			postProfileJson, err := json.Marshal(postProfile)
+			profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
+			nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 			if err != nil {
-				errStr := "error when trying to marshal a profile, url: " + postProfile["profile_url"]
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
-			}
-			res, err = http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
-			if err != nil {
-				errStr := "error when trying to post a profile"
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
-			}
-			if res.StatusCode != 200 {
-				errStr := "post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"]
-				logger.Info(errStr)
-				errCleanUp(schemaName, svc, errStr)
-			}
-
-			// get post node body response
-			bodyBytes, err := io.ReadAll(res.Body)
-			if err != nil {
-				errStr := "read post body failed. url: " + postProfile["profile_url"]
+				errStr := "failed to post profile to Index, profile url is " + profileUrl + ". error message: " + err.Error()
 				logger.Error(errStr, err)
 				errCleanUp(schemaName, svc, errStr)
 			}
 
-			var nodeData NodeData
-			err = json.Unmarshal(bodyBytes, &nodeData)
-			if err != nil {
-				errStr := "unmarshal body failed. url: " + postProfile["profile_url"]
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
-			}
 			// save node_id to profile
-			err = profileSvc.UpdateNodeId(oid, nodeData.Data.NodeId)
+			err = profileSvc.UpdateNodeId(oid, nodeId)
 			if err != nil {
 				errStr := "update node id failed. profile id is " + oid
 				logger.Error(errStr, err)
@@ -266,7 +201,7 @@ func main() {
 			errCleanUp(schemaName, svc, errStr)
 		}
 
-		var nodeData NodeData
+		var nodeData importutil.NodeData
 		err = json.Unmarshal(bodyBytes, &nodeData)
 		if err != nil {
 			errStr := "unmarshal body failed. node id is " + notPostedProfile.NodeId + err.Error()
@@ -324,46 +259,4 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 	}
 
 	return bodyJson, nil
-}
-
-func mapData(profile map[string]interface{}, mapping map[string]string, schema string) map[string]interface{} {
-	profileJson := make(map[string]interface{})
-
-	// change field name
-	for k, v := range mapping {
-		if profile[v] == nil {
-			continue
-		}
-		profileJson[k] = profile[v]
-	}
-
-	// oid
-	profileJson["oid"] = profile["id"]
-	// schema
-	s := []string{schema}
-	profileJson["linked_schemas"] = s
-	// metadata
-	metadata := map[string]interface{}{
-		"sources": []map[string]interface{}{
-			{
-				"name":             "Karte von Morgen / Map of Tomorrow",
-				"url":              "https://kartevonmorgen.org",
-				"profile_data_url": "https://api.ofdb.io/v0/entries/" + profileJson["oid"].(string),
-				"access_time":      time.Now().Unix(),
-			},
-		},
-	}
-	profileJson["metadata"] = metadata
-
-	// replace kvm_category with real name
-	if profileJson["kvm_category"] != nil {
-		categoriesInterface := profileJson["kvm_category"].([]interface{})
-		categoriesString := make([]string, len(categoriesInterface))
-		for i, v := range categoriesInterface {
-			categoriesString[i] = kvmCategory[v.(string)]
-		}
-		profileJson["kvm_category"] = categoriesString
-	}
-
-	return profileJson
 }
