@@ -148,17 +148,8 @@ func importData(row int, schemaName string, headerMap map[string]string, mapping
 	for k, v := range oldProfile {
 		// Array type
 		if k == "tags" {
-			tags := strings.Split(v.(string), ",")
-			// remove empty elements
-			for key, tag := range tags {
-				if tag == "" {
-					copy(tags[key:], tags[key+1:])
-					tags[len(tags)-1] = ""
-					tags = tags[:len(tags)-1]
-				}
-			}
-			if len(tags) > 0 {
-				oldProfile[k] = tags
+			if v.(string) != "" {
+				oldProfile[k] = strings.Split(v.(string), ",")
 			}
 			continue
 		}
