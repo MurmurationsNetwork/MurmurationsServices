@@ -252,6 +252,7 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 
 	for _, linkedSchema := range linkedSchemas {
 		schemaURL := getSchemaURL(linkedSchema)
+		fmt.Println(schemaURL)
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
@@ -283,7 +284,7 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 }
 
 func getSchemaURL(linkedSchema string) string {
-	return config.Conf.Library.URL + "/schemas/" + linkedSchema + ".json"
+	return config.Conf.Library.InternalURL + "/v1/schema/" + linkedSchema
 }
 
 func (handler *nodeHandler) parseValidateError(schema string, resultErrors []gojsonschema.ResultError) []string {

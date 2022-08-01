@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"errors"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
@@ -13,6 +12,7 @@ import (
 )
 
 type SchemaRepo interface {
+	Get(schemaName string) (interface{}, resterr.RestErr)
 	Search() (schema.Schemas, resterr.RestErr)
 }
 
@@ -20,6 +20,21 @@ type schemaRepo struct{}
 
 func NewSchemaRepo() SchemaRepo {
 	return &schemaRepo{}
+}
+
+func (r *schemaRepo) Get(schemaName string) (interface{}, resterr.RestErr) {
+	filter := bson.M{"name": schemaName}
+	result := mongo.Client.FindOne(constant.MongoIndex.Schema, filter)
+
+	var singleSchema map[string]interface{}
+	err := result.Decode(&singleSchema)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, resterr.NewNotFoundError("schema not found.")
+		}
+		return nil, resterr.NewInternalServerError("Error when trying to decode schema.", err)
+	}
+	return singleSchema["full_schema"], nil
 }
 
 func (r *schemaRepo) Search() (schema.Schemas, resterr.RestErr) {
