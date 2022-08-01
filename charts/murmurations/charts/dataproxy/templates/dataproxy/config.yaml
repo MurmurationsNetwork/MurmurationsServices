@@ -10,6 +10,7 @@ data:
   MONGO_HOST: data-proxy-mongo:27017
   MONGO_DB_NAME: murmurationsDataProxy
   INDEX_HOST: http://index-app:8080
+  LIBRARY_URL: http://library-app:8080
   GET_RATE_LIMIT_PERIOD: 6000-M
   POST_RATE_LIMIT_PERIOD: 6000-M
   {{- if eq .Values.global.env "live" }}

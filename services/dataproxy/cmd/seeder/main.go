@@ -108,7 +108,7 @@ func downloadExcel(url string) error {
 	return nil
 }
 
-func headerMapping(schema map[string]string, f *excelize.File) (map[string]string, error) {
+func headerMapping(f *excelize.File) (map[string]string, error) {
 	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		return nil, fmt.Errorf("error while getting rows from excel, error message: %s", err)
@@ -290,7 +290,7 @@ func main() {
 	defer f.Close()
 
 	// Mapping excel header with schema mapping
-	headerMap, err := headerMapping(mapping, f)
+	headerMap, err := headerMapping(f)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

@@ -41,7 +41,7 @@ func (handler *mappingsHandler) Create(c *gin.Context) {
 	}
 
 	// download mapping from cdn
-	url := fmt.Sprintf("%s/schemas/%s.json", config.Conf.Library.URL, schema)
+	url := fmt.Sprintf("%s/v1/schema/%s", config.Conf.Library.InternalURL, schema)
 	//var schemas map[string]interface{}
 	bytes, err := httputil.GetByte(url)
 	if err != nil {
