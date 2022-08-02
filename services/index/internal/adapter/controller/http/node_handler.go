@@ -252,7 +252,6 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 
 	for _, linkedSchema := range linkedSchemas {
 		schemaURL := getSchemaURL(linkedSchema)
-		fmt.Println(schemaURL)
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {

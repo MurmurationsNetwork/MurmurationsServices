@@ -155,5 +155,48 @@ func (s *schemaService) getSchema(url string) (*domain.SchemaJSON, map[string]in
 		return nil, nil, err
 	}
 
-	return &data, fullData, nil
+	// parse json $ref
+	parsedFullData := s.parseProperties(fullData)
+
+	return &data, parsedFullData, nil
+}
+
+func (s *schemaService) parseProperties(fullData map[string]interface{}) map[string]interface{} {
+	if fullData["properties"] == nil {
+		return fullData
+	}
+	propertiesMap := fullData["properties"].(map[string]interface{})
+	for k, v := range propertiesMap {
+		ref := v.(map[string]interface{})
+		if ref["type"] == "array" {
+			itemsMap := ref["items"].(map[string]interface{})
+			parsedSubSchema := s.parseProperties(itemsMap)
+			arrayPropertiesMap := propertiesMap[k].(map[string]interface{})
+			arrayPropertiesMap["items"] = parsedSubSchema
+			propertiesMap[k] = arrayPropertiesMap
+		}
+		if ref["$ref"] != nil {
+			subSchema, _ := s.schemaParser(ref["$ref"].(string))
+			parsedSubSchema := s.parseProperties(subSchema)
+			propertiesMap[k] = parsedSubSchema
+		}
+	}
+	fullData["properties"] = propertiesMap
+	return fullData
+}
+
+func (s *schemaService) schemaParser(url string) (map[string]interface{}, error) {
+	// remove ".."
+	url = url[2:]
+	bytes, err := httputil.GetByte(config.Conf.CDN.URL + url)
+	if err != nil {
+		return nil, err
+	}
+	var subSchema map[string]interface{}
+	err = json.Unmarshal(bytes, &subSchema)
+	if err != nil {
+		return nil, err
+	}
+
+	return subSchema, nil
 }
