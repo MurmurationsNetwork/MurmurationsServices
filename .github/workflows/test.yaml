@@ -148,9 +148,41 @@ jobs:
       - name: Publish dataproxy docker images
         run: make docker-push-dataproxy
 
+  build-dataproxyupdater:
+    name: Build Data Proxy Updater
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish dataproxyupdater docker images
+        run: make docker-push-dataproxyupdater
+
+  build-dataproxyrefresher:
+    name: Build Data Proxy Refresher
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish dataproxyrefresher docker images
+        run: make docker-push-dataproxyrefresher
+
   deploy:
     name: Deploy
-    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy ]
+    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy, build-dataproxyupdater, build-dataproxyrefresher ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -186,6 +218,12 @@ jobs:
 
       - name: Restart dataproxy deployment
         run: make deploy-dataproxy DEPLOY_ENV=staging
+
+      - name: Restart dataproxyupdater deployment
+        run: make deploy-dataproxyupdater DEPLOY_ENV=staging
+
+      - name: Restart dataproxyrefresher deployment
+        run: make deploy-dataproxyrefresher DEPLOY_ENV=staging
 
   e2e_test:
     name: E2E Test

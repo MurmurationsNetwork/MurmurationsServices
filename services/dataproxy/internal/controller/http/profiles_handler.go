@@ -24,15 +24,17 @@ func (handler *profilesHandler) Get(c *gin.Context) {
 	profileId := c.Param("profileId")
 	profile, err := handler.profileRepository.GetProfile(profileId)
 	if err != nil {
-		c.JSON(err.StatusCode(), err)
+		c.JSON(http.StatusNotFound, err)
 		return
 	}
 
-	// remove id, __v, cuid, oid
+	// remove id, __v, cuid, oid, node_id, is_posted
 	delete(profile, "_id")
 	delete(profile, "__v")
 	delete(profile, "cuid")
 	delete(profile, "oid")
+	delete(profile, "node_id")
+	delete(profile, "is_posted")
 
 	c.JSON(http.StatusOK, profile)
 }

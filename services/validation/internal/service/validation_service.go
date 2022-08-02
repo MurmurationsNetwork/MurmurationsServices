@@ -190,5 +190,5 @@ func getJSONStr(source string) (string, error) {
 }
 
 func getSchemaURL(linkedSchema string) string {
-	return config.Conf.Library.URL + "/schemas/" + linkedSchema + ".json"
+	return config.Conf.Library.InternalURL + "/v1/schema/" + linkedSchema
 }

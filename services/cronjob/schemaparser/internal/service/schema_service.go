@@ -56,12 +56,12 @@ func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
 func (s *schemaService) UpdateSchemas(schemaList []string) error {
 	for _, schemaName := range schemaList {
 		schemaURL := s.getSchemaURL(schemaName)
-		json, err := s.getSchema(schemaURL)
+		schema, fullJson, err := s.getSchema(schemaURL)
 		if err != nil {
 			return err
 		}
 
-		err = s.updateSchema(json)
+		err = s.updateSchema(schema, fullJson)
 		if err != nil {
 			return err
 		}
@@ -117,13 +117,14 @@ func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
 	return true, nil
 }
 
-func (s *schemaService) updateSchema(json *domain.SchemaJSON) error {
+func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson map[string]interface{}) error {
 	doc := &domain.Schema{
-		Title:       json.Title,
-		Description: json.Description,
-		Name:        json.Metadata.Schema.Name,
-		Version:     json.Metadata.Schema.Version,
-		URL:         json.Metadata.Schema.URL,
+		Title:       schema.Title,
+		Description: schema.Description,
+		Name:        schema.Metadata.Schema.Name,
+		Version:     schema.Metadata.Schema.Version,
+		URL:         schema.Metadata.Schema.URL,
+		FullSchema:  fullJson,
 	}
 	err := s.repo.Update(doc)
 	if err != nil {
@@ -136,17 +137,66 @@ func (s *schemaService) getSchemaURL(schemaName string) string {
 	return config.Conf.CDN.URL + "/schemas/" + schemaName + ".json"
 }
 
-func (s *schemaService) getSchema(url string) (*domain.SchemaJSON, error) {
+func (s *schemaService) getSchema(url string) (*domain.SchemaJSON, map[string]interface{}, error) {
 	bytes, err := httputil.GetByte(url)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var data domain.SchemaJSON
 	err = json.Unmarshal(bytes, &data)
 	if err != nil {
+		return nil, nil, err
+	}
+
+	var fullData map[string]interface{}
+	err = json.Unmarshal(bytes, &fullData)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// parse json $ref
+	parsedFullData := s.parseProperties(fullData)
+
+	return &data, parsedFullData, nil
+}
+
+func (s *schemaService) parseProperties(fullData map[string]interface{}) map[string]interface{} {
+	if fullData["properties"] == nil {
+		return fullData
+	}
+	propertiesMap := fullData["properties"].(map[string]interface{})
+	for k, v := range propertiesMap {
+		ref := v.(map[string]interface{})
+		if ref["type"] == "array" {
+			itemsMap := ref["items"].(map[string]interface{})
+			parsedSubSchema := s.parseProperties(itemsMap)
+			arrayPropertiesMap := propertiesMap[k].(map[string]interface{})
+			arrayPropertiesMap["items"] = parsedSubSchema
+			propertiesMap[k] = arrayPropertiesMap
+		}
+		if ref["$ref"] != nil {
+			subSchema, _ := s.schemaParser(ref["$ref"].(string))
+			parsedSubSchema := s.parseProperties(subSchema)
+			propertiesMap[k] = parsedSubSchema
+		}
+	}
+	fullData["properties"] = propertiesMap
+	return fullData
+}
+
+func (s *schemaService) schemaParser(url string) (map[string]interface{}, error) {
+	// remove ".."
+	url = url[2:]
+	bytes, err := httputil.GetByte(config.Conf.CDN.URL + url)
+	if err != nil {
+		return nil, err
+	}
+	var subSchema map[string]interface{}
+	err = json.Unmarshal(bytes, &subSchema)
+	if err != nil {
 		return nil, err
 	}
 
-	return &data, nil
+	return subSchema, nil
 }

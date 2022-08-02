@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dataproxyrefresher-app-config
+data:
+  MONGO_HOST: data-proxy-mongo:27017
+  MONGO_DB_NAME: murmurationsDataProxy
+  INDEX_HOST: http://index-app:8080
+  {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") }}
+  REFRESH_TTL: "7776000" # 90 days * 24 hrs * 60 mins * 60 secs
+  {{- else if or (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
+  REFRESH_TTL: "86400" # 24 hrs * 60 mins * 60 secs
+  {{- else }}
+  REFRESH_TTL: "600" # 10 mins * 60 seconds
+  {{- end }}

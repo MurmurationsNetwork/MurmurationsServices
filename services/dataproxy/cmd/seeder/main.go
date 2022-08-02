@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/lucsky/cuid"
@@ -109,40 +108,14 @@ func downloadExcel(url string) error {
 	return nil
 }
 
-func getMapping(schemaName string) (map[string]interface{}, error) {
-	filter := bson.M{"schema": schemaName}
-	result := mongo.Client.FindOne(constant.MongoIndex.Mapping, filter)
-	if result.Err() != nil {
-		if result.Err() == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("could not find mapping for schema %s", schemaName)
-		}
-		return nil, fmt.Errorf("error when trying to find the mapping, error message: %s", result.Err())
-	}
-	schemaRaw := make(map[string]interface{})
-	err := result.Decode(schemaRaw)
-	if err != nil {
-		return nil, fmt.Errorf("error when trying to parse database response, error message: %s", result.Err())
-	}
-
-	// remove id and __v
-	schema := make(map[string]interface{})
-	for i, v := range schemaRaw {
-		if i == "__v" || i == "_id" {
-			continue
-		}
-		schema[i] = v
-	}
-	return schema, nil
-}
-
-func headerMapping(schema map[string]interface{}, f *excelize.File) (map[string]string, error) {
+func headerMapping(f *excelize.File) (map[string]string, error) {
 	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		return nil, fmt.Errorf("error while getting rows from excel, error message: %s", err)
 	}
 
 	headerMap := make(map[string]string)
-	headerMap["oid"] = "A"
+	headerMap["id"] = "A"
 
 	for rowIndex, row := range rows {
 		// only need the header
@@ -154,155 +127,103 @@ func headerMapping(schema map[string]interface{}, f *excelize.File) (map[string]
 			if colIndex > 25 {
 				return nil, fmt.Errorf("excel header can't have more than 25 columns, contact administrator to expend the size")
 			}
-			for fieldName, header := range schema {
-				if colCell == header {
-					headerMap[fieldName] = headerAlphabets[colIndex]
-				}
-			}
+			headerMap[colCell] = headerAlphabets[colIndex]
 		}
 	}
 	return headerMap, nil
 }
 
-func validate(schema string, profile map[string]interface{}) (bool, string, error) {
-	for k, v := range profile {
-		if v == "" {
-			delete(profile, k)
-			continue
-		}
-		// Array type
-		if k == "tags" {
-			profile[k] = strings.Split(v.(string), ",")
-			continue
-		}
-		// Number type
-		if k == "latitude" || k == "longitude" {
-			num, err := strconv.ParseFloat(v.(string), 64)
-			if err != nil {
-				return false, "", fmt.Errorf("error when parsing number type data, error message: %s", err)
-			}
-			profile[k] = num
-			continue
-		}
-		// Default is String type
-		profile[k] = v
-	}
-
-	// Add linked_schemas
-	s := []string{schema}
-	profile["linked_schemas"] = s
-	// Add metadata
-	metadata := map[string]interface{}{
-		"sources": []map[string]interface{}{
-			{
-				"name":             "Karte von Morgen / Map of Tomorrow",
-				"url":              "https://kartevonmorgen.org",
-				"profile_data_url": "https://api.ofdb.io/v0/entries/" + profile["oid"].(string),
-				"access_time":      1646697600,
-			},
-		},
-	}
-	profile["metadata"] = metadata
-	profileJson, err := json.Marshal(profile)
-	if err != nil {
-		return false, "", err
-	}
-
-	// Validate from index service
-	validateUrl := config.Conf.Index.URL + "/v2/validate"
-	res, err := http.Post(validateUrl, "application/json", bytes.NewBuffer(profileJson))
-	if err != nil {
-		return false, "", err
-	}
-	if res.StatusCode != 200 {
-		return false, "", fmt.Errorf("validate failed, the status code is %s. json data: %s", strconv.Itoa(res.StatusCode), string(profileJson))
-	}
-
-	var resBody map[string]interface{}
-	json.NewDecoder(res.Body).Decode(&resBody)
-	statusCode := int64(resBody["status"].(float64))
-	if statusCode != 200 {
-		if resBody["failure_reasons"] != nil {
-			var failureReasons []string
-			for _, item := range resBody["failure_reasons"].([]interface{}) {
-				failureReasons = append(failureReasons, item.(string))
-			}
-			failureReasonsStr := strings.Join(failureReasons, ",")
-			return false, failureReasonsStr, nil
-		}
-		return false, "failed without reasons!", nil
-	}
-	return true, "", nil
-}
-
-func importData(row int, schemaName string, headerMap map[string]string, file *excelize.File) (bool, error) {
-	profileJson := make(map[string]interface{})
+func importData(row int, schemaName string, headerMap map[string]string, mapping map[string]string, file *excelize.File) (bool, error) {
+	oldProfile := make(map[string]interface{})
 	for index, value := range headerMap {
 		axis := value + strconv.Itoa(row)
 		cell, err := file.GetCellValue(sheetName, axis)
 		if err != nil {
 			return false, fmt.Errorf("read Excel error, axis: %s, error message: %s", axis, err)
 		}
-		profileJson[index] = cell
+		oldProfile[index] = cell
 	}
 
+	// deal with special types
+	for k, v := range oldProfile {
+		// Array type
+		if k == "tags" {
+			if v.(string) != "" {
+				oldProfile[k] = strings.Split(v.(string), ",")
+			}
+			continue
+		}
+		if k == "categories" {
+			oldProfileStr := strings.Split(v.(string), ",")
+			oldProfileInterface := make([]interface{}, len(oldProfileStr))
+			for i, v := range oldProfileStr {
+				oldProfileInterface[i] = v
+			}
+			if len(oldProfileInterface) > 0 {
+				oldProfile[k] = oldProfileInterface
+			}
+			continue
+		}
+		// Number type
+		if k == "lat" || k == "lng" {
+			num, err := strconv.ParseFloat(v.(string), 64)
+			if err != nil {
+				return false, fmt.Errorf("error when parsing number type data, error message: %s", err)
+			}
+			oldProfile[k] = num
+			continue
+		}
+		// Default is String type
+		oldProfile[k] = v
+	}
+	profileJson := importutil.MapProfile(oldProfile, mapping, schemaName)
+	oid := profileJson["oid"].(string)
+
 	// Validate data
-	isValid, failureReasons, err := validate(schemaName, profileJson)
+	validateUrl := config.Conf.Index.URL + "/v2/validate"
+	isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
 	if err != nil {
 		return false, fmt.Errorf("error when trying to validate a profile, error message: %s", err)
 	}
 	if !isValid {
-		return true, fmt.Errorf("warning: skip importing this row, validate profile failed, row: %v, id: %s, failure reasons: %s", row, profileJson["oid"], failureReasons)
+		return true, fmt.Errorf("warning: skip importing this row, validate profile failed, row: %v, id: %s, failure reasons: %s", row, oid, failureReasons)
 	}
 
 	// If database has same oid item, overwrite old data and show warning message
-	filter := bson.M{"oid": profileJson["oid"]}
+	filter := bson.M{"oid": oid}
 	result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
 	if err != nil {
 		return false, fmt.Errorf("error when trying to find a profile, error message: %s", err)
 	}
-	isDuplicate := false
 	if result > 0 {
-		isDuplicate = true
-		fmt.Printf("warning: profile exist, overwrite the old data, row: %v, id: %s\n", row, profileJson["oid"])
+		return true, fmt.Errorf("warning: profile exist, the old data is not overwrited, row: %v, id: %s\n", row, oid)
 	}
 
 	// Save to MongoDB, return url to post index
-	if isDuplicate {
-		update := bson.M{"$set": profileJson}
-		opt := options.FindOneAndUpdate().SetUpsert(true)
-		profileRaw, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)
-		if err != nil {
-			return false, fmt.Errorf("error when trying to update a profile, error message: %s", err)
-		}
-		// get cuid
-		profile := make(map[string]interface{})
-		profileRaw.Decode(&profile)
-		profileJson["cuid"] = profile["cuid"]
-	} else {
-		// Generate cid for item
-		profileJson["cuid"] = cuid.New()
-		_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
-		if err != nil {
-			return false, fmt.Errorf("error when trying to save a profile, error message: %s", err)
-		}
+	// Generate cid for item
+	profileJson["cuid"] = cuid.New()
+	_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
+	if err != nil {
+		return false, fmt.Errorf("error when trying to save a profile, error message: %s", err)
 	}
 
 	// Post to index service
 	postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
-	postProfile := make(map[string]string)
-	postProfile["profile_url"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
-	postProfileJson, err := json.Marshal(postProfile)
+	profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
+	nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 	if err != nil {
-		return false, fmt.Errorf("error when trying to marshal a profile, url: %s, error message: %s", postProfile["profile_url"], err)
+		return false, fmt.Errorf("failed to post profile to Index, profile url is %s, error message: %s", profileUrl, err)
 	}
-	res, err := http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
+
+	// update NodeId
+	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": false}}
+	opt := options.FindOneAndUpdate().SetUpsert(true)
+
+	_, err = mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)
 	if err != nil {
-		return false, fmt.Errorf("error when trying to post a profile, error message: %s", err)
+		return true, err
 	}
-	if res.StatusCode != 200 {
-		return false, fmt.Errorf("post failed, the status code is %s. url: %s", strconv.Itoa(res.StatusCode), postProfile["profile_url"])
-	}
+
 	return false, nil
 }
 
@@ -339,7 +260,7 @@ func main() {
 	}
 
 	// Find the mapping schema from MongoDB
-	schema, err := getMapping(schemaName)
+	mapping, err := importutil.GetMapping(schemaName)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -354,7 +275,7 @@ func main() {
 	defer f.Close()
 
 	// Mapping excel header with schema mapping
-	headerMap, err := headerMapping(schema, f)
+	headerMap, err := headerMapping(f)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -364,7 +285,7 @@ func main() {
 	successNums := 0
 	skippedNums := 0
 	for i := from; i <= to; i++ {
-		isSkipped, err := importData(i, schemaName, headerMap, f)
+		isSkipped, err := importData(i, schemaName, headerMap, mapping, f)
 		if err != nil {
 			fmt.Println(err.Error())
 			if isSkipped {

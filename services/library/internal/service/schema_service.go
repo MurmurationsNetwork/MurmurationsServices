@@ -7,6 +7,7 @@ import (
 )
 
 type SchemaService interface {
+	Get(schemaName string) (interface{}, resterr.RestErr)
 	Search() (schema.Schemas, resterr.RestErr)
 }
 
@@ -18,6 +19,14 @@ func NewSchemaService(repo db.SchemaRepo) SchemaService {
 	return &schemaService{
 		repo: repo,
 	}
+}
+
+func (s *schemaService) Get(schemaName string) (interface{}, resterr.RestErr) {
+	result, err := s.repo.Get(schemaName)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func (s *schemaService) Search() (schema.Schemas, resterr.RestErr) {
