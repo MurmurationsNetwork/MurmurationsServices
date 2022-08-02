@@ -195,31 +195,16 @@ func importData(row int, schemaName string, headerMap map[string]string, mapping
 	if err != nil {
 		return false, fmt.Errorf("error when trying to find a profile, error message: %s", err)
 	}
-	isDuplicate := false
 	if result > 0 {
-		isDuplicate = true
-		fmt.Printf("warning: profile exist, overwrite the old data, row: %v, id: %s\n", row, oid)
+		return true, fmt.Errorf("warning: profile exist, the old data is not overwrited, row: %v, id: %s\n", row, oid)
 	}
 
 	// Save to MongoDB, return url to post index
-	if isDuplicate {
-		update := bson.M{"$set": profileJson}
-		opt := options.FindOneAndUpdate().SetUpsert(true)
-		profileRaw, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)
-		if err != nil {
-			return false, fmt.Errorf("error when trying to update a profile, error message: %s", err)
-		}
-		// get cuid
-		profile := make(map[string]interface{})
-		profileRaw.Decode(&profile)
-		profileJson["cuid"] = profile["cuid"]
-	} else {
-		// Generate cid for item
-		profileJson["cuid"] = cuid.New()
-		_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
-		if err != nil {
-			return false, fmt.Errorf("error when trying to save a profile, error message: %s", err)
-		}
+	// Generate cid for item
+	profileJson["cuid"] = cuid.New()
+	_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
+	if err != nil {
+		return false, fmt.Errorf("error when trying to save a profile, error message: %s", err)
 	}
 
 	// Post to index service
