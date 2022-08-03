@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
@@ -50,6 +51,7 @@ func main() {
 	// check the profile status
 	for _, profile := range profiles {
 		url := apiEntry + profile.Oid
+		fmt.Println(url)
 		res, err := http.Get(url)
 		if err != nil {
 			logger.Error("failed to get data from api, profile cuid:"+profile.Cuid, err)
@@ -62,7 +64,7 @@ func main() {
 			cleanUp()
 		}
 
-		var profileData map[string]interface{}
+		var profileData []interface{}
 		err = json.Unmarshal(bodyBytes, &profileData)
 		if err != nil {
 			logger.Error("failed to unmarshal data from api, profile cuid:"+profile.Cuid, err)
@@ -71,7 +73,7 @@ func main() {
 
 		// If the node still exist, don't delete it and update access_time
 		if len(profileData) > 0 {
-			doc, err := json.Marshal(profileData)
+			doc, err := json.Marshal(profileData[0].(map[string]interface{}))
 			if err != nil {
 				logger.Error("failed to marshal data, profile cuid:"+profile.Cuid, err)
 				cleanUp()
