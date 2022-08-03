@@ -32,6 +32,7 @@ type Node struct {
 }
 
 func main() {
+	schemaName := "karte_von_morgen-v1.0.0"
 	apiEntry := "https://api.ofdb.io/v0/entries/"
 
 	svc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
@@ -48,10 +49,16 @@ func main() {
 		cleanUp()
 	}
 
+	// get mapping
+	mapping, err := importutil.GetMapping(schemaName)
+	if err != nil {
+		logger.Error("failed to get mapping", err)
+		cleanUp()
+	}
+
 	// check the profile status
 	for _, profile := range profiles {
 		url := apiEntry + profile.Oid
-		fmt.Println(url)
 		res, err := http.Get(url)
 		if err != nil {
 			logger.Error("failed to get data from api, profile cuid:"+profile.Cuid, err)
@@ -73,7 +80,8 @@ func main() {
 
 		// If the node still exist, don't delete it and update access_time
 		if len(profileData) > 0 {
-			doc, err := json.Marshal(profileData[0].(map[string]interface{}))
+			profileJson := importutil.MapFieldsName(profileData[0].(map[string]interface{}), mapping)
+			doc, err := json.Marshal(profileJson)
 			if err != nil {
 				logger.Error("failed to marshal data, profile cuid:"+profile.Cuid, err)
 				cleanUp()
@@ -86,7 +94,9 @@ func main() {
 
 			if profileHash != profile.SourceDataHash {
 				logger.Info("source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash)
-				cleanUp()
+				fmt.Println(profileJson)
+				continue
+				//cleanUp()
 			} else {
 				err = svc.UpdateAccessTime(profile.Oid)
 				if err != nil {

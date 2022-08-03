@@ -76,25 +76,31 @@ func Hash(doc string) (string, error) {
 	return hex.EncodeToString(sum[0:]), nil
 }
 
-func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) (map[string]interface{}, error) {
+func MapFieldsName(profile map[string]interface{}, mapping map[string]string) map[string]interface{} {
 	profileJson := make(map[string]interface{})
 
-	// hash the old data
-	doc, err := json.Marshal(profile)
+	for k, v := range mapping {
+		if profile[v] == nil || profile[v] == "" {
+			continue
+		}
+		profileJson[k] = profile[v]
+	}
+
+	return profileJson
+}
+
+func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) (map[string]interface{}, error) {
+	// change field name
+	profileJson := MapFieldsName(profile, mapping)
+
+	// hash the updated data
+	doc, err := json.Marshal(profileJson)
 	if err != nil {
 		return nil, err
 	}
 	profileHash, err := Hash(string(doc))
 	if err != nil {
 		return nil, err
-	}
-
-	// change field name
-	for k, v := range mapping {
-		if profile[v] == nil || profile[v] == "" {
-			continue
-		}
-		profileJson[k] = profile[v]
 	}
 
 	// hash

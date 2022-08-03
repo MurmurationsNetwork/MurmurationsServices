@@ -50,7 +50,7 @@ func (r *profileRepository) FindLessThan(timestamp int64) ([]entity.Profile, err
 func (r *profileRepository) UpdateAccessTime(profileId string) error {
 	timestamp := time.Now().Unix()
 	filter := bson.M{"oid": profileId}
-	update := bson.M{"$set": bson.M{"metadata": bson.M{"sources": bson.M{"access_time": timestamp}}}}
+	update := bson.M{"$set": bson.M{"metadata.sources.$[].access_time": timestamp}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	result := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Profile).FindOneAndUpdate(context.Background(), filter, update, opt)

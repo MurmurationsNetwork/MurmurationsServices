@@ -150,6 +150,8 @@ func importData(row int, schemaName string, headerMap map[string]string, mapping
 		if k == "tags" {
 			if v.(string) != "" {
 				oldProfile[k] = strings.Split(v.(string), ",")
+			} else {
+				oldProfile[k] = strings.Split(v.(string), "")
 			}
 			continue
 		}
