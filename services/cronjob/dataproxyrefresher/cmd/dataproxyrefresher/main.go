@@ -83,7 +83,7 @@ func main() {
 			}
 
 			if profileHash != profile.SourceDataHash {
-				logger.Error("profile hash didn't match, profile cuid:"+profile.Cuid, err)
+				logger.Info("source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash)
 				cleanUp()
 			} else {
 				err = svc.UpdateAccessTime(profile.Oid)
