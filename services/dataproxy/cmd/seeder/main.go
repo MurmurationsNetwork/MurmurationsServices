@@ -176,7 +176,10 @@ func importData(row int, schemaName string, headerMap map[string]string, mapping
 		// Default is String type
 		oldProfile[k] = v
 	}
-	profileJson := importutil.MapProfile(oldProfile, mapping, schemaName)
+	profileJson, err := importutil.MapProfile(oldProfile, mapping, schemaName)
+	if err != nil {
+		return false, fmt.Errorf("error when trying to map a profile, error message: %s", err)
+	}
 	oid := profileJson["oid"].(string)
 
 	// Validate data

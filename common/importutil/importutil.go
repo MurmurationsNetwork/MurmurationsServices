@@ -2,6 +2,8 @@ package importutil
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
@@ -59,8 +61,33 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	return schema, nil
 }
 
-func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) map[string]interface{} {
+func Hash(doc string) (string, error) {
+	// ref: https://stackoverflow.com/questions/55256365/how-to-obtain-same-hash-from-json
+	var v interface{}
+	err := json.Unmarshal([]byte(doc), &v)
+	if err != nil {
+		return "", err
+	}
+	hashDoc, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(hashDoc)
+	return hex.EncodeToString(sum[0:]), nil
+}
+
+func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) (map[string]interface{}, error) {
 	profileJson := make(map[string]interface{})
+
+	// hash the old data
+	doc, err := json.Marshal(profile)
+	if err != nil {
+		return nil, err
+	}
+	profileHash, err := Hash(string(doc))
+	if err != nil {
+		return nil, err
+	}
 
 	// change field name
 	for k, v := range mapping {
@@ -69,6 +96,9 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 		}
 		profileJson[k] = profile[v]
 	}
+
+	// hash
+	profileJson["source_data_hash"] = profileHash
 
 	// oid
 	profileJson["oid"] = profile["id"]
@@ -99,7 +129,7 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 		profileJson["kvm_category"] = categoriesString
 	}
 
-	return profileJson
+	return profileJson, nil
 }
 
 func Validate(validateUrl string, profile map[string]interface{}) (bool, string, error) {

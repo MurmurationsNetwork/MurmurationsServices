@@ -35,6 +35,7 @@ func (handler *profilesHandler) Get(c *gin.Context) {
 	delete(profile, "oid")
 	delete(profile, "node_id")
 	delete(profile, "is_posted")
+	delete(profile, "source_data_hash")
 
 	c.JSON(http.StatusOK, profile)
 }

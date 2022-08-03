@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/config"
@@ -61,19 +62,35 @@ func main() {
 			cleanUp()
 		}
 
-		var profileData []interface{}
+		var profileData map[string]interface{}
 		err = json.Unmarshal(bodyBytes, &profileData)
 		if err != nil {
 			logger.Error("failed to unmarshal data from api, profile cuid:"+profile.Cuid, err)
 			cleanUp()
 		}
 
-		// If the node still exist, don't delete and update access_time
+		// If the node still exist, don't delete it and update access_time
 		if len(profileData) > 0 {
-			err = svc.UpdateAccessTime(profile.Oid)
+			doc, err := json.Marshal(profileData)
 			if err != nil {
-				logger.Error("failed to update profile's access time, profile cuid:"+profile.Cuid, err)
+				logger.Error("failed to marshal data, profile cuid:"+profile.Cuid, err)
 				cleanUp()
+			}
+			profileHash, err := importutil.Hash(string(doc))
+			if err != nil {
+				logger.Error("failed to hash data, profile cuid:"+profile.Cuid, err)
+				cleanUp()
+			}
+
+			if profileHash != profile.SourceDataHash {
+				logger.Error("profile hash didn't match, profile cuid:"+profile.Cuid, err)
+				cleanUp()
+			} else {
+				err = svc.UpdateAccessTime(profile.Oid)
+				if err != nil {
+					logger.Error("failed to update profile's access time, profile cuid:"+profile.Cuid, err)
+					cleanUp()
+				}
 			}
 		} else {
 			err = svc.Delete(profile.Cuid)
