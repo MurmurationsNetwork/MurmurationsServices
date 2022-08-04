@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
@@ -10,6 +9,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/service"
+	"github.com/lucsky/cuid"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -94,9 +94,69 @@ func main() {
 
 			if profileHash != profile.SourceDataHash {
 				logger.Info("source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash)
-				fmt.Println(profileJson)
-				continue
-				//cleanUp()
+
+				// reconstruct data
+				profileJson, err = importutil.MapProfile(profileData[0].(map[string]interface{}), mapping, schemaName)
+				if err != nil {
+					logger.Error("map profile failed, profile id is "+profile.Oid, err)
+					cleanUp()
+				}
+				oid := profileJson["oid"].(string)
+
+				if profileJson["primary_url"] == nil {
+					logger.Info("primary_url is empty, profile id is " + oid)
+					continue
+				}
+
+				// validate data
+				validateUrl := config.Conf.Index.URL + "/v2/validate"
+				isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
+				if err != nil {
+					logger.Error("validate profile failed, profile id is "+profile.Oid+". error message: ", err)
+					cleanUp()
+				}
+				if !isValid {
+					logger.Info("validate profile failed, profile id is " + profile.Oid + ". failure reasons: " + failureReasons)
+					cleanUp()
+				}
+				profileSvc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
+				// save to Mongo
+				count, err := profileSvc.Count(profile.Oid)
+				if err != nil {
+					logger.Error("can't count profile, profile id is "+profile.Oid, err)
+					cleanUp()
+				}
+				if count <= 0 {
+					profileJson["cuid"] = cuid.New()
+					err := profileSvc.Add(profileJson)
+					if err != nil {
+						logger.Error("can't add a profile, profile id is "+profile.Oid, err)
+						cleanUp()
+					}
+				} else {
+					result, err := profileSvc.Update(profile.Oid, profileJson)
+					if err != nil {
+						logger.Error("can't update a profile, profile id is "+profile.Oid, err)
+						cleanUp()
+					}
+					profileJson["cuid"] = result["cuid"]
+				}
+
+				// post update to Index
+				postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
+				profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
+				nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
+				if err != nil {
+					logger.Error("failed to post profile to Index, profile url is "+profileUrl, err)
+					cleanUp()
+				}
+
+				// save node_id to profile
+				err = profileSvc.UpdateNodeId(oid, nodeId)
+				if err != nil {
+					logger.Error("update node id failed. profile id is "+oid, err)
+					cleanUp()
+				}
 			} else {
 				err = svc.UpdateAccessTime(profile.Oid)
 				if err != nil {
