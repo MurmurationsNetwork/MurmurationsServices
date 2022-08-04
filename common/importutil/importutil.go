@@ -11,6 +11,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -81,6 +82,14 @@ func MapFieldsName(profile map[string]interface{}, mapping map[string]string) ma
 
 	for k, v := range mapping {
 		if profile[v] == nil || profile[v] == "" {
+			continue
+		}
+		// todo: temporary fix latitude & longitude, will delete them in the future
+		if k == "latitude" || k == "longitude" {
+			// set precision to 8
+			precision := math.Pow(10, float64(8))
+			truncatedValue := math.Floor(profile[v].(float64)*precision) / precision
+			profileJson[k] = truncatedValue
 			continue
 		}
 		profileJson[k] = profile[v]
