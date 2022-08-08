@@ -88,8 +88,13 @@ func MapFieldsName(profile map[string]interface{}, mapping map[string]string) ma
 		if k == "latitude" || k == "longitude" {
 			// set precision to 8
 			precision := math.Pow(10, float64(8))
-			truncatedValue := math.Floor(profile[v].(float64)*precision) / precision
+			truncatedValue := math.Round(profile[v].(float64)*precision) / precision
 			profileJson[k] = truncatedValue
+			continue
+		}
+		// todo: temporary fix extra space in the string, might delete them in the future
+		if k != "tags" && k != "kvm_category" {
+			profileJson[k] = strings.TrimSpace(profile[v].(string))
 			continue
 		}
 		profileJson[k] = profile[v]
