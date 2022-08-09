@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
@@ -14,37 +16,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 )
-
-var headerAlphabets = map[int]string{
-	0:  "A",
-	1:  "B",
-	2:  "C",
-	3:  "D",
-	4:  "E",
-	5:  "F",
-	6:  "G",
-	7:  "H",
-	8:  "I",
-	9:  "J",
-	10: "K",
-	11: "L",
-	12: "M",
-	13: "N",
-	14: "O",
-	15: "P",
-	16: "Q",
-	17: "R",
-	18: "S",
-	19: "T",
-	20: "U",
-	21: "V",
-	22: "W",
-	23: "X",
-	24: "Y",
-	25: "Z",
-}
 
 // global variables
 var fileName = "schema.xlsx"
@@ -108,81 +80,36 @@ func downloadExcel(url string) error {
 	return nil
 }
 
-func headerMapping(f *excelize.File) (map[string]string, error) {
-	rows, err := f.GetRows(sheetName)
+func importData(row int, schemaName string, mapping map[string]string, file *excelize.File) (bool, error) {
+	// get excel oid
+	axis := "A" + strconv.Itoa(row)
+	oid, err := file.GetCellValue(sheetName, axis)
 	if err != nil {
-		return nil, fmt.Errorf("error while getting rows from excel, error message: %s", err)
+		return false, fmt.Errorf("read Excel error, axis: %s, error message: %s", axis, err)
 	}
 
-	headerMap := make(map[string]string)
-	headerMap["id"] = "A"
-
-	for rowIndex, row := range rows {
-		// only need the header
-		if rowIndex != 0 {
-			break
-		}
-		for colIndex, colCell := range row {
-			// column exceeds the limit
-			if colIndex > 25 {
-				return nil, fmt.Errorf("excel header can't have more than 25 columns, contact administrator to expend the size")
-			}
-			headerMap[colCell] = headerAlphabets[colIndex]
-		}
-	}
-	return headerMap, nil
-}
-
-func importData(row int, schemaName string, headerMap map[string]string, mapping map[string]string, file *excelize.File) (bool, error) {
-	oldProfile := make(map[string]interface{})
-	for index, value := range headerMap {
-		axis := value + strconv.Itoa(row)
-		cell, err := file.GetCellValue(sheetName, axis)
-		if err != nil {
-			return false, fmt.Errorf("read Excel error, axis: %s, error message: %s", axis, err)
-		}
-		oldProfile[index] = cell
+	url := "https://api.ofdb.io/v0/entries/" + oid
+	res, err := httputil.Get(url)
+	defer res.Body.Close()
+	if err != nil {
+		return false, fmt.Errorf("can't get data from " + url)
 	}
 
-	// deal with special types
-	for k, v := range oldProfile {
-		// Array type
-		if k == "tags" {
-			if v.(string) != "" {
-				oldProfile[k] = strings.Split(v.(string), ",")
-			} else {
-				oldProfile[k] = strings.Split(v.(string), "")
-			}
-			continue
-		}
-		if k == "categories" {
-			oldProfileStr := strings.Split(v.(string), ",")
-			oldProfileInterface := make([]interface{}, len(oldProfileStr))
-			for i, v := range oldProfileStr {
-				oldProfileInterface[i] = v
-			}
-			if len(oldProfileInterface) > 0 {
-				oldProfile[k] = oldProfileInterface
-			}
-			continue
-		}
-		// Number type
-		if k == "lat" || k == "lng" {
-			num, err := strconv.ParseFloat(v.(string), 64)
-			if err != nil {
-				return false, fmt.Errorf("error when parsing number type data, error message: %s", err)
-			}
-			oldProfile[k] = num
-			continue
-		}
-		// Default is String type
-		oldProfile[k] = v
+	var oldProfiles []map[string]interface{}
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&oldProfiles)
+	if err != nil {
+		return false, fmt.Errorf("can't parse data from " + url)
 	}
-	profileJson, err := importutil.MapProfile(oldProfile, mapping, schemaName)
+
+	if len(oldProfiles) == 0 {
+		return true, fmt.Errorf("profile didn't exist, oid: " + oid)
+	}
+
+	profileJson, err := importutil.MapProfile(oldProfiles[0], mapping, schemaName)
 	if err != nil {
 		return false, fmt.Errorf("error when trying to map a profile, error message: %s", err)
 	}
-	oid := profileJson["oid"].(string)
 
 	// Validate data
 	validateUrl := config.Conf.Index.URL + "/v2/validate"
@@ -279,18 +206,11 @@ func main() {
 	}
 	defer f.Close()
 
-	// Mapping excel header with schema mapping
-	headerMap, err := headerMapping(f)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
 	// Import data
 	successNums := 0
 	skippedNums := 0
 	for i := from; i <= to; i++ {
-		isSkipped, err := importData(i, schemaName, headerMap, mapping, f)
+		isSkipped, err := importData(i, schemaName, mapping, f)
 		if err != nil {
 			fmt.Println(err.Error())
 			if isSkipped {
