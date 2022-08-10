@@ -68,7 +68,7 @@ func main() {
 
 	mapping, err := importutil.GetMapping(schemaName)
 	if err != nil {
-		errStr := "get mapping failed" + err.Error()
+		errStr := "get mapping failed " + err.Error()
 		logger.Error("get mapping failed", err)
 		errCleanUp(schemaName, svc, errStr)
 	}
@@ -95,14 +95,19 @@ func main() {
 	}
 	for len(profiles) > 0 {
 		for _, oldProfile := range profiles {
-			profileJson := importutil.MapProfile(oldProfile, mapping, schemaName)
+			profileJson, err := importutil.MapProfile(oldProfile, mapping, schemaName)
+			if err != nil {
+				errStr := "map profile failed, profile id is " + oldProfile["id"].(string) + ". error message: " + err.Error()
+				logger.Error("map profile failed", err)
+				errCleanUp(schemaName, svc, errStr)
+			}
 			oid := profileJson["oid"].(string)
 
 			if profileJson["primary_url"] == nil {
 				logger.Info("primary_url is empty, profile id is " + oid)
 				continue
 			}
-			
+
 			// validate data
 			validateUrl := config.Conf.Index.URL + "/v2/validate"
 			isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)

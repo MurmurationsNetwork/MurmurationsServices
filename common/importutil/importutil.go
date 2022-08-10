@@ -2,6 +2,8 @@ package importutil
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
@@ -9,6 +11,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -59,16 +62,63 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	return schema, nil
 }
 
-func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) map[string]interface{} {
+func Hash(doc string) (string, error) {
+	// ref: https://stackoverflow.com/questions/55256365/how-to-obtain-same-hash-from-json
+	var v interface{}
+	err := json.Unmarshal([]byte(doc), &v)
+	if err != nil {
+		return "", err
+	}
+	hashDoc, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(hashDoc)
+	return hex.EncodeToString(sum[0:]), nil
+}
+
+func MapFieldsName(profile map[string]interface{}, mapping map[string]string) map[string]interface{} {
 	profileJson := make(map[string]interface{})
 
-	// change field name
 	for k, v := range mapping {
 		if profile[v] == nil || profile[v] == "" {
 			continue
 		}
+		// todo: temporary fix latitude & longitude, will delete them in the future
+		if k == "latitude" || k == "longitude" {
+			// set precision to 8
+			precision := math.Pow(10, float64(8))
+			truncatedValue := math.Round(profile[v].(float64)*precision) / precision
+			profileJson[k] = truncatedValue
+			continue
+		}
+		// todo: temporary fix extra space in the string, might delete them in the future
+		if k != "tags" && k != "kvm_category" {
+			profileJson[k] = strings.TrimSpace(profile[v].(string))
+			continue
+		}
 		profileJson[k] = profile[v]
 	}
+
+	return profileJson
+}
+
+func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) (map[string]interface{}, error) {
+	// change field name
+	profileJson := MapFieldsName(profile, mapping)
+
+	// hash the updated data
+	doc, err := json.Marshal(profileJson)
+	if err != nil {
+		return nil, err
+	}
+	profileHash, err := Hash(string(doc))
+	if err != nil {
+		return nil, err
+	}
+
+	// hash
+	profileJson["source_data_hash"] = profileHash
 
 	// oid
 	profileJson["oid"] = profile["id"]
@@ -99,7 +149,7 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 		profileJson["kvm_category"] = categoriesString
 	}
 
-	return profileJson
+	return profileJson, nil
 }
 
 func Validate(validateUrl string, profile map[string]interface{}) (bool, string, error) {
