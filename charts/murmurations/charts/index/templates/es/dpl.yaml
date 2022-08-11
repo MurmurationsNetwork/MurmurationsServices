@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: index-es
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
           # Make sure stateful image can update automatically
           imagePullPolicy: Always
           # resources:
