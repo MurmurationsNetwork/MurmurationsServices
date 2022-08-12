@@ -37,7 +37,7 @@ func (r *updateRepository) GetUpdate(schemaName string) (*entity.Updates, rester
 	err := result.Decode(&update)
 	if err != nil {
 		logger.Error("Error when trying to parse database response", err)
-		return nil, resterr.NewInternalServerError("Error when trying to find an update.", err)
+		return nil, resterr.NewInternalServerError("Error when trying to find an update.", errors.New("database error"))
 	}
 
 	return update, nil
