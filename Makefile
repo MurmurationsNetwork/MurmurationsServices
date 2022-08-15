@@ -50,6 +50,12 @@ docker-build-geoip:
 docker-build-dataproxy:
 	$(MAKE) -C services/dataproxy/ docker-build
 
+docker-build-dataproxyupdater:
+	$(MAKE) -C services/cronjob/dataproxyupdater/ docker-build
+
+docker-build-dataproxyrefresher:
+	$(MAKE) -C services/cronjob/dataproxyrefresher/ docker-build
+
 # ---------------------------------------------------------------
 
 TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
@@ -77,6 +83,12 @@ docker-tag-geoip: docker-build-geoip
 
 docker-tag-dataproxy: docker-build-dataproxy
 	docker tag murmurations/dataproxy murmurations/dataproxy:${TAG}
+
+docker-tag-dataproxyupdater: docker-build-dataproxyupdater
+	docker tag murmurations/dataproxyupdater murmurations/dataproxyupdater:${TAG}
+
+docker-tag-dataproxyrefresher: docker-build-dataproxyrefresher
+	docker tag murmurations/dataproxyrefresher murmurations/dataproxyrefresher:${TAG}
 
 # ---------------------------------------------------------------
 
@@ -112,6 +124,14 @@ docker-push-dataproxy: docker-tag-dataproxy
 	docker push murmurations/dataproxy:latest
 	docker push murmurations/dataproxy:$(TAG)
 
+docker-push-dataproxyupdater: docker-tag-dataproxyupdater
+	docker push murmurations/dataproxyupdater:latest
+	docker push murmurations/dataproxyupdater:$(TAG)
+
+docker-push-dataproxyrefresher: docker-tag-dataproxyrefresher
+	docker push murmurations/dataproxyrefresher:latest
+	docker push murmurations/dataproxyrefresher:$(TAG)
+
 # ---------------------------------------------------------------
 
 deploy-ingress:
@@ -143,6 +163,12 @@ deploy-geoip:
 
 deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(TAG) --install --atomic
+
+deploy-dataproxyupdater:
+	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(TAG) --install --atomic
+
+deploy-dataproxyrefresher:
+	helm upgrade murmurations-dataproxyrefresher ./charts/murmurations/charts/dataproxyrefresher --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyrefresher:$(TAG) --install --atomic
 
 # ---------------------------------------------------------------
 
@@ -177,5 +203,11 @@ manually-deploy-revalidatenode:
 manually-deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) --install --atomic
 
-manually-deploy-data-proxy:
+manually-deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy --set global.env=$(ENV),image=murmurations/dataproxy:$(SPECIFIC_TAG) --install --atomic
+
+manually-deploy-dataproxyupdater:
+	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater --set global.env=$(ENV),image=murmurations/dataproxyupdater:$(SPECIFIC_TAG) --install --atomic
+
+manually-deploy-dataproxyrefresher:
+	helm upgrade murmurations-dataproxyrefresher ./charts/murmurations/charts/dataproxyrefresher --set global.env=$(ENV),image=murmurations/dataproxyrefresher:$(SPECIFIC_TAG) --install --atomic

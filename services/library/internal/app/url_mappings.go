@@ -15,5 +15,6 @@ func mapUrls(router *gin.Engine) {
 	{
 		v1.GET("/ping", pingHandler.Ping)
 		v1.GET("/schemas", schemaHandler.Search)
+		v1.GET("/schema/:schemaName", schemaHandler.Get)
 	}
 }

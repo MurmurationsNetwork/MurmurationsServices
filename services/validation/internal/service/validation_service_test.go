@@ -37,7 +37,7 @@ func TestGetLinkedSchemas(t *testing.T) {
 }
 
 func TestGetSchemaURL(t *testing.T) {
-	config.Conf.Library.URL = "https://ic3.dev"
+	config.Conf.Library.InternalURL = "https://ic3.dev"
 	url := getSchemaURL("test1")
-	assert.Equal(t, "https://ic3.dev/schemas/test1.json", url)
+	assert.Equal(t, "https://ic3.dev/v1/schema/test1", url)
 }

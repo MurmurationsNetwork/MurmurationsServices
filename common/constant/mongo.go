@@ -5,9 +5,11 @@ var MongoIndex = struct {
 	Schema  string
 	Mapping string
 	Profile string
+	Update  string
 }{
 	Node:    "nodes",
 	Schema:  "schemas",
 	Mapping: "mappings",
 	Profile: "profiles",
+	Update:  "updates",
 }

@@ -8,6 +8,7 @@ You’ll need to ensure that your domains are pointed to the Load Balancer via `
 Create A records for:
 index.murmurations.network
 library.murmurations.network
+data-proxy.murmurations.network
 monitoring.murmurations.network
 
 All pointing to the IP address assigned to the load balancer of the K8s cluster.

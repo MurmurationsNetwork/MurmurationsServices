@@ -10,15 +10,11 @@ data:
   MONGO_HOST: index-mongo:27017
   MONGO_DB_NAME: murmurationsIndex
   ELASTICSEARCH_URL: http://index-es:9200
+  LIBRARY_URL: http://library-app:8080
   NATS_CLUSTER_ID: murmurations
   NATS_URL: http://nats:4222
-  {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   TAGS_ARRAY_SIZE: "100"
   TAGS_STRING_LENGTH: "100"
-  {{- else }}
-  TAGS_ARRAY_SIZE: "5"
-  TAGS_STRING_LENGTH: "10"
-  {{- end }}
   TAGS_FUZZINESS: "3"
   # Rate limit
   {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production") }}
