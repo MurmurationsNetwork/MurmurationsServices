@@ -193,39 +193,39 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
-        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmmain
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmprod
 
       - name: Restart index deployment
-        run: make deploy-index DEPLOY_ENV=live
+        run: make deploy-index DEPLOY_ENV=production
 
       - name: Restart library deployment
-        run: make deploy-library DEPLOY_ENV=live
+        run: make deploy-library DEPLOY_ENV=production
 
       - name: Restart geoip deployment
-        run: make deploy-geoip DEPLOY_ENV=live
+        run: make deploy-geoip DEPLOY_ENV=production
 
       - name: Restart validation deployment
-        run: make deploy-validation DEPLOY_ENV=live
+        run: make deploy-validation DEPLOY_ENV=production
 
       - name: Restart nodecleaner deployment
-        run: make deploy-nodecleaner DEPLOY_ENV=live
+        run: make deploy-nodecleaner DEPLOY_ENV=production
 
       - name: Restart revalidatenode deployment
-        run: make deploy-revalidatenode DEPLOY_ENV=live
+        run: make deploy-revalidatenode DEPLOY_ENV=production
 
       - name: Restart schemaparser deployment
-        run: make deploy-schemaparser DEPLOY_ENV=live
+        run: make deploy-schemaparser DEPLOY_ENV=production
 
       - name: Restart dataproxy deployment
-        run: make deploy-dataproxy DEPLOY_ENV=live
+        run: make deploy-dataproxy DEPLOY_ENV=production
 
       - name: Restart dataproxyupdater deployment
-        run: make deploy-dataproxyupdater DEPLOY_ENV=live
+        run: make deploy-dataproxyupdater DEPLOY_ENV=production
 
       - name: Restart dataproxyrefresher deployment
-        run: make deploy-dataproxyrefresher DEPLOY_ENV=live
+        run: make deploy-dataproxyrefresher DEPLOY_ENV=production
 
-  # Disabled because tests reference test schemas not in the main-cdn
+  # Disabled because tests reference test schemas not in the cdn
 
   # e2e_test:
   #   name: E2E Test
@@ -244,13 +244,13 @@ jobs:
   #         npm install -g newman
 
   #     - name: Test Index
-  #       run: ./wait_for_timeout.sh https://main-index.murmurations.network/v2/ping 200 300
+  #       run: ./wait_for_timeout.sh https://index.murmurations.network/v2/ping 200 300
 
   #     - name: Test Library
-  #       run: ./wait_for_timeout.sh https://main-library.murmurations.network/v1/ping 200 300
+  #       run: ./wait_for_timeout.sh https://library.murmurations.network/v1/ping 200 300
 
   #    - name: Test Data Proxy
-  #      run: ./wait_for_timeout.sh https://main-data-proxy.murmurations.network/v1/ping 200 300
+  #      run: ./wait_for_timeout.sh https://data-proxy.murmurations.network/v1/ping 200 300
 
 
   #     - name: Newman E2E Test
