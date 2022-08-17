@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: dataproxyupdater-app
 spec:
-  {{- if or (eq .Values.global.env "live") (eq .Values.global.env "production")  (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
+  {{- if or (eq .Values.global.env "production")  (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
   schedule: "0 */1 * * *" # every 1 hour
   {{- else }}
   schedule: "*/2 * * * *"  # every 2 minutes

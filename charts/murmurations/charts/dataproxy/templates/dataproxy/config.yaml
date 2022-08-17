@@ -13,16 +13,12 @@ data:
   LIBRARY_URL: http://library-app:8080
   GET_RATE_LIMIT_PERIOD: 6000-M
   POST_RATE_LIMIT_PERIOD: 6000-M
-  {{- if eq .Values.global.env "live" }}
-  LIBRARY_CDN_URL: https://main-cdn.murmurations.network
-  {{- else if eq .Values.global.env "production" }}
+  {{- if eq .Values.global.env "production" }}
   LIBRARY_CDN_URL: https://cdn.murmurations.network
   {{- else }}
   LIBRARY_CDN_URL: https://test-cdn.murmurations.network
   {{- end }}
-  {{- if eq .Values.global.env "live" }}
-  EXTERNAL_DATA_PROXY_URL: https://main-data-proxy.murmurations.network
-  {{- else if eq .Values.global.env "production" }}
+  {{- if eq .Values.global.env "production" }}
   EXTERNAL_DATA_PROXY_URL: https://data-proxy.murmurations.network
   {{- else if eq .Values.global.env "staging" }}
   EXTERNAL_DATA_PROXY_URL: https://test-data-proxy.murmurations.network
