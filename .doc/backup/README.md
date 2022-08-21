@@ -94,6 +94,13 @@ velero create schedule library-mongo-backup \
   --include-resources persistentvolumeclaims,persistentvolumes \
   --ttl 168h0m0s \
   --selector app=library-mongo
+  
+velero create schedule data-proxy-mongo-backup \
+  --schedule="@every 24h" \
+  --include-namespaces default \
+  --include-resources persistentvolumeclaims,persistentvolumes \
+  --ttl 168h0m0s \
+  --selector app=data-proxy-mongo
 ```
 
 # Creating backup using Velero
