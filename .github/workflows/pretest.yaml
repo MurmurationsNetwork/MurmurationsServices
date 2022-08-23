@@ -3,22 +3,22 @@ name: pretest
 on:
   pull_request:
     branches:
-      - test
+      - main
 
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.17.5
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.17.5
 
-    - name: Test
-      run: make test
+      - name: Test
+        run: make test
 
   build-index:
     name: Build Index
