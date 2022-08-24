@@ -88,6 +88,16 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 		return false, fmt.Errorf("read Excel error, axis: %s, error message: %s", axis, err)
 	}
 
+	// If database has same oid item, overwrite old data and show warning message
+	filter := bson.M{"oid": oid}
+	result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
+	if err != nil {
+		return false, fmt.Errorf("error when trying to find a profile, error message: %s", err)
+	}
+	if result > 0 {
+		return true, fmt.Errorf("warning: profile exist, the old data is not overwrited, row: %v, id: %s\n", row, oid)
+	}
+
 	url := "https://api.ofdb.io/v0/entries/" + oid
 	res, err := httputil.Get(url)
 	defer res.Body.Close()
@@ -119,16 +129,6 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 	}
 	if !isValid {
 		return true, fmt.Errorf("warning: skip importing this row, validate profile failed, row: %v, id: %s, failure reasons: %s", row, oid, failureReasons)
-	}
-
-	// If database has same oid item, overwrite old data and show warning message
-	filter := bson.M{"oid": oid}
-	result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
-	if err != nil {
-		return false, fmt.Errorf("error when trying to find a profile, error message: %s", err)
-	}
-	if result > 0 {
-		return true, fmt.Errorf("warning: profile exist, the old data is not overwrited, row: %v, id: %s\n", row, oid)
 	}
 
 	// Save to MongoDB, return url to post index
