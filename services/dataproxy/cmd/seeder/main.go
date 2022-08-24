@@ -88,7 +88,7 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 		return false, fmt.Errorf("read Excel error, axis: %s, error message: %s", axis, err)
 	}
 
-	// If database has same oid item, overwrite old data and show warning message
+	// If database has same oid item, keep the old data and show warning message
 	filter := bson.M{"oid": oid}
 	result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
 	if err != nil {
