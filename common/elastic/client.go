@@ -68,12 +68,18 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 
 func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error) {
 	ctx := context.Background()
+
+	// sort strategy - 1. _score 2. primary_url
+	sortQuery1 := elastic.NewFieldSort("_score")
+	sortQuery2 := elastic.NewFieldSort("primary_url").Asc()
+
 	result, err := c.client.Search(index).
 		TrackTotalHits(true).
 		Query(q.Query).
 		From(int(q.From)).
 		Size(int(q.Size)).
 		RestTotalHitsAsInt(true).
+		SortBy(sortQuery1, sortQuery2).
 		Do(ctx)
 	if err != nil {
 		logger.Error(fmt.Sprintf("error when trying to search documents in index %s", index), err)
