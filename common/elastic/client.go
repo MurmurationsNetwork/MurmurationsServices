@@ -70,7 +70,7 @@ func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error)
 	ctx := context.Background()
 
 	// sort strategy - 1. _score 2. primary_url
-	sortQuery1 := elastic.NewFieldSort("_score")
+	sortQuery1 := elastic.NewFieldSort("_score").Desc()
 	sortQuery2 := elastic.NewFieldSort("primary_url")
 
 	result, err := c.client.Search(index).
