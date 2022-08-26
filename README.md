@@ -20,8 +20,8 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 5. Download large docker files
 
 ```
-docker pull elasticsearch:7.16.2
-docker pull kibana:7.16.2
+docker pull elasticsearch:7.17.5
+docker pull kibana:7.17.5
 ```
 
 6. [Create secrets](.doc/secrets.md) for each service
