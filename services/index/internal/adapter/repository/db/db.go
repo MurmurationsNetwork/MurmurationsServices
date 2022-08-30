@@ -252,10 +252,6 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 		queryResults = append(queryResults, result)
 	}
 
-	if len(queryResults) == 0 {
-		return nil, resterr.NewNotFoundError("No items found matching given criteria.")
-	}
-
 	return &query.QueryResults{
 		Result:          queryResults,
 		NumberOfResults: result.Hits.TotalHits.Value,
