@@ -11,7 +11,7 @@ data:
   NATS_URL: http://nats:4222
   LIBRARY_URL: http://library-app:8080
   {{- if eq .Values.global.env "production" }}
-  LIBRARY_CDN_URL: https://cdn.murmurations.network
+  LIBRARY_CDN_URL: https://temp-cdn.murmurations.network
   {{- else }}
-  LIBRARY_CDN_URL: https://test-cdn.murmurations.network
+  LIBRARY_CDN_URL: https://temp-test-cdn.murmurations.network
   {{- end }}
