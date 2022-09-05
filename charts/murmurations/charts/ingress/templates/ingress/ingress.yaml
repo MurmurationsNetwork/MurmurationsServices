@@ -95,6 +95,22 @@ spec:
     - host: temp-cdn.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: temp-test-cdn.murmurations.network
+    {{- else }}
+    - host: temp-cdn.murmurations.dev
+    {{- end }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: cdn-app
+                port:
+                  number: 8080
+    {{- if eq .Values.global.env "production" }}
+    - host: cdn.murmurations.network
+    {{- else if eq .Values.global.env "staging" }}
+    - host: test-cdn.murmurations.network
     {{- else if eq .Values.global.env "pretest" }}
     - host: pretest-cdn.murmurations.network
     {{- else }}
