@@ -18,7 +18,6 @@ spec:
       - library.murmurations.network
       - data-proxy.murmurations.network
       - cdn.murmurations.network
-      - temp-cdn.murmurations.network
       secretName: murmurations-network-tls
   {{- else if eq .Values.global.env "staging" }}
   tls:
@@ -27,7 +26,6 @@ spec:
       - test-library.murmurations.network
       - test-data-proxy.murmurations.network
       - test-cdn.murmurations.network
-      - temp-test-cdn.murmurations.network
       secretName: murmurations-tech-tls
   {{- else if eq .Values.global.env "pretest" }}
   tls:
@@ -91,22 +89,6 @@ spec:
             backend:
               service:
                 name: data-proxy-app
-                port:
-                  number: 8080
-    {{- if eq .Values.global.env "production" }}
-    - host: temp-cdn.murmurations.network
-    {{- else if eq .Values.global.env "staging" }}
-    - host: temp-test-cdn.murmurations.network
-    {{- else }}
-    - host: temp-cdn.murmurations.dev
-    {{- end }}
-      http:
-        paths:
-          - pathType: Prefix
-            path: /(|$)(.*)
-            backend:
-              service:
-                name: cdn-app
                 port:
                   number: 8080
     {{- if eq .Values.global.env "production" }}
