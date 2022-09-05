@@ -14,9 +14,9 @@ data:
   GET_RATE_LIMIT_PERIOD: 6000-M
   POST_RATE_LIMIT_PERIOD: 6000-M
   {{- if eq .Values.global.env "production" }}
-  LIBRARY_CDN_URL: https://temp-cdn.murmurations.network
+  LIBRARY_CDN_URL: https://cdn.murmurations.network
   {{- else }}
-  LIBRARY_CDN_URL: https://temp-test-cdn.murmurations.network
+  LIBRARY_CDN_URL: https://test-cdn.murmurations.network
   {{- end }}
   {{- if eq .Values.global.env "production" }}
   EXTERNAL_DATA_PROXY_URL: https://data-proxy.murmurations.network
