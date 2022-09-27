@@ -119,7 +119,7 @@ func main() {
 			if !isValid {
 				errStr := "validate profile failed, profile id is " + oid + ". failure reasons: " + failureReasons
 				logger.Info(errStr)
-				errCleanUp(schemaName, svc, errStr)
+				continue
 			}
 
 			// save to Mongo
