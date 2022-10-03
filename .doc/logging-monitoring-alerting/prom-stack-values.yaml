@@ -33,6 +33,9 @@ alertmanager:
 grafana:
   enabled: true
   adminPassword: password # Please change the default password in production !!!
+  sidecar:
+    datasources:
+      defaultDatasourceEnabled: true
   persistence:
     enabled: true
     storageClassName: do-block-storage
@@ -48,62 +51,8 @@ prometheusOperator:
 ##
 prometheus:
   enabled: true
-
-    ## Starter Kit components service monitors
-    #
-    # additionalServiceMonitors:
-    # Uncomment the following section to enable ambassador service monitoring
-    # - name: "ambassador-monitor"
-    #   selector:
-    #     matchLabels:
-    #       service: "ambassador-admin"
-    #   namespaceSelector:
-    #     matchNames:
-    #       - ambassador
-    #   endpoints:
-  #     - port: "ambassador-admin"
-
-  # # Uncomment the following section to enable ingress-nginx service monitoring
-  #   - name: "ingress-nginx-monitor"
-  #     selector:
-  #       matchLabels:
-  #         app.kubernetes.io/name: ingress-nginx
-  #     namespaceSelector:
-  #       matchNames:
-  #         - ingress-nginx
-  #     endpoints:
-  #       - port: "metrics"
-
-  # # Uncomment the following section to enable Loki service monitoring
-  #   - name: "loki-monitor"
-  #     selector:
-  #       matchLabels:
-  #         app: loki
-  #         release: loki
-  #     namespaceSelector:
-  #       matchNames:
-  #         - loki-stack
-  #     endpoints:
-  #       - port: "http-metrics"
-
-  # # Uncomment the following section to enable Promtail service monitoring
-  #   - name: "promtail-monitor"
-  #     selector:
-  #       matchLabels:
-  #         app: promtail
-  #         release: loki
-  #     namespaceSelector:
-  #       matchNames:
-  #         - loki-stack
-  #     endpoints:
-  #       - port: "http-metrics"
-
-  ## Prometheus StorageSpec for persistent data
-  ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/user-guides/storage.md
-  ##
-  # Starter Kit setup for DigitalOcean Block Storage
-  #
   prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
     storageSpec:
       volumeClaimTemplate:
         spec:
