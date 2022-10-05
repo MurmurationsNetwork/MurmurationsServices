@@ -26,7 +26,7 @@ helm repo update
 - Revise `adminPassword` in .doc/logging-monitoring-alerting/prom-stack-values.yaml
 
 ```
-helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 36.2.1 -n kube-monitoring -f .doc/logging-monitoring-alerting/prom-stack-values.yaml --install
+helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 40.3.1 -n kube-monitoring -f .doc/logging-monitoring-alerting/prom-stack-values.yaml --install
 ```
 
 - Check the available resources
@@ -44,9 +44,7 @@ kubectl port-forward alertmanager-kube-prom-stack-kube-prome-alertmanager-0 9093
 ### 2. Install Loki & Promtail
 
 ```
-helm upgrade loki grafana/loki --version 2.8.6 --namespace=kube-monitoring --create-namespace -f .doc/logging-monitoring-alerting/loki.values.yaml --install
-
-helm upgrade promtail grafana/promtail --version 3.9.2 --namespace=kube-monitoring --create-namespace -f .doc/logging-monitoring-alerting/promtail.values.yaml --install
+helm upgrade loki grafana/loki-stack --version 2.8.3  -n kube-monitoring -f .doc/logging-monitoring-alerting/loki-stack-values.yaml --install
 ```
 
 - Navigate to Grafana: https://localhost:3000

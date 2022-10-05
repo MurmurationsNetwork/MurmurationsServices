@@ -25,13 +25,16 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 28,
-  "iteration": 1656867070090,
+  "id": 27,
+  "iteration": 1664687914480,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "datasource": {},
+      "datasource": {
+        "type": "loki",
+        "uid": "pvuSqSenk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -79,8 +82,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "editorMode": "code",
-          "expr": "sum(count_over_time({namespace=\"default\"} | json |= `Log Entry` | status=`200` [$__interval]))",
+          "expr": "sum(count_over_time({app=~\".+app\"} | json |= `Log Entry` | status=`200` [$__interval]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -141,7 +143,7 @@
             "uid": "pvuSqSenk"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({namespace=\"default\"} | json |= `Log Entry` | status=`404` [$__interval]))",
+          "expr": "sum(count_over_time({app=~\".+app\"} | json |= `Log Entry` | status=`404` [$__interval]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -202,7 +204,7 @@
             "uid": "pvuSqSenk"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({namespace=\"default\"} | json |= `Log Entry` | status=`500` [$__interval]))",
+          "expr": "sum(count_over_time({app=~\".+app\"} | json |= `Log Entry` | status=`500` [$__interval]))",
           "legendFormat": "Status 500",
           "queryType": "range",
           "refId": "A"
@@ -266,7 +268,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "sum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))",
+          "expr": "sum(count_over_time(({app=~\".+app\"} |= \"Log Entry\")[$__interval]))",
           "refId": "A"
         }
       ],
@@ -333,7 +335,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "(sum(count_over_time(({namespace=\"default\"} | json |= \"Log Entry\" | status = `200`)[$__interval])) / sum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
+          "expr": "(sum(count_over_time(({app=~\".+app\"} | json |= \"Log Entry\" | status = `200`)[$__interval])) / sum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
           "legendFormat": "Status 200",
           "refId": "A"
         },
@@ -342,7 +344,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "(sum(count_over_time(({namespace=\"default\"} | json |= \"Log Entry\" | status = `404`)[$__interval])) / \nsum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
+          "expr": "(sum(count_over_time(({app=~\".+app\"} | json |= \"Log Entry\" | status = `404`)[$__interval])) / \nsum(count_over_time(({app=~\".+app\"} |= \"Log Entry\")[$__interval]))) * 100",
           "hide": false,
           "legendFormat": "Status 404",
           "refId": "B"
@@ -352,7 +354,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "(sum(count_over_time(({namespace=\"default\"} | json |= \"Log Entry\" | status = `500`)[$__interval])) / \nsum(count_over_time(({namespace=\"default\"} |= \"Log Entry\")[$__interval]))) * 100",
+          "expr": "(sum(count_over_time(({app=~\".+app\"} | json |= \"Log Entry\" | status = `500`)[$__interval])) / \nsum(count_over_time(({app=~\".+app\"} |= \"Log Entry\")[$__interval]))) * 100",
           "hide": false,
           "legendFormat": "Status 500",
           "refId": "C"
@@ -454,7 +456,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "sum by (ip, country, city) (count_over_time(({namespace=\"default\"} |= \"Log Entry\" | json)[$__interval]))",
+          "expr": "sum by (ip, country, city) (count_over_time(({app=~\".+app\"} |= \"Log Entry\" | json)[$__interval]))",
           "instant": false,
           "legendFormat": "",
           "range": true,
@@ -516,7 +518,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "{namespace=\"default\"} |~ \"err|error\"",
+          "expr": "{app=~\".+app\"} |~ \"err|error\"",
           "refId": "A"
         }
       ],
@@ -552,7 +554,7 @@
             "type": "loki",
             "uid": "pvuSqSenk"
           },
-          "expr": "{namespace=\"default\"} |~ \"(?i)$searchable_pattern\"",
+          "expr": "{app=~\".+app\"} |~ \"(?i)$searchable_pattern\"",
           "refId": "A"
         }
       ],
@@ -610,6 +612,6 @@
   "timezone": "",
   "title": "Logging",
   "uid": "1Umbi6uGz",
-  "version": 4,
+  "version": 3,
   "weekStart": ""
 }
