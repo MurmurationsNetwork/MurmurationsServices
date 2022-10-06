@@ -3,6 +3,8 @@ package http
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+	"net/url"
+	"strings"
 )
 
 type nodeDTO struct {
@@ -17,6 +19,12 @@ type nodeDTO struct {
 func (dto *nodeDTO) Validate() resterr.RestErr {
 	if dto.ProfileURL == "" {
 		return resterr.NewBadRequestError("The profile_url parameter is missing.")
+	}
+	u, err := url.Parse(dto.ProfileURL)
+	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
+	uCount := strings.Count(u.Host, ".")
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || uCount == 0 {
+		return resterr.NewBadRequestError("The profile_url is invalid.")
 	}
 	return nil
 }
