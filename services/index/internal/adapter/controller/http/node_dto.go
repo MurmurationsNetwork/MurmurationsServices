@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
-	"net/url"
+	"net/http"
 )
 
 type nodeDTO struct {
@@ -19,9 +19,9 @@ func (dto *nodeDTO) Validate() resterr.RestErr {
 	if dto.ProfileURL == "" {
 		return resterr.NewBadRequestError("The profile_url parameter is missing.")
 	}
-	_, err := url.ParseRequestURI(dto.ProfileURL)
+	_, err := http.Get(dto.ProfileURL)
 	if err != nil {
-		return resterr.NewBadRequestError("The profile_url is invalid. err: " + err.Error())
+		return resterr.NewBadRequestError("The profile_url is invalid.")
 	}
 	return nil
 }
