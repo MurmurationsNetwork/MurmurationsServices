@@ -205,11 +205,11 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
 
 	// Validate against schemes specify inside the profile data.
-	failureReasons, details, sources, errorStatus := handler.validateAgainstSchemas(linkedSchemas, string(jsonString))
-	if len(failureReasons) != 0 {
-		message := "Failed to validate against schemas: " + strings.Join(failureReasons, " ")
+	titles, details, sources, errorStatus := handler.validateAgainstSchemas(linkedSchemas, string(jsonString))
+	if len(titles) != 0 {
+		message := "Failed to validate against schemas: " + strings.Join(titles, " ")
 		logger.Info(message)
-		errors := jsonapi.NewError(failureReasons, details, sources, errorStatus)
+		errors := jsonapi.NewError(titles, details, sources, errorStatus)
 		res := jsonapi.Response(errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -249,8 +249,8 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 
 func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData string) ([]string, []string, []string, []int) {
 	var (
-		FailureReasons, details, sources []string
-		errorStatus                      []int
+		titles, details, sources []string
+		errorStatus              []int
 	)
 
 	for _, linkedSchema := range linkedSchemas {
@@ -258,7 +258,7 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
-			FailureReasons = append(FailureReasons, []string{"Schema Not Found"}...)
+			titles = append(titles, []string{"Schema Not Found"}...)
 			details = append(details, []string{"Could not locate the following schema in the library: " + linkedSchema}...)
 			sources = append(sources, []string{"/linked_schemas"}...)
 			errorStatus = append(errorStatus, http.StatusNotFound)
@@ -267,7 +267,7 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 
 		result, err := schema.Validate(gojsonschema.NewStringLoader(validateData))
 		if err != nil {
-			FailureReasons = append(FailureReasons, "Cannot Validate Document")
+			titles = append(titles, "Cannot Validate Document")
 			details = append(details, []string{"Error when trying to validate document: ", err.Error()}...)
 			errorStatus = append(errorStatus, http.StatusBadRequest)
 			continue
@@ -275,16 +275,16 @@ func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, valid
 
 		if !result.Valid() {
 			failedTitles, failedDetails, failedSources := handler.parseValidateError(linkedSchema, result.Errors())
-			FailureReasons = append(FailureReasons, failedTitles...)
+			titles = append(titles, failedTitles...)
 			details = append(details, failedDetails...)
 			sources = append(sources, failedSources...)
-			for i := 0; i < len(FailureReasons); i++ {
+			for i := 0; i < len(titles); i++ {
 				errorStatus = append(errorStatus, http.StatusBadRequest)
 			}
 		}
 	}
 
-	return FailureReasons, details, sources, errorStatus
+	return titles, details, sources, errorStatus
 }
 
 func getSchemaURL(linkedSchema string) string {
