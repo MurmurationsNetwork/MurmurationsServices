@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/xeipuuv/gojsonschema"
 	"net/http"
@@ -178,24 +179,25 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	var node interface{}
 
 	if err := c.ShouldBindJSON(&node); err != nil {
-		restErr := resterr.NewBadRequestError("Invalid JSON body.")
-		c.JSON(restErr.StatusCode(), restErr)
+		errors := jsonapi.NewError([]string{"Invalid JSON body."}, nil, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(errors, nil)
+		c.JSON(errors[0].Status, res)
 		return
 	}
 
 	jsonString, err := json.Marshal(node)
 	if err != nil {
-		restErr := resterr.NewBadRequestError("Cannot parse JSON body.")
-		c.JSON(restErr.StatusCode(), restErr)
+		errors := jsonapi.NewError([]string{"Cannot parse JSON body."}, nil, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(errors, nil)
+		c.JSON(errors[0].Status, res)
 		return
 	}
 
 	linkedSchemas, ok := getLinkedSchemas(node)
 	if !ok {
-		c.JSON(http.StatusOK, gin.H{
-			"failure_reasons": []string{"The submitted profile does not contain the linked_schemas property."},
-			"status":          http.StatusBadRequest,
-		})
+		errors := jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `linked_schemas` property is required."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(errors, nil)
+		c.JSON(errors[0].Status, res)
 		return
 	}
 
@@ -203,20 +205,19 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
 
 	// Validate against schemes specify inside the profile data.
-	failureReasons, errorStatus := handler.validateAgainstSchemas(linkedSchemas, string(jsonString))
+	failureReasons, details, sources, errorStatus := handler.validateAgainstSchemas(linkedSchemas, string(jsonString))
 	if len(failureReasons) != 0 {
 		message := "Failed to validate against schemas: " + strings.Join(failureReasons, " ")
 		logger.Info(message)
-		c.JSON(http.StatusOK, gin.H{
-			"failure_reasons": failureReasons,
-			"status":          errorStatus,
-		})
+		errors := jsonapi.NewError(failureReasons, details, sources, errorStatus)
+		res := jsonapi.Response(errors, nil)
+		c.JSON(errors[0].Status, res)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": http.StatusOK,
-	})
+	meta := jsonapi.NewMeta("The submitted profile was validated successfully to its linked schemas.")
+	res := jsonapi.Response(nil, meta)
+	c.JSON(http.StatusOK, res)
 }
 
 func getLinkedSchemas(data interface{}) ([]string, bool) {
@@ -246,51 +247,89 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 	return linkedSchemas, true
 }
 
-func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData string) ([]string, int) {
-	FailureReasons := []string{}
-	errorStatus := 0
+func (handler *nodeHandler) validateAgainstSchemas(linkedSchemas []string, validateData string) ([]string, []string, []string, []int) {
+	var (
+		FailureReasons, details, sources []string
+		errorStatus                      []int
+	)
 
 	for _, linkedSchema := range linkedSchemas {
 		schemaURL := getSchemaURL(linkedSchema)
 
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
-			FailureReasons = append(FailureReasons, fmt.Sprintf("Error when trying to read from schema %s: %s", schemaURL, err.Error()))
-			if errorStatus == 0 {
-				errorStatus = http.StatusNotFound
-			}
+			FailureReasons = append(FailureReasons, []string{"Schema Not Found"}...)
+			details = append(details, []string{"Could not locate the following schema in the library: " + linkedSchema}...)
+			sources = append(sources, []string{"/linked_schemas"}...)
+			errorStatus = append(errorStatus, http.StatusNotFound)
 			continue
 		}
 
 		result, err := schema.Validate(gojsonschema.NewStringLoader(validateData))
 		if err != nil {
-			FailureReasons = append(FailureReasons, "Error when trying to validate document: ", err.Error())
-			if errorStatus == 0 {
-				errorStatus = http.StatusBadRequest
-			}
+			FailureReasons = append(FailureReasons, "Cannot Validate Document")
+			details = append(details, []string{"Error when trying to validate document: ", err.Error()}...)
+			errorStatus = append(errorStatus, http.StatusBadRequest)
 			continue
 		}
 
 		if !result.Valid() {
-			FailureReasons = append(FailureReasons, handler.parseValidateError(linkedSchema, result.Errors())...)
-			if errorStatus == 0 {
-				errorStatus = http.StatusBadRequest
+			failedTitles, failedDetails, failedSources := handler.parseValidateError(linkedSchema, result.Errors())
+			FailureReasons = append(FailureReasons, failedTitles...)
+			details = append(details, failedDetails...)
+			sources = append(sources, failedSources...)
+			for i := 0; i < len(FailureReasons); i++ {
+				errorStatus = append(errorStatus, http.StatusBadRequest)
 			}
 		}
 	}
 
-	return FailureReasons, errorStatus
+	return FailureReasons, details, sources, errorStatus
 }
 
 func getSchemaURL(linkedSchema string) string {
 	return config.Conf.Library.InternalURL + "/v1/schema/" + linkedSchema
 }
 
-func (handler *nodeHandler) parseValidateError(schema string, resultErrors []gojsonschema.ResultError) []string {
-	FailureReasons := make([]string, 0)
+func (handler *nodeHandler) parseValidateError(schema string, resultErrors []gojsonschema.ResultError) ([]string, []string, []string) {
+	var failedTitles, failedDetails, failedSources []string
 	for _, desc := range resultErrors {
-		// Output string: "demo-v1.(root): url is required"
-		FailureReasons = append(FailureReasons, schema+"."+desc.String())
+		// title
+		failedType := desc.Type()
+
+		// details
+		var expected, given, min, max, failedDetail string
+		for index, value := range desc.Details() {
+			if index == "expected" {
+				expected = value.(string)
+			} else if index == "given" {
+				given = value.(string)
+			} else if index == "min" {
+				min = fmt.Sprint(value)
+			} else if index == "max" {
+				max = fmt.Sprint(value)
+			}
+		}
+
+		if failedType == "invalid_type" {
+			failedType = "Invalid Type"
+			failedDetail = "Expected: " + expected + " - Given: " + given + " - Schema: " + schema
+		} else if failedType == "number_gte" {
+			failedType = "Invalid Amount"
+			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schema
+		} else if failedType == "number_lte" {
+			failedType = "Invalid Amount"
+			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schema
+		}
+
+		// append title and detail
+		failedTitles = append(failedTitles, failedType)
+		failedDetails = append(failedDetails, failedDetail)
+
+		// sources
+		failedField := "/" + strings.Replace(desc.Field(), ".", "/", -1)
+		failedSources = append(failedSources, failedField)
 	}
-	return FailureReasons
+
+	return failedTitles, failedDetails, failedSources
 }
