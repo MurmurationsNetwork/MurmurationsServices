@@ -179,7 +179,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	var node interface{}
 
 	if err := c.ShouldBindJSON(&node); err != nil {
-		errors := jsonapi.NewError([]string{"Invalid JSON body."}, nil, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"Invalid JSON body."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -187,7 +187,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	jsonString, err := json.Marshal(node)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"Cannot parse JSON body."}, nil, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"Cannot parse JSON body."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -298,7 +298,7 @@ func (handler *nodeHandler) parseValidateError(schema string, resultErrors []goj
 		failedType := desc.Type()
 
 		// details
-		var expected, given, min, max, failedDetail string
+		var expected, given, min, max, property, failedDetail, failedField string
 		for index, value := range desc.Details() {
 			if index == "expected" {
 				expected = value.(string)
@@ -308,6 +308,8 @@ func (handler *nodeHandler) parseValidateError(schema string, resultErrors []goj
 				min = fmt.Sprint(value)
 			} else if index == "max" {
 				max = fmt.Sprint(value)
+			} else if index == "property" {
+				property = value.(string)
 			}
 		}
 
@@ -320,6 +322,9 @@ func (handler *nodeHandler) parseValidateError(schema string, resultErrors []goj
 		} else if failedType == "number_lte" {
 			failedType = "Invalid Amount"
 			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schema
+		} else if failedType == "required" {
+			failedType = "Missing Required Property"
+			failedDetail = "The `/" + desc.Field() + "/" + property + "` property is required."
 		}
 
 		// append title and detail
@@ -327,7 +332,11 @@ func (handler *nodeHandler) parseValidateError(schema string, resultErrors []goj
 		failedDetails = append(failedDetails, failedDetail)
 
 		// sources
-		failedField := "/" + strings.Replace(desc.Field(), ".", "/", -1)
+		if property != "" {
+			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1) + "/" + property
+		} else {
+			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1)
+		}
 		failedSources = append(failedSources, failedField)
 	}
 
