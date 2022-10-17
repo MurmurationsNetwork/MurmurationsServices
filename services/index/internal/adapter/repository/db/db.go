@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/validateurl"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -27,7 +29,7 @@ import (
 )
 
 type NodeRepository interface {
-	Add(node *entity.Node) resterr.RestErr
+	Add(node *entity.Node) []jsonapi.Error
 	Get(nodeID string) (*entity.Node, resterr.RestErr)
 	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
@@ -45,7 +47,7 @@ func NewRepository() NodeRepository {
 type nodeRepository struct {
 }
 
-func (r *nodeRepository) Add(node *entity.Node) resterr.RestErr {
+func (r *nodeRepository) Add(node *entity.Node) []jsonapi.Error {
 	filter := bson.M{"_id": node.ID}
 	update := bson.M{"$set": r.toDAO(node)}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
@@ -53,7 +55,7 @@ func (r *nodeRepository) Add(node *entity.Node) resterr.RestErr {
 	result, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Node, filter, update, opt)
 	if err != nil {
 		logger.Error("Error when trying to create a node", err)
-		return resterr.NewInternalServerError("Error when trying to add a node.", errors.New("database error"))
+		return jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to add a node."}, nil, []int{http.StatusBadRequest})
 	}
 
 	var updated nodeDAO

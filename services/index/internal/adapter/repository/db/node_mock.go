@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
@@ -8,7 +9,7 @@ import (
 
 type mockNodeRepository struct{}
 
-func (r *mockNodeRepository) Add(node *entity.Node) resterr.RestErr {
+func (r *mockNodeRepository) Add(node *entity.Node) []jsonapi.Error {
 	return nil
 }
 

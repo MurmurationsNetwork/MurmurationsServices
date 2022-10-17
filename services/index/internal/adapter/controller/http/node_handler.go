@@ -48,23 +48,27 @@ func (handler *nodeHandler) getNodeId(params gin.Params) (string, resterr.RestEr
 func (handler *nodeHandler) Add(c *gin.Context) {
 	var node nodeDTO
 	if err := c.ShouldBindJSON(&node); err != nil {
-		restErr := resterr.NewBadRequestError("Invalid JSON body.")
-		c.JSON(restErr.StatusCode(), restErr)
+		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The JSON document submitted could not be parsed."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil)
+		c.JSON(errors[0].Status, res)
 		return
 	}
 
 	if err := node.Validate(); err != nil {
-		c.JSON(err.StatusCode(), err)
+		res := jsonapi.Response(nil, err, nil)
+		c.JSON(err[0].Status, res)
 		return
 	}
 
 	result, err := handler.nodeUsecase.AddNode(node.toEntity())
 	if err != nil {
-		c.JSON(err.StatusCode(), err)
+		res := jsonapi.Response(nil, err, nil)
+		c.JSON(err[0].Status, res)
 		return
 	}
 
-	c.JSON(http.StatusOK, handler.toAddNodeVO(result))
+	res := jsonapi.Response(handler.toAddNodeVO(result), nil, nil)
+	c.JSON(http.StatusOK, res)
 }
 
 func (handler *nodeHandler) Get(c *gin.Context) {
@@ -140,13 +144,15 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 	}
 
 	if err := node.Validate(); err != nil {
-		c.JSON(err.StatusCode(), err)
+		res := jsonapi.Response(nil, err, nil)
+		c.JSON(err[0].Status, res)
 		return
 	}
 
 	result, err := handler.nodeUsecase.AddNode(node.toEntity())
 	if err != nil {
-		c.JSON(err.StatusCode(), err)
+		res := jsonapi.Response(nil, err, nil)
+		c.JSON(err[0].Status, res)
 		return
 	}
 
@@ -180,7 +186,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&node); err != nil {
 		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The JSON document submitted could not be parsed."}, nil, []int{http.StatusBadRequest})
-		res := jsonapi.Response(errors, nil)
+		res := jsonapi.Response(nil, errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
@@ -188,7 +194,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	jsonString, err := json.Marshal(node)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The body of the JSON document submitted is malformed."}, nil, []int{http.StatusBadRequest})
-		res := jsonapi.Response(errors, nil)
+		res := jsonapi.Response(nil, errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
@@ -196,7 +202,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas, ok := getLinkedSchemas(node)
 	if !ok {
 		errors := jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `linked_schemas` property is required."}, nil, []int{http.StatusBadRequest})
-		res := jsonapi.Response(errors, nil)
+		res := jsonapi.Response(nil, errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
@@ -210,13 +216,13 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 		message := "Failed to validate against schemas: " + strings.Join(titles, " ")
 		logger.Info(message)
 		errors := jsonapi.NewError(titles, details, sources, errorStatus)
-		res := jsonapi.Response(errors, nil)
+		res := jsonapi.Response(nil, errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 
 	meta := jsonapi.NewMeta("The submitted profile was validated successfully to its linked schemas.")
-	res := jsonapi.Response(nil, meta)
+	res := jsonapi.Response(nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
 

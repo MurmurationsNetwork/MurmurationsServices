@@ -8,6 +8,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
@@ -17,7 +18,7 @@ import (
 )
 
 type NodeUsecase interface {
-	AddNode(node *entity.Node) (*entity.Node, resterr.RestErr)
+	AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 	GetNode(nodeID string) (*entity.Node, resterr.RestErr)
 	SetNodeValid(node *entity.Node) error
 	SetNodeInvalid(node *entity.Node) error
@@ -35,9 +36,9 @@ func NewNodeService(nodeRepo db.NodeRepository) NodeUsecase {
 	}
 }
 
-func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr) {
+func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error) {
 	if node.ProfileURL == "" {
-		return nil, resterr.NewBadRequestError("The profile_url parameter is missing.")
+		return nil, jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `profile_url` property is required."}, nil, []int{http.StatusBadRequest})
 	}
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)

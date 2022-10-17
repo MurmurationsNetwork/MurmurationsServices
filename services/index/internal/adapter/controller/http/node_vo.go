@@ -30,10 +30,9 @@ type searchNodeVO struct {
 }
 
 func (handler *nodeHandler) toAddNodeVO(node *entity.Node) interface{} {
-	res := addNodeVO{
+	return addNodeVO{
 		NodeID: node.ID,
 	}
-	return respond{Data: res}
 }
 
 func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {

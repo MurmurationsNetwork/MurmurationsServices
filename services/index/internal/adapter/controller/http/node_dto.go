@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -16,15 +17,15 @@ type nodeDTO struct {
 	FailureReasons *[]string `json:"failure_reasons" `
 }
 
-func (dto *nodeDTO) Validate() resterr.RestErr {
+func (dto *nodeDTO) Validate() []jsonapi.Error {
 	if dto.ProfileURL == "" {
-		return resterr.NewBadRequestError("The profile_url parameter is missing.")
+		return jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `profile_url` property is required."}, nil, []int{http.StatusBadRequest})
 	}
 	u, err := url.Parse(dto.ProfileURL)
 	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
 	uCount := strings.Count(u.Host, ".")
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || uCount == 0 {
-		return resterr.NewBadRequestError("The profile_url is invalid.")
+		return jsonapi.NewError([]string{"Invalid Profile Url"}, []string{"The `profile_url` is invalid."}, nil, []int{http.StatusBadRequest})
 	}
 	return nil
 }

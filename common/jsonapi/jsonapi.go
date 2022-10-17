@@ -1,8 +1,9 @@
 package jsonapi
 
 type JsonApi struct {
-	Errors []Error `json:"errors,omitempty"`
-	Meta   *Meta   `json:"meta,omitempty"`
+	Data   interface{} `json:"data,omitempty"`
+	Errors []Error     `json:"errors,omitempty"`
+	Meta   *Meta       `json:"meta,omitempty"`
 }
 
 type Error struct {
@@ -18,8 +19,9 @@ type Meta struct {
 
 // JSON API Response Combination
 
-func Response(errors []Error, meta *Meta) JsonApi {
+func Response(data interface{}, errors []Error, meta *Meta) JsonApi {
 	return JsonApi{
+		Data:   data,
 		Errors: errors,
 		Meta:   meta,
 	}
