@@ -179,7 +179,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	var node interface{}
 
 	if err := c.ShouldBindJSON(&node); err != nil {
-		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"Invalid JSON body."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The JSON document submitted could not be parsed."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(errors, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -187,7 +187,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	jsonString, err := json.Marshal(node)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"Cannot parse JSON body."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The body of the JSON document submitted is malformed."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(errors, nil)
 		c.JSON(errors[0].Status, res)
 		return

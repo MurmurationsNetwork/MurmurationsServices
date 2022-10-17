@@ -2426,6 +2426,60 @@
 					"response": []
 				},
 				{
+					"name": "Profile with Invalid JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
+									"    pm.response.to.have.status(400)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 400`, () => {",
+									"    pm.expect(jsonData.errors[0].status).to.equal(400)",
+									"})",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure title`, () => {",
+									"    pm.expect(jsonData.errors[0].title).to.equal('JSON Error')",
+									"})",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure detail`, () => {",
+									"    pm.expect(jsonData.errors[0].detail).to.equal('The JSON document submitted could not be parsed.')",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "INVALID",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/validate",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Profile that validates",
 					"event": [
 						{
