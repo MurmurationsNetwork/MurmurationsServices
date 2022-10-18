@@ -2,7 +2,6 @@ package db
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 )
@@ -23,7 +22,7 @@ func (r *mockNodeRepository) Update(node *entity.Node) error {
 	return nil
 }
 
-func (r *mockNodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
+func (r *mockNodeRepository) Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error) {
 	return nil, nil
 }
 

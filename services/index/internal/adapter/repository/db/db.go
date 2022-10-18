@@ -2,7 +2,6 @@ package db
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
@@ -21,7 +20,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,7 +30,7 @@ type NodeRepository interface {
 	Add(node *entity.Node) []jsonapi.Error
 	Get(nodeID string) (*entity.Node, []jsonapi.Error)
 	Update(node *entity.Node) error
-	Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr)
+	Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
 	Delete(node *entity.Node) []jsonapi.Error
 	SoftDelete(node *entity.Node) []jsonapi.Error
 }
@@ -238,10 +236,10 @@ func (r *nodeRepository) setPosted(node *entity.Node) error {
 	return nil
 }
 
-func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
+func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error) {
 	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build())
 	if err != nil {
-		return nil, resterr.NewInternalServerError("Error when trying to search documents.", errors.New("database error"))
+		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
 	}
 
 	queryResults := make([]query.QueryResult, 0)
@@ -249,7 +247,7 @@ func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, resterr.
 		bytes, _ := hit.Source.MarshalJSON()
 		var result query.QueryResult
 		if err := json.Unmarshal(bytes, &result); err != nil {
-			return nil, resterr.NewInternalServerError("Error when trying to parse response.", errors.New("database error"))
+			return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
 		}
 		queryResults = append(queryResults, result)
 	}

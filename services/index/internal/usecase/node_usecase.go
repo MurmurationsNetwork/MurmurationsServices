@@ -10,7 +10,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
@@ -22,7 +21,7 @@ type NodeUsecase interface {
 	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
 	SetNodeValid(node *entity.Node) error
 	SetNodeInvalid(node *entity.Node) error
-	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
+	Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
 	Delete(nodeID string) (string, []jsonapi.Error)
 }
 
@@ -90,7 +89,7 @@ func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
 	return nil
 }
 
-func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
+func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error) {
 	result, err := s.nodeRepo.Search(query)
 	if err != nil {
 		return nil, err
