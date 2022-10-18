@@ -1,5 +1,7 @@
 package event
 
+import "github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+
 type NodeCreatedData struct {
 	ProfileURL string `json:"profile_url"`
 	Version    int32  `json:"version"`
@@ -14,7 +16,7 @@ type NodeValidatedData struct {
 }
 
 type NodeValidationFailedData struct {
-	ProfileURL     string   `json:"profile_url"`
-	FailureReasons []string `json:"failure_reasons"`
-	Version        int32    `json:"version"`
+	ProfileURL     string           `json:"profile_url"`
+	FailureReasons *[]jsonapi.Error `json:"failure_reasons"`
+	Version        int32            `json:"version"`
 }

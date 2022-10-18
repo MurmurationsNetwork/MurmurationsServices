@@ -43,7 +43,7 @@ func TestSetNodeValid(t *testing.T) {
 
 	assert.Equal(t, "4d62d0d132e2814379c22f2850d7a6c9ae97c16f021c25c975730c6b97b31f2c", node.ID)
 	assert.Equal(t, constant.NodeStatus.Validated, node.Status)
-	assert.Equal(t, []string{}, *node.FailureReasons)
+	assert.Equal(t, []jsonapi.Error{}, *node.FailureReasons)
 }
 
 func TestSetNodeInvalid(t *testing.T) {

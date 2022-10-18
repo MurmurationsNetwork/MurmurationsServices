@@ -3,7 +3,6 @@ package service
 import (
 	"testing"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,10 +33,4 @@ func TestGetLinkedSchemas(t *testing.T) {
 
 	linkedSchemas, ok := getLinkedSchemas(map[string]interface{}{"linked_schemas": []interface{}{"https://ic3.dev/test2.json"}})
 	assert.Equal(t, "https://ic3.dev/test2.json", linkedSchemas[0])
-}
-
-func TestGetSchemaURL(t *testing.T) {
-	config.Conf.Library.InternalURL = "https://ic3.dev"
-	url := getSchemaURL("test1")
-	assert.Equal(t, "https://ic3.dev/v1/schema/test1", url)
 }

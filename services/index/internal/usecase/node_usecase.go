@@ -19,11 +19,11 @@ import (
 
 type NodeUsecase interface {
 	AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
-	GetNode(nodeID string) (*entity.Node, resterr.RestErr)
+	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
 	SetNodeValid(node *entity.Node) error
 	SetNodeInvalid(node *entity.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
-	Delete(nodeID string) (string, resterr.RestErr)
+	Delete(nodeID string) (string, []jsonapi.Error)
 }
 
 type nodeUsecase struct {
@@ -57,7 +57,7 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 	return node, nil
 }
 
-func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, resterr.RestErr) {
+func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, []jsonapi.Error) {
 	node, err := s.nodeRepo.Get(nodeID)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, resterr.RestErr) {
 func (s *nodeUsecase) SetNodeValid(node *entity.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Validated
-	node.FailureReasons = &[]string{}
+	node.FailureReasons = &[]jsonapi.Error{}
 
 	if err := s.nodeRepo.Update(node); err != nil {
 		return err
@@ -98,7 +98,7 @@ func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr
 	return result, nil
 }
 
-func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
+func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	node, getErr := s.nodeRepo.Get(nodeID)
 	if getErr != nil {
 		return "", getErr
@@ -109,7 +109,7 @@ func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
 	// defer here to avoid error
 	defer resp.Body.Close()
 	if err != nil {
-		return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
+		return node.ProfileURL, jsonapi.NewError([]string{"Profile URL Not Found"}, []string{fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID)}, nil, []int{http.StatusBadRequest})
 	}
 
 	// check the response is json or not (issue-266)
@@ -138,8 +138,8 @@ func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
+		return node.ProfileURL, jsonapi.NewError([]string{"Profile Still Exists"}, []string{fmt.Sprintf("The profile could not be deleted from the index because it still exists at the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
 	}
 
-	return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
+	return node.ProfileURL, jsonapi.NewError([]string{"Node Status Code Error"}, []string{fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode)}, nil, []int{http.StatusBadRequest})
 }

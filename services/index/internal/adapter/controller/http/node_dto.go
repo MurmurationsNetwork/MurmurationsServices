@@ -9,12 +9,12 @@ import (
 )
 
 type nodeDTO struct {
-	ID             string    `json:"node_id" `
-	ProfileURL     string    `json:"profile_url" `
-	ProfileHash    *string   `json:"profile_hash" `
-	Status         string    `json:"status" `
-	LastUpdated    *int64    `json:"last_updated" `
-	FailureReasons *[]string `json:"failure_reasons" `
+	ID             string           `json:"node_id" `
+	ProfileURL     string           `json:"profile_url" `
+	ProfileHash    *string          `json:"profile_hash" `
+	Status         string           `json:"status" `
+	LastUpdated    *int64           `json:"last_updated" `
+	FailureReasons *[]jsonapi.Error `json:"failure_reasons" `
 }
 
 func (dto *nodeDTO) Validate() []jsonapi.Error {

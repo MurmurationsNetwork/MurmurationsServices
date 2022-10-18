@@ -78,7 +78,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 
 			err = handler.nodeUsecase.SetNodeInvalid(&entity.Node{
 				ProfileURL:     nodeValidationFailedData.ProfileURL,
-				FailureReasons: &nodeValidationFailedData.FailureReasons,
+				FailureReasons: nodeValidationFailedData.FailureReasons,
 				Version:        &nodeValidationFailedData.Version,
 			})
 			if err != nil {

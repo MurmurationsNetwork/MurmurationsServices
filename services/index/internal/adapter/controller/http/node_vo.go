@@ -47,7 +47,7 @@ func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {
 	nodeJSON, _ := json.Marshal(toDTO(node))
 	var res getNodeVO
 	json.Unmarshal(nodeJSON, &res)
-	return respond{Data: res}
+	return res
 }
 
 func (handler *nodeHandler) toSearchNodeVO(nodes entity.Nodes) interface{} {

@@ -13,7 +13,7 @@ func (r *mockNodeRepository) Add(node *entity.Node) []jsonapi.Error {
 	return nil
 }
 
-func (r *mockNodeRepository) Get(nodeID string) (*entity.Node, resterr.RestErr) {
+func (r *mockNodeRepository) Get(nodeID string) (*entity.Node, []jsonapi.Error) {
 	return &entity.Node{
 		ID: nodeID,
 	}, nil
@@ -27,10 +27,10 @@ func (r *mockNodeRepository) Search(q *query.EsQuery) (*query.QueryResults, rest
 	return nil, nil
 }
 
-func (r *mockNodeRepository) Delete(node *entity.Node) resterr.RestErr {
+func (r *mockNodeRepository) Delete(node *entity.Node) []jsonapi.Error {
 	return nil
 }
 
-func (r *mockNodeRepository) SoftDelete(node *entity.Node) resterr.RestErr {
+func (r *mockNodeRepository) SoftDelete(node *entity.Node) []jsonapi.Error {
 	return nil
 }

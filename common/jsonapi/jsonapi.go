@@ -14,7 +14,9 @@ type Error struct {
 }
 
 type Meta struct {
-	Message string `json:"message,omitempty"`
+	Message    string `json:"message,omitempty"`
+	NodeId     string `json:"node_id,omitempty"`
+	ProfileUrl string `json:"profile_url,omitempty"`
 }
 
 // JSON API Response Combination
@@ -57,8 +59,10 @@ func NewError(titles []string, details []string, sources []string, status []int)
 	return errors
 }
 
-func NewMeta(message string) *Meta {
+func NewMeta(message string, nodeId string, profileUrl string) *Meta {
 	return &Meta{
-		Message: message,
+		Message:    message,
+		NodeId:     nodeId,
+		ProfileUrl: profileUrl,
 	}
 }
