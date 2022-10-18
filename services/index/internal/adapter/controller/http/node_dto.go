@@ -25,7 +25,7 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
 	uCount := strings.Count(u.Host, ".")
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || uCount == 0 {
-		return jsonapi.NewError([]string{"Invalid Profile Url"}, []string{"The `profile_url` is invalid."}, nil, []int{http.StatusBadRequest})
+		return jsonapi.NewError([]string{"Invalid Profile Url"}, []string{"The `profile_url` is not a valid URL."}, nil, []int{http.StatusBadRequest})
 	}
 	return nil
 }
