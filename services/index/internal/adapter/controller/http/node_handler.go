@@ -147,8 +147,15 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		return
 	}
 
-	meta := jsonapi.NewSearchMeta(searchResult.TotalPages, searchResult.NumberOfResults)
-	links := jsonapi.NewLinks(c, esQuery.Page, 1, 1)
+	// restrict the last page to the page of 10,000 results (ES limitation)
+	totalPage := 10000 / esQuery.PageSize
+	message := "No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results."
+	if totalPage >= searchResult.TotalPages {
+		totalPage = searchResult.TotalPages
+		message = ""
+	}
+	meta := jsonapi.NewSearchMeta(message, searchResult.NumberOfResults, searchResult.TotalPages)
+	links := jsonapi.NewLinks(c, esQuery.Page, totalPage)
 	res := jsonapi.Response(searchResult.Result, nil, links, meta)
 	c.JSON(http.StatusOK, res)
 }

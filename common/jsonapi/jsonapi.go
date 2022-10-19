@@ -77,7 +77,7 @@ func NewError(titles []string, details []string, sources [][]string, status []in
 	return errors
 }
 
-func NewLinks(c *gin.Context, queryPage int64, currentPage int64, totalPage int64) *Link {
+func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
 	// check the request is http or https
 	scheme := "http"
 	if c.Request.TLS != nil {
@@ -87,8 +87,8 @@ func NewLinks(c *gin.Context, queryPage int64, currentPage int64, totalPage int6
 	url := scheme + "://" + c.Request.Host
 
 	query := c.Request.RequestURI
-	if queryPage != 0 {
-		query = strings.Replace(query, "&page="+strconv.Itoa(int(queryPage)), "", -1)
+	if currentPage != 0 {
+		query = strings.Replace(query, "&page="+strconv.Itoa(int(currentPage)), "", -1)
 	}
 
 	// if query don't have a question mark, means it didn't have query, we need to add "?" to add the page query.
@@ -109,7 +109,9 @@ func NewLinks(c *gin.Context, queryPage int64, currentPage int64, totalPage int6
 		next = totalPage
 	}
 
-	if currentPage > totalPage {
+	if currentPage < 1 {
+		currentPage = 1
+	} else if currentPage > totalPage {
 		currentPage = totalPage
 	}
 
@@ -130,9 +132,10 @@ func NewMeta(message string, nodeId string, profileUrl string) *Meta {
 	}
 }
 
-func NewSearchMeta(totalPages int64, numberOfResults int64) *Meta {
+func NewSearchMeta(message string, numberOfResults int64, totalPages int64) *Meta {
 	return &Meta{
-		NumberOfResults: totalPages,
-		TotalPages:      numberOfResults,
+		Message:         message,
+		NumberOfResults: numberOfResults,
+		TotalPages:      totalPages,
 	}
 }
