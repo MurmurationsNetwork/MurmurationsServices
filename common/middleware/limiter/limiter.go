@@ -45,7 +45,7 @@ func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 			context, err := ipRateLimiter.Get(c, ip)
 			if err != nil {
 				logger.Error("Error when trying to get ipRateLimiter context", err)
-				errors := jsonapi.NewError([]string{"Internal Server Error"}, nil, nil, []int{http.StatusInternalServerError})
+				errors := jsonapi.NewError([]string{"Internal Server Error"}, []string{"An internal server error was triggered and has been logged. Please try your request again later."}, nil, []int{http.StatusInternalServerError})
 				res := jsonapi.Response(nil, errors, nil, nil)
 				c.JSON(errors[0].Status, res)
 				c.Abort()
