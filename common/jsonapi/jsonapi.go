@@ -32,8 +32,8 @@ type Meta struct {
 	Message         string `json:"message,omitempty"`
 	NodeId          string `json:"node_id,omitempty"`
 	ProfileUrl      string `json:"profile_url,omitempty"`
-	NumberOfResults int64  `json:"number_of_results"`
-	TotalPages      int64  `json:"total_pages"`
+	NumberOfResults int64  `json:"number_of_results,omitempty"`
+	TotalPages      int64  `json:"total_pages,omitempty"`
 }
 
 // JSON API Response Combination
