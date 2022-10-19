@@ -85,6 +85,13 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 		return
 	}
 
+	if node.Status == constant.NodeStatus.PostFailed {
+		meta := jsonapi.NewMeta("The system will automatically re-post the node, please check back in a minute.", "", "")
+		res := jsonapi.Response(handler.toGetNodeVO(node), nil, nil, meta)
+		c.JSON(http.StatusOK, res)
+		return
+	}
+
 	if node.Status == constant.NodeStatus.ValidationFailed {
 		meta := jsonapi.NewMeta("", node.ID, node.ProfileURL)
 		errors := *node.FailureReasons
