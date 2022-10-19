@@ -7,8 +7,11 @@ import (
 	"strings"
 )
 
-func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) ([]string, []string, []string) {
-	var failedTitles, failedDetails, failedSources []string
+func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) ([]string, []string, [][]string) {
+	var (
+		failedTitles, failedDetails []string
+		failedSources               [][]string
+	)
 	for _, desc := range resultErrors {
 		// title
 		failedType := desc.Type()
@@ -59,7 +62,7 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 		} else {
 			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1)
 		}
-		failedSources = append(failedSources, failedField)
+		failedSources = append(failedSources, []string{"pointer", failedField})
 	}
 
 	return failedTitles, failedDetails, failedSources
@@ -69,10 +72,11 @@ func getSchemaURL(schemaUrl string, linkedSchema string) string {
 	return schemaUrl + "/v1/schema/" + linkedSchema
 }
 
-func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateData string, schemaLoader string) ([]string, []string, []string, []int) {
+func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateData string, schemaLoader string) ([]string, []string, [][]string, []int) {
 	var (
-		titles, details, sources []string
-		errorStatus              []int
+		titles, details []string
+		sources         [][]string
+		errorStatus     []int
 	)
 
 	for _, linkedSchema := range linkedSchemas {
@@ -82,7 +86,7 @@ func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateDa
 		if err != nil {
 			titles = append(titles, []string{"Schema Not Found"}...)
 			details = append(details, []string{"Could not locate the following schema in the library: " + linkedSchema}...)
-			sources = append(sources, []string{"/linked_schemas"}...)
+			sources = append(sources, [][]string{{"pointer", "/linked_schemas"}}...)
 			errorStatus = append(errorStatus, http.StatusNotFound)
 			continue
 		}

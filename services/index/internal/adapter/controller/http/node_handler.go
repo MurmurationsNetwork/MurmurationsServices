@@ -98,22 +98,42 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 }
 
 func (handler *nodeHandler) Search(c *gin.Context) {
-	var query query.EsQuery
-	if err := c.ShouldBindQuery(&query); err != nil {
+	// return error if there is an invalid query
+	// get the fields from query.EsQuery
+	fields := [...]string{"schema", "last_updated", "lat", "lon", "range", "locality", "region", "country", "status", "tags", "tags_filter", "tags_exact", "primary_url", "page", "page_size"}
+	queryFields := c.Request.URL.Query()
+	for fieldName, _ := range queryFields {
+		found := false
+		for _, validFieldName := range fields {
+			if fieldName == validFieldName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			errors := jsonapi.NewError([]string{"Invalid Query Parameter"}, []string{fmt.Sprintf("The following query parameter is not valid: %v", fieldName)}, [][]string{{"parameter", fieldName}}, []int{http.StatusBadRequest})
+			res := jsonapi.Response(nil, errors, nil, nil)
+			c.JSON(errors[0].Status, res)
+			return
+		}
+	}
+
+	var esQuery query.EsQuery
+	if err := c.ShouldBindQuery(&esQuery); err != nil {
 		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The JSON document submitted could not be parsed."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 
-	if query.Page*query.PageSize > 10000 {
+	if esQuery.Page*esQuery.PageSize > 10000 {
 		errors := jsonapi.NewError([]string{"Max Results Exceeded"}, []string{"No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 
-	searchResult, err := handler.nodeUsecase.Search(&query)
+	searchResult, err := handler.nodeUsecase.Search(&esQuery)
 	if err != nil {
 		res := jsonapi.Response(nil, err, nil, nil)
 		c.JSON(err[0].Status, res)
@@ -121,7 +141,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 	}
 
 	meta := jsonapi.NewSearchMeta(searchResult.TotalPages, searchResult.NumberOfResults)
-	links := jsonapi.NewLinks(c, query.Page, 1, 1)
+	links := jsonapi.NewLinks(c, esQuery.Page, 1, 1)
 	res := jsonapi.Response(searchResult.Result, nil, links, meta)
 	c.JSON(http.StatusOK, res)
 }

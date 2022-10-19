@@ -49,7 +49,7 @@ func Response(data interface{}, errors []Error, link *Link, meta *Meta) JsonApi 
 
 // JSON API Internal Data
 
-func NewError(titles []string, details []string, sources []string, status []int) []Error {
+func NewError(titles []string, details []string, sources [][]string, status []int) []Error {
 	var errors []Error
 	for i := 0; i < len(titles); i++ {
 		if len(details) != 0 && len(sources) != 0 {
@@ -58,7 +58,7 @@ func NewError(titles []string, details []string, sources []string, status []int)
 				Title:  titles[i],
 				Detail: details[i],
 				Source: map[string]string{
-					"pointer": sources[i],
+					sources[i][0]: sources[i][1],
 				},
 			})
 		} else if len(details) != 0 {
@@ -107,6 +107,10 @@ func NewLinks(c *gin.Context, queryPage int64, currentPage int64, totalPage int6
 	next := currentPage + 1
 	if next > totalPage {
 		next = totalPage
+	}
+
+	if currentPage > totalPage {
+		currentPage = totalPage
 	}
 
 	return &Link{
