@@ -44,9 +44,9 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 		} else if failedType == "required" {
 			failedType = "Missing Required Property"
 			if desc.Field() == "(root)" {
-				failedDetail = "The `/" + property + "` property is required."
+				failedDetail = "The `" + property + "` property is required."
 			} else {
-				failedDetail = "The `/" + desc.Field() + "/" + property + "` property is required."
+				failedDetail = "The `" + desc.Field() + "/" + property + "` property is required."
 			}
 		}
 
