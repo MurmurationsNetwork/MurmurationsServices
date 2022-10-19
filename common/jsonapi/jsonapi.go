@@ -21,11 +21,11 @@ type Error struct {
 }
 
 type Link struct {
-	First string `json:"first"`
-	Prev  string `json:"prev"`
-	Self  string `json:"self"`
-	Next  string `json:"next"`
-	Last  string `json:"last"`
+	First string `json:"first,omitempty"`
+	Prev  string `json:"prev,omitempty"`
+	Self  string `json:"self,omitempty"`
+	Next  string `json:"next,omitempty"`
+	Last  string `json:"last,omitempty"`
 }
 
 type Meta struct {
@@ -99,28 +99,41 @@ func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
 		query += "&"
 	}
 
-	prev := currentPage - 1
-	if prev < 1 {
-		prev = 1
-	}
-
-	next := currentPage + 1
-	if next > totalPage {
-		next = totalPage
-	}
-
+	// if page is not set, set to default 1
 	if currentPage < 1 {
 		currentPage = 1
 	} else if currentPage > totalPage {
 		currentPage = totalPage
 	}
 
+	// define the page
+	first := url + query + "page=1"
+	prev := url + query + "page=" + strconv.Itoa(int(currentPage-1))
+	self := url + query + "page=" + strconv.Itoa(int(currentPage))
+	next := url + query + "page=" + strconv.Itoa(int(currentPage+1))
+	last := url + query + "page=" + strconv.Itoa(int(totalPage))
+
+	if currentPage == 1 {
+		first = ""
+		prev = ""
+	}
+	if currentPage == totalPage {
+		next = ""
+		last = ""
+	}
+	if currentPage == 2 {
+		first = ""
+	}
+	if currentPage+1 == totalPage {
+		last = ""
+	}
+
 	return &Link{
-		First: url + query + "page=1",
-		Prev:  url + query + "page=" + strconv.Itoa(int(prev)),
-		Self:  url + query + "page=" + strconv.Itoa(int(currentPage)),
-		Next:  url + query + "page=" + strconv.Itoa(int(next)),
-		Last:  url + query + "page=" + strconv.Itoa(int(totalPage)),
+		First: first,
+		Prev:  prev,
+		Self:  self,
+		Next:  next,
+		Last:  last,
 	}
 }
 

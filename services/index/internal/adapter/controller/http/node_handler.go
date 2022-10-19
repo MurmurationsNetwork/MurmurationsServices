@@ -154,6 +154,12 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		totalPage = searchResult.TotalPages
 		message = ""
 	}
+	// edge case: page = 0 or larger than total page - response no data
+	if searchResult.TotalPages == 0 || esQuery.Page > searchResult.TotalPages {
+		res := jsonapi.Response(searchResult.Result, nil, nil, nil)
+		c.JSON(http.StatusOK, res)
+		return
+	}
 	meta := jsonapi.NewSearchMeta(message, searchResult.NumberOfResults, searchResult.TotalPages)
 	links := jsonapi.NewLinks(c, esQuery.Page, totalPage)
 	res := jsonapi.Response(searchResult.Result, nil, links, meta)
