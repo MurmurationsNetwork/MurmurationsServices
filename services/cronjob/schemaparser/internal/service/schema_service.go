@@ -122,7 +122,6 @@ func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson map[str
 		Title:       schema.Title,
 		Description: schema.Description,
 		Name:        schema.Metadata.Schema.Name,
-		Version:     schema.Metadata.Schema.Version,
 		URL:         schema.Metadata.Schema.URL,
 		FullSchema:  fullJson,
 	}

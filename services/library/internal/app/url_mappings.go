@@ -8,13 +8,19 @@ import (
 )
 
 func mapUrls(router *gin.Engine) {
+	deprecationHandler := http.NewDeprecationHandler()
 	pingHandler := http.NewPingHandler()
 	schemaHandler := http.NewSchemaHandler(service.NewSchemaService(db.NewSchemaRepo()))
 
 	v1 := router.Group("/v1")
 	{
-		v1.GET("/ping", pingHandler.Ping)
-		v1.GET("/schemas", schemaHandler.Search)
-		v1.GET("/schema/:schemaName", schemaHandler.Get)
+		v1.Any("/*any", deprecationHandler.DeprecationV1)
+	}
+
+	v2 := router.Group("/v2")
+	{
+		v2.GET("/ping", pingHandler.Ping)
+		v2.GET("/schemas", schemaHandler.Search)
+		v2.GET("/schema/:schemaName", schemaHandler.Get)
 	}
 }

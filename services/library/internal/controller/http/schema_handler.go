@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
@@ -25,22 +26,29 @@ func NewSchemaHandler(svc service.SchemaService) SchemaHandler {
 func (handler *schemaHandler) Get(c *gin.Context) {
 	schemaName, found := c.Params.Get("schemaName")
 	if !found {
-		c.JSON(http.StatusBadRequest, "Invalid schemaName.")
+		errors := jsonapi.NewError([]string{"Invalid Schema Name"}, []string{"The schema name is not valid."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
 		return
 	}
 	schema, err := handler.svc.Get(schemaName)
 	if err != nil {
-		c.JSON(err.Status(), err)
+		res := jsonapi.Response(nil, err, nil, nil)
+		c.JSON(err[0].Status, res)
 		return
 	}
+
 	c.JSON(http.StatusOK, schema)
 }
 
 func (handler *schemaHandler) Search(c *gin.Context) {
 	searchRes, err := handler.svc.Search()
 	if err != nil {
-		c.JSON(err.Status(), err)
+		res := jsonapi.Response(nil, err, nil, nil)
+		c.JSON(err[0].Status, res)
 		return
 	}
-	c.JSON(http.StatusOK, searchRes.Marshall())
+
+	res := jsonapi.Response(searchRes, nil, nil, nil)
+	c.JSON(http.StatusOK, res)
 }
