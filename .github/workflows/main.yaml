@@ -247,7 +247,7 @@ jobs:
   #       run: ./wait_for_timeout.sh https://index.murmurations.network/v2/ping 200 300
 
   #     - name: Test Library
-  #       run: ./wait_for_timeout.sh https://library.murmurations.network/v1/ping 200 300
+  #       run: ./wait_for_timeout.sh https://library.murmurations.network/v2/ping 200 300
 
   #    - name: Test Data Proxy
   #      run: ./wait_for_timeout.sh https://data-proxy.murmurations.network/v1/ping 200 300
