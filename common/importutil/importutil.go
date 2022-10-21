@@ -163,21 +163,17 @@ func Validate(validateUrl string, profile map[string]interface{}) (bool, string,
 	if err != nil {
 		return false, "", err
 	}
-	if res.StatusCode != 200 {
-		return false, "", fmt.Errorf("validate failed, the status code is %s. json data: %s", strconv.Itoa(res.StatusCode), string(profileJson))
-	}
 
 	var resBody map[string]interface{}
 	json.NewDecoder(res.Body).Decode(&resBody)
-	statusCode := int64(resBody["status"].(float64))
-	if statusCode != 200 {
-		if resBody["failure_reasons"] != nil {
-			var failureReasons []string
-			for _, item := range resBody["failure_reasons"].([]interface{}) {
-				failureReasons = append(failureReasons, item.(string))
+	if res.StatusCode != 200 {
+		if resBody["errors"] != nil {
+			var errors []string
+			for _, item := range resBody["errors"].([]interface{}) {
+				errors = append(errors, item.(string))
 			}
-			failureReasonsStr := strings.Join(failureReasons, ",")
-			return false, failureReasonsStr, nil
+			errorsStr := strings.Join(errors, ",")
+			return false, errorsStr, nil
 		}
 		return false, "failed without reasons!", nil
 	}
@@ -196,6 +192,7 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// todo: need to show error message
 	if res.StatusCode != 200 {
 		return "", fmt.Errorf("post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"])
 	}
