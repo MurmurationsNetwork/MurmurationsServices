@@ -69,7 +69,7 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 }
 
 func getSchemaURL(schemaUrl string, linkedSchema string) string {
-	return schemaUrl + "/v2/schema/" + linkedSchema
+	return schemaUrl + "/v2/schemas/" + linkedSchema
 }
 
 func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateData string, schemaLoader string) ([]string, []string, [][]string, []int) {
