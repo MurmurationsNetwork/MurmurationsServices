@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
@@ -11,9 +12,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/service"
 	"github.com/lucsky/cuid"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -24,11 +25,6 @@ func init() {
 func cleanUp() {
 	mongo.Client.Disconnect()
 	os.Exit(0)
-}
-
-type Node struct {
-	Message string `json:"message,omitempty"`
-	Status  int    `json:"status,omitempty"`
 }
 
 func main() {
@@ -185,21 +181,19 @@ func main() {
 			}
 			defer res.Body.Close()
 
-			resBody, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				logger.Error("failed to read response when deleting data from index service, profile node id:"+profile.NodeId, err)
-				cleanUp()
-			}
-
-			var node Node
-			err = json.Unmarshal(resBody, &node)
-			if err != nil {
-				logger.Error("failed to unmarshal response when deleting data from index service, profile node id:"+profile.NodeId, err)
-				cleanUp()
-			}
-
-			if node.Status != 200 {
-				logger.Info("failed to delete data from index service, profile node id:" + profile.NodeId + ", error message: " + node.Message)
+			if res.StatusCode != 200 {
+				var resBody map[string]interface{}
+				json.NewDecoder(res.Body).Decode(&resBody)
+				if resBody["errors"] != nil {
+					var errors []string
+					for _, item := range resBody["errors"].([]interface{}) {
+						errors = append(errors, fmt.Sprintf("%#v", item))
+					}
+					errorsStr := strings.Join(errors, ",")
+					logger.Info("failed to delete data from index service, profile node id:" + profile.NodeId + ", error message: " + errorsStr)
+				} else {
+					logger.Info("failed to delete data from index service, profile node id:" + profile.NodeId + ".")
+				}
 			}
 		}
 	}

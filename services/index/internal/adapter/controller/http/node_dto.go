@@ -23,8 +23,11 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 	}
 	u, err := url.Parse(dto.ProfileURL)
 	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
-	// todo: count will be failed seeder in localhost
 	uCount := strings.Count(u.Host, ".")
+	// http://data-proxy-app is a valid url in local (data-proxy seeder) -> uCount can be zero if the scheme is http
+	if u.Scheme == "http" {
+		uCount = 1
+	}
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || uCount == 0 {
 		return jsonapi.NewError([]string{"Invalid Profile URL"}, []string{"The `profile_url` is not a valid URL."}, nil, []int{http.StatusBadRequest})
 	}

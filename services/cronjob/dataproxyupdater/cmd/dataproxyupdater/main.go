@@ -214,7 +214,7 @@ func main() {
 			errCleanUp(schemaName, svc, errStr)
 		}
 
-		if nodeData.Status == 404 {
+		if res.StatusCode == 404 {
 			err = profileSvc.Delete(notPostedProfile.Cuid)
 			if err != nil {
 				errStr := "delete profile failed. node cuid is " + notPostedProfile.Cuid + err.Error()
@@ -231,8 +231,16 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 		} else {
-			failureReasons := strings.Join(nodeData.Data.FailureReasons, ",")
-			logger.Info("node id " + notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + failureReasons)
+			if nodeData.Errors != nil {
+				var errors []string
+				for _, item := range nodeData.Errors {
+					errors = append(errors, fmt.Sprintf("%#v", item))
+				}
+				errorsStr := strings.Join(errors, ",")
+				logger.Info("node id " + notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + errorsStr)
+			} else {
+				logger.Info("node id " + notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ".")
+			}
 		}
 	}
 

@@ -1,6 +1,9 @@
 .idea
 .vscode
 
+# Skaffold v1.0.0 generates dummy folder
+.kpt-pipeline
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
