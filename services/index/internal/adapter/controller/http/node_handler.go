@@ -168,7 +168,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 
 func (handler *nodeHandler) Delete(c *gin.Context) {
 	if c.Params.ByName("nodeId") == "" {
-		errors := jsonapi.NewError([]string{"Missing Required Parameter"}, []string{"The node_id parameter is missing."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError([]string{"Missing Path Parameter"}, []string{"The `node_id` path parameter is missing."}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
