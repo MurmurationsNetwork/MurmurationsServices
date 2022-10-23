@@ -19,35 +19,46 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 		// details
 		var expected, given, min, max, property, failedDetail, failedField string
 		for index, value := range desc.Details() {
-			if index == "expected" {
+			switch index {
+			case "expected":
 				expected = value.(string)
-			} else if index == "given" {
+			case "given":
 				given = value.(string)
-			} else if index == "min" {
+			case "min":
 				min = fmt.Sprint(value)
-			} else if index == "max" {
+			case "max":
 				max = fmt.Sprint(value)
-			} else if index == "property" {
+			case "property":
 				property = value.(string)
 			}
 		}
 
-		if failedType == "invalid_type" {
+		switch failedType {
+		case "invalid_type":
 			failedType = "Invalid Type"
 			failedDetail = "Expected: " + expected + " - Given: " + given + " - Schema: " + schema
-		} else if failedType == "number_gte" {
+		case "number_gte":
 			failedType = "Invalid Amount"
 			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schema
-		} else if failedType == "number_lte" {
+		case "number_lte":
 			failedType = "Invalid Amount"
 			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schema
-		} else if failedType == "required" {
+		case "required":
 			failedType = "Missing Required Property"
 			if desc.Field() == "(root)" {
 				failedDetail = "The `" + property + "` property is required."
 			} else {
 				failedDetail = "The `" + desc.Field() + "/" + property + "` property is required."
 			}
+		case "array_min_items":
+			failedType = "Not Enough Items"
+			failedDetail = "There are not enough items in the array - Schema: " + schema
+		case "array_max_items":
+			failedType = "Too Many Items"
+			failedDetail = "There are too many items in the array - Schema: " + schema
+		case "pattern":
+			failedType = "Pattern Mismatch"
+			failedDetail = desc.Description()
 		}
 
 		// append title and detail
