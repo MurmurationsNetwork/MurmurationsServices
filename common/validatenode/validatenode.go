@@ -17,7 +17,7 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 		failedType := desc.Type()
 
 		// details
-		var expected, given, min, max, property, failedDetail, failedField string
+		var expected, given, min, max, property, pattern, failedDetail, failedField string
 		for index, value := range desc.Details() {
 			switch index {
 			case "expected":
@@ -30,6 +30,8 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 				max = fmt.Sprint(value)
 			case "property":
 				property = value.(string)
+			case "pattern":
+				pattern = fmt.Sprint(value)
 			}
 		}
 
@@ -46,9 +48,9 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 		case "required":
 			failedType = "Missing Required Property"
 			if desc.Field() == "(root)" {
-				failedDetail = "The `" + property + "` property is required."
+				failedDetail = "The `" + property + "` property is required - Schema: " + schema
 			} else {
-				failedDetail = "The `" + desc.Field() + "/" + property + "` property is required."
+				failedDetail = "The `" + desc.Field() + "/" + property + "` property is required - Schema: " + schema
 			}
 		case "array_min_items":
 			failedType = "Not Enough Items"
@@ -58,7 +60,7 @@ func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) 
 			failedDetail = "There are too many items in the array - Schema: " + schema
 		case "pattern":
 			failedType = "Pattern Mismatch"
-			failedDetail = desc.Description()
+			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schema
 		}
 
 		// append title and detail
