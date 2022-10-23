@@ -109,6 +109,11 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 	// get the fields from query.EsQuery
 	fields := [...]string{"schema", "last_updated", "lat", "lon", "range", "locality", "region", "country", "status", "tags", "tags_filter", "tags_exact", "primary_url", "page", "page_size"}
 	queryFields := c.Request.URL.Query()
+	var (
+		invalidQueryTitles, invalidQueryDetails []string
+		invalidQuerySources                     [][]string
+		invalidQueryStatus                      []int
+	)
 	for fieldName, _ := range queryFields {
 		found := false
 		for _, validFieldName := range fields {
@@ -118,11 +123,18 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 			}
 		}
 		if !found {
-			errors := jsonapi.NewError([]string{"Invalid Query Parameter"}, []string{fmt.Sprintf("The following query parameter is not valid: %v", fieldName)}, [][]string{{"parameter", fieldName}}, []int{http.StatusBadRequest})
-			res := jsonapi.Response(nil, errors, nil, nil)
-			c.JSON(errors[0].Status, res)
-			return
+			invalidQueryTitles = append(invalidQueryTitles, "Invalid Query Parameter")
+			invalidQueryDetails = append(invalidQueryDetails, fmt.Sprintf("The following query parameter is not valid: %v", fieldName))
+			invalidQuerySources = append(invalidQuerySources, []string{"parameter", fieldName})
+			invalidQueryStatus = append(invalidQueryStatus, http.StatusBadRequest)
 		}
+	}
+
+	if len(invalidQueryTitles) != 0 {
+		errors := jsonapi.NewError(invalidQueryTitles, invalidQueryDetails, invalidQuerySources, invalidQueryStatus)
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
 	}
 
 	var esQuery query.EsQuery
