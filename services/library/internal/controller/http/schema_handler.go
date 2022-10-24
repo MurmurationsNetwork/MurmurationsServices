@@ -49,6 +49,6 @@ func (handler *schemaHandler) Search(c *gin.Context) {
 		return
 	}
 
-	res := jsonapi.Response(searchRes, nil, nil, nil)
+	res := jsonapi.Response(searchRes.Marshall(), nil, nil, nil)
 	c.JSON(http.StatusOK, res)
 }
