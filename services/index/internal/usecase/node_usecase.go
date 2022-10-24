@@ -108,7 +108,7 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	// defer here to avoid error
 	defer resp.Body.Close()
 	if err != nil {
-		return node.ProfileURL, jsonapi.NewError([]string{"Profile URL Not Found"}, []string{fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID)}, nil, []int{http.StatusBadRequest})
+		return node.ProfileURL, jsonapi.NewError([]string{"Profile URL Not Found"}, []string{fmt.Sprintf("There was an error when trying to reach %s to delete node_id: %s", node.ProfileURL, nodeID)}, nil, []int{http.StatusBadRequest})
 	}
 
 	// check the response is json or not (issue-266)
@@ -137,8 +137,8 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		return node.ProfileURL, jsonapi.NewError([]string{"Profile Still Exists"}, []string{fmt.Sprintf("The profile could not be deleted from the index because it still exists at the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
+		return node.ProfileURL, jsonapi.NewError([]string{"Profile Still Exists"}, []string{fmt.Sprintf("The profile could not be deleted from the Index because it still exists at the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
 	}
 
-	return node.ProfileURL, jsonapi.NewError([]string{"Node Status Code Error"}, []string{fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode)}, nil, []int{http.StatusBadRequest})
+	return node.ProfileURL, jsonapi.NewError([]string{"Node Status Code Error"}, []string{fmt.Sprintf("The node at %s returned the following status code: %d", node.ProfileURL, resp.StatusCode)}, nil, []int{http.StatusBadRequest})
 }
