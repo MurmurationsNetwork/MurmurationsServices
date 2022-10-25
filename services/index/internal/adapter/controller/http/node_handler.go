@@ -115,7 +115,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		invalidQuerySources                     [][]string
 		invalidQueryStatus                      []int
 	)
-	for fieldName, _ := range queryFields {
+	for fieldName := range queryFields {
 		found := false
 		for _, validFieldName := range fields {
 			if fieldName == validFieldName {
