@@ -3,15 +3,16 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/validateurl"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/tagsfilter"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/validateurl"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/countries"
@@ -69,7 +70,7 @@ func (r *nodeRepository) Get(nodeID string) (*entity.Node, []jsonapi.Error) {
 	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
-			return nil, jsonapi.NewError([]string{"Node Not Found"}, []string{fmt.Sprintf("Could not locate the following node_id in the index: %s", nodeID)}, nil, []int{http.StatusNotFound})
+			return nil, jsonapi.NewError([]string{"Node Not Found"}, []string{fmt.Sprintf("Could not locate the following node_id in the Index: %s", nodeID)}, nil, []int{http.StatusNotFound})
 		}
 		logger.Error("Error when trying to find a node", result.Err())
 		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to find a node."}, nil, []int{http.StatusInternalServerError})

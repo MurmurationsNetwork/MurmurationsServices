@@ -3,13 +3,14 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/validatenode"
-	"net/http"
-	"strings"
-	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
@@ -201,7 +202,7 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	meta := jsonapi.NewMeta(fmt.Sprintf("The index has recorded as deleted the profile that was previously posted at: %s", profileUrl), "", "")
+	meta := jsonapi.NewMeta(fmt.Sprintf("The Index has recorded as deleted the profile that was previously posted at: %s", profileUrl), "", "")
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }

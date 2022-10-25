@@ -3,6 +3,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+
 	"github.com/olivere/elastic/v7"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -43,7 +44,7 @@ func (c *esClient) Index(index string, doc interface{}) (*elastic.IndexResponse,
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to index document in index %s", index), err)
+		logger.Error(fmt.Sprintf("Error when trying to index document in Index: %s", index), err)
 		return nil, err
 	}
 
@@ -59,7 +60,7 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to index a document in index %s", index), err)
+		logger.Error(fmt.Sprintf("Error when trying to index a document in Index: %s", index), err)
 		return nil, err
 	}
 
@@ -82,7 +83,7 @@ func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error)
 		SortBy(sortQuery1, sortQuery2).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying to search documents in index %s", index), err)
+		logger.Error(fmt.Sprintf("Error when trying to search documents in Index: %s", index), err)
 		return nil, err
 	}
 
@@ -102,7 +103,7 @@ func (c *esClient) Update(index string, id string, update map[string]interface{}
 		if elastic.IsNotFound(err) {
 			return nil
 		}
-		logger.Error(fmt.Sprintf("error when trying to delete a document in index %s", index), err)
+		logger.Error(fmt.Sprintf("Error when trying to delete a document in Index: %s", index), err)
 		return err
 	}
 	return nil
@@ -120,7 +121,7 @@ func (c *esClient) Delete(index string, id string) error {
 		if elastic.IsNotFound(err) {
 			return nil
 		}
-		logger.Error(fmt.Sprintf("error when trying to delete a document in index %s", index), err)
+		logger.Error(fmt.Sprintf("Error when trying to delete a document in Index: %s", index), err)
 		return err
 	}
 	return nil
