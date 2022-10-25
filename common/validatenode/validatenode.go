@@ -2,9 +2,10 @@ package validatenode
 
 import (
 	"fmt"
-	"github.com/xeipuuv/gojsonschema"
 	"net/http"
 	"strings"
+
+	"github.com/xeipuuv/gojsonschema"
 )
 
 func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) ([]string, []string, [][]string) {
@@ -98,7 +99,7 @@ func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateDa
 		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
 		if err != nil {
 			titles = append(titles, []string{"Schema Not Found"}...)
-			details = append(details, []string{"Could not locate the following schema in the library: " + linkedSchema}...)
+			details = append(details, []string{"Could not locate the following schema in the Library: " + linkedSchema}...)
 			sources = append(sources, [][]string{{"pointer", "/linked_schemas"}}...)
 			errorStatus = append(errorStatus, http.StatusNotFound)
 			continue

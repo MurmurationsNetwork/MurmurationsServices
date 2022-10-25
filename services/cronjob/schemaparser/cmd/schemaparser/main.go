@@ -52,5 +52,5 @@ func main() {
 		return
 	}
 
-	logger.Info(fmt.Sprintf("Update library schemas"))
+	logger.Info(fmt.Sprintf("Update Library schemas"))
 }

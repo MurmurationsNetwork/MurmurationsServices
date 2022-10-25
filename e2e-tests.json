@@ -2428,7 +2428,7 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure detail`, () => {",
-									"    pm.expect(jsonData.errors[0].detail).to.contain('Could not locate the following schema in the library: test_schema-v0.0.1')",
+									"    pm.expect(jsonData.errors[0].detail).to.contain('Could not locate the following schema in the Library: test_schema-v0.0.1')",
 									"})",
 									""
 								],
