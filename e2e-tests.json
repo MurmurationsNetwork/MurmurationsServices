@@ -508,7 +508,7 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"could not find node_id\" detail`, () => {",
-									"    pm.expect(jsonData.errors[0].detail).to.eq(`Could not locate the following node_id in the index: ${pm.environment.get(\"node0\")}`)",
+									"    pm.expect(jsonData.errors[0].detail).to.eq(`Could not locate the following node_id in the Index: ${pm.environment.get(\"node0\")}`)",
 									"})",
 									"",
 									"pm.environment.unset(\"node0\")",
