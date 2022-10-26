@@ -1,11 +1,11 @@
 package limiter
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"net/http"
 	"strconv"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/gin-gonic/gin"
 	limiter "github.com/ulule/limiter/v3"
 	memory "github.com/ulule/limiter/v3/drivers/store/memory"
@@ -45,7 +45,9 @@ func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 			context, err := ipRateLimiter.Get(c, ip)
 			if err != nil {
 				logger.Error("Error when trying to get ipRateLimiter context", err)
-				c.JSON(http.StatusInternalServerError, nil)
+				errors := jsonapi.NewError([]string{"Internal Server Error"}, []string{"An internal server error was triggered and has been logged. Please try your request again later."}, nil, []int{http.StatusInternalServerError})
+				res := jsonapi.Response(nil, errors, nil, nil)
+				c.JSON(errors[0].Status, res)
 				c.Abort()
 				return
 			}
@@ -55,7 +57,9 @@ func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 			c.Header("X-RateLimit-Reset", strconv.FormatInt(context.Reset, 10))
 
 			if context.Reached {
-				c.JSON(http.StatusTooManyRequests, resterr.NewTooManyRequestsError("Rate limit exceeded"))
+				errors := jsonapi.NewError([]string{"Too Many Requests"}, []string{"You have exceeded the maximum number of requests per minute/hour. Please try again later. For more information see: https://docs.murmurations.network/developers/rate-limits.html"}, nil, []int{http.StatusTooManyRequests})
+				res := jsonapi.Response(nil, errors, nil, nil)
+				c.JSON(errors[0].Status, res)
 				c.Abort()
 				return
 			}

@@ -25,15 +25,14 @@ var KvmCategory = map[string]string{
 }
 
 type Node struct {
-	NodeId         string   `json:"node_id,omitempty"`
-	ProfileUrl     string   `json:"profile_url,omitempty"`
-	Status         string   `json:"status,omitempty"`
-	FailureReasons []string `json:"failure_reasons,omitempty"`
+	NodeId     string `json:"node_id,omitempty"`
+	ProfileUrl string `json:"profile_url,omitempty"`
+	Status     string `json:"status,omitempty"`
 }
 
 type NodeData struct {
 	Data   Node
-	Status int `json:"status,omitempty"`
+	Errors []interface{} `json:"errors,omitempty"`
 }
 
 func GetMapping(schemaName string) (map[string]string, error) {
@@ -163,21 +162,17 @@ func Validate(validateUrl string, profile map[string]interface{}) (bool, string,
 	if err != nil {
 		return false, "", err
 	}
-	if res.StatusCode != 200 {
-		return false, "", fmt.Errorf("validate failed, the status code is %s. json data: %s", strconv.Itoa(res.StatusCode), string(profileJson))
-	}
 
 	var resBody map[string]interface{}
 	json.NewDecoder(res.Body).Decode(&resBody)
-	statusCode := int64(resBody["status"].(float64))
-	if statusCode != 200 {
-		if resBody["failure_reasons"] != nil {
-			var failureReasons []string
-			for _, item := range resBody["failure_reasons"].([]interface{}) {
-				failureReasons = append(failureReasons, item.(string))
+	if res.StatusCode != 200 {
+		if resBody["errors"] != nil {
+			var errors []string
+			for _, item := range resBody["errors"].([]interface{}) {
+				errors = append(errors, fmt.Sprintf("%#v", item))
 			}
-			failureReasonsStr := strings.Join(failureReasons, ",")
-			return false, failureReasonsStr, nil
+			errorsStr := strings.Join(errors, ",")
+			return false, errorsStr, nil
 		}
 		return false, "failed without reasons!", nil
 	}
@@ -197,6 +192,16 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 		return "", err
 	}
 	if res.StatusCode != 200 {
+		var resBody map[string]interface{}
+		json.NewDecoder(res.Body).Decode(&resBody)
+		if resBody["errors"] != nil {
+			var errors []string
+			for _, item := range resBody["errors"].([]interface{}) {
+				errors = append(errors, fmt.Sprintf("%#v", item))
+			}
+			errorsStr := strings.Join(errors, ",")
+			return "", fmt.Errorf("post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"] + ", error: " + errorsStr)
+		}
 		return "", fmt.Errorf("post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"])
 	}
 

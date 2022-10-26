@@ -1,16 +1,19 @@
 package db
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+)
 
 type nodeDAO struct {
-	ID             string    `bson:"_id,omitempty"`
-	ProfileURL     string    `bson:"profile_url,omitempty"`
-	ProfileHash    *string   `bson:"profile_hash,omitempty"`
-	Status         string    `bson:"status,omitempty"`
-	LastUpdated    *int64    `bson:"last_updated,omitempty"`
-	FailureReasons *[]string `bson:"failure_reasons,omitempty"`
-	Version        *int32    `bson:"__v,omitempty"`
-	CreatedAt      int64     `bson:"createdAt,omitempty"`
+	ID             string           `bson:"_id,omitempty"`
+	ProfileURL     string           `bson:"profile_url,omitempty"`
+	ProfileHash    *string          `bson:"profile_hash,omitempty"`
+	Status         string           `bson:"status,omitempty"`
+	LastUpdated    *int64           `bson:"last_updated,omitempty"`
+	FailureReasons *[]jsonapi.Error `bson:"failure_reasons,omitempty"`
+	Version        *int32           `bson:"__v,omitempty"`
+	CreatedAt      int64            `bson:"createdAt,omitempty"`
 }
 
 func (r *nodeRepository) toDAO(node *entity.Node) *nodeDAO {

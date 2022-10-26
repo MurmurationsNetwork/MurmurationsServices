@@ -8,8 +8,8 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
@@ -17,12 +17,12 @@ import (
 )
 
 type NodeUsecase interface {
-	AddNode(node *entity.Node) (*entity.Node, resterr.RestErr)
-	GetNode(nodeID string) (*entity.Node, resterr.RestErr)
+	AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
+	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
 	SetNodeValid(node *entity.Node) error
 	SetNodeInvalid(node *entity.Node) error
-	Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr)
-	Delete(nodeID string) (string, resterr.RestErr)
+	Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
+	Delete(nodeID string) (string, []jsonapi.Error)
 }
 
 type nodeUsecase struct {
@@ -35,9 +35,9 @@ func NewNodeService(nodeRepo db.NodeRepository) NodeUsecase {
 	}
 }
 
-func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr) {
+func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error) {
 	if node.ProfileURL == "" {
-		return nil, resterr.NewBadRequestError("The profile_url parameter is missing.")
+		return nil, jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `profile_url` property is required."}, nil, []int{http.StatusBadRequest})
 	}
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
@@ -56,7 +56,7 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, resterr.RestErr)
 	return node, nil
 }
 
-func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, resterr.RestErr) {
+func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, []jsonapi.Error) {
 	node, err := s.nodeRepo.Get(nodeID)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (s *nodeUsecase) GetNode(nodeID string) (*entity.Node, resterr.RestErr) {
 func (s *nodeUsecase) SetNodeValid(node *entity.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.Validated
-	node.FailureReasons = &[]string{}
+	node.FailureReasons = &[]jsonapi.Error{}
 
 	if err := s.nodeRepo.Update(node); err != nil {
 		return err
@@ -89,7 +89,7 @@ func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
 	return nil
 }
 
-func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr.RestErr) {
+func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error) {
 	result, err := s.nodeRepo.Search(query)
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, resterr
 	return result, nil
 }
 
-func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
+func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	node, getErr := s.nodeRepo.Get(nodeID)
 	if getErr != nil {
 		return "", getErr
@@ -108,7 +108,7 @@ func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
 	// defer here to avoid error
 	defer resp.Body.Close()
 	if err != nil {
-		return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Error when trying to reach %s to delete node_id %s", node.ProfileURL, nodeID))
+		return node.ProfileURL, jsonapi.NewError([]string{"Profile URL Not Found"}, []string{fmt.Sprintf("There was an error when trying to reach %s to delete node_id: %s", node.ProfileURL, nodeID)}, nil, []int{http.StatusBadRequest})
 	}
 
 	// check the response is json or not (issue-266)
@@ -137,8 +137,8 @@ func (s *nodeUsecase) Delete(nodeID string) (string, resterr.RestErr) {
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Profile still exists at %s for node_id %s", node.ProfileURL, nodeID))
+		return node.ProfileURL, jsonapi.NewError([]string{"Profile Still Exists"}, []string{fmt.Sprintf("The profile could not be deleted from the Index because it still exists at the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
 	}
 
-	return node.ProfileURL, resterr.NewBadRequestError(fmt.Sprintf("Node at %s returned status code %d", node.ProfileURL, resp.StatusCode))
+	return node.ProfileURL, jsonapi.NewError([]string{"Node Status Code Error"}, []string{fmt.Sprintf("The node at %s returned the following status code: %d", node.ProfileURL, resp.StatusCode)}, nil, []int{http.StatusBadRequest})
 }

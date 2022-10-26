@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"testing"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
@@ -15,7 +16,8 @@ var svc = NewNodeService(db.NewRepository())
 func TestAddNodeWithoutProfileURL(t *testing.T) {
 	node1 := entity.Node{}
 	_, err := svc.AddNode(&node1)
-	assert.Equal(t, "The profile_url parameter is missing.", err.Message())
+	assert.Equal(t, "Missing Required Property", err[0].Title)
+	assert.Equal(t, "The `profile_url` property is required.", err[0].Detail)
 }
 
 func TestAddNodeWithProfileURL(t *testing.T) {
@@ -23,7 +25,7 @@ func TestAddNodeWithProfileURL(t *testing.T) {
 	version := int32(1)
 	node2 := &entity.Node{ProfileURL: "https://ic3.dev/test.json", Version: &version}
 	_, err := svc.AddNode(node2)
-	assert.Equal(t, nil, err)
+	assert.Equal(t, []jsonapi.Error(nil), err)
 	assert.Equal(t, "4d62d0d132e2814379c22f2850d7a6c9ae97c16f021c25c975730c6b97b31f2c", node2.ID)
 	assert.Equal(t, constant.NodeStatus.Received, node2.Status)
 	assert.Equal(t, dateutil.GetNowUnix(), node2.CreatedAt)
@@ -41,7 +43,7 @@ func TestSetNodeValid(t *testing.T) {
 
 	assert.Equal(t, "4d62d0d132e2814379c22f2850d7a6c9ae97c16f021c25c975730c6b97b31f2c", node.ID)
 	assert.Equal(t, constant.NodeStatus.Validated, node.Status)
-	assert.Equal(t, []string{}, *node.FailureReasons)
+	assert.Equal(t, []jsonapi.Error{}, *node.FailureReasons)
 }
 
 func TestSetNodeInvalid(t *testing.T) {

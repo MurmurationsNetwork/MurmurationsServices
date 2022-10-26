@@ -1,30 +1,35 @@
 package http
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+	"net/http"
 	"net/url"
 	"strings"
 )
 
 type nodeDTO struct {
-	ID             string    `json:"node_id" `
-	ProfileURL     string    `json:"profile_url" `
-	ProfileHash    *string   `json:"profile_hash" `
-	Status         string    `json:"status" `
-	LastUpdated    *int64    `json:"last_updated" `
-	FailureReasons *[]string `json:"failure_reasons" `
+	ID             string           `json:"node_id" `
+	ProfileURL     string           `json:"profile_url" `
+	ProfileHash    *string          `json:"profile_hash" `
+	Status         string           `json:"status" `
+	LastUpdated    *int64           `json:"last_updated" `
+	FailureReasons *[]jsonapi.Error `json:"failure_reasons" `
 }
 
-func (dto *nodeDTO) Validate() resterr.RestErr {
+func (dto *nodeDTO) Validate() []jsonapi.Error {
 	if dto.ProfileURL == "" {
-		return resterr.NewBadRequestError("The profile_url parameter is missing.")
+		return jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `profile_url` property is required."}, nil, []int{http.StatusBadRequest})
 	}
 	u, err := url.Parse(dto.ProfileURL)
 	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
 	uCount := strings.Count(u.Host, ".")
+	// http://data-proxy-app is a valid url in local (data-proxy seeder) -> uCount can be zero if the scheme is http
+	if u.Scheme == "http" {
+		uCount = 1
+	}
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || uCount == 0 {
-		return resterr.NewBadRequestError("The profile_url is invalid.")
+		return jsonapi.NewError([]string{"Invalid Profile URL"}, []string{"The `profile_url` is not a valid URL."}, nil, []int{http.StatusBadRequest})
 	}
 	return nil
 }

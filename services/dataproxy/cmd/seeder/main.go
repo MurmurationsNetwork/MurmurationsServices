@@ -144,11 +144,11 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 	profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
 	nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 	if err != nil {
-		return false, fmt.Errorf("Failed to post %s to Index: %s", profileUrl, err)
+		return false, fmt.Errorf("failed to post %s to Index: %s", profileUrl, err)
 	}
 
 	// update NodeId
-	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": false}}
+	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": true}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	_, err = mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)

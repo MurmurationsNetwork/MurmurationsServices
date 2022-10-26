@@ -2,6 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
@@ -10,11 +17,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/service"
 	"github.com/lucsky/cuid"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"time"
 )
 
 func init() {
@@ -24,11 +26,6 @@ func init() {
 func cleanUp() {
 	mongo.Client.Disconnect()
 	os.Exit(0)
-}
-
-type Node struct {
-	Message string `json:"message,omitempty"`
-	Status  int    `json:"status,omitempty"`
 }
 
 func main() {
@@ -42,9 +39,9 @@ func main() {
 	profiles, err := svc.FindLessThan(refreshBefore)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			logger.Error("no profile found", err)
+			logger.Error("No profile found.", err)
 		} else {
-			logger.Error("failed to find data from profiles", err)
+			logger.Error("Failed to find data from profiles.", err)
 		}
 		cleanUp()
 	}
@@ -52,7 +49,7 @@ func main() {
 	// get mapping
 	mapping, err := importutil.GetMapping(schemaName)
 	if err != nil {
-		logger.Error("failed to get mapping", err)
+		logger.Error("Failed to get mapping.", err)
 		cleanUp()
 	}
 
@@ -61,20 +58,20 @@ func main() {
 		url := apiEntry + profile.Oid
 		res, err := http.Get(url)
 		if err != nil {
-			logger.Error("failed to get data from api, profile cuid:"+profile.Cuid, err)
+			logger.Error("Failed to get data from API. Profile CUID:"+profile.Cuid, err)
 			cleanUp()
 		}
 		defer res.Body.Close()
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			logger.Error("failed to read data from api, profile cuid:"+profile.Cuid, err)
+			logger.Error("Failed to read data from API. Profile CUID:"+profile.Cuid, err)
 			cleanUp()
 		}
 
 		var profileData []interface{}
 		err = json.Unmarshal(bodyBytes, &profileData)
 		if err != nil {
-			logger.Error("failed to unmarshal data from api, profile cuid:"+profile.Cuid, err)
+			logger.Error("Failed to unmarshal data from API. Profile CUID:"+profile.Cuid, err)
 			cleanUp()
 		}
 
@@ -83,28 +80,28 @@ func main() {
 			profileJson := importutil.MapFieldsName(profileData[0].(map[string]interface{}), mapping)
 			doc, err := json.Marshal(profileJson)
 			if err != nil {
-				logger.Error("failed to marshal data, profile cuid:"+profile.Cuid, err)
+				logger.Error("Failed to marshal data. Profile CUID: "+profile.Cuid, err)
 				cleanUp()
 			}
 			profileHash, err := importutil.Hash(string(doc))
 			if err != nil {
-				logger.Error("failed to hash data, profile cuid:"+profile.Cuid, err)
+				logger.Error("Failed to hash data. Profile CUID: "+profile.Cuid, err)
 				cleanUp()
 			}
 
 			if profileHash != profile.SourceDataHash {
-				logger.Info("source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash)
+				logger.Info("Source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash)
 
 				// reconstruct data
 				profileJson, err = importutil.MapProfile(profileData[0].(map[string]interface{}), mapping, schemaName)
 				if err != nil {
-					logger.Error("map profile failed, profile id is "+profile.Oid, err)
+					logger.Error("Map profile failed. Profile ID: "+profile.Oid, err)
 					cleanUp()
 				}
 				oid := profileJson["oid"].(string)
 
 				if profileJson["primary_url"] == nil {
-					logger.Info("primary_url is empty, profile id is " + oid)
+					logger.Info("The primary_url is empty. Profile ID: " + oid)
 					continue
 				}
 
@@ -112,31 +109,31 @@ func main() {
 				validateUrl := config.Conf.Index.URL + "/v2/validate"
 				isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
 				if err != nil {
-					logger.Error("validate profile failed, profile id is "+profile.Oid+". error message: ", err)
+					logger.Error("Validate profile failed. Profile ID: "+profile.Oid+". error message: ", err)
 					cleanUp()
 				}
 				if !isValid {
-					logger.Info("validate profile failed, profile id is " + profile.Oid + ". failure reasons: " + failureReasons)
+					logger.Info("Validate profile failed. Profile ID: " + profile.Oid + ". failure reasons: " + failureReasons)
 					cleanUp()
 				}
 				profileSvc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
 				// save to Mongo
 				count, err := profileSvc.Count(profile.Oid)
 				if err != nil {
-					logger.Error("can't count profile, profile id is "+profile.Oid, err)
+					logger.Error("Can't count profile. Profile ID: "+profile.Oid, err)
 					cleanUp()
 				}
 				if count <= 0 {
 					profileJson["cuid"] = cuid.New()
 					err := profileSvc.Add(profileJson)
 					if err != nil {
-						logger.Error("can't add a profile, profile id is "+profile.Oid, err)
+						logger.Error("Can't add a profile. Profile ID: "+profile.Oid, err)
 						cleanUp()
 					}
 				} else {
 					result, err := profileSvc.Update(profile.Oid, profileJson)
 					if err != nil {
-						logger.Error("can't update a profile, profile id is "+profile.Oid, err)
+						logger.Error("Can't update a profile. Profile ID: "+profile.Oid, err)
 						cleanUp()
 					}
 					profileJson["cuid"] = result["cuid"]
@@ -147,27 +144,27 @@ func main() {
 				profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
 				nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 				if err != nil {
-					logger.Error("failed to post profile to Index, profile url is "+profileUrl, err)
+					logger.Error("Failed to post profile to Index. Profile URL: "+profileUrl, err)
 					cleanUp()
 				}
 
 				// save node_id to profile
 				err = profileSvc.UpdateNodeId(oid, nodeId)
 				if err != nil {
-					logger.Error("update node id failed. profile id is "+oid, err)
+					logger.Error("Update node id failed. Profile ID: "+oid, err)
 					cleanUp()
 				}
 			} else {
 				err = svc.UpdateAccessTime(profile.Oid)
 				if err != nil {
-					logger.Error("failed to update profile's access time, profile cuid:"+profile.Cuid, err)
+					logger.Error("Failed to update profile's access time. Profile CUID: "+profile.Cuid, err)
 					cleanUp()
 				}
 			}
 		} else {
 			err = svc.Delete(profile.Cuid)
 			if err != nil {
-				logger.Error("failed to delete data from profiles, profile cuid:"+profile.Cuid, err)
+				logger.Error("Failed to delete data from profiles. Profile CUID: "+profile.Cuid, err)
 				cleanUp()
 			}
 			deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + profile.NodeId
@@ -175,31 +172,29 @@ func main() {
 			client := &http.Client{}
 			req, err := http.NewRequest(http.MethodDelete, deleteNodeUrl, nil)
 			if err != nil {
-				logger.Error("failed to delete data from index service, profile node id:"+profile.NodeId, err)
+				logger.Error("Failed to delete data from Index service Profile node ID: "+profile.NodeId, err)
 				cleanUp()
 			}
 			res, err = client.Do(req)
 			if err != nil {
-				logger.Error("failed to delete data from index service, profile node id:"+profile.NodeId, err)
+				logger.Error("Failed to delete data from Index service. Profile node ID: "+profile.NodeId, err)
 				cleanUp()
 			}
 			defer res.Body.Close()
 
-			resBody, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				logger.Error("failed to read response when deleting data from index service, profile node id:"+profile.NodeId, err)
-				cleanUp()
-			}
-
-			var node Node
-			err = json.Unmarshal(resBody, &node)
-			if err != nil {
-				logger.Error("failed to unmarshal response when deleting data from index service, profile node id:"+profile.NodeId, err)
-				cleanUp()
-			}
-
-			if node.Status != 200 {
-				logger.Info("failed to delete data from index service, profile node id:" + profile.NodeId + ", error message: " + node.Message)
+			if res.StatusCode != 200 {
+				var resBody map[string]interface{}
+				json.NewDecoder(res.Body).Decode(&resBody)
+				if resBody["errors"] != nil {
+					var errors []string
+					for _, item := range resBody["errors"].([]interface{}) {
+						errors = append(errors, fmt.Sprintf("%#v", item))
+					}
+					errorsStr := strings.Join(errors, ",")
+					logger.Info("Failed to delete data from Index service. Profile node ID: " + profile.NodeId + " - Error message: " + errorsStr)
+				} else {
+					logger.Info("Failed to delete data from Index service. Profile node ID: " + profile.NodeId)
+				}
 			}
 		}
 	}
