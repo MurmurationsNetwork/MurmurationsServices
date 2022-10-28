@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/adapter/mongodb"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/adapter/redisadapter"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/service"
+	"time"
 )
 
 func init() {
@@ -37,6 +37,17 @@ func main() {
 		return
 	}
 	if !hasNewCommit {
+		return
+	}
+
+	// issue-390: delay schema update for 5 minutes.
+	now := time.Now()
+	commitTime, err := time.Parse(time.RFC3339, dnsInfo.LastCommit)
+	if err != nil {
+		logger.Error("Error when converting lastCommit to time format", err)
+		return
+	}
+	if now.Before(commitTime.Add(time.Minute * time.Duration(5))) {
 		return
 	}
 
