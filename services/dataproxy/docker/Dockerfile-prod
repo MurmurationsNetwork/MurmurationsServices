@@ -16,5 +16,6 @@ FROM ubuntu:20.04
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /bin/dataproxy /app/dataproxy
 COPY --from=seeder-build /bin/seeder /app/seeder
+COPY --from=seeder-build /bin/ukseeder /app/ukseeder
 EXPOSE 8000
 CMD ["/app/dataproxy"]
