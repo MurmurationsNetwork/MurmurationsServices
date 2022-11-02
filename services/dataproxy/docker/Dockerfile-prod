@@ -9,6 +9,7 @@ FROM golang:1.17.5-alpine as seeder-build
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy
 RUN CGO_ENABLED=0 go build -o /bin/seeder ./services/dataproxy/cmd/seeder
+RUN CGO_ENABLED=0 go build -o /bin/ukseeder ./services/dataproxy/cmd/ukseeder
 
 FROM ubuntu:20.04
 

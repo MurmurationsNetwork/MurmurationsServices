@@ -17,8 +17,8 @@ import (
 )
 
 // global variables
-var fileName = "schema-uk-data.xlsx"
-var sheetName = "sheet1"
+var fileName = "co-ops-uk-data_2021_q3-tidied.xlsx"
+var sheetName = "open_data_organisations_2021_q3"
 
 func Init() {
 	config.Init()
