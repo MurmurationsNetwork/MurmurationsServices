@@ -25,21 +25,12 @@ spec:
       - test-library.murmurations.network
       - test-data-proxy.murmurations.network
       secretName: murmurations-tech-tls
-  {{- else if eq .Values.global.env "pretest" }}
-  tls:
-    - hosts:
-      - pretest-index.murmurations.network
-      - pretest-library.murmurations.network
-      - pretest-data-proxy.murmurations.network
-      secretName: murmurations-tech-tls
   {{- end }}
   rules:
     {{- if eq .Values.global.env "production" }}
     - host: index.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-index.murmurations.network
-    {{- else if eq .Values.global.env "pretest" }}
-    - host: pretest-index.murmurations.network
     {{- else }}
     - host: index.murmurations.dev
     {{- end }}
@@ -56,8 +47,6 @@ spec:
     - host: library.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-library.murmurations.network
-    {{- else if eq .Values.global.env "pretest" }}
-    - host: pretest-library.murmurations.network
     {{- else }}
     - host: library.murmurations.dev
     {{- end }}
@@ -74,8 +63,6 @@ spec:
     - host: data-proxy.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-data-proxy.murmurations.network
-    {{- else if eq .Values.global.env "pretest" }}
-    - host: pretest-data-proxy.murmurations.network
     {{- else }}
     - host: data-proxy.murmurations.dev
     {{- end }}
@@ -110,19 +97,12 @@ spec:
     - hosts:
       - test-monitoring.murmurations.network
       secretName: murmurations-tech-tls
-  {{- else if eq .Values.global.env "pretest" }}
-  tls:
-    - hosts:
-      - pretest-monitoring.murmurations.network
-      secretName: murmurations-tech-tls
   {{- end }}
   rules:
     {{- if eq .Values.global.env "production" }}
     - host: monitoring.murmurations.network
     {{- else if eq .Values.global.env "staging" }}
     - host: test-monitoring.murmurations.network
-    {{- else if eq .Values.global.env "pretest" }}
-    - host: pretest-monitoring.murmurations.network
     {{- end }}
       http:
         paths:
