@@ -1,8 +1,6 @@
 # Service Deployment
 
-By default, production (`index`) environments will deploy automatically when a commit is made to the `main` branch.
-
-New PRs will be deployed to the test (`test-index`) environment.
+By default, both the staging (`test-index`) and production (`index`) environments will deploy automatically when a commit is made to the `test` or `main` branches respectively.
 
 ## Deploy Services Manually
 
