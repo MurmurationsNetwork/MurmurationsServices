@@ -8,8 +8,6 @@ DEPLOY_ENV ?= local
 
 ifeq ($(DEPLOY_ENV), staging)
 	ENV_FILE = e2e-staging-env.json
-else ifeq ($(DEPLOY_ENV), pretest)
-	ENV_FILE = e2e-pretest-env.json
 else
 	ENV_FILE = e2e-local-env.json
 endif

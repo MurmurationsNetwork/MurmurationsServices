@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: revalidatenode-app
 spec:
-  {{- if or (eq .Values.global.env "production") (eq .Values.global.env "staging") (eq .Values.global.env "pretest") }}
+  {{- if or (eq .Values.global.env "production") (eq .Values.global.env "staging") }}
   schedule: "*/1 * * * *"  # every minute
   {{- else }}
   schedule: "*/2 * * * *"  # every two minutes
