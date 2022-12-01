@@ -88,7 +88,15 @@ func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
 
 	query := c.Request.RequestURI
 	if currentPage != 0 {
-		query = strings.Replace(query, "&page="+strconv.Itoa(int(currentPage)), "", -1)
+		if strings.Contains(query, "?page="+strconv.Itoa(int(currentPage))+"&") {
+			// if page is the first query and query also has the other parameters
+			query = strings.Replace(query, "page="+strconv.Itoa(int(currentPage))+"&", "", -1)
+		} else if strings.Contains(query, "?page="+strconv.Itoa(int(currentPage))) {
+			// if query only has page parameter
+			query = strings.Replace(query, "?page="+strconv.Itoa(int(currentPage)), "", -1)
+		} else {
+			query = strings.Replace(query, "&page="+strconv.Itoa(int(currentPage)), "", -1)
+		}
 	}
 
 	// if query don't have a question mark, means it didn't have query, we need to add "?" to add the page query.
