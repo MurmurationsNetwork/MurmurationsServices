@@ -25,6 +25,7 @@ type NodeHandler interface {
 	Delete(c *gin.Context)
 	AddSync(c *gin.Context)
 	Validate(c *gin.Context)
+	Export(c *gin.Context)
 }
 
 type nodeHandler struct {
@@ -314,6 +315,64 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	meta := jsonapi.NewMeta("The submitted profile was validated successfully to its linked schemas.", "", "")
 	res := jsonapi.Response(nil, nil, nil, meta)
+	c.JSON(http.StatusOK, res)
+}
+
+func (handler *nodeHandler) Export(c *gin.Context) {
+	// return error if there is an invalid query
+	// get the fields from query.EsQuery
+	fields := [...]string{"schema", "page_size", "search_after"}
+	queryFields := c.Request.URL.Query()
+	var (
+		invalidQueryTitles, invalidQueryDetails []string
+		invalidQuerySources                     [][]string
+		invalidQueryStatus                      []int
+	)
+	for fieldName := range queryFields {
+		found := false
+		for _, validFieldName := range fields {
+			if fieldName == validFieldName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			invalidQueryTitles = append(invalidQueryTitles, "Invalid Query Parameter")
+			invalidQueryDetails = append(invalidQueryDetails, fmt.Sprintf("The following query parameter is not valid: %v", fieldName))
+			invalidQuerySources = append(invalidQuerySources, []string{"parameter", fieldName})
+			invalidQueryStatus = append(invalidQueryStatus, http.StatusBadRequest)
+		}
+	}
+
+	if len(invalidQueryTitles) != 0 {
+		errors := jsonapi.NewError(invalidQueryTitles, invalidQueryDetails, invalidQuerySources, invalidQueryStatus)
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	var esQuery query.EsBlockQuery
+	if err := c.ShouldBindJSON(&esQuery); err != nil {
+		errors := jsonapi.NewError([]string{"JSON Error"}, []string{"The JSON document submitted could not be parsed."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	// set default page_size for esQuery
+	if esQuery.PageSize == 0 {
+		esQuery.PageSize = 100
+	}
+
+	searchResult, err := handler.nodeUsecase.Export(&esQuery)
+	if err != nil {
+		res := jsonapi.Response(nil, err, nil, nil)
+		c.JSON(err[0].Status, res)
+		return
+	}
+
+	meta := jsonapi.NewBlockSearchMeta(searchResult.Sort)
+	res := jsonapi.Response(searchResult.Result, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
 

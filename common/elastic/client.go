@@ -143,3 +143,26 @@ func (c *esClient) DeleteMany(index string, q *Query) error {
 	}
 	return nil
 }
+
+func (c *esClient) Export(index string, q *Query, searchAfter []interface{}) (*elastic.SearchResult, error) {
+	ctx := context.Background()
+
+	sortQuery1 := elastic.NewFieldSort("last_updated")
+	sortQuery2 := elastic.NewFieldSort("profile_url")
+
+	result, err := c.client.Search(index).
+		TrackTotalHits(true).
+		Query(q.Query).
+		SearchAfter(searchAfter...).
+		From(int(q.From)).
+		Size(int(q.Size)).
+		RestTotalHitsAsInt(true).
+		SortBy(sortQuery1, sortQuery2).
+		Do(ctx)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error when trying to search documents in Index: %s", index), err)
+		return nil, err
+	}
+
+	return result, nil
+}

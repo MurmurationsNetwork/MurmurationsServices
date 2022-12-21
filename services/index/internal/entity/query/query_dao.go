@@ -58,3 +58,21 @@ func (q *EsQuery) Build() *elastic.Query {
 		Size:  pagination.Size(q.PageSize),
 	}
 }
+
+func (q *EsBlockQuery) BuildBlock() *elastic.Query {
+	query := elastic.NewBoolQuery()
+
+	subQueries := elastic.NewQueries()
+
+	if q.Schema != nil {
+		subQueries = append(subQueries, elastic.NewWildcardQuery("linked_schemas", *q.Schema+"*"))
+	}
+
+	query.Must(subQueries...)
+
+	return &elastic.Query{
+		Query: query,
+		From:  0,
+		Size:  pagination.Size(q.PageSize),
+	}
+}

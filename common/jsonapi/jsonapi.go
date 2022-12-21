@@ -29,11 +29,12 @@ type Link struct {
 }
 
 type Meta struct {
-	Message         string `json:"message,omitempty"`
-	NodeId          string `json:"node_id,omitempty"`
-	ProfileUrl      string `json:"profile_url,omitempty"`
-	NumberOfResults int64  `json:"number_of_results,omitempty"`
-	TotalPages      int64  `json:"total_pages,omitempty"`
+	Message         string        `json:"message,omitempty"`
+	NodeId          string        `json:"node_id,omitempty"`
+	ProfileUrl      string        `json:"profile_url,omitempty"`
+	NumberOfResults int64         `json:"number_of_results,omitempty"`
+	TotalPages      int64         `json:"total_pages,omitempty"`
+	Sort            []interface{} `json:"sort,omitempty"`
 }
 
 // JSON API Response Combination
@@ -158,5 +159,11 @@ func NewSearchMeta(message string, numberOfResults int64, totalPages int64) *Met
 		Message:         message,
 		NumberOfResults: numberOfResults,
 		TotalPages:      totalPages,
+	}
+}
+
+func NewBlockSearchMeta(sort []interface{}) *Meta {
+	return &Meta{
+		Sort: sort,
 	}
 }

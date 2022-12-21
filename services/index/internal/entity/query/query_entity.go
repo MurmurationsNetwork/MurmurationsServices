@@ -31,3 +31,16 @@ type QueryResults struct {
 	NumberOfResults int64
 	TotalPages      int64
 }
+
+type EsBlockQuery struct {
+	Schema *string `json:"schema,omitempty"`
+
+	PageSize int64 `json:"page_size"`
+
+	SearchAfter []interface{} `json:"search_after,omitempty"`
+}
+
+type BlockQueryResults struct {
+	Result []QueryResult
+	Sort   []interface{}
+}

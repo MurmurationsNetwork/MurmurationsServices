@@ -34,6 +34,7 @@ type NodeRepository interface {
 	Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
 	Delete(node *entity.Node) []jsonapi.Error
 	SoftDelete(node *entity.Node) []jsonapi.Error
+	Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
 }
 
 func NewRepository() NodeRepository {
@@ -305,4 +306,32 @@ func (r *nodeRepository) setDeleted(node *entity.Node) error {
 	}
 
 	return nil
+}
+
+func (r *nodeRepository) Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error) {
+	result, err := elastic.Client.Export(constant.ESIndex.Node, q.BuildBlock(), q.SearchAfter)
+	if err != nil {
+		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
+	}
+
+	queryResults := make([]query.QueryResult, 0)
+	hitLength := len(result.Hits.Hits)
+	var sort []interface{}
+	for index, hit := range result.Hits.Hits {
+		bytes, _ := hit.Source.MarshalJSON()
+		var result query.QueryResult
+		if err := json.Unmarshal(bytes, &result); err != nil {
+			return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
+		}
+		queryResults = append(queryResults, result)
+		// get sort: only get the last item
+		if index == hitLength-1 {
+			sort = hit.Sort
+		}
+	}
+
+	return &query.BlockQueryResults{
+		Result: queryResults,
+		Sort:   sort,
+	}, nil
 }
