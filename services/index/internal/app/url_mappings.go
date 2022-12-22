@@ -30,5 +30,8 @@ func mapUrls(router *gin.Engine) {
 
 		// synchronously response
 		v2.POST("/nodes-sync", nodeHandler.AddSync)
+
+		// block search
+		v2.POST("/export", nodeHandler.Export)
 	}
 }

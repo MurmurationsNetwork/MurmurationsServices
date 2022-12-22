@@ -35,3 +35,7 @@ func (c *mockClient) Delete(index string, id string) error {
 func (c *mockClient) DeleteMany(index string, query *Query) error {
 	return nil
 }
+
+func (c *mockClient) Export(index string, query *Query, searchAfter []interface{}) (*elastic.SearchResult, error) {
+	return nil, nil
+}

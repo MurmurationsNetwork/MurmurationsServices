@@ -3151,8 +3151,7 @@
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least four result`, () => {",
 									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(4)",
 									"})",
-									"",
-									"pm.variables.set(\"test_counter\", 0)"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -3183,6 +3182,53 @@
 									"key": "schema",
 									"value": "test_schema-v2.1"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return sort in meta`, () => {",
+									"    pm.expect(jsonData.meta).to.have.property('sort')",
+									"})",
+									"",
+									"pm.variables.set(\"test_counter\", 0)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{indexBaseUrl}}/export",
+							"host": [
+								"{{indexBaseUrl}}"
+							],
+							"path": [
+								"export"
 							]
 						}
 					},

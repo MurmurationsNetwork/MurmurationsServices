@@ -33,3 +33,7 @@ func (r *mockNodeRepository) Delete(node *entity.Node) []jsonapi.Error {
 func (r *mockNodeRepository) SoftDelete(node *entity.Node) []jsonapi.Error {
 	return nil
 }
+
+func (r *mockNodeRepository) Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error) {
+	return nil, nil
+}

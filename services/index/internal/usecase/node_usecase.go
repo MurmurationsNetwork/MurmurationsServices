@@ -23,6 +23,7 @@ type NodeUsecase interface {
 	SetNodeInvalid(node *entity.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
 	Delete(nodeID string) (string, []jsonapi.Error)
+	Export(query *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
 }
 
 type nodeUsecase struct {
@@ -141,4 +142,12 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	}
 
 	return node.ProfileURL, jsonapi.NewError([]string{"Node Status Code Error"}, []string{fmt.Sprintf("The node at %s returned the following status code: %d", node.ProfileURL, resp.StatusCode)}, nil, []int{http.StatusBadRequest})
+}
+
+func (s *nodeUsecase) Export(query *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error) {
+	result, err := s.nodeRepo.Export(query)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
