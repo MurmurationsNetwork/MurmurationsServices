@@ -39,3 +39,7 @@ func (c *mockClient) DeleteMany(index string, query *Query) error {
 func (c *mockClient) Export(index string, query *Query, searchAfter []interface{}) (*elastic.SearchResult, error) {
 	return nil, nil
 }
+
+func (c *mockClient) GetNodes(index string, query *Query) (*elastic.SearchResult, error) {
+	return nil, nil
+}

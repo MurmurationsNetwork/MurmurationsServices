@@ -6,7 +6,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
-func (q *EsQuery) Build() *elastic.Query {
+func (q *EsQuery) Build(isMap bool) *elastic.Query {
 	query := elastic.NewBoolQuery()
 
 	subQueries := elastic.NewQueries()
@@ -51,6 +51,14 @@ func (q *EsQuery) Build() *elastic.Query {
 	}
 
 	query.Must(subQueries...).Filter(filters...)
+
+	if isMap {
+		return &elastic.Query{
+			Query: query,
+			From:  pagination.From(q.Page, q.PageSize),
+			Size:  pagination.MaximumSize(q.PageSize),
+		}
+	}
 
 	return &elastic.Query{
 		Query: query,
