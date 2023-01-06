@@ -33,5 +33,8 @@ func mapUrls(router *gin.Engine) {
 
 		// block search
 		v2.POST("/export", nodeHandler.Export)
+
+		// get nodes for map, response format [lon, lat, profile_url]
+		v2.GET("/get-nodes", nodeHandler.GetNodes)
 	}
 }

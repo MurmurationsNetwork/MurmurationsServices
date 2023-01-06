@@ -37,3 +37,7 @@ func (r *mockNodeRepository) SoftDelete(node *entity.Node) []jsonapi.Error {
 func (r *mockNodeRepository) Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error) {
 	return nil, nil
 }
+
+func (r *mockNodeRepository) GetNodes(q *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error) {
+	return nil, nil
+}

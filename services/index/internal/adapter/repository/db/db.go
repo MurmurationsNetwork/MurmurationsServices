@@ -35,6 +35,7 @@ type NodeRepository interface {
 	Delete(node *entity.Node) []jsonapi.Error
 	SoftDelete(node *entity.Node) []jsonapi.Error
 	Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
+	GetNodes(q *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error)
 }
 
 func NewRepository() NodeRepository {
@@ -239,7 +240,7 @@ func (r *nodeRepository) setPosted(node *entity.Node) error {
 }
 
 func (r *nodeRepository) Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error) {
-	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build())
+	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build(false))
 	if err != nil {
 		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
 	}
@@ -333,5 +334,32 @@ func (r *nodeRepository) Export(q *query.EsBlockQuery) (*query.BlockQueryResults
 	return &query.BlockQueryResults{
 		Result: queryResults,
 		Sort:   sort,
+	}, nil
+}
+
+func (r *nodeRepository) GetNodes(q *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error) {
+	result, err := elastic.Client.GetNodes(constant.ESIndex.Node, q.Build(true))
+	if err != nil {
+		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
+	}
+
+	queryResults := make([][]interface{}, 0)
+	for _, hit := range result.Hits.Hits {
+		bytes, _ := hit.Source.MarshalJSON()
+		var result map[string]interface{}
+		if err := json.Unmarshal(bytes, &result); err != nil {
+			return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to search documents."}, nil, []int{http.StatusInternalServerError})
+		}
+		// create specific format for map (issue-405)
+		// [lon, lat, profile_url]
+		geolocation := result["geolocation"].(map[string]interface{})
+		mapResult := []interface{}{geolocation["lon"], geolocation["lat"], result["profile_url"]}
+		queryResults = append(queryResults, mapResult)
+	}
+
+	return &query.MapQueryResults{
+		Result:          queryResults,
+		NumberOfResults: result.Hits.TotalHits.Value,
+		TotalPages:      pagination.TotalPages(result.Hits.TotalHits.Value, q.PageSize),
 	}, nil
 }

@@ -166,3 +166,29 @@ func (c *esClient) Export(index string, q *Query, searchAfter []interface{}) (*e
 
 	return result, nil
 }
+
+func (c *esClient) GetNodes(index string, q *Query) (*elastic.SearchResult, error) {
+	ctx := context.Background()
+
+	source := elastic.NewFetchSourceContext(true).Include("geolocation", "profile_url")
+
+	// sort strategy - 1. _score 2. primary_url
+	sortQuery1 := elastic.NewFieldSort("_score").Desc()
+	sortQuery2 := elastic.NewFieldSort("primary_url")
+
+	result, err := c.client.Search(index).
+		TrackTotalHits(true).
+		Query(q.Query).
+		FetchSourceContext(source).
+		From(int(q.From)).
+		Size(int(q.Size)).
+		RestTotalHitsAsInt(true).
+		SortBy(sortQuery1, sortQuery2).
+		Do(ctx)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error when trying to search documents in Index: %s", index), err)
+		return nil, err
+	}
+
+	return result, nil
+}

@@ -22,6 +22,7 @@ type esClientInterface interface {
 	Delete(string, string) error
 	DeleteMany(string, *Query) error
 	Export(string, *Query, []interface{}) (*elastic.SearchResult, error)
+	GetNodes(string, *Query) (*elastic.SearchResult, error)
 
 	setClient(*elastic.Client)
 }

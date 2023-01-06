@@ -44,3 +44,9 @@ type BlockQueryResults struct {
 	Result []QueryResult
 	Sort   []interface{}
 }
+
+type MapQueryResults struct {
+	Result          [][]interface{}
+	NumberOfResults int64
+	TotalPages      int64
+}

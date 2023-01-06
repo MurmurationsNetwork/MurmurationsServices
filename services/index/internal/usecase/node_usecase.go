@@ -24,6 +24,7 @@ type NodeUsecase interface {
 	Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
 	Delete(nodeID string) (string, []jsonapi.Error)
 	Export(query *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
+	GetNodes(query *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error)
 }
 
 type nodeUsecase struct {
@@ -146,6 +147,14 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 
 func (s *nodeUsecase) Export(query *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error) {
 	result, err := s.nodeRepo.Export(query)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *nodeUsecase) GetNodes(query *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error) {
+	result, err := s.nodeRepo.GetNodes(query)
 	if err != nil {
 		return nil, err
 	}
