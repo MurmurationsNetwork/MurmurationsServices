@@ -43,3 +43,7 @@ func NewWildcardQuery(name, wildcard string) *elastic.WildcardQuery {
 	q.CaseInsensitive(true)
 	return q
 }
+
+func NewExistQuery(name string) *elastic.ExistsQuery {
+	return elastic.NewExistsQuery(name)
+}

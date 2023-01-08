@@ -50,6 +50,10 @@ func (q *EsQuery) Build(isMap bool) *elastic.Query {
 		filters = append(filters, elastic.NewGeoDistanceQuery("geolocation").Lat(*q.Lat).Lon(*q.Lon).Distance(*q.Range))
 	}
 
+	if isMap {
+		subQueries = append(subQueries, elastic.NewExistQuery("geolocation"))
+	}
+
 	query.Must(subQueries...).Filter(filters...)
 
 	if isMap {
