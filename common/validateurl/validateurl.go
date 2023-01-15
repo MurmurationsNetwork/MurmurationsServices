@@ -6,6 +6,9 @@ import (
 )
 
 func Validate(rawUrl string) (string, error) {
+	if !strings.Contains(rawUrl, "http") {
+		rawUrl = "https://" + rawUrl
+	}
 	u, err := url.ParseRequestURI(rawUrl)
 	if err != nil {
 		return "", err
