@@ -41,4 +41,9 @@ func TestValidate(t *testing.T) {
 	url = "https://www.ic3.dev/page.html#section"
 	parsedUrl, _ = Validate(url)
 	assert.Equal(t, "ic3.dev/page.html#section", parsedUrl)
+
+	// url without protocol
+	url = "ic3.dev/page.html"
+	parsedUrl, _ = Validate(url)
+	assert.Equal(t, "ic3.dev/page.html", parsedUrl)
 }
