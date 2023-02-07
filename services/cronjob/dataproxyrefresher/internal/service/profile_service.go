@@ -10,7 +10,7 @@ type ProfilesService interface {
 	Add(profileJson map[string]interface{}) error
 	Update(profileId string, profileJson map[string]interface{}) (map[string]interface{}, error)
 	UpdateNodeId(profileId string, nodeId string) error
-	FindLessThan(timestamp int64) ([]entity.Profile, error)
+	FindLessThan(schemaName string, timestamp int64) ([]entity.Profile, error)
 	UpdateAccessTime(profileId string) error
 	Delete(profileId string) error
 }
@@ -41,8 +41,8 @@ func (svc *profilesService) UpdateNodeId(profileId string, nodeId string) error 
 	return svc.profileRepo.UpdateNodeId(profileId, nodeId)
 }
 
-func (svc *profilesService) FindLessThan(timestamp int64) ([]entity.Profile, error) {
-	return svc.profileRepo.FindLessThan(timestamp)
+func (svc *profilesService) FindLessThan(schemaName string, timestamp int64) ([]entity.Profile, error) {
+	return svc.profileRepo.FindLessThan(schemaName, timestamp)
 }
 
 func (svc *profilesService) UpdateAccessTime(profileId string) error {

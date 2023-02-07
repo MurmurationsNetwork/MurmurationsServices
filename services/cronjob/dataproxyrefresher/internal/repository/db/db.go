@@ -16,7 +16,7 @@ type ProfileRepository interface {
 	Add(profileJson map[string]interface{}) error
 	Update(profileId string, profileJson map[string]interface{}) (map[string]interface{}, error)
 	UpdateNodeId(profileId string, nodeId string) error
-	FindLessThan(timestamp int64) ([]entity.Profile, error)
+	FindLessThan(schemaName string, timestamp int64) ([]entity.Profile, error)
 	UpdateAccessTime(profileId string) error
 	Delete(profileId string) error
 }
@@ -85,8 +85,11 @@ func (r *profileRepository) UpdateNodeId(profileId string, nodeId string) error 
 	return nil
 }
 
-func (r *profileRepository) FindLessThan(timestamp int64) ([]entity.Profile, error) {
+func (r *profileRepository) FindLessThan(schemaName string, timestamp int64) ([]entity.Profile, error) {
+	schemaArray := [1]string{schemaName}
+
 	filter := bson.M{
+		"linked_schemas": bson.M{"$in": schemaArray},
 		"metadata.sources.access_time": bson.M{
 			"$lte": timestamp,
 		},
