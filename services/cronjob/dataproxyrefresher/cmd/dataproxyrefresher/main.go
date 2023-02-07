@@ -36,7 +36,7 @@ func main() {
 
 	curTime := time.Now().Unix()
 	refreshBefore := curTime - config.Conf.RefreshTTL
-	profiles, err := svc.FindLessThan(refreshBefore)
+	profiles, err := svc.FindLessThan(schemaName, refreshBefore)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			logger.Error("No profile found.", err)
