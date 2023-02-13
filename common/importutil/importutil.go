@@ -169,7 +169,7 @@ func Validate(validateUrl string, profile map[string]interface{}) (bool, string,
 		if resBody["errors"] != nil {
 			var errors []string
 			for _, item := range resBody["errors"].([]interface{}) {
-				errors = append(errors, fmt.Sprintf("%#v", item))
+				errors = append(errors, fmt.Sprintf("%v", item))
 			}
 			errorsStr := strings.Join(errors, ",")
 			return false, errorsStr, nil
