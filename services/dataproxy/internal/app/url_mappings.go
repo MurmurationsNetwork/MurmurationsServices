@@ -22,6 +22,7 @@ func mapUrls(router *gin.Engine) {
 		v1.GET("/health/:schemaName", updatesHandler.Get)
 
 		// for csv batch import
-		v1.POST("/validate-batch", batchesHandler.Validate)
+		v1.POST("/batch/validate", batchesHandler.Validate)
+		v1.POST("/batch/import", batchesHandler.Import)
 	}
 }

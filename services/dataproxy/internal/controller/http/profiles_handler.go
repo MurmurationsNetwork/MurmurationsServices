@@ -36,6 +36,8 @@ func (handler *profilesHandler) Get(c *gin.Context) {
 	delete(profile, "node_id")
 	delete(profile, "is_posted")
 	delete(profile, "source_data_hash")
+	// remove batch_id for batch import
+	delete(profile, "batch_id")
 
 	c.JSON(http.StatusOK, profile)
 }
