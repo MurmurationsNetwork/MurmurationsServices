@@ -5,9 +5,9 @@ go 1.19
 require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/cenkalti/backoff/v4 v4.2.0
-	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.2
-	github.com/go-playground/assert/v2 v2.0.1
+	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/stan.go v0.10.4
@@ -17,7 +17,7 @@ require (
 	github.com/ulule/limiter/v3 v3.11.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/xuri/excelize/v2 v2.7.0
-	go.mongodb.org/mongo-driver v1.11.1
+	go.mongodb.org/mongo-driver v1.11.2
 	go.uber.org/zap v1.24.0
 	golang.org/x/exp v0.0.0-20190121172915-509febef88a4
 )
