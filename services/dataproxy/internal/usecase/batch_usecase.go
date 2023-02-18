@@ -147,29 +147,43 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 	delete(rawProfile, "lat")
 	delete(rawProfile, "lon")
 
-	// handle tags
-	if rawProfile["tags"] != "" {
-		profile["tags"] = strings.Split(rawProfile["tags"], ",")
-		delete(rawProfile, "tags")
-	}
-
-	// handle array
+	// parse field name with hyphen, including array and array-object
+	// array example: "tags-1" will be parsed to arrayFields["tags"] = value
+	// array-object example: "urls-1-name" will be parsed to arrayObjectFields["urls"] = ["1-name"]
 	arrayFields := make(map[string][]string)
-	for key, _ := range rawProfile {
+	arrayObjectFields := make(map[string][]string)
+	for key, value := range rawProfile {
 		if strings.Contains(key, "-") {
-			arrayFieldIndex := strings.Index(key, "-")
-			arrayField := key[:arrayFieldIndex]
-			arrayFieldValue := key[arrayFieldIndex+1:]
-			arrayFields[arrayField] = append(arrayFields[arrayField], arrayFieldValue)
+			// one hyphen means it's an array field
+			// delete the field from rawProfile, because we already save value to arrayFields
+			hyphenIndex := strings.Index(key, "-")
+			if strings.Count(key, "-") == 1 {
+				arrayField := key[:hyphenIndex]
+				arrayFields[arrayField] = append(arrayFields[arrayField], value)
+				delete(rawProfile, key)
+			} else if strings.Count(key, "-") == 2 {
+				// handle array-object - two hyphens
+				arrayField := key[:hyphenIndex]
+				arrayFieldValue := key[hyphenIndex+1:]
+				arrayObjectFields[arrayField] = append(arrayObjectFields[arrayField], arrayFieldValue)
+			}
+			// if there are more than three hyphens, it's not a valid field name, we will directly save it later.
 		}
 	}
 
-	for index, arrayField := range arrayFields {
-		sort.Strings(arrayField)
+	// handle array field
+	for key, value := range arrayFields {
+		profile[key] = value
+	}
+
+	// handle array-object field
+	// it will sort arrayObjectFields by array number, combine them together if the number is the same
+	for index, arrayObjectField := range arrayObjectFields {
+		sort.Strings(arrayObjectField)
 		currentNum := ""
 		var objects []map[string]string
 		object := make(map[string]string)
-		for _, fieldName := range arrayField {
+		for _, fieldName := range arrayObjectField {
 			arrayNumIndex := strings.Index(fieldName, "-")
 			arrayNum := fieldName[:arrayNumIndex]
 			arrayVal := fieldName[arrayNumIndex+1:]
