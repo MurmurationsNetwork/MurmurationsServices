@@ -69,6 +69,14 @@ func (c *mongoClient) DeleteOne(collection string, filter primitive.M) error {
 	return nil
 }
 
+func (c *mongoClient) DeleteMany(collection string, filter primitive.M) error {
+	_, err := c.db.Collection(collection).DeleteMany(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *mongoClient) Ping() error {
 	operation := func() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)

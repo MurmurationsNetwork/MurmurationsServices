@@ -14,6 +14,7 @@ import (
 type BatchesHandler interface {
 	Validate(c *gin.Context)
 	Import(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type batchesHandler struct {
@@ -58,10 +59,10 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	// todo: we might need to validate the excel before import
 	// todo: we might need to validate user id from DB: but it costs more time to validate user id
 
-	// cuid is 25 characters long
-	userCuid := c.PostForm("cuid")
-	if len(userCuid) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid User Cuid"}, []string{"User Cuid is not valid"}, nil, []int{http.StatusBadRequest})
+	// user_id is 25 characters long(cuid format)
+	userId := c.PostForm("user_id")
+	if len(userId) != 25 {
+		errors := jsonapi.NewError([]string{"Invalid User Id"}, []string{"User Id is not valid"}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -81,7 +82,7 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 		return
 	}
 
-	batchId, line, err := handler.batchUsecase.Import(schemas, records, userCuid)
+	batchId, line, err := handler.batchUsecase.Import(schemas, records, userId)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Import Failed"}, []string{"Failed to import line " + strconv.Itoa(line) + ", Batch Id: " + batchId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)
@@ -90,6 +91,37 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	}
 
 	meta := jsonapi.NewBatchMeta("The submitted csv file was imported successfully to its linked schemas.", batchId)
+	res := jsonapi.Response(nil, nil, nil, meta)
+	c.JSON(http.StatusOK, res)
+}
+
+func (handler *batchesHandler) Delete(c *gin.Context) {
+	userId := c.PostForm("user_id")
+	if len(userId) != 25 {
+		errors := jsonapi.NewError([]string{"Invalid User Id"}, []string{"User Id is not valid"}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	batchId := c.PostForm("batch_id")
+	if len(batchId) != 25 {
+		errors := jsonapi.NewError([]string{"Invalid Batch Id"}, []string{"Batch Id is not valid"}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	// call delete service
+	err := handler.batchUsecase.Delete(userId, batchId)
+	if err != nil {
+		errors := jsonapi.NewError([]string{"Delete Import Failed"}, []string{"Failed to delete import, Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	meta := jsonapi.NewBatchMeta("The submitted batch_id is successfully deleted", batchId)
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }

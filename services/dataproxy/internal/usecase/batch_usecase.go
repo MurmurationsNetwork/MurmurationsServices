@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
@@ -16,6 +15,7 @@ import (
 type BatchUsecase interface {
 	Validate([]string, [][]string) (int, error)
 	Import([]string, [][]string, string) (string, int, error)
+	Delete(string, string) error
 }
 
 type batchUsecase struct {
@@ -55,16 +55,16 @@ func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, erro
 	return -1, nil
 }
 
-func (s *batchUsecase) Import(schemas []string, records [][]string, userCuid string) (string, int, error) {
+func (s *batchUsecase) Import(schemas []string, records [][]string, userId string) (string, int, error) {
 	if len(records) > 1001 {
 		return "", -1, errors.New("CSV rows can't be larger than 1,000")
 	}
 
 	// generate batch_id import using cuid and save it to mongo
-	batchCuid := cuid.New()
-	err := s.batchRepo.SaveUser(batchCuid, userCuid)
+	batchId := cuid.New()
+	err := s.batchRepo.SaveUser(userId, batchId)
 	if err != nil {
-		return batchCuid, -1, err
+		return batchId, -1, err
 	}
 
 	rawProfiles := csvToMap(records)
@@ -72,10 +72,10 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userCuid str
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
-			return batchCuid, line, err
+			return batchId, line, err
 		}
 
-		profile["batch_id"] = batchCuid
+		profile["batch_id"] = batchId
 
 		// generate cuid for profile
 		profileCuid := cuid.New()
@@ -84,17 +84,15 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userCuid str
 		// import profile to Mongo
 		err = s.batchRepo.SaveProfile(profile)
 		if err != nil {
-			return batchCuid, line, err
+			return batchId, line, err
 		}
 
 		// import profile to MurmurationsServices Index
 		postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
-		fmt.Println(postNodeUrl)
-		fmt.Println(profileUrl)
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 		if err != nil {
-			return batchCuid, line, errors.New("Import to MurmurationsServices Index failed: " + err.Error())
+			return batchId, line, errors.New("Import to MurmurationsServices Index failed: " + err.Error())
 		}
 
 		// save node_id to mongo
@@ -102,11 +100,54 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userCuid str
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
 		if err != nil {
-			return batchCuid, line, errors.New("Save node_id to Mongo failed: " + err.Error())
+			return batchId, line, errors.New("Save node_id to Mongo failed: " + err.Error())
 		}
 	}
 
-	return batchCuid, -1, nil
+	return batchId, -1, nil
+}
+
+func (s *batchUsecase) Delete(userId string, batchId string) error {
+	// check if batch_id belongs to user
+	isValid, err := s.batchRepo.CheckUser(userId, batchId)
+	if err != nil {
+		return err
+	}
+	if !isValid {
+		return errors.New("batch_id doesn't belong to user")
+	}
+
+	// get profiles by batch_id
+	profiles, err := s.batchRepo.GetProfilesByBatchId(batchId)
+	if err != nil {
+		return err
+	}
+
+	// delete profiles from mongo
+	err = s.batchRepo.DeleteProfilesByBatchId(batchId)
+	if err != nil {
+		return err
+	}
+
+	// delete profiles from MurmurationsServices Index
+	for _, profile := range profiles {
+		if profile["is_posted"].(bool) {
+			nodeId := profile["node_id"].(string)
+			deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + nodeId
+			err := importutil.DeleteIndex(deleteNodeUrl, nodeId)
+			if err != nil {
+				return errors.New("Delete profile from MurmurationsServices Index failed: " + err.Error())
+			}
+		}
+	}
+
+	// delete batch_id from mongo
+	err = s.batchRepo.DeleteBatchId(batchId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // convert csv to one-to-one map[string]string

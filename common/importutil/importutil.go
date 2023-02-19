@@ -219,3 +219,32 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 
 	return nodeData.Data.NodeId, nil
 }
+
+func DeleteIndex(deleteNodeUrl string, nodeId string) error {
+	req, err := http.NewRequest("DELETE", deleteNodeUrl, nil)
+	if err != nil {
+		return err
+	}
+	q := req.URL.Query()
+	q.Add("node_id", nodeId)
+	req.URL.RawQuery = q.Encode()
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 {
+		var resBody map[string]interface{}
+		json.NewDecoder(res.Body).Decode(&resBody)
+		if resBody["errors"] != nil {
+			var errors []string
+			for _, item := range resBody["errors"].([]interface{}) {
+				errors = append(errors, fmt.Sprintf("%#v", item))
+			}
+			errorsStr := strings.Join(errors, ",")
+			return fmt.Errorf("delete failed, the status code is " + strconv.Itoa(res.StatusCode) + ", node_id: " + nodeId + ", error: " + errorsStr)
+		}
+		return fmt.Errorf("delete failed, the status code is " + strconv.Itoa(res.StatusCode) + ", node_id: " + nodeId)
+	}
+	return nil
+}
