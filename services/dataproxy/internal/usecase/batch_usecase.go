@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
@@ -15,6 +16,7 @@ import (
 type BatchUsecase interface {
 	Validate([]string, [][]string) (int, error)
 	Import([]string, [][]string, string) (string, int, error)
+	Edit([]string, [][]string, string, string) (int, error)
 	Delete(string, string) error
 }
 
@@ -112,6 +114,116 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 	}
 
 	return batchId, -1, nil
+}
+
+func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string, batchId string) (int, error) {
+	if len(records) > 1001 {
+		return -1, errors.New("CSV rows can't be larger than 1,000")
+	}
+
+	// check if batch_id belongs to user
+	isValid, err := s.batchRepo.CheckUser(userId, batchId)
+	if err != nil {
+		return -1, err
+	}
+	if !isValid {
+		return -1, errors.New("batch_id doesn't belong to user")
+	}
+
+	// get profile oid, cuid hash by batch_id
+	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchId(batchId)
+	if err != nil {
+		return -1, err
+	}
+
+	rawProfiles := csvToMap(records)
+
+	for line, rawProfile := range rawProfiles {
+		profile, err := mapToProfile(rawProfile, schemas)
+		if err != nil {
+			return line, err
+		}
+
+		// hash profile
+		profileHash, err := importutil.HashProfile(profile)
+		if err != nil {
+			return line, err
+		}
+		profile["source_data_hash"] = profileHash
+		profile["batch_id"] = batchId
+
+		// check if profile exists in mongo
+		_, ok := profileOidsAndHashes[profile["oid"].(string)]
+		var profileCuid string
+		if ok {
+			profileCuid = profileOidsAndHashes[profile["oid"].(string)][0]
+			// if current profile's oid and profile_hash match the data in mongo, skip it
+			if profileOidsAndHashes[profile["oid"].(string)][1] == profileHash {
+				fmt.Println("skip")
+				continue
+			}
+			// update profile to Mongo
+			fmt.Println(profileCuid)
+			err = s.batchRepo.UpdateProfile(profileCuid, profile)
+			if err != nil {
+				return line, err
+			}
+			// delete oid from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
+			delete(profileOidsAndHashes, profile["oid"].(string))
+		} else {
+			// if profile doesn't have cuid, generate one
+			profileCuid = cuid.New()
+			profile["cuid"] = profileCuid
+
+			// import profile to Mongo
+			err = s.batchRepo.SaveProfile(profile)
+			if err != nil {
+				return line, err
+			}
+		}
+
+		// import profile to MurmurationsServices Index
+		postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
+		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
+		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
+		if err != nil {
+			return line, errors.New("Import to MurmurationsServices Index failed: " + err.Error())
+		}
+
+		// save node_id to mongo
+		profile["node_id"] = nodeId
+		profile["is_posted"] = true
+		err = s.batchRepo.SaveNodeId(profileCuid, profile)
+		if err != nil {
+			return line, errors.New("Save node_id to Mongo failed: " + err.Error())
+		}
+	}
+
+	// rest of data which are not in the csv file needs to be deleted
+	if len(profileOidsAndHashes) > 0 {
+		for _, cuidAndHash := range profileOidsAndHashes {
+			// get profile by cuid
+			profile, err := s.batchRepo.GetProfileByCuid(cuidAndHash[0])
+
+			// delete profiles from mongo
+			err = s.batchRepo.DeleteProfileByCuid(cuidAndHash[0])
+			if err != nil {
+				return -1, err
+			}
+
+			// delete profiles from MurmurationsServices Index
+			if profile["is_posted"].(bool) {
+				nodeId := profile["node_id"].(string)
+				deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + nodeId
+				err := importutil.DeleteIndex(deleteNodeUrl, nodeId)
+				if err != nil {
+					return -1, errors.New("Delete from MurmurationsServices Index failed: " + err.Error())
+				}
+			}
+		}
+	}
+
+	return -1, nil
 }
 
 func (s *batchUsecase) Delete(userId string, batchId string) error {

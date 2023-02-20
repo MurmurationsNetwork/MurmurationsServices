@@ -14,6 +14,7 @@ import (
 type BatchesHandler interface {
 	Validate(c *gin.Context)
 	Import(c *gin.Context)
+	Edit(c *gin.Context)
 	Delete(c *gin.Context)
 }
 
@@ -91,6 +92,50 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	}
 
 	meta := jsonapi.NewBatchMeta("The submitted csv file was imported successfully to its linked schemas.", batchId)
+	res := jsonapi.Response(nil, nil, nil, meta)
+	c.JSON(http.StatusOK, res)
+}
+
+func (handler *batchesHandler) Edit(c *gin.Context) {
+	userId := c.PostForm("user_id")
+	if len(userId) != 25 {
+		errors := jsonapi.NewError([]string{"Invalid User Id"}, []string{"User Id is not valid"}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	batchId := c.PostForm("batch_id")
+	if len(batchId) != 25 {
+		errors := jsonapi.NewError([]string{"Invalid Batch Id"}, []string{"Batch Id is not valid"}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	file, schemas, errors := validateCsvInputs(c)
+	if errors != nil {
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	records, errors := parseCsv(file)
+	if errors != nil {
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	line, err := handler.batchUsecase.Edit(schemas, records, userId, batchId)
+	if err != nil {
+		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + ", Batch Id: " + batchId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	meta := jsonapi.NewBatchMeta("The submitted csv file was edited successfully to its linked schemas.", batchId)
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
