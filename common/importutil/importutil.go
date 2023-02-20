@@ -107,11 +107,7 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 	profileJson := MapFieldsName(profile, mapping)
 
 	// hash the updated data
-	doc, err := json.Marshal(profileJson)
-	if err != nil {
-		return nil, err
-	}
-	profileHash, err := Hash(string(doc))
+	profileHash, err := HashProfile(profileJson)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +145,18 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 	}
 
 	return profileJson, nil
+}
+
+func HashProfile(profile map[string]interface{}) (string, error) {
+	doc, err := json.Marshal(profile)
+	if err != nil {
+		return "", err
+	}
+	profileHash, err := Hash(string(doc))
+	if err != nil {
+		return "", err
+	}
+	return profileHash, nil
 }
 
 func Validate(validateUrl string, profile map[string]interface{}) (bool, string, error) {

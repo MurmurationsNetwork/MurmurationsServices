@@ -75,6 +75,13 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 			return batchId, line, err
 		}
 
+		// hash profile
+		profileHash, err := importutil.HashProfile(profile)
+		if err != nil {
+			return batchId, line, err
+		}
+		profile["source_data_hash"] = profileHash
+
 		profile["batch_id"] = batchId
 
 		// generate cuid for profile
