@@ -83,7 +83,11 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 		return
 	}
 
-	batchId, line, err := handler.batchUsecase.Import(schemas, records, userId)
+	// process Meta
+	metaName := c.PostForm("meta_name")
+	metaUrl := c.PostForm("meta_url")
+
+	batchId, line, err := handler.batchUsecase.Import(schemas, records, userId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Import Failed"}, []string{"Failed to import line " + strconv.Itoa(line) + ", Batch Id: " + batchId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)

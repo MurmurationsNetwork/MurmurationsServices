@@ -15,7 +15,7 @@ import (
 
 type BatchUsecase interface {
 	Validate([]string, [][]string) (int, error)
-	Import([]string, [][]string, string) (string, int, error)
+	Import([]string, [][]string, string, string, string) (string, int, error)
 	Edit([]string, [][]string, string, string) (int, error)
 	Delete(string, string) error
 }
@@ -57,7 +57,7 @@ func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, erro
 	return -1, nil
 }
 
-func (s *batchUsecase) Import(schemas []string, records [][]string, userId string) (string, int, error) {
+func (s *batchUsecase) Import(schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error) {
 	if len(records) > 1001 {
 		return "", -1, errors.New("CSV rows can't be larger than 1,000")
 	}
@@ -83,6 +83,19 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 			return batchId, line, err
 		}
 		profile["source_data_hash"] = profileHash
+
+		// add metadata
+		if metaName != "" && metaUrl != "" {
+			metadata := map[string]interface{}{
+				"sources": []map[string]interface{}{
+					{
+						"name": metaName,
+						"url":  metaUrl,
+					},
+				},
+			}
+			profile["metadata"] = metadata
+		}
 
 		profile["batch_id"] = batchId
 
