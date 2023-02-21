@@ -200,9 +200,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Initial checks');",
-							"",
-							""
+							"pm.variables.set('folder_name','Initial checks')"
 						]
 					}
 				},
@@ -750,7 +748,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Handles missing nodes & invalid profiles');"
+							"pm.variables.set('folder_name','Handles missing nodes & invalid profiles')"
 						]
 					}
 				},
@@ -970,7 +968,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Handles valid profile');"
+							"pm.variables.set('folder_name','Handles valid profile')"
 						]
 					}
 				},
@@ -1237,7 +1235,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Add test profiles');"
+							"pm.variables.set('folder_name','Add test profiles')"
 						]
 					}
 				},
@@ -1706,7 +1704,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Returns expected search results');"
+							"pm.variables.set('folder_name','Returns expected search results')"
 						]
 					}
 				},
@@ -1937,7 +1935,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Post node with synchronous response');"
+							"pm.variables.set('folder_name','Post node with synchronous response')"
 						]
 					}
 				},
@@ -2234,7 +2232,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','V1 routes are deprecated');"
+							"pm.variables.set('folder_name','V1 routes are deprecated')"
 						]
 					}
 				},
@@ -2723,7 +2721,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Validate profiles');"
+							"pm.variables.set('folder_name','Validate profiles')"
 						]
 					}
 				},
@@ -2973,7 +2971,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Store and query by primary_url');"
+							"pm.variables.set('folder_name','Store and query by primary_url')"
 						]
 					}
 				},
@@ -3241,7 +3239,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.variables.set('folder_name','Multi-version schema search');"
+							"pm.variables.set('folder_name','Multi-version schema search')"
 						]
 					}
 				},
@@ -3304,6 +3302,298 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','Map API')"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "CSV batch import",
+			"item": [
+				{
+					"name": "Validate Batch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json()",
+									"",
+									"pm.variables.set(\"test_counter\", 0)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "./organizations_schema-v1.0.0-example-import.csv"
+								},
+								{
+									"key": "schemas",
+									"value": "[\"organizations_schema-v1.0.0\"]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dataProxyBaseUrl}}/batch/validate",
+							"host": [
+								"{{dataProxyBaseUrl}}"
+							],
+							"path": [
+								"batch",
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Import Batch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json()",
+									"",
+									"pm.environment.set(\"batch_id\", jsonData.meta.batch_id)",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "./organizations_schema-v1.0.0-example-import.csv"
+								},
+								{
+									"key": "schemas",
+									"value": "[\"organizations_schema-v1.0.0\"]",
+									"type": "text"
+								},
+								{
+									"key": "user_id",
+									"value": "cl6xpncg5000009l8dbpld1re",
+									"type": "text"
+								},
+								{
+									"key": "meta_name",
+									"value": "Organization",
+									"type": "text"
+								},
+								{
+									"key": "meta_url",
+									"value": "https://example.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dataProxyBaseUrl}}/batch/import",
+							"host": [
+								"{{dataProxyBaseUrl}}"
+							],
+							"path": [
+								"batch",
+								"import"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Import Batch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json()",
+									"var batch_id = pm.environment.get(\"batch_id\")",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return same batch_id`, () => {",
+									"    pm.expect(jsonData.meta.batch_id).to.equal(batch_id)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "./organizations_schema-v1.0.0-example-edit.csv"
+								},
+								{
+									"key": "schemas",
+									"value": "[\"organizations_schema-v1.0.0\"]",
+									"type": "text"
+								},
+								{
+									"key": "user_id",
+									"value": "cl6xpncg5000009l8dbpld1re",
+									"type": "text"
+								},
+								{
+									"key": "batch_id",
+									"value": "{{batch_id}}",
+									"type": "text"
+								},
+								{
+									"key": "meta_name",
+									"value": "Organization",
+									"type": "text"
+								},
+								{
+									"key": "meta_url",
+									"value": "https://example.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dataProxyBaseUrl}}/batch/import",
+							"host": [
+								"{{dataProxyBaseUrl}}"
+							],
+							"path": [
+								"batch",
+								"import"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Import Batch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"var jsonData = pm.response.json()",
+									"var batch_id = pm.environment.get(\"batch_id\")",
+									"",
+									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return same batch_id`, () => {",
+									"    pm.expect(jsonData.meta.batch_id).to.equal(batch_id)",
+									"})",
+									"",
+									"pm.environment.unset(\"batch_id\")",
+									"",
+									"pm.variables.set(\"test_counter\", 0)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user_id",
+									"value": "cl6xpncg5000009l8dbpld1re",
+									"type": "text"
+								},
+								{
+									"key": "batch_id",
+									"value": "{{batch_id}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dataProxyBaseUrl}}/batch/import",
+							"host": [
+								"{{dataProxyBaseUrl}}"
+							],
+							"path": [
+								"batch",
+								"import"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set('folder_name','CSV batch import')"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		}
