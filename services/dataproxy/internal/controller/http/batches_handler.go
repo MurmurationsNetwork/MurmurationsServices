@@ -131,7 +131,11 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 		return
 	}
 
-	line, err := handler.batchUsecase.Edit(schemas, records, userId, batchId)
+	// process Meta
+	metaName := c.PostForm("meta_name")
+	metaUrl := c.PostForm("meta_url")
+
+	line, err := handler.batchUsecase.Edit(schemas, records, userId, batchId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + ", Batch Id: " + batchId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
@@ -16,7 +15,7 @@ import (
 type BatchUsecase interface {
 	Validate([]string, [][]string) (int, error)
 	Import([]string, [][]string, string, string, string) (string, int, error)
-	Edit([]string, [][]string, string, string) (int, error)
+	Edit([]string, [][]string, string, string, string, string) (int, error)
 	Delete(string, string) error
 }
 
@@ -129,7 +128,7 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 	return batchId, -1, nil
 }
 
-func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string, batchId string) (int, error) {
+func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
 	if len(records) > 1001 {
 		return -1, errors.New("CSV rows can't be larger than 1,000")
 	}
@@ -165,6 +164,19 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 		profile["source_data_hash"] = profileHash
 		profile["batch_id"] = batchId
 
+		// add metadata
+		if metaName != "" && metaUrl != "" {
+			metadata := map[string]interface{}{
+				"sources": []map[string]interface{}{
+					{
+						"name": metaName,
+						"url":  metaUrl,
+					},
+				},
+			}
+			profile["metadata"] = metadata
+		}
+
 		// check if profile exists in mongo
 		_, ok := profileOidsAndHashes[profile["oid"].(string)]
 		var profileCuid string
@@ -172,11 +184,9 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 			profileCuid = profileOidsAndHashes[profile["oid"].(string)][0]
 			// if current profile's oid and profile_hash match the data in mongo, skip it
 			if profileOidsAndHashes[profile["oid"].(string)][1] == profileHash {
-				fmt.Println("skip")
 				continue
 			}
 			// update profile to Mongo
-			fmt.Println(profileCuid)
 			err = s.batchRepo.UpdateProfile(profileCuid, profile)
 			if err != nil {
 				return line, err
