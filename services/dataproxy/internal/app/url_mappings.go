@@ -24,7 +24,7 @@ func mapUrls(router *gin.Engine) {
 		// for csv batch import
 		v1.POST("/batch/validate", batchesHandler.Validate)
 		v1.POST("/batch/import", batchesHandler.Import)
-		v1.PATCH("/batch/import", batchesHandler.Edit)
+		v1.PUT("/batch/import", batchesHandler.Edit)
 		v1.DELETE("/batch/import", batchesHandler.Delete)
 	}
 }
