@@ -6,7 +6,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
 	"github.com/lucsky/cuid"
-	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -322,6 +321,7 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 	// sort the keys
 	sort.Strings(keys)
 	profile := make(map[string]interface{})
+	var err error
 	for _, k := range keys {
 		value := rawProfile[k]
 		if k == "oid" {
@@ -329,7 +329,10 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 			continue
 		}
 		if value != "" {
-			profile = destructField(profile, k, value)
+			profile, err = destructField(profile, k, value)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -339,7 +342,7 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 }
 
 // destruct field name and save field value to profile data structure
-func destructField(profile map[string]interface{}, field string, value string) map[string]interface{} {
+func destructField(profile map[string]interface{}, field string, value string) (map[string]interface{}, error) {
 	// destruct field name
 	// e.g. "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
 	fieldName := strings.Split(field, ".")
@@ -374,10 +377,12 @@ func destructField(profile map[string]interface{}, field string, value string) m
 				if _, ok := current[path[i]]; !ok {
 					current[path[i]] = make([]map[string]interface{}, 0)
 				}
+				if _, ok := current[path[i]].([]map[string]interface{}); !ok {
+					return nil, errors.New("Check if the fields are duplicated or have different types of fields with the same name. Invalid field name: " + field)
+				}
 				if len(current[path[i]].([]map[string]interface{})) <= arrayNum {
 					current[path[i]] = append(current[path[i]].([]map[string]interface{}), make(map[string]interface{}))
 				}
-				// todo: need type protection
 				current = current[path[i]].([]map[string]interface{})[arrayNum]
 				continue
 			}
@@ -390,11 +395,13 @@ func destructField(profile map[string]interface{}, field string, value string) m
 		if _, ok := current[p]; !ok {
 			current[p] = make(map[string]interface{})
 		}
-		// todo: need type protection
+		if _, ok := current[p].(map[string]interface{}); !ok {
+			return nil, errors.New("Check if the fields are duplicated or have different types of fields with the same name. Invalid field name: " + field)
+		}
 		current = current[p].(map[string]interface{})
 	}
 
-	return profile
+	return profile, nil
 }
 
 func destructValue(value string) interface{} {
@@ -413,14 +420,4 @@ func destructValue(value string) interface{} {
 		return value
 	}
 	return integer
-}
-
-func getGeolocation(geolocation string) (float64, error) {
-	precision := math.Pow(10, float64(8))
-	float, err := strconv.ParseFloat(geolocation, 64)
-	if err != nil {
-		return 0, err
-	}
-	truncatedValue := math.Round(float*precision) / precision
-	return truncatedValue, nil
 }
