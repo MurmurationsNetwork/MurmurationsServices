@@ -178,12 +178,14 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 		}
 
 		// check if profile exists in mongo
-		_, ok := profileOidsAndHashes[profile["oid"].(string)]
+		oid := profile["oid"].(string)
+		_, ok := profileOidsAndHashes[oid]
 		var profileCuid string
 		if ok {
-			profileCuid = profileOidsAndHashes[profile["oid"].(string)][0]
+			profileCuid = profileOidsAndHashes[oid][0]
 			// if current profile's oid and profile_hash match the data in mongo, skip it
-			if profileOidsAndHashes[profile["oid"].(string)][1] == profileHash {
+			if profileOidsAndHashes[oid][1] == profileHash {
+				delete(profileOidsAndHashes, oid)
 				continue
 			}
 			// update profile to Mongo
@@ -192,7 +194,7 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 				return line, err
 			}
 			// delete oid from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
-			delete(profileOidsAndHashes, profile["oid"].(string))
+			delete(profileOidsAndHashes, oid)
 		} else {
 			// if profile doesn't have cuid, generate one
 			profileCuid = cuid.New()
@@ -311,87 +313,106 @@ func csvToMap(records [][]string) []map[string]string {
 
 // convert one-to-one map[string]string to profile data structure
 func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]interface{}, error) {
+	// sort rawProfile by key
+	keys := make([]string, 0, len(rawProfile))
+	for k := range rawProfile {
+		keys = append(keys, k)
+	}
+
+	// sort the keys
+	sort.Strings(keys)
 	profile := make(map[string]interface{})
-	// handle geolocation
-	if rawProfile["lat"] != "" && rawProfile["lon"] != "" {
-		geolocation := make(map[string]float64)
-		lat, err := getGeolocation(rawProfile["lat"])
-		if err != nil {
-			return nil, errors.New("parse location failed, err: " + err.Error())
+	for _, k := range keys {
+		value := rawProfile[k]
+		if k == "oid" {
+			profile["oid"] = value
+			continue
 		}
-		lon, err := getGeolocation(rawProfile["lon"])
-		if err != nil {
-			return nil, errors.New("parse location failed, err: " + err.Error())
+		if value != "" {
+			profile = destructField(profile, k, value)
 		}
-		geolocation["lat"] = lat
-		geolocation["lon"] = lon
-		profile["geolocation"] = geolocation
-	}
-	delete(rawProfile, "lat")
-	delete(rawProfile, "lon")
-
-	// parse field name with hyphen, including array and array-object
-	// array example: "tags-1" will be parsed to arrayFields["tags"] = value
-	// array-object example: "urls-1-name" will be parsed to arrayObjectFields["urls"] = ["1-name"]
-	arrayFields := make(map[string][]string)
-	arrayObjectFields := make(map[string][]string)
-	for key, value := range rawProfile {
-		if strings.Contains(key, "-") {
-			// one hyphen means it's an array field
-			// delete the field from rawProfile, because we already save value to arrayFields
-			hyphenIndex := strings.Index(key, "-")
-			if strings.Count(key, "-") == 1 {
-				arrayField := key[:hyphenIndex]
-				arrayFields[arrayField] = append(arrayFields[arrayField], value)
-				delete(rawProfile, key)
-			} else if strings.Count(key, "-") == 2 {
-				// handle array-object - two hyphens
-				arrayField := key[:hyphenIndex]
-				arrayFieldValue := key[hyphenIndex+1:]
-				arrayObjectFields[arrayField] = append(arrayObjectFields[arrayField], arrayFieldValue)
-			}
-			// if there are more than three hyphens, it's not a valid field name, we will directly save it later.
-		}
-	}
-
-	// handle array field
-	for key, value := range arrayFields {
-		profile[key] = value
-	}
-
-	// handle array-object field
-	// it will sort arrayObjectFields by array number, combine them together if the number is the same
-	for index, arrayObjectField := range arrayObjectFields {
-		sort.Strings(arrayObjectField)
-		currentNum := ""
-		var objects []map[string]string
-		object := make(map[string]string)
-		for _, fieldName := range arrayObjectField {
-			arrayNumIndex := strings.Index(fieldName, "-")
-			arrayNum := fieldName[:arrayNumIndex]
-			arrayVal := fieldName[arrayNumIndex+1:]
-			if currentNum != "" && currentNum != arrayNum {
-				objects = append(objects, object)
-				object = make(map[string]string)
-			}
-			currentNum = arrayNum
-			object[arrayVal] = rawProfile[index+"-"+fieldName]
-
-			// after process data, remove from profile
-			delete(rawProfile, index+"-"+fieldName)
-		}
-		objects = append(objects, object)
-		profile[index] = objects
-	}
-
-	// handle rest of data
-	for key, value := range rawProfile {
-		profile[key] = value
 	}
 
 	// put schema here
 	profile["linked_schemas"] = schemas
 	return profile, nil
+}
+
+// destruct field name and save field value to profile data structure
+func destructField(profile map[string]interface{}, field string, value string) map[string]interface{} {
+	// destruct field name
+	// e.g. "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
+	fieldName := strings.Split(field, ".")
+	var path []string
+	for _, p := range fieldName {
+		if i := strings.IndexByte(p, '['); i != -1 {
+			index := strings.Trim(p[i:], "[]")
+			path = append(path, p[:i], index)
+		} else {
+			path = append(path, p)
+		}
+	}
+	current := profile
+	for i, p := range path {
+		// if the current path is a number, skip it, because it's already handled in the previous loop
+		if _, err := strconv.Atoi(p); err == nil {
+			continue
+		}
+		// if the next path is a number, and it's the last element, it means it's an array
+		if i == len(path)-2 {
+			if _, err := strconv.Atoi(path[i+1]); err == nil {
+				if _, ok := current[path[i]]; !ok {
+					current[path[i]] = make([]interface{}, 0)
+				}
+				current[path[i]] = append(current[path[i]].([]interface{}), destructValue(value))
+				break
+			}
+		}
+		// if the next path is a number, it means it's an array-object
+		if i+1 < len(path) {
+			if arrayNum, err := strconv.Atoi(path[i+1]); err == nil {
+				if _, ok := current[path[i]]; !ok {
+					current[path[i]] = make([]map[string]interface{}, 0)
+				}
+				if len(current[path[i]].([]map[string]interface{})) <= arrayNum {
+					current[path[i]] = append(current[path[i]].([]map[string]interface{}), make(map[string]interface{}))
+				}
+				// todo: need type protection
+				current = current[path[i]].([]map[string]interface{})[arrayNum]
+				continue
+			}
+		}
+		// if the last element, put value into it.
+		if i == len(path)-1 {
+			current[p] = destructValue(value)
+			break
+		}
+		if _, ok := current[p]; !ok {
+			current[p] = make(map[string]interface{})
+		}
+		// todo: need type protection
+		current = current[p].(map[string]interface{})
+	}
+
+	return profile
+}
+
+func destructValue(value string) interface{} {
+	// if the string has dot, it means it's possible a float number
+	// if not, it's possible an int number
+	// in other cases, it's a string
+	if strings.Contains(value, ".") {
+		float, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return value
+		}
+		return float
+	}
+	integer, err := strconv.Atoi(value)
+	if err != nil {
+		return value
+	}
+	return integer
 }
 
 func getGeolocation(geolocation string) (float64, error) {
