@@ -75,6 +75,16 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 			return batchId, line, err
 		}
 
+		// validate data, once it has error response error
+		validateUrl := config.Conf.Index.URL + "/v2/validate"
+		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
+		if err != nil {
+			return batchId, line, err
+		}
+		if !isValid {
+			return batchId, line, errors.New(failureReasons)
+		}
+
 		// hash profile
 		profileHash, err := importutil.HashProfile(profile)
 		if err != nil {
