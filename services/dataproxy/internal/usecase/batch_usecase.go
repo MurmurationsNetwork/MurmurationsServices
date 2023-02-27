@@ -314,8 +314,17 @@ func csvToMap(records [][]string) []map[string]string {
 func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]interface{}, error) {
 	// sort rawProfile by key
 	keys := make([]string, 0, len(rawProfile))
+	// validate oid field
+	hasOid := false
 	for k := range rawProfile {
+		if k == "oid" {
+			hasOid = true
+		}
 		keys = append(keys, k)
+	}
+
+	if !hasOid {
+		return nil, errors.New("oid field is required")
 	}
 
 	// sort the keys
