@@ -100,7 +100,7 @@ func (r *batchRepository) GetProfilesByBatchId(batchId string) ([]map[string]int
 
 func (r *batchRepository) GetProfileOidsAndHashesByBatchId(batchId string) (map[string][2]string, error) {
 	filter := bson.M{"batch_id": batchId}
-	opts := options.Find().SetProjection(bson.D{{"_id", 0}, {"oid", 1}, {"cuid", 1}, {"source_data_hash", 1}})
+	opts := options.Find().SetProjection(bson.D{{Key: "_id", Value: 0}, {Key: "oid", Value: 1}, {Key: "cuid", Value: 1}, {Key: "source_data_hash", Value: 1}})
 	cursor, err := mongo.Client.Find(constant.MongoIndex.Profile, filter, opts)
 	if err != nil {
 		return nil, err
