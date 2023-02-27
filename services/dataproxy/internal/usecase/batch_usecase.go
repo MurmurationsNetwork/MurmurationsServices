@@ -402,6 +402,9 @@ func destructField(profile map[string]interface{}, field string, value string) (
 				if len(current[path[i]].([]map[string]interface{})) <= arrayNum {
 					current[path[i]] = append(current[path[i]].([]map[string]interface{}), make(map[string]interface{}))
 				}
+				if len(current[path[i]].([]map[string]interface{}))-1 != arrayNum {
+					return nil, errors.New("Check the filed name's array number is sequential and start from 0. Invalid field name: " + field)
+				}
 				current = current[path[i]].([]map[string]interface{})[arrayNum]
 				continue
 			}
