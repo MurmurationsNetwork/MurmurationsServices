@@ -90,7 +90,8 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	batchId, line, err := handler.batchUsecase.Import(schemas, records, userId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Import Failed"}, []string{"Failed to import line " + strconv.Itoa(line) + ", Batch Id: " + batchId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
-		res := jsonapi.Response(nil, errors, nil, nil)
+		meta := jsonapi.NewBatchMeta("", batchId)
+		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
 		return
 	}
@@ -138,7 +139,8 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	line, err := handler.batchUsecase.Edit(schemas, records, userId, batchId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + ", Batch Id: " + batchId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
-		res := jsonapi.Response(nil, errors, nil, nil)
+		meta := jsonapi.NewBatchMeta("", batchId)
+		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
 		return
 	}
@@ -169,7 +171,8 @@ func (handler *batchesHandler) Delete(c *gin.Context) {
 	err := handler.batchUsecase.Delete(userId, batchId)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"Delete Import Failed"}, []string{"Failed to delete import, Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
-		res := jsonapi.Response(nil, errors, nil, nil)
+		meta := jsonapi.NewBatchMeta("", batchId)
+		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
 		return
 	}
