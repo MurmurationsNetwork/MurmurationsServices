@@ -79,7 +79,6 @@ func (handler *batchesHandler) Validate(c *gin.Context) {
 }
 
 func (handler *batchesHandler) Import(c *gin.Context) {
-	// todo: we might need to validate the excel before import
 	// todo: we might need to validate user id from DB: but it costs more time to validate user id
 
 	// user_id is 25 characters long(cuid format)
@@ -105,7 +104,7 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 		return
 	}
 
-	// process Meta
+	// get meta and pass to profile data
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
@@ -154,7 +153,7 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 		return
 	}
 
-	// process Meta
+	// get meta and pass to profile data
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
