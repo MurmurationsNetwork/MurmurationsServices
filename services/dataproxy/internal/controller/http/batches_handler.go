@@ -12,6 +12,7 @@ import (
 )
 
 type BatchesHandler interface {
+	GetBatchesByUserID(c *gin.Context)
 	Validate(c *gin.Context)
 	Import(c *gin.Context)
 	Edit(c *gin.Context)
@@ -26,6 +27,27 @@ func NewBatchesHandler(batchService usecase.BatchUsecase) BatchesHandler {
 	return &batchesHandler{
 		batchUsecase: batchService,
 	}
+}
+
+func (handler *batchesHandler) GetBatchesByUserID(c *gin.Context) {
+	userId := c.Query("user_id")
+	if len(userId) != 25 {
+		errors := jsonapi.NewError([]string{"Invalid User Id"}, []string{"User Id is not valid"}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	batches, err := handler.batchUsecase.GetBatchesByUserID(userId)
+	if err != nil {
+		errors := jsonapi.NewError([]string{"Get Batches Failed"}, []string{"Failed to get batches by user id: " + userId + ", Error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	res := jsonapi.Response(batches, nil, nil, nil)
+	c.JSON(http.StatusOK, res)
 }
 
 func (handler *batchesHandler) Validate(c *gin.Context) {

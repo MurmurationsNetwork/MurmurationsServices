@@ -9,6 +9,7 @@ import (
 )
 
 type BatchRepository interface {
+	GetBatchesByUserID(userId string) ([]string, error)
 	SaveUser(userId string, batchId string) error
 	SaveProfile(profile map[string]interface{}) error
 	SaveNodeId(profileId string, profile map[string]interface{}) error
@@ -28,6 +29,25 @@ func NewBatchRepository() BatchRepository {
 	return &batchRepository{}
 }
 
+func (r *batchRepository) GetBatchesByUserID(userId string) ([]string, error) {
+	filter := bson.M{"user_id": userId}
+	cursor, err := mongo.Client.Find(constant.MongoIndex.Batch, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var batches []string
+	for cursor.Next(context.Background()) {
+		var batch map[string]interface{}
+		if err := cursor.Decode(&batch); err != nil {
+			return nil, err
+		}
+		batches = append(batches, batch["batch_id"].(string))
+	}
+
+	return batches, nil
+}
+
 func (r *batchRepository) SaveUser(userId string, batchId string) error {
 	doc := bson.M{
 		"user_id":  userId,
@@ -35,6 +55,7 @@ func (r *batchRepository) SaveUser(userId string, batchId string) error {
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)
 	if err != nil {
+		return err
 	}
 
 	return nil
@@ -43,6 +64,7 @@ func (r *batchRepository) SaveUser(userId string, batchId string) error {
 func (r *batchRepository) SaveProfile(profile map[string]interface{}) error {
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Profile, profile)
 	if err != nil {
+		return err
 	}
 
 	return nil
@@ -53,6 +75,7 @@ func (r *batchRepository) SaveNodeId(profileId string, profile map[string]interf
 	update := bson.M{"$set": profile}
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update)
 	if err != nil {
+		return err
 	}
 
 	return nil
