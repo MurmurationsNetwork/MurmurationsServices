@@ -2,13 +2,14 @@ package usecase
 
 import (
 	"errors"
+	"sort"
+	"strconv"
+	"strings"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
 	"github.com/lucsky/cuid"
-	"sort"
-	"strconv"
-	"strings"
 )
 
 type BatchUsecase interface {
@@ -40,7 +41,7 @@ func (s *batchUsecase) GetBatchesByUserID(userId string) ([]string, error) {
 
 func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, error) {
 	if len(records) > 1001 {
-		return -1, errors.New("CSV rows can't be larger than 1,000")
+		return -1, errors.New("the CSV file cannot contain more than 1,000 rows")
 	}
 
 	rawProfiles := csvToMap(records)
@@ -51,7 +52,7 @@ func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, erro
 			return line, err
 		}
 
-		// validate data, once it has error response error
+		// Validate data and if needed, respond with error
 		validateUrl := config.Conf.Index.URL + "/v2/validate"
 		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
 		if err != nil {
@@ -67,10 +68,10 @@ func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, erro
 
 func (s *batchUsecase) Import(schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error) {
 	if len(records) > 1001 {
-		return "", -1, errors.New("CSV rows can't be larger than 1,000")
+		return "", -1, errors.New("the CSV file cannot contain more than 1,000 rows")
 	}
 
-	// generate batch_id import using cuid and save it to mongo
+	// Generate `batch_id` using cuid and save it to MongoDB
 	batchId := cuid.New()
 	err := s.batchRepo.SaveUser(userId, batchId)
 	if err != nil {
@@ -85,7 +86,7 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 			return batchId, line, err
 		}
 
-		// validate data, once it has error response error
+		// Validate data and if needed, respond with error
 		validateUrl := config.Conf.Index.URL + "/v2/validate"
 		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
 		if err != nil {
@@ -95,14 +96,14 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 			return batchId, line, errors.New(failureReasons)
 		}
 
-		// hash profile
+		// Hash profile
 		profileHash, err := importutil.HashProfile(profile)
 		if err != nil {
 			return batchId, line, err
 		}
 		profile["source_data_hash"] = profileHash
 
-		// add metadata
+		// Add metadata
 		if metaName != "" && metaUrl != "" {
 			metadata := map[string]interface{}{
 				"sources": []map[string]interface{}{
@@ -117,17 +118,17 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 
 		profile["batch_id"] = batchId
 
-		// generate cuid for profile
+		// Generate cuid for profile
 		profileCuid := cuid.New()
 		profile["cuid"] = profileCuid
 
-		// import profile to Mongo
+		// Import profile to MongoDB
 		err = s.batchRepo.SaveProfile(profile)
 		if err != nil {
 			return batchId, line, err
 		}
 
-		// import profile to MurmurationsServices Index
+		// Import profile to Index
 		postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
@@ -135,7 +136,7 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 			return batchId, line, errors.New("Import to MurmurationsServices Index failed: " + err.Error())
 		}
 
-		// save node_id to mongo
+		// Save `node_id` to MongoDB
 		profile["node_id"] = nodeId
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
@@ -149,19 +150,19 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 
 func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
 	if len(records) > 1001 {
-		return -1, errors.New("CSV rows can't be larger than 1,000")
+		return -1, errors.New("the CSV file cannot contain more than 1,000 rows")
 	}
 
-	// check if batch_id belongs to user
+	// Check if `batch_id` belongs to user
 	isValid, err := s.batchRepo.CheckUser(userId, batchId)
 	if err != nil {
 		return -1, err
 	}
 	if !isValid {
-		return -1, errors.New("batch_id doesn't belong to user")
+		return -1, errors.New("the `batch_id` doesn't belong to the specified user")
 	}
 
-	// get profile oid, cuid hash by batch_id
+	// Get profile `oid`, cuid and hash by `batch_id`
 	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchId(batchId)
 	if err != nil {
 		return -1, err
@@ -175,7 +176,7 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 			return line, err
 		}
 
-		// hash profile
+		// Hash profile
 		profileHash, err := importutil.HashProfile(profile)
 		if err != nil {
 			return line, err
@@ -183,7 +184,7 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 		profile["source_data_hash"] = profileHash
 		profile["batch_id"] = batchId
 
-		// add metadata
+		// Add metadata
 		if metaName != "" && metaUrl != "" {
 			metadata := map[string]interface{}{
 				"sources": []map[string]interface{}{
@@ -196,72 +197,75 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 			profile["metadata"] = metadata
 		}
 
-		// check if profile exists in mongo
+		// Check if profile exists in MongoDB
 		oid := profile["oid"].(string)
 		_, ok := profileOidsAndHashes[oid]
 		var profileCuid string
 		if ok {
 			profileCuid = profileOidsAndHashes[oid][0]
-			// if current profile's oid and profile_hash match the data in mongo, skip it
+			// If current profile's `oid` and `profile_hash` match the data in MongoDB, skip it
 			if profileOidsAndHashes[oid][1] == profileHash {
 				delete(profileOidsAndHashes, oid)
 				continue
 			}
-			// update profile to Mongo
+			// Otherwise update the profile in MongoDB
 			err = s.batchRepo.UpdateProfile(profileCuid, profile)
 			if err != nil {
 				return line, err
 			}
-			// delete oid from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
+			// Delete `oid` from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
 			delete(profileOidsAndHashes, oid)
 		} else {
-			// if profile doesn't have cuid, generate one
+			// If profile doesn't have cuid, generate one
 			profileCuid = cuid.New()
 			profile["cuid"] = profileCuid
 
-			// import profile to Mongo
+			// Import profile to MongoDB
 			err = s.batchRepo.SaveProfile(profile)
 			if err != nil {
 				return line, err
 			}
 		}
 
-		// import profile to MurmurationsServices Index
+		// Import profile to Index
 		postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 		if err != nil {
-			return line, errors.New("Import to MurmurationsServices Index failed: " + err.Error())
+			return line, errors.New("Import to Index failed: " + err.Error())
 		}
 
-		// save node_id to mongo
+		// Save `node_id` to MongoDB
 		profile["node_id"] = nodeId
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
 		if err != nil {
-			return line, errors.New("Save node_id to Mongo failed: " + err.Error())
+			return line, errors.New("Save node_id to MongoDB failed: " + err.Error())
 		}
 	}
 
-	// rest of data which are not in the csv file needs to be deleted
+	// The rest of the profiles which are not in the CSV file need to be deleted
 	if len(profileOidsAndHashes) > 0 {
 		for _, cuidAndHash := range profileOidsAndHashes {
-			// get profile by cuid
+			// Get profile by cuid
 			profile, err := s.batchRepo.GetProfileByCuid(cuidAndHash[0])
+			if err != nil {
+				return -1, err
+			}
 
-			// delete profiles from mongo
+			// Delete profiles from mongo
 			err = s.batchRepo.DeleteProfileByCuid(cuidAndHash[0])
 			if err != nil {
 				return -1, err
 			}
 
-			// delete profiles from MurmurationsServices Index
+			// Delete profiles from Index
 			if profile["is_posted"].(bool) {
 				nodeId := profile["node_id"].(string)
 				deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + nodeId
 				err := importutil.DeleteIndex(deleteNodeUrl, nodeId)
 				if err != nil {
-					return -1, errors.New("Delete from MurmurationsServices Index failed: " + err.Error())
+					return -1, errors.New("Delete from Index failed: " + err.Error())
 				}
 			}
 		}
@@ -271,7 +275,7 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 }
 
 func (s *batchUsecase) Delete(userId string, batchId string) error {
-	// check if batch_id belongs to user
+	// Check if `batch_id` belongs to user
 	isValid, err := s.batchRepo.CheckUser(userId, batchId)
 	if err != nil {
 		return err
@@ -280,19 +284,19 @@ func (s *batchUsecase) Delete(userId string, batchId string) error {
 		return errors.New("batch_id doesn't belong to user")
 	}
 
-	// get profiles by batch_id
+	// Get profiles by batch_id
 	profiles, err := s.batchRepo.GetProfilesByBatchId(batchId)
 	if err != nil {
 		return err
 	}
 
-	// delete profiles from mongo
+	// Delete profiles from MongoDB
 	err = s.batchRepo.DeleteProfilesByBatchId(batchId)
 	if err != nil {
 		return err
 	}
 
-	// delete profiles from MurmurationsServices Index
+	// Delete profiles from Index
 	for _, profile := range profiles {
 		if profile["is_posted"].(bool) {
 			nodeId := profile["node_id"].(string)
@@ -304,7 +308,7 @@ func (s *batchUsecase) Delete(userId string, batchId string) error {
 		}
 	}
 
-	// delete batch_id from mongo
+	// Delete batch_id from MongoDB
 	err = s.batchRepo.DeleteBatchId(batchId)
 	if err != nil {
 		return err
@@ -313,7 +317,7 @@ func (s *batchUsecase) Delete(userId string, batchId string) error {
 	return nil
 }
 
-// convert csv to one-to-one map[string]string
+// Convert csv to one-to-one map[string]string
 func csvToMap(records [][]string) []map[string]string {
 	csvHeader := records[0]
 	var rawProfiles []map[string]string
@@ -330,11 +334,11 @@ func csvToMap(records [][]string) []map[string]string {
 	return rawProfiles
 }
 
-// convert one-to-one map[string]string to profile data structure
+// Convert one-to-one map[string]string to profile data structure
 func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]interface{}, error) {
-	// sort rawProfile by key
+	// Sort rawProfile by key
 	keys := make([]string, 0, len(rawProfile))
-	// validate oid field
+	// Validate `oid` field
 	hasOid := false
 	for k := range rawProfile {
 		if k == "oid" {
@@ -344,10 +348,10 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 	}
 
 	if !hasOid {
-		return nil, errors.New("oid field is required")
+		return nil, errors.New("the `oid` field is required")
 	}
 
-	// sort the keys
+	// Sort the keys
 	sort.Strings(keys)
 	profile := make(map[string]interface{})
 	var err error
@@ -365,15 +369,15 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 		}
 	}
 
-	// put schema here
+	// Put schema here
 	profile["linked_schemas"] = schemas
 	return profile, nil
 }
 
-// destruct field name and save field value to profile data structure
+// Destructure field name and save field value to profile data structure
 func destructField(profile map[string]interface{}, field string, value string) (map[string]interface{}, error) {
-	// destruct field name
-	// e.g. "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
+	// Destructure field name
+	// e.g., "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
 	fieldName := strings.Split(field, ".")
 	var path []string
 	for _, p := range fieldName {
@@ -386,11 +390,11 @@ func destructField(profile map[string]interface{}, field string, value string) (
 	}
 	current := profile
 	for i, p := range path {
-		// if the current path is a number, skip it, because it's already handled in the previous loop
+		// If the current path is a number, skip it, because it's already handled in the previous loop
 		if _, err := strconv.Atoi(p); err == nil {
 			continue
 		}
-		// if the next path is a number, and it's the last element, it means it's an array
+		// If the next path is a number, and it's the last element, it means it's an array
 		if i == len(path)-2 {
 			if _, err := strconv.Atoi(path[i+1]); err == nil {
 				if _, ok := current[path[i]]; !ok {
@@ -400,7 +404,7 @@ func destructField(profile map[string]interface{}, field string, value string) (
 				break
 			}
 		}
-		// if the next path is a number, it means it's an array-object
+		// If the next path is a number, it means it's an array-object
 		if i+1 < len(path) {
 			if arrayNum, err := strconv.Atoi(path[i+1]); err == nil {
 				if _, ok := current[path[i]]; !ok {
@@ -413,13 +417,13 @@ func destructField(profile map[string]interface{}, field string, value string) (
 					current[path[i]] = append(current[path[i]].([]map[string]interface{}), make(map[string]interface{}))
 				}
 				if len(current[path[i]].([]map[string]interface{}))-1 != arrayNum {
-					return nil, errors.New("Check the filed name's array number is sequential and start from 0. Invalid field name: " + field)
+					return nil, errors.New("Check the field name's array number is sequential and starts from 0. Invalid field name: " + field)
 				}
 				current = current[path[i]].([]map[string]interface{})[arrayNum]
 				continue
 			}
 		}
-		// if the last element, put value into it.
+		// If the last element, put value into it.
 		if i == len(path)-1 {
 			current[p] = destructValue(value)
 			break
@@ -437,9 +441,9 @@ func destructField(profile map[string]interface{}, field string, value string) (
 }
 
 func destructValue(value string) interface{} {
-	// if the string has dot, it means it's possible a float number
-	// if not, it's possible an int number
-	// in other cases, it's a string
+	// If the string has a dot, it means it's possibly a float number
+	// If not, it's possible an int number
+	// In all other cases, it's a string
 	if strings.Contains(value, ".") {
 		float, err := strconv.ParseFloat(value, 64)
 		if err != nil {

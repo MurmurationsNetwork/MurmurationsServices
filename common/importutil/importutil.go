@@ -6,16 +6,17 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"math"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var KvmCategory = map[string]string{
@@ -40,14 +41,14 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	result := mongo.Client.FindOne(constant.MongoIndex.Mapping, filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("could not find mapping for schema %s", schemaName)
+			return nil, fmt.Errorf("Could not find mapping for the following schema: %s", schemaName)
 		}
-		return nil, fmt.Errorf("error when trying to find the mapping, error message: %s", result.Err())
+		return nil, fmt.Errorf("Error when trying to find schema mapping; error message: %s", result.Err())
 	}
 	schemaRaw := make(map[string]interface{})
 	err := result.Decode(schemaRaw)
 	if err != nil {
-		return nil, fmt.Errorf("error when trying to parse database response, error message: %s", err)
+		return nil, fmt.Errorf("Error when trying to parse database response; error message: %s", err)
 	}
 
 	// remove id and __v
@@ -83,15 +84,14 @@ func MapFieldsName(profile map[string]interface{}, mapping map[string]string) ma
 		if profile[v] == nil || profile[v] == "" {
 			continue
 		}
-		// todo: temporary fix latitude & longitude, will delete them in the future
+		// Truncate latitude & longitude after the 8th decimal place since extra precision is superfluous
 		if k == "latitude" || k == "longitude" {
-			// set precision to 8
 			precision := math.Pow(10, float64(8))
 			truncatedValue := math.Round(profile[v].(float64)*precision) / precision
 			profileJson[k] = truncatedValue
 			continue
 		}
-		// todo: temporary fix extra space in the string, might delete them in the future
+		// Trim extra space (except in tags and kvm_category)
 		if k != "tags" && k != "kvm_category" {
 			profileJson[k] = strings.TrimSpace(profile[v].(string))
 			continue
@@ -103,10 +103,10 @@ func MapFieldsName(profile map[string]interface{}, mapping map[string]string) ma
 }
 
 func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) (map[string]interface{}, error) {
-	// change field name
+	// Convert KVM field names to Org Schema field names
 	profileJson := MapFieldsName(profile, mapping)
 
-	// hash the updated data
+	// Hash the updated data
 	profileHash, err := HashProfile(profileJson)
 	if err != nil {
 		return nil, err
@@ -114,14 +114,12 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 
 	// hash
 	profileJson["source_data_hash"] = profileHash
-
 	// oid
 	profileJson["oid"] = profile["id"]
 	// schema
 	s := []string{schema}
 	profileJson["linked_schemas"] = s
 	// metadata
-	// todo: seeder's access_time might need to set as "1646697600"
 	metadata := map[string]interface{}{
 		"sources": []map[string]interface{}{
 			{
@@ -134,7 +132,7 @@ func MapProfile(profile map[string]interface{}, mapping map[string]string, schem
 	}
 	profileJson["metadata"] = metadata
 
-	// replace kvm_category with real name
+	// Replace kvm_category with real name
 	if profileJson["kvm_category"] != nil {
 		categoriesInterface := profileJson["kvm_category"].([]interface{})
 		categoriesString := make([]string, len(categoriesInterface))
@@ -192,7 +190,7 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 	postProfile["profile_url"] = profileUrl
 	postProfileJson, err := json.Marshal(postProfile)
 	if err != nil {
-		errStr := "error when trying to marshal a profile, url: " + postProfile["profile_url"]
+		errStr := "Error when trying to marshal a profile at `profile_url`: " + postProfile["profile_url"]
 		logger.Error(errStr, err)
 	}
 	res, err := http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
@@ -208,12 +206,12 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 				errors = append(errors, fmt.Sprintf("%#v", item))
 			}
 			errorsStr := strings.Join(errors, ",")
-			return "", fmt.Errorf("post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"] + ", error: " + errorsStr)
+			return "", fmt.Errorf("Post failed with status code: " + strconv.Itoa(res.StatusCode) + " at `profile_url`: " + postProfile["profile_url"] + " with error: " + errorsStr)
 		}
-		return "", fmt.Errorf("post failed, the status code is " + strconv.Itoa(res.StatusCode) + ", url: " + postProfile["profile_url"])
+		return "", fmt.Errorf("Post failed with status code: " + strconv.Itoa(res.StatusCode) + "at `profile_url`: " + postProfile["profile_url"])
 	}
 
-	// get post node body response
+	// Get POST /node body response
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", err
@@ -250,9 +248,9 @@ func DeleteIndex(deleteNodeUrl string, nodeId string) error {
 				errors = append(errors, fmt.Sprintf("%#v", item))
 			}
 			errorsStr := strings.Join(errors, ",")
-			return fmt.Errorf("delete failed, the status code is " + strconv.Itoa(res.StatusCode) + ", node_id: " + nodeId + ", error: " + errorsStr)
+			return fmt.Errorf("Delete failed with status code: " + strconv.Itoa(res.StatusCode) + " for `node_id`: " + nodeId + " with error: " + errorsStr)
 		}
-		return fmt.Errorf("delete failed, the status code is " + strconv.Itoa(res.StatusCode) + ", node_id: " + nodeId)
+		return fmt.Errorf("Delete failed with status code: " + strconv.Itoa(res.StatusCode) + " for `node_id`: " + nodeId)
 	}
 	return nil
 }
