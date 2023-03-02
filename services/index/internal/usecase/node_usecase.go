@@ -50,11 +50,8 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 		return nil, err
 	}
 	if oldNode != nil && oldNode.Status == constant.NodeStatus.Deleted {
-		res, err := httputil.Get(node.ProfileURL)
-		if err != nil {
-			return nil, jsonapi.NewError([]string{"Invalid Profile URL"}, []string{fmt.Sprintf("The profile URL `%s` is invalid.", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
-		}
-		if res.StatusCode != 200 {
+		isValid := httputil.IsValidURL(node.ProfileURL)
+		if !isValid {
 			return oldNode, nil
 		}
 	}
