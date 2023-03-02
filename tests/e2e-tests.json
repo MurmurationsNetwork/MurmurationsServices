@@ -3403,6 +3403,11 @@
 							"mode": "formdata",
 							"formdata": [
 								{
+									"key": "title",
+									"value": "Test",
+									"type": "text"
+								},
+								{
 									"key": "file",
 									"type": "file",
 									"src": "./tests/organizations_schema-v1.0.0-example-import.csv"

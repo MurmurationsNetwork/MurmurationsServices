@@ -15,7 +15,7 @@ import (
 type BatchUsecase interface {
 	GetBatchesByUserID(string) ([]string, error)
 	Validate([]string, [][]string) (int, error)
-	Import([]string, [][]string, string, string, string) (string, int, error)
+	Import(string, []string, [][]string, string, string, string) (string, int, error)
 	Edit([]string, [][]string, string, string, string, string) (int, error)
 	Delete(string, string) error
 }
@@ -66,14 +66,14 @@ func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, erro
 	return -1, nil
 }
 
-func (s *batchUsecase) Import(schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error) {
+func (s *batchUsecase) Import(title string, schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error) {
 	if len(records) > 1001 {
 		return "", -1, errors.New("the CSV file cannot contain more than 1,000 rows")
 	}
 
 	// Generate `batch_id` using cuid and save it to MongoDB
 	batchId := cuid.New()
-	err := s.batchRepo.SaveUser(userId, batchId)
+	err := s.batchRepo.SaveUser(userId, title, batchId)
 	if err != nil {
 		return batchId, -1, err
 	}

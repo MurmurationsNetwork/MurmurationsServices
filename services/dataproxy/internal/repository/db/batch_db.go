@@ -10,7 +10,7 @@ import (
 
 type BatchRepository interface {
 	GetBatchesByUserID(userId string) ([]string, error)
-	SaveUser(userId string, batchId string) error
+	SaveUser(userId string, batchTitle string, batchId string) error
 	SaveProfile(profile map[string]interface{}) error
 	SaveNodeId(profileId string, profile map[string]interface{}) error
 	CheckUser(userId string, batchId string) (bool, error)
@@ -48,9 +48,10 @@ func (r *batchRepository) GetBatchesByUserID(userId string) ([]string, error) {
 	return batches, nil
 }
 
-func (r *batchRepository) SaveUser(userId string, batchId string) error {
+func (r *batchRepository) SaveUser(userId string, batchTitle string, batchId string) error {
 	doc := bson.M{
 		"user_id":  userId,
+		"title":    batchTitle,
 		"batch_id": batchId,
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)

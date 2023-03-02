@@ -82,6 +82,15 @@ func (handler *batchesHandler) Validate(c *gin.Context) {
 func (handler *batchesHandler) Import(c *gin.Context) {
 	// TODO: We need to validate `user_id` from DB
 
+	// batch title is required
+	title := c.PostForm("title")
+	if title == "" {
+		errors := jsonapi.NewError([]string{"Missing `title`"}, []string{"The `title` is required."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
 	// The `user_id` is 25 characters long (cuid format)
 	userId := c.PostForm("user_id")
 	if len(userId) != 25 {
@@ -109,7 +118,7 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	batchId, line, err := handler.batchUsecase.Import(schemas, records, userId, metaName, metaUrl)
+	batchId, line, err := handler.batchUsecase.Import(title, schemas, records, userId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Import Failed"}, []string{"Failed to import line " + strconv.Itoa(line) + " in `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		meta := jsonapi.NewBatchMeta("", batchId)
