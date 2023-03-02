@@ -104,13 +104,18 @@ func (s *batchUsecase) Import(schemas []string, records [][]string, userId strin
 		profile["source_data_hash"] = profileHash
 
 		// Add metadata
-		if metaName != "" && metaUrl != "" {
+		if metaName != "" || metaUrl != "" {
+			source := make(map[string]interface{})
+			if metaName != "" {
+				source["name"] = metaName
+			}
+			if metaUrl != "" {
+				source["url"] = metaUrl
+			}
+
 			metadata := map[string]interface{}{
 				"sources": []map[string]interface{}{
-					{
-						"name": metaName,
-						"url":  metaUrl,
-					},
+					source,
 				},
 			}
 			profile["metadata"] = metadata
@@ -195,13 +200,18 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 		profile["batch_id"] = batchId
 
 		// Add metadata
-		if metaName != "" && metaUrl != "" {
+		if metaName != "" || metaUrl != "" {
+			source := make(map[string]interface{})
+			if metaName != "" {
+				source["name"] = metaName
+			}
+			if metaUrl != "" {
+				source["url"] = metaUrl
+			}
+
 			metadata := map[string]interface{}{
 				"sources": []map[string]interface{}{
-					{
-						"name": metaName,
-						"url":  metaUrl,
-					},
+					source,
 				},
 			}
 			profile["metadata"] = metadata

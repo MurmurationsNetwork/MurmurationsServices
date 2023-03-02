@@ -144,7 +144,27 @@ func (r *batchRepository) GetProfileOidsAndHashesByBatchId(batchId string) (map[
 
 func (r *batchRepository) UpdateProfile(profileId string, profile map[string]interface{}) error {
 	filter := bson.M{"cuid": profileId}
-	update := bson.M{"$set": profile}
+
+	// This part is used to remove the fields that are not in the new profile
+	// get field name from mongoDB
+	result := mongo.Client.FindOne(constant.MongoIndex.Profile, filter)
+	var oldProfile map[string]interface{}
+	if err := result.Decode(&oldProfile); err != nil {
+		return err
+	}
+	// we don't need _id, __v, cuid
+	delete(oldProfile, "_id")
+	delete(oldProfile, "__v")
+	delete(oldProfile, "cuid")
+
+	unsetKeys := make(map[string]interface{})
+	for key := range oldProfile {
+		if _, ok := profile[key]; !ok {
+			unsetKeys[key] = nil
+		}
+	}
+
+	update := bson.M{"$set": profile, "$unset": unsetKeys}
 	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update)
 	if err != nil {
 		return err
