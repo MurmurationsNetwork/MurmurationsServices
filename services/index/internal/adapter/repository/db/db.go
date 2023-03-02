@@ -29,6 +29,7 @@ import (
 
 type NodeRepository interface {
 	Add(node *entity.Node) []jsonapi.Error
+	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
 	Get(nodeID string) (*entity.Node, []jsonapi.Error)
 	Update(node *entity.Node) error
 	Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
@@ -64,6 +65,28 @@ func (r *nodeRepository) Add(node *entity.Node) []jsonapi.Error {
 	node.Version = updated.Version
 
 	return nil
+}
+
+func (r *nodeRepository) GetNode(nodeID string) (*entity.Node, []jsonapi.Error) {
+	filter := bson.M{"_id": nodeID}
+
+	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
+	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		logger.Error("Error when trying to find a node", result.Err())
+		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to find a node."}, nil, []int{http.StatusInternalServerError})
+	}
+
+	var node nodeDAO
+	err := result.Decode(&node)
+	if err != nil {
+		logger.Error("Error when trying to parse database response", result.Err())
+		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to find a node."}, nil, []int{http.StatusInternalServerError})
+	}
+
+	return node.toEntity(), nil
 }
 
 func (r *nodeRepository) Get(nodeID string) (*entity.Node, []jsonapi.Error) {

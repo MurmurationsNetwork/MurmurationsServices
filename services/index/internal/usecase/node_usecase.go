@@ -43,6 +43,22 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 	}
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+
+	// issue-425: if the node is already in the index and the status is deleted, we need to check the profile is valid or not
+	oldNode, err := s.nodeRepo.GetNode(node.ID)
+	if err != nil {
+		return nil, err
+	}
+	if oldNode != nil && oldNode.Status == constant.NodeStatus.Deleted {
+		res, err := httputil.Get(node.ProfileURL)
+		if err != nil {
+			return nil, jsonapi.NewError([]string{"Invalid Profile URL"}, []string{fmt.Sprintf("The profile URL `%s` is invalid.", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
+		}
+		if res.StatusCode != 200 {
+			return oldNode, nil
+		}
+	}
+
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()
 
