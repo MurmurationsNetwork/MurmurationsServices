@@ -176,6 +176,16 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 			return line, err
 		}
 
+		// Validate data and if needed, respond with error
+		validateUrl := config.Conf.Index.URL + "/v2/validate"
+		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
+		if err != nil {
+			return line, err
+		}
+		if !isValid {
+			return line, errors.New(failureReasons)
+		}
+
 		// Hash profile
 		profileHash, err := importutil.HashProfile(profile)
 		if err != nil {
