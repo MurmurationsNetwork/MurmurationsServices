@@ -123,7 +123,7 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	}
 
 	if resp.StatusCode == http.StatusNotFound || isJson == false {
-		if node.Status == constant.NodeStatus.Posted {
+		if node.Status == constant.NodeStatus.Posted || node.Status == constant.NodeStatus.Deleted {
 			err := s.nodeRepo.SoftDelete(node)
 			if err != nil {
 				return node.ProfileURL, err
