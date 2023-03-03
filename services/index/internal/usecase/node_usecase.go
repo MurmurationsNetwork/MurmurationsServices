@@ -43,6 +43,19 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 	}
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+
+	// issue-425: if the node is already in the index and the status is deleted, we need to check the profile is valid or not
+	oldNode, err := s.nodeRepo.GetNode(node.ID)
+	if err != nil {
+		return nil, err
+	}
+	if oldNode != nil && oldNode.Status == constant.NodeStatus.Deleted {
+		isValid := httputil.IsValidURL(node.ProfileURL)
+		if !isValid {
+			return oldNode, nil
+		}
+	}
+
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()
 
@@ -123,7 +136,7 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	}
 
 	if resp.StatusCode == http.StatusNotFound || isJson == false {
-		if node.Status == constant.NodeStatus.Posted {
+		if node.Status == constant.NodeStatus.Posted || node.Status == constant.NodeStatus.Deleted {
 			err := s.nodeRepo.SoftDelete(node)
 			if err != nil {
 				return node.ProfileURL, err

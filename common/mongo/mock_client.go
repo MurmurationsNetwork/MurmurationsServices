@@ -36,6 +36,10 @@ func (c *mockClient) DeleteOne(collection string, filter primitive.M) error {
 	return nil
 }
 
+func (c *mockClient) DeleteMany(collection string, filter primitive.M) error {
+	return nil
+}
+
 func (c *mockClient) Ping() error {
 	return nil
 }

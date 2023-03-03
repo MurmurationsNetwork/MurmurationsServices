@@ -7,15 +7,15 @@ test:
 DEPLOY_ENV ?= local
 
 ifeq ($(DEPLOY_ENV), staging)
-	ENV_FILE = e2e-staging-env.json
+	ENV_FILE = tests/e2e-staging-env.json
 else
-	ENV_FILE = e2e-local-env.json
+	ENV_FILE = tests/e2e-local-env.json
 endif
 
 # ---------------------------------------------------------------
 
 newman-test:
-	newman run e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
+	newman run tests/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
 
 # ---------------------------------------------------------------
 

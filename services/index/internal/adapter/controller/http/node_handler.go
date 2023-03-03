@@ -258,7 +258,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 			return
 		}
 
-		if nodeInfo.Status == constant.NodeStatus.Posted {
+		if nodeInfo.Status == constant.NodeStatus.Posted || nodeInfo.Status == constant.NodeStatus.Deleted {
 			res := jsonapi.Response(handler.toGetNodeVO(nodeInfo), nil, nil, nil)
 			c.JSON(http.StatusOK, res)
 			return

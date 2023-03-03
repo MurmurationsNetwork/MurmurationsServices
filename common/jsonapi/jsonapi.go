@@ -35,6 +35,7 @@ type Meta struct {
 	NumberOfResults int64         `json:"number_of_results,omitempty"`
 	TotalPages      int64         `json:"total_pages,omitempty"`
 	Sort            []interface{} `json:"sort,omitempty"`
+	BatchId         string        `json:"batch_id,omitempty"`
 }
 
 // JSON API Response Combination
@@ -165,5 +166,12 @@ func NewSearchMeta(message string, numberOfResults int64, totalPages int64) *Met
 func NewBlockSearchMeta(sort []interface{}) *Meta {
 	return &Meta{
 		Sort: sort,
+	}
+}
+
+func NewBatchMeta(message string, batchId string) *Meta {
+	return &Meta{
+		Message: message,
+		BatchId: batchId,
 	}
 }

@@ -6,10 +6,12 @@ var MongoIndex = struct {
 	Mapping string
 	Profile string
 	Update  string
+	Batch   string
 }{
 	Node:    "nodes",
 	Schema:  "schemas",
 	Mapping: "mappings",
 	Profile: "profiles",
 	Update:  "updates",
+	Batch:   "batches",
 }

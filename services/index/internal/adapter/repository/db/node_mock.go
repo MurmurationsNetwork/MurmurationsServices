@@ -12,6 +12,12 @@ func (r *mockNodeRepository) Add(node *entity.Node) []jsonapi.Error {
 	return nil
 }
 
+func (r *mockNodeRepository) GetNode(nodeID string) (*entity.Node, []jsonapi.Error) {
+	return &entity.Node{
+		ID: nodeID,
+	}, nil
+}
+
 func (r *mockNodeRepository) Get(nodeID string) (*entity.Node, []jsonapi.Error) {
 	return &entity.Node{
 		ID: nodeID,

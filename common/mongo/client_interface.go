@@ -21,6 +21,7 @@ type mongoClientInterface interface {
 	FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error)
 	Find(collection string, filter primitive.M, opts ...*options.FindOptions) (*mongo.Cursor, error)
 	DeleteOne(collection string, filter primitive.M) error
+	DeleteMany(collection string, filter primitive.M) error
 
 	Ping() error
 	Disconnect()
