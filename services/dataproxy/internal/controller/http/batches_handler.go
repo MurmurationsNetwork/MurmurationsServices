@@ -239,6 +239,10 @@ func validateCsvInputs(c *gin.Context) (*multipart.FileHeader, []string, []jsona
 	rawSchemas = strings.ReplaceAll(rawSchemas, "\"", "")
 	schemas := strings.Split(rawSchemas[1:len(rawSchemas)-1], ",")
 
+	for i := range schemas {
+		schemas[i] = strings.TrimSpace(schemas[i])
+	}
+
 	return file, schemas, nil
 }
 
