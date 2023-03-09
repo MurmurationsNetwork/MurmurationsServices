@@ -9,7 +9,7 @@ import (
 )
 
 type BatchRepository interface {
-	GetBatchesByUserID(userId string) ([]string, error)
+	GetBatchesByUserID(userId string) ([][]string, error)
 	SaveUser(userId string, batchTitle string, batchId string) error
 	SaveProfile(profile map[string]interface{}) error
 	SaveNodeId(profileId string, profile map[string]interface{}) error
@@ -29,20 +29,23 @@ func NewBatchRepository() BatchRepository {
 	return &batchRepository{}
 }
 
-func (r *batchRepository) GetBatchesByUserID(userId string) ([]string, error) {
+func (r *batchRepository) GetBatchesByUserID(userId string) ([][]string, error) {
 	filter := bson.M{"user_id": userId}
 	cursor, err := mongo.Client.Find(constant.MongoIndex.Batch, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var batches []string
+	var batches [][]string
 	for cursor.Next(context.Background()) {
 		var batch map[string]interface{}
 		if err := cursor.Decode(&batch); err != nil {
 			return nil, err
 		}
-		batches = append(batches, batch["batch_id"].(string))
+		var batchArray []string
+		batchArray = append(batchArray, batch["title"].(string))
+		batchArray = append(batchArray, batch["batch_id"].(string))
+		batches = append(batches, batchArray)
 	}
 
 	return batches, nil
