@@ -36,7 +36,7 @@ func (r *batchRepository) GetBatchesByUserID(userId string) ([][]string, error) 
 		return nil, err
 	}
 
-	var batches [][]string
+	batches := make([][]string, 0)
 	for cursor.Next(context.Background()) {
 		var batch map[string]interface{}
 		if err := cursor.Decode(&batch); err != nil {
