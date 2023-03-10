@@ -13,7 +13,7 @@ import (
 )
 
 type BatchUsecase interface {
-	GetBatchesByUserID(string) ([][]string, error)
+	GetBatchesByUserID(string) ([]map[string]string, error)
 	Validate([]string, [][]string) (int, error)
 	Import(string, []string, [][]string, string, string, string) (string, int, error)
 	Edit([]string, [][]string, string, string, string, string) (int, error)
@@ -30,7 +30,7 @@ func NewBatchService(batchRepo db.BatchRepository) BatchUsecase {
 	}
 }
 
-func (s *batchUsecase) GetBatchesByUserID(userId string) ([][]string, error) {
+func (s *batchUsecase) GetBatchesByUserID(userId string) ([]map[string]string, error) {
 	batches, err := s.batchRepo.GetBatchesByUserID(userId)
 	if err != nil {
 		return nil, err
