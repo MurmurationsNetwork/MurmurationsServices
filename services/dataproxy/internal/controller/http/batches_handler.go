@@ -133,6 +133,15 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 }
 
 func (handler *batchesHandler) Edit(c *gin.Context) {
+	// batch title is required
+	title := c.PostForm("title")
+	if title == "" {
+		errors := jsonapi.NewError([]string{"Missing `title`"}, []string{"The `title` is required."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
 	userId := c.PostForm("user_id")
 	if len(userId) != 25 {
 		errors := jsonapi.NewError([]string{"Invalid `user_id`"}, []string{"The `user_id` is not valid."}, nil, []int{http.StatusBadRequest})
@@ -167,7 +176,7 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	line, err := handler.batchUsecase.Edit(schemas, records, userId, batchId, metaName, metaUrl)
+	line, err := handler.batchUsecase.Edit(title, schemas, records, userId, batchId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + " for `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		meta := jsonapi.NewBatchMeta("", batchId)

@@ -9,8 +9,8 @@ import (
 )
 
 type BatchRepository interface {
-	GetBatchesByUserID(userId string) ([]map[string]string, error)
-	SaveUser(userId string, batchTitle string, batchId string) error
+	GetBatchesByUserID(userId string) ([]map[string]interface{}, error)
+	SaveUser(userId string, batchTitle string, batchId string, schemas []string) error
 	SaveProfile(profile map[string]interface{}) error
 	SaveNodeId(profileId string, profile map[string]interface{}) error
 	CheckUser(userId string, batchId string) (bool, error)
@@ -29,33 +29,35 @@ func NewBatchRepository() BatchRepository {
 	return &batchRepository{}
 }
 
-func (r *batchRepository) GetBatchesByUserID(userId string) ([]map[string]string, error) {
+func (r *batchRepository) GetBatchesByUserID(userId string) ([]map[string]interface{}, error) {
 	filter := bson.M{"user_id": userId}
 	cursor, err := mongo.Client.Find(constant.MongoIndex.Batch, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	batches := make([]map[string]string, 0)
+	batches := make([]map[string]interface{}, 0)
 	for cursor.Next(context.Background()) {
 		var batch map[string]interface{}
 		if err := cursor.Decode(&batch); err != nil {
 			return nil, err
 		}
-		batchObject := make(map[string]string)
-		batchObject["title"] = batch["title"].(string)
-		batchObject["batch_id"] = batch["batch_id"].(string)
+		batchObject := make(map[string]interface{})
+		batchObject["title"] = batch["title"]
+		batchObject["batch_id"] = batch["batch_id"]
+		batchObject["schemas"] = batch["schemas"]
 		batches = append(batches, batchObject)
 	}
 
 	return batches, nil
 }
 
-func (r *batchRepository) SaveUser(userId string, batchTitle string, batchId string) error {
+func (r *batchRepository) SaveUser(userId string, batchTitle string, batchId string, schemas []string) error {
 	doc := bson.M{
 		"user_id":  userId,
 		"title":    batchTitle,
 		"batch_id": batchId,
+		"schemas":  schemas,
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)
 	if err != nil {

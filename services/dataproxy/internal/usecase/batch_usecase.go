@@ -13,10 +13,10 @@ import (
 )
 
 type BatchUsecase interface {
-	GetBatchesByUserID(string) ([]map[string]string, error)
+	GetBatchesByUserID(string) ([]map[string]interface{}, error)
 	Validate([]string, [][]string) (int, error)
 	Import(string, []string, [][]string, string, string, string) (string, int, error)
-	Edit([]string, [][]string, string, string, string, string) (int, error)
+	Edit(string, []string, [][]string, string, string, string, string) (int, error)
 	Delete(string, string) error
 }
 
@@ -30,7 +30,7 @@ func NewBatchService(batchRepo db.BatchRepository) BatchUsecase {
 	}
 }
 
-func (s *batchUsecase) GetBatchesByUserID(userId string) ([]map[string]string, error) {
+func (s *batchUsecase) GetBatchesByUserID(userId string) ([]map[string]interface{}, error) {
 	batches, err := s.batchRepo.GetBatchesByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 
 	// Generate `batch_id` using cuid and save it to MongoDB
 	batchId := cuid.New()
-	err := s.batchRepo.SaveUser(userId, title, batchId)
+	err := s.batchRepo.SaveUser(userId, title, batchId, schemas)
 	if err != nil {
 		return batchId, -1, err
 	}
@@ -153,7 +153,7 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 	return batchId, -1, nil
 }
 
-func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
+func (s *batchUsecase) Edit(title string, schemas []string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
 	if len(records) > 1001 {
 		return -1, errors.New("the CSV file cannot contain more than 1,000 rows")
 	}
@@ -165,6 +165,12 @@ func (s *batchUsecase) Edit(schemas []string, records [][]string, userId string,
 	}
 	if !isValid {
 		return -1, errors.New("the `batch_id` doesn't belong to the specified user")
+	}
+
+	// save current schemas to batch collection
+	err = s.batchRepo.SaveUser(userId, title, batchId, schemas)
+	if err != nil {
+		return -1, err
 	}
 
 	// Get profile `oid`, cuid and hash by `batch_id`
