@@ -52,7 +52,14 @@ func (handler *batchesHandler) GetBatchesByUserID(c *gin.Context) {
 }
 
 func (handler *batchesHandler) Validate(c *gin.Context) {
-	file, schemas, errors := validateCsvInputs(c)
+	file, errors := validateFile(c)
+	if errors != nil {
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	schemas, errors := validateSchema(c)
 	if errors != nil {
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
@@ -100,7 +107,14 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 		return
 	}
 
-	file, schemas, errors := validateCsvInputs(c)
+	file, errors := validateFile(c)
+	if errors != nil {
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	schemas, errors := validateSchema(c)
 	if errors != nil {
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
@@ -133,6 +147,15 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 }
 
 func (handler *batchesHandler) Edit(c *gin.Context) {
+	// batch title is required
+	title := c.PostForm("title")
+	if title == "" {
+		errors := jsonapi.NewError([]string{"Missing `title`"}, []string{"The `title` is required."}, nil, []int{http.StatusBadRequest})
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
 	userId := c.PostForm("user_id")
 	if len(userId) != 25 {
 		errors := jsonapi.NewError([]string{"Invalid `user_id`"}, []string{"The `user_id` is not valid."}, nil, []int{http.StatusBadRequest})
@@ -149,7 +172,7 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 		return
 	}
 
-	file, schemas, errors := validateCsvInputs(c)
+	file, errors := validateFile(c)
 	if errors != nil {
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
@@ -167,7 +190,7 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	line, err := handler.batchUsecase.Edit(schemas, records, userId, batchId, metaName, metaUrl)
+	line, err := handler.batchUsecase.Edit(title, records, userId, batchId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + " for `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		meta := jsonapi.NewBatchMeta("", batchId)
@@ -213,26 +236,30 @@ func (handler *batchesHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func validateCsvInputs(c *gin.Context) (*multipart.FileHeader, []string, []jsonapi.Error) {
+func validateFile(c *gin.Context) (*multipart.FileHeader, []jsonapi.Error) {
 	// Get fields from the POST request
 	file, err := c.FormFile("file")
 	if err != nil {
 		errors := jsonapi.NewError([]string{"Get File Error"}, []string{"The submitted document could not be parsed."}, [][]string{{"parameter", "file"}}, []int{http.StatusBadRequest})
-		return nil, nil, errors
+		return nil, errors
 	}
 
 	// If the file is not CSV, we cannot process it
 	fileName := file.Filename
 	if fileName[len(fileName)-4:] != ".csv" {
 		errors := jsonapi.NewError([]string{"Get File Error"}, []string{"The submitted document is not a CSV file."}, [][]string{{"parameter", "file"}}, []int{http.StatusBadRequest})
-		return nil, nil, errors
+		return nil, errors
 	}
 
+	return file, nil
+}
+
+func validateSchema(c *gin.Context) ([]string, []jsonapi.Error) {
 	// Get schemas from the POST request
 	rawSchemas := c.PostForm("schemas")
 	if rawSchemas == "" {
 		errors := jsonapi.NewError([]string{"Invalid Query Parameter"}, []string{"The following query parameter is not valid: schemas."}, [][]string{{"parameter", "schemas"}}, []int{http.StatusBadRequest})
-		return nil, nil, errors
+		return nil, errors
 	}
 
 	// make schemas to []string
@@ -243,7 +270,7 @@ func validateCsvInputs(c *gin.Context) (*multipart.FileHeader, []string, []jsona
 		schemas[i] = strings.TrimSpace(schemas[i])
 	}
 
-	return file, schemas, nil
+	return schemas, nil
 }
 
 func parseCsv(file *multipart.FileHeader) ([][]string, []jsonapi.Error) {
