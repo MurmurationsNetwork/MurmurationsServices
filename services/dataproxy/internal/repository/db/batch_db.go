@@ -3,13 +3,14 @@ package db
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/net/context"
 )
 
 type BatchRepository interface {
-	GetBatchesByUserID(userId string) ([]map[string]interface{}, error)
+	GetBatchesByUserID(userId string) ([]entity.Batch, error)
 	SaveUser(userId string, batchTitle string, batchId string, schemas []string) error
 	UpdateBatchTitle(batchTitle string, batchId string) ([]string, error)
 	SaveProfile(profile map[string]interface{}) error
@@ -30,42 +31,32 @@ func NewBatchRepository() BatchRepository {
 	return &batchRepository{}
 }
 
-type Batch struct {
-	UserId  string   `bson:"user_id"`
-	Title   string   `bson:"title"`
-	BatchId string   `bson:"batch_id"`
-	Schemas []string `bson:"schemas"`
-}
-
-func (r *batchRepository) GetBatchesByUserID(userId string) ([]map[string]interface{}, error) {
+func (r *batchRepository) GetBatchesByUserID(userId string) ([]entity.Batch, error) {
 	filter := bson.M{"user_id": userId}
-	cursor, err := mongo.Client.Find(constant.MongoIndex.Batch, filter)
+	opts := options.Find().SetProjection(bson.M{"user_id": 0})
+	cursor, err := mongo.Client.Find(constant.MongoIndex.Batch, filter, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	batches := make([]map[string]interface{}, 0)
+	batches := make([]entity.Batch, 0)
 	for cursor.Next(context.Background()) {
-		var batch map[string]interface{}
+		var batch entity.Batch
 		if err := cursor.Decode(&batch); err != nil {
 			return nil, err
 		}
-		batchObject := make(map[string]interface{})
-		batchObject["title"] = batch["title"]
-		batchObject["batch_id"] = batch["batch_id"]
-		batchObject["schemas"] = batch["schemas"]
-		batches = append(batches, batchObject)
+		batches = append(batches, batch)
 	}
 
 	return batches, nil
 }
 
 func (r *batchRepository) SaveUser(userId string, batchTitle string, batchId string, schemas []string) error {
-	doc := bson.M{
-		"user_id":  userId,
-		"title":    batchTitle,
-		"batch_id": batchId,
-		"schemas":  schemas,
+	doc := entity.Batch{
+		UserId:  userId,
+		Title:   batchTitle,
+		BatchId: batchId,
+		Schemas: schemas,
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)
 	if err != nil {
@@ -83,7 +74,7 @@ func (r *batchRepository) UpdateBatchTitle(batchTitle string, batchId string) ([
 		return nil, err
 	}
 
-	var batch Batch
+	var batch entity.Batch
 	if err := result.Decode(&batch); err != nil {
 		return nil, err
 	}

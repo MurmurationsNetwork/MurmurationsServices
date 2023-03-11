@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,7 +14,7 @@ import (
 )
 
 type BatchUsecase interface {
-	GetBatchesByUserID(string) ([]map[string]interface{}, error)
+	GetBatchesByUserID(string) ([]entity.Batch, error)
 	Validate([]string, [][]string) (int, error)
 	Import(string, []string, [][]string, string, string, string) (string, int, error)
 	Edit(string, [][]string, string, string, string, string) (int, error)
@@ -30,7 +31,7 @@ func NewBatchService(batchRepo db.BatchRepository) BatchUsecase {
 	}
 }
 
-func (s *batchUsecase) GetBatchesByUserID(userId string) ([]map[string]interface{}, error) {
+func (s *batchUsecase) GetBatchesByUserID(userId string) ([]entity.Batch, error) {
 	batches, err := s.batchRepo.GetBatchesByUserID(userId)
 	if err != nil {
 		return nil, err
