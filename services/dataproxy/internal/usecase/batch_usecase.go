@@ -16,7 +16,7 @@ type BatchUsecase interface {
 	GetBatchesByUserID(string) ([]map[string]interface{}, error)
 	Validate([]string, [][]string) (int, error)
 	Import(string, []string, [][]string, string, string, string) (string, int, error)
-	Edit(string, []string, [][]string, string, string, string, string) (int, error)
+	Edit(string, [][]string, string, string, string, string) (int, error)
 	Delete(string, string) error
 }
 
@@ -153,7 +153,7 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 	return batchId, -1, nil
 }
 
-func (s *batchUsecase) Edit(title string, schemas []string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
+func (s *batchUsecase) Edit(title string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
 	if len(records) > 1001 {
 		return -1, errors.New("the CSV file cannot contain more than 1,000 rows")
 	}
@@ -168,7 +168,7 @@ func (s *batchUsecase) Edit(title string, schemas []string, records [][]string, 
 	}
 
 	// save current schemas to batch collection
-	err = s.batchRepo.SaveUser(userId, title, batchId, schemas)
+	schemas, err := s.batchRepo.UpdateBatchTitle(title, batchId)
 	if err != nil {
 		return -1, err
 	}

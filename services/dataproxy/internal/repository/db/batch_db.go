@@ -11,6 +11,7 @@ import (
 type BatchRepository interface {
 	GetBatchesByUserID(userId string) ([]map[string]interface{}, error)
 	SaveUser(userId string, batchTitle string, batchId string, schemas []string) error
+	UpdateBatchTitle(batchTitle string, batchId string) ([]string, error)
 	SaveProfile(profile map[string]interface{}) error
 	SaveNodeId(profileId string, profile map[string]interface{}) error
 	CheckUser(userId string, batchId string) (bool, error)
@@ -27,6 +28,13 @@ type batchRepository struct{}
 
 func NewBatchRepository() BatchRepository {
 	return &batchRepository{}
+}
+
+type Batch struct {
+	UserId  string   `bson:"user_id"`
+	Title   string   `bson:"title"`
+	BatchId string   `bson:"batch_id"`
+	Schemas []string `bson:"schemas"`
 }
 
 func (r *batchRepository) GetBatchesByUserID(userId string) ([]map[string]interface{}, error) {
@@ -65,6 +73,21 @@ func (r *batchRepository) SaveUser(userId string, batchTitle string, batchId str
 	}
 
 	return nil
+}
+
+func (r *batchRepository) UpdateBatchTitle(batchTitle string, batchId string) ([]string, error) {
+	filter := bson.M{"batch_id": batchId}
+	update := bson.M{"$set": bson.M{"title": batchTitle}}
+	result, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Batch, filter, update)
+	if err != nil {
+		return nil, err
+	}
+
+	var batch Batch
+	if err := result.Decode(&batch); err != nil {
+		return nil, err
+	}
+	return batch.Schemas, nil
 }
 
 func (r *batchRepository) SaveProfile(profile map[string]interface{}) error {
