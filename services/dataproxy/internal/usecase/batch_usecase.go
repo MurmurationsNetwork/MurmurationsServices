@@ -2,7 +2,11 @@ package usecase
 
 import (
 	"errors"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
+	"io"
+	"net/http"
 	"sort"
 	"strconv"
 	"strings"
@@ -15,9 +19,9 @@ import (
 
 type BatchUsecase interface {
 	GetBatchesByUserID(string) ([]entity.Batch, error)
-	Validate([]string, [][]string) (int, error)
-	Import(string, []string, [][]string, string, string, string) (string, int, error)
-	Edit(string, [][]string, string, string, string, string) (int, error)
+	Validate([]string, [][]string) (int, error, []jsonapi.Error)
+	Import(string, []string, [][]string, string, string, string) (string, int, error, []jsonapi.Error)
+	Edit(string, [][]string, string, string, string, string) (int, error, []jsonapi.Error)
 	Delete(string, string) error
 }
 
@@ -40,67 +44,71 @@ func (s *batchUsecase) GetBatchesByUserID(userId string) ([]entity.Batch, error)
 	return batches, nil
 }
 
-func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, error) {
+func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, error, []jsonapi.Error) {
 	if len(records) > 1001 {
-		return -1, errors.New("the CSV file cannot contain more than 1,000 rows")
+		return -1, errors.New("the CSV file cannot contain more than 1,000 rows"), nil
 	}
 
 	rawProfiles := csvToMap(records)
 
+	// parse schemas to json string schema from library and validate
+	validateJsonSchemas, validateSchemas, err := parseSchemas(schemas)
+	if err != nil {
+		return -1, err, nil
+	}
+
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
-			return line, err
+			return line, err, nil
 		}
 
 		// Validate data and if needed, respond with error
-		validateUrl := config.Conf.Index.URL + "/v2/validate"
-		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
-		if err != nil {
-			return line, err
-		}
-		if !isValid {
-			return line, errors.New(failureReasons)
+		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(validateJsonSchemas, validateSchemas, profile)
+		if len(titles) != 0 {
+			return line, nil, jsonapi.NewError(titles, details, sources, errorStatus)
 		}
 	}
 
-	return -1, nil
+	return -1, nil, nil
 }
 
-func (s *batchUsecase) Import(title string, schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error) {
+func (s *batchUsecase) Import(title string, schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error, []jsonapi.Error) {
 	if len(records) > 1001 {
-		return "", -1, errors.New("the CSV file cannot contain more than 1,000 rows")
+		return "", -1, errors.New("the CSV file cannot contain more than 1,000 rows"), nil
 	}
 
 	// Generate `batch_id` using cuid and save it to MongoDB
 	batchId := cuid.New()
 	err := s.batchRepo.SaveUser(userId, title, batchId, schemas)
 	if err != nil {
-		return batchId, -1, err
+		return batchId, -1, err, nil
 	}
 
 	rawProfiles := csvToMap(records)
 
+	// parse schemas to json string schema from library and validate
+	validateJsonSchemas, validateSchemas, err := parseSchemas(schemas)
+	if err != nil {
+		return batchId, -1, err, nil
+	}
+
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
-			return batchId, line, err
+			return batchId, line, err, nil
 		}
 
 		// Validate data and if needed, respond with error
-		validateUrl := config.Conf.Index.URL + "/v2/validate"
-		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
-		if err != nil {
-			return batchId, line, err
-		}
-		if !isValid {
-			return batchId, line, errors.New(failureReasons)
+		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(validateJsonSchemas, validateSchemas, profile)
+		if len(titles) != 0 {
+			return batchId, line, nil, jsonapi.NewError(titles, details, sources, errorStatus)
 		}
 
 		// Hash profile
 		profileHash, err := importutil.HashProfile(profile)
 		if err != nil {
-			return batchId, line, err
+			return batchId, line, err, nil
 		}
 		profile["source_data_hash"] = profileHash
 
@@ -131,7 +139,7 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 		// Import profile to MongoDB
 		err = s.batchRepo.SaveProfile(profile)
 		if err != nil {
-			return batchId, line, err
+			return batchId, line, err, nil
 		}
 
 		// Import profile to Index
@@ -139,7 +147,7 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 		if err != nil {
-			return batchId, line, errors.New("Import to MurmurationsServices Index failed: " + err.Error())
+			return batchId, line, errors.New("Import to MurmurationsServices Index failed: " + err.Error()), nil
 		}
 
 		// Save `node_id` to MongoDB
@@ -147,61 +155,63 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
 		if err != nil {
-			return batchId, line, errors.New("Save node_id to Mongo failed: " + err.Error())
+			return batchId, line, errors.New("Save node_id to Mongo failed: " + err.Error()), nil
 		}
 	}
 
-	return batchId, -1, nil
+	return batchId, -1, nil, nil
 }
 
-func (s *batchUsecase) Edit(title string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error) {
+func (s *batchUsecase) Edit(title string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error, []jsonapi.Error) {
 	if len(records) > 1001 {
-		return -1, errors.New("the CSV file cannot contain more than 1,000 rows")
+		return -1, errors.New("the CSV file cannot contain more than 1,000 rows"), nil
 	}
 
 	// Check if `batch_id` belongs to user
 	isValid, err := s.batchRepo.CheckUser(userId, batchId)
 	if err != nil {
-		return -1, err
+		return -1, err, nil
 	}
 	if !isValid {
-		return -1, errors.New("the `batch_id` doesn't belong to the specified user")
+		return -1, errors.New("the `batch_id` doesn't belong to the specified user"), nil
 	}
 
 	// save current schemas to batch collection
 	schemas, err := s.batchRepo.UpdateBatchTitle(title, batchId)
 	if err != nil {
-		return -1, err
+		return -1, err, nil
 	}
 
 	// Get profile `oid`, cuid and hash by `batch_id`
 	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchId(batchId)
 	if err != nil {
-		return -1, err
+		return -1, err, nil
 	}
 
 	rawProfiles := csvToMap(records)
 
+	// parse schemas to json string schema from library and validate
+	validateJsonSchemas, validateSchemas, err := parseSchemas(schemas)
+	if err != nil {
+		return -1, err, nil
+	}
+
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
-			return line, err
+			return line, err, nil
 		}
 
 		// Validate data and if needed, respond with error
-		validateUrl := config.Conf.Index.URL + "/v2/validate"
-		isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
-		if err != nil {
-			return line, err
-		}
-		if !isValid {
-			return line, errors.New(failureReasons)
+		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(validateJsonSchemas, validateSchemas, profile)
+		if len(titles) != 0 {
+			return line, nil, jsonapi.NewError(titles, details, sources, errorStatus)
 		}
 
 		// Hash profile
 		profileHash, err := importutil.HashProfile(profile)
 		if err != nil {
-			return line, err
+			return line, err, nil
 		}
 		profile["source_data_hash"] = profileHash
 		profile["batch_id"] = batchId
@@ -238,7 +248,7 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 			// Otherwise update the profile in MongoDB
 			err = s.batchRepo.UpdateProfile(profileCuid, profile)
 			if err != nil {
-				return line, err
+				return line, err, nil
 			}
 			// Delete `oid` from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
 			delete(profileOidsAndHashes, oid)
@@ -250,7 +260,7 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 			// Import profile to MongoDB
 			err = s.batchRepo.SaveProfile(profile)
 			if err != nil {
-				return line, err
+				return line, err, nil
 			}
 		}
 
@@ -259,7 +269,7 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 		if err != nil {
-			return line, errors.New("Import to Index failed: " + err.Error())
+			return line, errors.New("Import to Index failed: " + err.Error()), nil
 		}
 
 		// Save `node_id` to MongoDB
@@ -267,7 +277,7 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
 		if err != nil {
-			return line, errors.New("Save node_id to MongoDB failed: " + err.Error())
+			return line, errors.New("Save node_id to MongoDB failed: " + err.Error()), nil
 		}
 	}
 
@@ -277,13 +287,13 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 			// Get profile by cuid
 			profile, err := s.batchRepo.GetProfileByCuid(cuidAndHash[0])
 			if err != nil {
-				return -1, err
+				return -1, err, nil
 			}
 
 			// Delete profiles from mongo
 			err = s.batchRepo.DeleteProfileByCuid(cuidAndHash[0])
 			if err != nil {
-				return -1, err
+				return -1, err, nil
 			}
 
 			// Delete profiles from Index
@@ -292,13 +302,13 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 				deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + nodeId
 				err := importutil.DeleteIndex(deleteNodeUrl, nodeId)
 				if err != nil {
-					return -1, errors.New("Delete from Index failed: " + err.Error())
+					return -1, errors.New("failed to delete from Index : " + err.Error()), nil
 				}
 			}
 		}
 	}
 
-	return -1, nil
+	return -1, nil, nil
 }
 
 func (s *batchUsecase) Delete(userId string, batchId string) error {
@@ -483,4 +493,25 @@ func destructValue(value string) interface{} {
 		return value
 	}
 	return integer
+}
+
+func parseSchemas(schemas []string) ([]string, []string, error) {
+	// validate against the default schema.
+	validateSchemas := []string{"default-v2.0.0"}
+	validateSchemas = append(validateSchemas, schemas...)
+	validateJsonSchemas := make([]string, len(validateSchemas))
+	libraryUrl := config.Conf.Library.InternalURL + "/v2/schemas"
+	for i, schema := range validateSchemas {
+		res, err := http.Get(libraryUrl + "/" + schema)
+		if err != nil {
+			return nil, nil, err
+		}
+		body, err := io.ReadAll(res.Body)
+		res.Body.Close()
+		if err != nil {
+			return nil, nil, err
+		}
+		validateJsonSchemas[i] = string(body)
+	}
+	return validateJsonSchemas, validateSchemas, nil
 }
