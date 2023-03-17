@@ -73,11 +73,16 @@ func (handler *batchesHandler) Validate(c *gin.Context) {
 		return
 	}
 
-	line, err := handler.batchUsecase.Validate(schemas, records)
+	line, err, validationError := handler.batchUsecase.Validate(schemas, records)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Validation Failed"}, []string{"Failed to validate line " + strconv.Itoa(line) + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
+		return
+	}
+	if validationError != nil {
+		res := jsonapi.Response(nil, validationError, nil, nil)
+		c.JSON(validationError[0].Status, res)
 		return
 	}
 
@@ -132,12 +137,18 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	batchId, line, err := handler.batchUsecase.Import(title, schemas, records, userId, metaName, metaUrl)
+	batchId, line, err, validationError := handler.batchUsecase.Import(title, schemas, records, userId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Import Failed"}, []string{"Failed to import line " + strconv.Itoa(line) + " in `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		meta := jsonapi.NewBatchMeta("", batchId)
 		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
+		return
+	}
+	if validationError != nil {
+		meta := jsonapi.NewBatchMeta("", batchId)
+		res := jsonapi.Response(nil, validationError, nil, meta)
+		c.JSON(validationError[0].Status, res)
 		return
 	}
 
@@ -190,12 +201,18 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	line, err := handler.batchUsecase.Edit(title, records, userId, batchId, metaName, metaUrl)
+	line, err, validationError := handler.batchUsecase.Edit(title, records, userId, batchId, metaName, metaUrl)
 	if err != nil {
 		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + " for `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
 		meta := jsonapi.NewBatchMeta("", batchId)
 		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
+		return
+	}
+	if validationError != nil {
+		meta := jsonapi.NewBatchMeta("", batchId)
+		res := jsonapi.Response(nil, validationError, nil, meta)
+		c.JSON(validationError[0].Status, res)
 		return
 	}
 
