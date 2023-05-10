@@ -1,8 +1,6 @@
 package service
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
@@ -67,7 +65,7 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 		return
 	}
 
-	jsonStr, err := getJSONStr(node.ProfileURL)
+	jsonStr, err := httputil.GetJSONStr(node.ProfileURL)
 	if err != nil {
 		logger.Info("Could not get JSON string from profile_url: " + node.ProfileURL)
 		errors := jsonapi.NewError([]string{"Profile Not Found"}, []string{fmt.Sprintf("Could not find or read from (invalid JSON) the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusNotFound})
@@ -147,17 +145,4 @@ func (svc *validationService) sendNodeValidationFailedEvent(node *entity.Node, F
 		FailureReasons: FailureReasons,
 		Version:        node.Version,
 	})
-}
-
-func getJSONStr(source string) (string, error) {
-	jsonByte, err := httputil.GetByte(source)
-	if err != nil {
-		return "", err
-	}
-	buffer := bytes.Buffer{}
-	err = json.Compact(&buffer, jsonByte)
-	if err != nil {
-		return "", err
-	}
-	return buffer.String(), nil
 }

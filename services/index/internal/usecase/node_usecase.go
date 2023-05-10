@@ -56,6 +56,18 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 		}
 	}
 
+	// issue-451: if old profile hash is the same as new profile hash, we can directly return the old node
+	if oldNode != nil {
+		jsonStr, jsonErr := httputil.GetJSONStr(node.ProfileURL)
+		// when error is nil, it means we can get data from profile url, then we need to check the hash
+		if jsonErr == nil {
+			newHash := cryptoutil.GetSHA256(jsonStr)
+			if oldNode.ProfileHash != nil && *oldNode.ProfileHash == newHash {
+				return oldNode, nil
+			}
+		}
+	}
+
 	node.Status = constant.NodeStatus.Received
 	node.CreatedAt = dateutil.GetNowUnix()
 
