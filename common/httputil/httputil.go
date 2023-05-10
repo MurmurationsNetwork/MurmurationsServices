@@ -1,6 +1,8 @@
 package httputil
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -58,4 +60,17 @@ func IsValidURL(url string) bool {
 	}
 
 	return true
+}
+
+func GetJSONStr(source string) (string, error) {
+	jsonByte, err := GetByte(source)
+	if err != nil {
+		return "", err
+	}
+	buffer := bytes.Buffer{}
+	err = json.Compact(&buffer, jsonByte)
+	if err != nil {
+		return "", err
+	}
+	return buffer.String(), nil
 }
