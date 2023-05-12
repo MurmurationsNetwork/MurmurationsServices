@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -19,7 +20,8 @@ func NewCountryHandler() CountryHandler {
 }
 
 func (handler *countryHandler) GetMap(c *gin.Context) {
-	contents, err := os.ReadFile("static/countries/map.json")
+	contents, err := os.ReadFile(config.Conf.Static.StaticFilePath + "/countries.json")
+
 	if err != nil {
 		errors := jsonapi.NewError([]string{"Get countries map error"}, []string{"error:" + err.Error()}, nil, []int{http.StatusInternalServerError})
 		res := jsonapi.Response(nil, errors, nil, nil)

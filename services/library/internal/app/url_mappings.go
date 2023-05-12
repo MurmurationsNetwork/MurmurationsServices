@@ -24,7 +24,7 @@ func mapUrls(router *gin.Engine) {
 		v2.GET("/schemas", schemaHandler.Search)
 		v2.GET("/schemas/:schemaName", schemaHandler.Get)
 
-		// issue-456: add map.json endpoint
+		// issue-456: add countries.json endpoint
 		v2.GET("/countries/map", countryHandler.GetMap)
 	}
 }

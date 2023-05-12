@@ -12,6 +12,7 @@ var Conf = config{}
 type config struct {
 	Server serverConf
 	Mongo  mongoConf
+	Static staticConf
 }
 
 type serverConf struct {
@@ -28,6 +29,10 @@ type mongoConf struct {
 	PASSWORD string `env:"MONGO_PASSWORD,required"`
 	HOST     string `env:"MONGO_HOST,required"`
 	DBName   string `env:"MONGO_DB_NAME,required"`
+}
+
+type staticConf struct {
+	StaticFilePath string `env:"STATIC_FILE_PATH,required"`
 }
 
 func Init() {

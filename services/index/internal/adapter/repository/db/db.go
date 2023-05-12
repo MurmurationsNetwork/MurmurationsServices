@@ -165,7 +165,7 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				profileJSON["country"] = profileJSON["country_iso_3166"]
 				delete(profileJSON, "country_iso_3166")
 			} else if profileJSON["country"] == nil && profileJSON["country_name"] != nil {
-				countryCode, err := countries.FindAlpha2ByName(config.Conf.Library.InternalURL, profileJSON["country_name"])
+				countryCode, err := countries.FindAlpha2ByName(config.Conf.Library.InternalURL+"/v2/countries/map", profileJSON["country_name"])
 				if err != nil {
 					return err
 				}
