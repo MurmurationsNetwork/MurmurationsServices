@@ -8,7 +8,8 @@ import (
 
 func TestFindAlpha2ByName(t *testing.T) {
 	var country interface{} = "Chad"
-	countryIso, err := FindAlpha2ByName(country)
+	url := "https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsLibrary/test/countries/map.json"
+	countryIso, err := FindAlpha2ByName(url, country)
 	assert.Equal(t, "TD", countryIso)
 	assert.Equal(t, nil, err)
 }

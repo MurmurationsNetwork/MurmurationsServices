@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
-	res, err := http.Get("https://test-cdn.murmurations.network/countries/map.json")
+func FindAlpha2ByName(countryUrl string, country interface{}) (countryCode string, err error) {
+	res, err := http.Get(countryUrl)
 	if err != nil {
 		fmt.Println("Get country map failed")
 		return "undefined", err
