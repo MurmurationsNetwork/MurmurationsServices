@@ -3,7 +3,7 @@ package countries
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -15,7 +15,7 @@ func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
 		return "undefined", err
 	}
 	defer res.Body.Close()
-	countries, err := ioutil.ReadAll(res.Body)
+	countries, err := io.ReadAll(res.Body)
 
 	var countryNames map[string][]string
 
