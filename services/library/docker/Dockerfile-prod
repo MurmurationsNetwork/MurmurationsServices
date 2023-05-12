@@ -8,5 +8,9 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /bin/library /app/library
+
+# Copy Static Files
+COPY --from=build /src/library/services/library/static /app/static
+
 EXPOSE 8000
 CMD ["/app/library"]

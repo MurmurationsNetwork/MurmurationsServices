@@ -3,19 +3,19 @@ package countries
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
 
-func FindAlpha2ByName(country interface{}) (countryCode string, err error) {
-	res, err := http.Get("https://test-cdn.murmurations.network/countries/map.json")
+func FindAlpha2ByName(countryUrl string, country interface{}) (countryCode string, err error) {
+	res, err := http.Get(countryUrl)
 	if err != nil {
 		fmt.Println("Get country map failed")
 		return "undefined", err
 	}
 	defer res.Body.Close()
-	countries, err := ioutil.ReadAll(res.Body)
+	countries, err := io.ReadAll(res.Body)
 
 	var countryNames map[string][]string
 
