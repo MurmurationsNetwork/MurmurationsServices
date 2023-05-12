@@ -19,8 +19,7 @@ func NewCountryHandler() CountryHandler {
 }
 
 func (handler *countryHandler) GetMap(c *gin.Context) {
-	pwd, _ := os.Getwd()
-	contents, err := os.ReadFile(pwd + "/services/library/internal/static/countries/map.json")
+	contents, err := os.ReadFile("static/countries/map.json")
 	if err != nil {
 		errors := jsonapi.NewError([]string{"Get countries map error"}, []string{"error:" + err.Error()}, nil, []int{http.StatusInternalServerError})
 		res := jsonapi.Response(nil, errors, nil, nil)
