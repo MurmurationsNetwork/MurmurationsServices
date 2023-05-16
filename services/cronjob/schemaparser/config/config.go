@@ -9,13 +9,14 @@ import (
 var Conf = config{}
 
 type config struct {
-	CDN   cdnConf
-	Mongo mongoConf
-	Redis redisConf
+	Library libraryConf
+	Mongo   mongoConf
+	Redis   redisConf
+	Github  githubConf
 }
 
-type cdnConf struct {
-	URL string `env:"LIBRARY_CDN_URL,required"`
+type libraryConf struct {
+	URL string `env:"LIBRARY_URL,required"`
 }
 
 type mongoConf struct {
@@ -27,6 +28,12 @@ type mongoConf struct {
 
 type redisConf struct {
 	URL string `env:"REDIS_URL,required"`
+}
+
+type githubConf struct {
+	TOKEN     string `env:"GITHUB_TOKEN,required"`
+	BranchURL string `env:"GITHUB_BRANCH_URL,required"`
+	TreeURL   string `env:"GITHUB_TREE_URL,required"`
 }
 
 func Init() {

@@ -8,10 +8,15 @@ type Schema struct {
 	FullSchema  map[string]interface{} `bson:"full_schema,omitempty"`
 }
 
-type DnsInfo struct {
-	LastCommit string   `json:"last_commit"`
-	SchemaList []string `json:"schema_list"`
-	Error      string   `json:"error"`
+type BranchInfo struct {
+	Commit struct {
+		Sha         string `json:"sha"`
+		InnerCommit struct {
+			Author struct {
+				Date string `json:"date"`
+			} `json:"author"`
+		} `json:"commit"`
+	} `json:"commit"`
 }
 
 type SchemaJSON struct {

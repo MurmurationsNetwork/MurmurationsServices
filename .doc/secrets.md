@@ -31,7 +31,8 @@ kubectl \
   --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
 ```
 
-**Create secrets for services**
+**Create secrets for services** \
+**Note: Replace YOUR_GITHUB_TOKEN with your GitHub token**
 
 ```bash
 kubectl \
@@ -53,7 +54,8 @@ kubectl \
 kubectl \
   create secret generic schemaparser-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=password" \
+  --from-literal="GITHUB_TOKEN=<YOUR_GITHUB_TOKEN>"
 
 # nodecleaner connects to Index MongoDB.
 kubectl \

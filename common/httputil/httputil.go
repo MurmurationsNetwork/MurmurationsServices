@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -29,6 +29,20 @@ func Get(url string) (*http.Response, error) {
 	return resp, err
 }
 
+func GetWithBearerToken(url string, token string) (*http.Response, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+	// IMPORTANT: defer in the sub-function to avoid err http: read on closed response body
+	// defer resp.Body.Close()
+	return resp, err
+}
+
 func GetByte(url string) ([]byte, error) {
 	resp, err := client.Get(url)
 	if err != nil {
@@ -40,7 +54,34 @@ func GetByte(url string) ([]byte, error) {
 		return []byte{}, fmt.Errorf("error the requested URL %s returned 404 not found", url)
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return data, nil
+}
+
+func GetByteWithBearerToken(url string, token string) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return []byte{}, fmt.Errorf("error the requested URL %s returned 404 not found", url)
+	}
+
+	// Read the response body into a byte array
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return []byte{}, err
 	}
