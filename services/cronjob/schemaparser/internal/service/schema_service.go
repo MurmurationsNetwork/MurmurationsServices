@@ -59,83 +59,26 @@ func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
 }
 
 func (s *schemaService) UpdateSchemas(branchSha string) error {
-	// get the branch root tree
-	rootURL := config.Conf.Github.TreeURL + "/" + branchSha
-	resp, err := httputil.GetWithBearerToken(rootURL, config.Conf.Github.TOKEN)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+	// Get schema folder list and field folder list
+	schemaListUrl, fieldListUrl, err := getBranchFolders(branchSha)
 
-	var data map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
 		return err
 	}
 
-	tree := data["tree"].([]interface{})
-	var (
-		schemaListUrl string
-		fieldListUrl  string
-	)
-	for _, item := range tree {
-		itemMap := item.(map[string]interface{})
-		if itemMap["path"].(string) == "schemas" {
-			schemaListUrl = itemMap["url"].(string)
-		} else if itemMap["path"].(string) == "fields" {
-			fieldListUrl = itemMap["url"].(string)
-		}
-	}
+	// Read field folder list and create a map of field name and field url
+	fieldListMap, err := getFieldsUrlMap(fieldListUrl)
 
-	if schemaListUrl == "" {
-		return fmt.Errorf("schemas folder not found")
-	}
-
-	// Get the fields tree first
-	resp, err = httputil.GetWithBearerToken(fieldListUrl, config.Conf.Github.TOKEN)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("get fields tree failed, status code: %d", resp.StatusCode)
-	}
-
-	var fieldData map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&fieldData)
 	if err != nil {
 		return err
 	}
 
-	fieldList := fieldData["tree"].([]interface{})
+	// Read schema folder list
+	schemaList, err := getGithubTree(schemaListUrl)
 
-	fieldListMap := make(map[string]string)
-	for _, field := range fieldList {
-		fieldMap := field.(map[string]interface{})
-		fieldPath := fieldMap["path"].(string)
-		fieldUrl := fieldMap["url"].(string)
-		if len(fieldPath) > 0 && len(fieldUrl) > 0 {
-			fieldListMap[fieldPath] = fieldUrl
-		} else {
-			fmt.Println("field path or url is empty" + fieldPath + fieldUrl)
-			return fmt.Errorf("field path or url is empty" + fieldPath + fieldUrl)
-		}
-	}
-
-	// get the schemas tree
-	resp, err = httputil.GetWithBearerToken(schemaListUrl, config.Conf.Github.TOKEN)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return err
-	}
-
-	schemaList := data["tree"].([]interface{})
 
 	for _, schemaName := range schemaList {
 		schemaNameMap := schemaName.(map[string]interface{})
@@ -217,42 +160,17 @@ func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson map[str
 
 func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*domain.SchemaJSON, map[string]interface{}, error) {
 	// Get schema json from GitHub API
-	resp, err := httputil.GetWithBearerToken(url, config.Conf.Github.TOKEN)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer resp.Body.Close()
-
-	var decodedContent []byte
-	if resp.StatusCode == http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, nil, err
-		}
-		var data map[string]interface{}
-		if err := json.Unmarshal(body, &data); err != nil {
-			return nil, nil, err
-		}
-		decodedContent, err = base64.StdEncoding.DecodeString(data["content"].(string))
-		if err != nil {
-			return nil, nil, err
-		}
-		if len(decodedContent) == 0 {
-			return nil, nil, fmt.Errorf("get schema failed, url: %s, content is empty", url)
-		}
-	} else {
-		return nil, nil, fmt.Errorf("get schema failed, url: %s, status code: %d", url, resp.StatusCode)
-	}
+	schemaJson, err := getGithubFile(url)
 
 	// Get the schema json and full json
 	var data domain.SchemaJSON
-	err = json.Unmarshal(decodedContent, &data)
+	err = json.Unmarshal(schemaJson, &data)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var fullData map[string]interface{}
-	err = json.Unmarshal(decodedContent, &fullData)
+	err = json.Unmarshal(schemaJson, &fullData)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -296,7 +214,90 @@ func (s *schemaService) schemaParser(url string, fieldListMap map[string]string)
 		return nil, fmt.Errorf("get schema failed, url: %s, fieldListUrl is empty", url)
 	}
 
-	resp, err := httputil.GetWithBearerToken(fieldListUrl, config.Conf.Github.TOKEN)
+	// Get field json from GitHub API
+	fieldJson, err := getGithubFile(fieldListUrl)
+
+	var subSchema map[string]interface{}
+	err = json.Unmarshal(fieldJson, &subSchema)
+	if err != nil {
+		return nil, err
+	}
+
+	return subSchema, nil
+}
+
+func getBranchFolders(branchSha string) (string, string, error) {
+	rootURL := config.Conf.Github.TreeURL + "/" + branchSha
+
+	rootList, err := getGithubTree(rootURL)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	var (
+		schemaListUrl string
+		fieldListUrl  string
+	)
+	for _, item := range rootList {
+		itemMap := item.(map[string]interface{})
+		if itemMap["path"].(string) == "schemas" {
+			schemaListUrl = itemMap["url"].(string)
+		} else if itemMap["path"].(string) == "fields" {
+			fieldListUrl = itemMap["url"].(string)
+		}
+	}
+
+	if schemaListUrl == "" {
+		return "", "", fmt.Errorf("schemas folder not found")
+	}
+	if fieldListUrl == "" {
+		return "", "", fmt.Errorf("fields folder not found")
+	}
+
+	return schemaListUrl, fieldListUrl, nil
+}
+
+func getFieldsUrlMap(fieldListUrl string) (map[string]string, error) {
+	fieldList, err := getGithubTree(fieldListUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	fieldListMap := make(map[string]string)
+	for _, field := range fieldList {
+		fieldMap := field.(map[string]interface{})
+		fieldPath := fieldMap["path"].(string)
+		fieldUrl := fieldMap["url"].(string)
+		if len(fieldPath) > 0 && len(fieldUrl) > 0 {
+			fieldListMap[fieldPath] = fieldUrl
+		} else {
+			return nil, fmt.Errorf("field path or url is empty" + fieldPath + fieldUrl)
+		}
+	}
+
+	return fieldListMap, nil
+}
+
+func getGithubTree(url string) ([]interface{}, error) {
+	resp, err := httputil.GetWithBearerToken(url, config.Conf.Github.TOKEN)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var data map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	tree := data["tree"].([]interface{})
+	return tree, nil
+}
+
+func getGithubFile(url string) ([]byte, error) {
+	resp, err := httputil.GetWithBearerToken(url, config.Conf.Github.TOKEN)
 	if err != nil {
 		return nil, err
 	}
@@ -317,17 +318,11 @@ func (s *schemaService) schemaParser(url string, fieldListMap map[string]string)
 			return nil, err
 		}
 		if len(decodedContent) == 0 {
-			return nil, fmt.Errorf("get field failed, url: %s, content is empty", url)
+			return nil, fmt.Errorf("get file failed, url: %s, content is empty", url)
 		}
 	} else {
-		return nil, fmt.Errorf("get field failed, url: %s, status code: %d", url, resp.StatusCode)
+		return nil, fmt.Errorf("get file failed, url: %s, status code: %d", url, resp.StatusCode)
 	}
 
-	var subSchema map[string]interface{}
-	err = json.Unmarshal(decodedContent, &subSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	return subSchema, nil
+	return decodedContent, nil
 }
