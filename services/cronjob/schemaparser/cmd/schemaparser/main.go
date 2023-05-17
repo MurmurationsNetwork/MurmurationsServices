@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/adapter/mongodb"
@@ -46,5 +45,5 @@ func main() {
 		return
 	}
 
-	logger.Info(fmt.Sprintf("Update Library schemas"))
+	logger.Info("Library repo schemas loaded successfully")
 }
