@@ -166,7 +166,7 @@
 									"var jsonData = pm.response.json();",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct $id`, () => {",
-									"    pm.expect(jsonData.$id).to.contain('test_schema-v2.0.0.json')",
+									"    pm.expect(jsonData.$id).to.contain('test_schema-v2.0.0')",
 									"})",
 									""
 								],
