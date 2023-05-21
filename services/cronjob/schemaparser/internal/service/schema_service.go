@@ -187,20 +187,8 @@ func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*
 func (s *schemaService) parseProperties(fullData orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
 	properties, exist := fullData.Get("properties")
 	if !exist {
-		mapData := bson.D{}
-		for _, key := range fullData.Keys() {
-			value, _ := fullData.Get(key)
-
-			// If the value can be parsed into OrderedMap, it means it is a map, we need to parse it recursively
-			vMap, ok := value.(orderedmap.OrderedMap)
-			if !ok {
-				mapData = append(mapData, bson.E{Key: key, Value: value})
-			} else {
-				mapData = append(mapData, bson.E{Key: key, Value: s.parseProperties(vMap, fieldListMap)})
-			}
-		}
-
-		return mapData
+		propertiesData := s.generateBsonDObject(fullData, fieldListMap)
+		return propertiesData
 	}
 
 	propertiesMap := properties.(orderedmap.OrderedMap)
@@ -221,20 +209,7 @@ func (s *schemaService) parseProperties(fullData orderedmap.OrderedMap, fieldLis
 		// If type is array, parse the items
 		// Otherwise, directly parse the orderedmap to bson.D
 		if ok && refType == "array" {
-			refItems, _ := ref.Get("items")
-			itemsMap := refItems.(orderedmap.OrderedMap)
-			parsedSubSchema := s.parseProperties(itemsMap, fieldListMap)
-
-			// In the array, items need to be parsed recursively
-			arrayPropertiesMap := bson.D{}
-			for _, key := range ref.Keys() {
-				if key == "items" {
-					arrayPropertiesMap = append(arrayPropertiesMap, bson.E{Key: key, Value: parsedSubSchema})
-				} else {
-					value, _ := ref.Get(key)
-					arrayPropertiesMap = append(arrayPropertiesMap, bson.E{Key: key, Value: value})
-				}
-			}
+			arrayPropertiesMap := s.generateBsonDArray(ref, fieldListMap)
 			propertiesMap.Set(k, arrayPropertiesMap)
 		} else {
 			refMap := generateBsonD(ref)
@@ -245,7 +220,7 @@ func (s *schemaService) parseProperties(fullData orderedmap.OrderedMap, fieldLis
 	propertiesData := generateBsonD(propertiesMap)
 	fullData.Set("properties", propertiesData)
 
-	returnData := generateBsonD(fullData)
+	returnData := s.generateBsonDObject(fullData, fieldListMap)
 	return returnData
 }
 
@@ -376,6 +351,40 @@ func generateBsonD(orderedMap orderedmap.OrderedMap) bson.D {
 	for _, key := range orderedMap.Keys() {
 		value, _ := orderedMap.Get(key)
 		bsonData = append(bsonData, bson.E{Key: key, Value: value})
+	}
+	return bsonData
+}
+
+func (s *schemaService) generateBsonDArray(orderedMap orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+	items, _ := orderedMap.Get("items")
+	itemsMap := items.(orderedmap.OrderedMap)
+	parsedSubSchema := s.parseProperties(itemsMap, fieldListMap)
+
+	// In the array, items need to be parsed recursively
+	bsonData := bson.D{}
+	for _, key := range orderedMap.Keys() {
+		if key == "items" {
+			bsonData = append(bsonData, bson.E{Key: key, Value: parsedSubSchema})
+		} else {
+			value, _ := orderedMap.Get(key)
+			bsonData = append(bsonData, bson.E{Key: key, Value: value})
+		}
+	}
+	return bsonData
+}
+
+func (s *schemaService) generateBsonDObject(orderedMap orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+	bsonData := bson.D{}
+	for _, key := range orderedMap.Keys() {
+		value, _ := orderedMap.Get(key)
+
+		// If the value can be parsed into OrderedMap, it means it is a map, we need to parse it recursively
+		vMap, ok := value.(orderedmap.OrderedMap)
+		if !ok {
+			bsonData = append(bsonData, bson.E{Key: key, Value: value})
+		} else {
+			bsonData = append(bsonData, bson.E{Key: key, Value: s.parseProperties(vMap, fieldListMap)})
+		}
 	}
 	return bsonData
 }
