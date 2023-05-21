@@ -10,6 +10,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/domain/schema"
+	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -24,11 +25,16 @@ func NewSchemaRepo() SchemaRepo {
 	return &schemaRepo{}
 }
 
+type SingleSchema struct {
+	Description string `bson:"description"`
+	FullSchema  bson.D `bson:"full_schema"`
+}
+
 func (r *schemaRepo) Get(schemaName string) (interface{}, []jsonapi.Error) {
 	filter := bson.M{"name": schemaName}
 	result := mongo.Client.FindOne(constant.MongoIndex.Schema, filter)
 
-	var singleSchema map[string]interface{}
+	var singleSchema SingleSchema
 	err := result.Decode(&singleSchema)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -36,7 +42,10 @@ func (r *schemaRepo) Get(schemaName string) (interface{}, []jsonapi.Error) {
 		}
 		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to decode schema."}, nil, []int{http.StatusInternalServerError})
 	}
-	return singleSchema["full_schema"], nil
+
+	fullSchema := convertBsonDToMap(singleSchema.FullSchema)
+
+	return fullSchema, nil
 }
 
 func (r *schemaRepo) Search() (schema.Schemas, []jsonapi.Error) {
@@ -67,4 +76,21 @@ func (r *schemaRepo) Search() (schema.Schemas, []jsonapi.Error) {
 	cur.Close(context.TODO())
 
 	return schemas, nil
+}
+
+func convertBsonDToMap(bsonD bson.D) *orderedmap.OrderedMap {
+	result := orderedmap.New()
+	for _, element := range bsonD {
+		key := element.Key
+		value := element.Value
+
+		switch value.(type) {
+		case bson.D:
+			innerDoc := value.(bson.D)
+			result.Set(key, convertBsonDToMap(innerDoc))
+		default:
+			result.Set(key, value)
+		}
+	}
+	return result
 }
