@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/iancoleman/orderedmap v0.2.0
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/stan.go v0.10.4
 	github.com/olivere/elastic/v7 v7.0.32
@@ -19,7 +20,7 @@ require (
 	github.com/xuri/excelize/v2 v2.7.1
 	go.mongodb.org/mongo-driver v1.11.6
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20190121172915-509febef88a4
+	golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705
 	golang.org/x/net v0.10.0
 )
 

@@ -1,11 +1,13 @@
 package domain
 
+import "go.mongodb.org/mongo-driver/bson"
+
 type Schema struct {
-	Title       string                 `bson:"title,omitempty"`
-	Description string                 `bson:"description,omitempty"`
-	Name        string                 `bson:"name,omitempty"`
-	URL         string                 `bson:"url,omitempty"`
-	FullSchema  map[string]interface{} `bson:"full_schema,omitempty"`
+	Title       string `bson:"title,omitempty"`
+	Description string `bson:"description,omitempty"`
+	Name        string `bson:"name,omitempty"`
+	URL         string `bson:"url,omitempty"`
+	FullSchema  bson.D `bson:"full_schema,omitempty"`
 }
 
 type BranchInfo struct {
