@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"net/http"
 	"path"
@@ -14,6 +15,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/domain"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/repository/db"
+	"github.com/iancoleman/orderedmap"
 )
 
 type SchemaService interface {
@@ -143,7 +145,7 @@ func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
 	return true, nil
 }
 
-func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson map[string]interface{}) error {
+func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson bson.D) error {
 	doc := &domain.Schema{
 		Title:       schema.Title,
 		Description: schema.Description,
@@ -158,7 +160,7 @@ func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson map[str
 	return nil
 }
 
-func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*domain.SchemaJSON, map[string]interface{}, error) {
+func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*domain.SchemaJSON, bson.D, error) {
 	// Get schema json from GitHub API
 	schemaJson, err := getGithubFile(url)
 
@@ -169,43 +171,60 @@ func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*
 		return nil, nil, err
 	}
 
-	var fullData map[string]interface{}
+	fullData := orderedmap.New()
 	err = json.Unmarshal(schemaJson, &fullData)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Parse json $ref
-	parsedFullData := s.parseProperties(fullData, fieldListMap)
+	parsedFullData := s.parseProperties(*fullData, fieldListMap)
 
 	return &data, parsedFullData, nil
 }
 
-func (s *schemaService) parseProperties(fullData map[string]interface{}, fieldListMap map[string]string) map[string]interface{} {
-	if fullData["properties"] == nil {
-		return fullData
+// Direct generate the bson.D type for saving to MongoDB
+func (s *schemaService) parseProperties(fullData orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+	properties, exist := fullData.Get("properties")
+	if !exist {
+		propertiesData := s.generateBsonDObject(fullData, fieldListMap)
+		return propertiesData
 	}
-	propertiesMap := fullData["properties"].(map[string]interface{})
-	for k, v := range propertiesMap {
-		ref := v.(map[string]interface{})
-		if ref["type"] == "array" {
-			itemsMap := ref["items"].(map[string]interface{})
-			parsedSubSchema := s.parseProperties(itemsMap, fieldListMap)
-			arrayPropertiesMap := propertiesMap[k].(map[string]interface{})
-			arrayPropertiesMap["items"] = parsedSubSchema
-			propertiesMap[k] = arrayPropertiesMap
+
+	propertiesMap := properties.(orderedmap.OrderedMap)
+	for _, k := range propertiesMap.Keys() {
+		v, _ := propertiesMap.Get(k)
+		ref := v.(orderedmap.OrderedMap)
+
+		// If $ref exists, parse the ref
+		refPath, ok := ref.Get("$ref")
+		if ok && refPath != nil {
+			subSchema, _ := s.schemaParser(refPath.(string), fieldListMap)
+			parsedSubSchema := s.parseProperties(*subSchema, fieldListMap)
+			propertiesMap.Set(k, parsedSubSchema)
+			continue
 		}
-		if ref["$ref"] != nil {
-			subSchema, _ := s.schemaParser(ref["$ref"].(string), fieldListMap)
-			parsedSubSchema := s.parseProperties(subSchema, fieldListMap)
-			propertiesMap[k] = parsedSubSchema
+
+		refType, ok := ref.Get("type")
+		// If type is array, parse the items
+		// Otherwise, directly parse the orderedmap to bson.D
+		if ok && refType == "array" {
+			arrayPropertiesMap := s.generateBsonDArray(ref, fieldListMap)
+			propertiesMap.Set(k, arrayPropertiesMap)
+		} else {
+			refMap := generateBsonD(ref)
+			propertiesMap.Set(k, refMap)
 		}
 	}
-	fullData["properties"] = propertiesMap
-	return fullData
+
+	propertiesData := generateBsonD(propertiesMap)
+	fullData.Set("properties", propertiesData)
+
+	returnData := s.generateBsonDObject(fullData, fieldListMap)
+	return returnData
 }
 
-func (s *schemaService) schemaParser(url string, fieldListMap map[string]string) (map[string]interface{}, error) {
+func (s *schemaService) schemaParser(url string, fieldListMap map[string]string) (*orderedmap.OrderedMap, error) {
 	_, fieldName := path.Split(url)
 
 	fieldListUrl := fieldListMap[fieldName]
@@ -217,7 +236,7 @@ func (s *schemaService) schemaParser(url string, fieldListMap map[string]string)
 	// Get field json from GitHub API
 	fieldJson, err := getGithubFile(fieldListUrl)
 
-	var subSchema map[string]interface{}
+	subSchema := orderedmap.New()
 	err = json.Unmarshal(fieldJson, &subSchema)
 	if err != nil {
 		return nil, err
@@ -325,4 +344,47 @@ func getGithubFile(url string) ([]byte, error) {
 	}
 
 	return decodedContent, nil
+}
+
+func generateBsonD(orderedMap orderedmap.OrderedMap) bson.D {
+	bsonData := bson.D{}
+	for _, key := range orderedMap.Keys() {
+		value, _ := orderedMap.Get(key)
+		bsonData = append(bsonData, bson.E{Key: key, Value: value})
+	}
+	return bsonData
+}
+
+func (s *schemaService) generateBsonDArray(orderedMap orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+	items, _ := orderedMap.Get("items")
+	itemsMap := items.(orderedmap.OrderedMap)
+	parsedSubSchema := s.parseProperties(itemsMap, fieldListMap)
+
+	// In the array, items need to be parsed recursively
+	bsonData := bson.D{}
+	for _, key := range orderedMap.Keys() {
+		if key == "items" {
+			bsonData = append(bsonData, bson.E{Key: key, Value: parsedSubSchema})
+		} else {
+			value, _ := orderedMap.Get(key)
+			bsonData = append(bsonData, bson.E{Key: key, Value: value})
+		}
+	}
+	return bsonData
+}
+
+func (s *schemaService) generateBsonDObject(orderedMap orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+	bsonData := bson.D{}
+	for _, key := range orderedMap.Keys() {
+		value, _ := orderedMap.Get(key)
+
+		// If the value can be parsed into OrderedMap, it means it is a map, we need to parse it recursively
+		vMap, ok := value.(orderedmap.OrderedMap)
+		if !ok {
+			bsonData = append(bsonData, bson.E{Key: key, Value: value})
+		} else {
+			bsonData = append(bsonData, bson.E{Key: key, Value: s.parseProperties(vMap, fieldListMap)})
+		}
+	}
+	return bsonData
 }
