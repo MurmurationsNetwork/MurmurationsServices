@@ -230,6 +230,9 @@ func (s *schemaService) parseProperties(
 		if ok && refType == "array" {
 			arrayPropertiesMap := s.generateBsonDArray(ref, fieldListMap)
 			propertiesMap.Set(k, arrayPropertiesMap)
+		} else if ok && refType == "object" {
+			objectPropertiesMap := s.generateBsonDObject(ref, fieldListMap)
+			propertiesMap.Set(k, objectPropertiesMap)
 		} else {
 			refMap := generateBsonD(ref)
 			propertiesMap.Set(k, refMap)
