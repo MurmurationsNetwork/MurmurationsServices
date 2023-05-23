@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net"
 
+	geoip2 "github.com/oschwald/geoip2-golang"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/global"
-	"github.com/oschwald/geoip2-golang"
 )
 
 type GeoIPService interface {

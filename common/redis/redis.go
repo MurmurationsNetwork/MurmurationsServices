@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	redis "github.com/go-redis/redis/v8"
 )
 
 type Redis interface {

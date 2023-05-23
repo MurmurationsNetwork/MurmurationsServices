@@ -3,19 +3,21 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strconv"
+
+	"github.com/lucsky/cuid"
+	excelize "github.com/xuri/excelize/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
-	"github.com/lucsky/cuid"
-	"github.com/xuri/excelize/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"io"
-	"net/http"
-	"os"
-	"strconv"
 )
 
 // global variables
@@ -50,27 +52,33 @@ func readArgs(args []string) (string, string, int, int, error) {
 	if len(args) != 5 {
 		return "", "", 0, 0, fmt.Errorf("Missing arguments: please check the arguments.")
 	}
+
 	from, err := strconv.Atoi(args[3])
+	if err != nil {
+		return "", "", 0, 0, fmt.Errorf("from argument must be an integer: %v", err)
+	}
+
 	to, err := strconv.Atoi(os.Args[4])
 	if err != nil {
-		return "", "", 0, 0, fmt.Errorf("From or to argument must be an integer.")
+		return "", "", 0, 0, fmt.Errorf("to argument must be an integer: %v", err)
 	}
+
 	return args[1], args[2], from, to, nil
 }
 
 func downloadExcel(url string) error {
 	fmt.Println("Downloading Excel file from remote server...")
 	output, err := os.Create(fileName)
-	defer output.Close()
 	if err != nil {
 		return fmt.Errorf("Error while creating %s file: %s", fileName, err)
 	}
+	defer output.Close()
 
 	res, err := http.Get(url)
-	defer res.Body.Close()
 	if err != nil {
 		return fmt.Errorf("Error while downloading from %s: %s", url, err)
 	}
+	defer res.Body.Close()
 
 	n, err := io.Copy(output, res.Body)
 	if err != nil {
@@ -100,10 +108,10 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 
 	url := "https://api.ofdb.io/v0/entries/" + oid
 	res, err := httputil.Get(url)
-	defer res.Body.Close()
 	if err != nil {
 		return false, fmt.Errorf("Can't get data from " + url)
 	}
+	defer res.Body.Close()
 
 	var oldProfiles []map[string]interface{}
 	decoder := json.NewDecoder(res.Body)

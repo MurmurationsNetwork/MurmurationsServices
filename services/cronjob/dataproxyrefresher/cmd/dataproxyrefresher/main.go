@@ -184,7 +184,7 @@ func main() {
 
 			if res.StatusCode != 200 {
 				var resBody map[string]interface{}
-				json.NewDecoder(res.Body).Decode(&resBody)
+				_ = json.NewDecoder(res.Body).Decode(&resBody)
 				if resBody["errors"] != nil {
 					var errors []string
 					for _, item := range resBody["errors"].([]interface{}) {

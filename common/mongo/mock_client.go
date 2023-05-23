@@ -8,7 +8,6 @@ import (
 
 type mockClient struct {
 	client *mongo.Client
-	db     *mongo.Database
 }
 
 func (c *mockClient) FindOne(collection string, filter primitive.M) *mongo.SingleResult {

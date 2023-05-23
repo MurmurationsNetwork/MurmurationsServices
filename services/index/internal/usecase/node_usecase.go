@@ -3,6 +3,8 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
@@ -13,7 +15,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
-	"net/http"
 )
 
 type NodeUsecase interface {
@@ -23,7 +24,9 @@ type NodeUsecase interface {
 	SetNodeInvalid(node *entity.Node) error
 	Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
 	Delete(nodeID string) (string, []jsonapi.Error)
-	Export(query *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
+	Export(
+		query *query.EsBlockQuery,
+	) (*query.BlockQueryResults, []jsonapi.Error)
 	GetNodes(query *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error)
 }
 
@@ -37,9 +40,16 @@ func NewNodeService(nodeRepo db.NodeRepository) NodeUsecase {
 	}
 }
 
-func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error) {
+func (s *nodeUsecase) AddNode(
+	node *entity.Node,
+) (*entity.Node, []jsonapi.Error) {
 	if node.ProfileURL == "" {
-		return nil, jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `profile_url` property is required."}, nil, []int{http.StatusBadRequest})
+		return nil, jsonapi.NewError(
+			[]string{"Missing Required Property"},
+			[]string{"The `profile_url` property is required."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 	}
 
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
@@ -75,10 +85,11 @@ func (s *nodeUsecase) AddNode(node *entity.Node) (*entity.Node, []jsonapi.Error)
 		return nil, err
 	}
 
-	event.NewNodeCreatedPublisher(nats.Client.Client()).Publish(event.NodeCreatedData{
-		ProfileURL: node.ProfileURL,
-		Version:    *node.Version,
-	})
+	event.NewNodeCreatedPublisher(nats.Client.Client()).
+		Publish(event.NodeCreatedData{
+			ProfileURL: node.ProfileURL,
+			Version:    *node.Version,
+		})
 
 	return node, nil
 }
@@ -116,7 +127,9 @@ func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
 	return nil
 }
 
-func (s *nodeUsecase) Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error) {
+func (s *nodeUsecase) Search(
+	query *query.EsQuery,
+) (*query.QueryResults, []jsonapi.Error) {
 	result, err := s.nodeRepo.Search(query)
 	if err != nil {
 		return nil, err
@@ -133,10 +146,21 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	// TODO: Maybe we should avoid network requests in the index server?
 	resp, err := httputil.Get(node.ProfileURL)
 	// defer here to avoid error
-	defer resp.Body.Close()
 	if err != nil {
-		return node.ProfileURL, jsonapi.NewError([]string{"Profile URL Not Found"}, []string{fmt.Sprintf("There was an error when trying to reach %s to delete node_id: %s", node.ProfileURL, nodeID)}, nil, []int{http.StatusBadRequest})
+		return node.ProfileURL, jsonapi.NewError(
+			[]string{"Profile URL Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"There was an error when trying to reach %s to delete node_id: %s",
+					node.ProfileURL,
+					nodeID,
+				),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 	}
+	defer resp.Body.Close()
 
 	// check the response is json or not (issue-266)
 	var bodyJson interface{}
@@ -147,8 +171,9 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 		isJson = false
 	}
 
-	if resp.StatusCode == http.StatusNotFound || isJson == false {
-		if node.Status == constant.NodeStatus.Posted || node.Status == constant.NodeStatus.Deleted {
+	if resp.StatusCode == http.StatusNotFound || !isJson {
+		if node.Status == constant.NodeStatus.Posted ||
+			node.Status == constant.NodeStatus.Deleted {
 			err := s.nodeRepo.SoftDelete(node)
 			if err != nil {
 				return node.ProfileURL, err
@@ -164,13 +189,36 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		return node.ProfileURL, jsonapi.NewError([]string{"Profile Still Exists"}, []string{fmt.Sprintf("The profile could not be deleted from the Index because it still exists at the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusBadRequest})
+		return node.ProfileURL, jsonapi.NewError(
+			[]string{"Profile Still Exists"},
+			[]string{
+				fmt.Sprintf(
+					"The profile could not be deleted from the Index because it still exists at the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 	}
 
-	return node.ProfileURL, jsonapi.NewError([]string{"Node Status Code Error"}, []string{fmt.Sprintf("The node at %s returned the following status code: %d", node.ProfileURL, resp.StatusCode)}, nil, []int{http.StatusBadRequest})
+	return node.ProfileURL, jsonapi.NewError(
+		[]string{"Node Status Code Error"},
+		[]string{
+			fmt.Sprintf(
+				"The node at %s returned the following status code: %d",
+				node.ProfileURL,
+				resp.StatusCode,
+			),
+		},
+		nil,
+		[]int{http.StatusBadRequest},
+	)
 }
 
-func (s *nodeUsecase) Export(query *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error) {
+func (s *nodeUsecase) Export(
+	query *query.EsBlockQuery,
+) (*query.BlockQueryResults, []jsonapi.Error) {
 	result, err := s.nodeRepo.Export(query)
 	if err != nil {
 		return nil, err
@@ -178,7 +226,9 @@ func (s *nodeUsecase) Export(query *query.EsBlockQuery) (*query.BlockQueryResult
 	return result, nil
 }
 
-func (s *nodeUsecase) GetNodes(query *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error) {
+func (s *nodeUsecase) GetNodes(
+	query *query.EsQuery,
+) (*query.MapQueryResults, []jsonapi.Error) {
 	result, err := s.nodeRepo.GetNodes(query)
 	if err != nil {
 		return nil, err

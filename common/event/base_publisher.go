@@ -46,5 +46,5 @@ func (p *publisher) Publish(data interface{}) {
 		return
 	}
 	msg, _ := json.Marshal(data)
-	p.client.PublishAsync(string(p.subject), msg, p.ackHandler)
+	_, _ = p.client.PublishAsync(string(p.subject), msg, p.ackHandler)
 }

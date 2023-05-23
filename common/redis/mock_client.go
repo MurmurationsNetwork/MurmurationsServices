@@ -2,12 +2,9 @@ package redis
 
 import (
 	"time"
-
-	"github.com/go-redis/redis/v8"
 )
 
 type redismock struct {
-	client *redis.Client
 }
 
 func (r *redismock) Ping() error {

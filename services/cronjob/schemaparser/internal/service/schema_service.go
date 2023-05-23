@@ -4,11 +4,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"net/http"
 	"path"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/redis"
@@ -30,7 +31,10 @@ type schemaService struct {
 	redis redis.Redis
 }
 
-func NewSchemaService(repo db.SchemaRepository, redis redis.Redis) SchemaService {
+func NewSchemaService(
+	repo db.SchemaRepository,
+	redis redis.Redis,
+) SchemaService {
 	return &schemaService{
 		repo:  repo,
 		redis: redis,
@@ -84,7 +88,10 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 
 	for _, schemaName := range schemaList {
 		schemaNameMap := schemaName.(map[string]interface{})
-		schema, fullJson, err := s.getSchema(schemaNameMap["url"].(string), fieldListMap)
+		schema, fullJson, err := s.getSchema(
+			schemaNameMap["url"].(string),
+			fieldListMap,
+		)
 		if err != nil {
 			return err
 		}
@@ -145,7 +152,10 @@ func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
 	return true, nil
 }
 
-func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson bson.D) error {
+func (s *schemaService) updateSchema(
+	schema *domain.SchemaJSON,
+	fullJson bson.D,
+) error {
 	doc := &domain.Schema{
 		Title:       schema.Title,
 		Description: schema.Description,
@@ -160,9 +170,15 @@ func (s *schemaService) updateSchema(schema *domain.SchemaJSON, fullJson bson.D)
 	return nil
 }
 
-func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*domain.SchemaJSON, bson.D, error) {
+func (s *schemaService) getSchema(
+	url string,
+	fieldListMap map[string]string,
+) (*domain.SchemaJSON, bson.D, error) {
 	// Get schema json from GitHub API
 	schemaJson, err := getGithubFile(url)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	// Get the schema json and full json
 	var data domain.SchemaJSON
@@ -184,7 +200,10 @@ func (s *schemaService) getSchema(url string, fieldListMap map[string]string) (*
 }
 
 // Direct generate the bson.D type for saving to MongoDB
-func (s *schemaService) parseProperties(fullData orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+func (s *schemaService) parseProperties(
+	fullData orderedmap.OrderedMap,
+	fieldListMap map[string]string,
+) bson.D {
 	properties, exist := fullData.Get("properties")
 	if !exist {
 		propertiesData := s.generateBsonDObject(fullData, fieldListMap)
@@ -224,17 +243,26 @@ func (s *schemaService) parseProperties(fullData orderedmap.OrderedMap, fieldLis
 	return returnData
 }
 
-func (s *schemaService) schemaParser(url string, fieldListMap map[string]string) (*orderedmap.OrderedMap, error) {
+func (s *schemaService) schemaParser(
+	url string,
+	fieldListMap map[string]string,
+) (*orderedmap.OrderedMap, error) {
 	_, fieldName := path.Split(url)
 
 	fieldListUrl := fieldListMap[fieldName]
 
 	if fieldListUrl == "" {
-		return nil, fmt.Errorf("get schema failed, url: %s, fieldListUrl is empty", url)
+		return nil, fmt.Errorf(
+			"get schema failed, url: %s, fieldListUrl is empty",
+			url,
+		)
 	}
 
 	// Get field json from GitHub API
 	fieldJson, err := getGithubFile(fieldListUrl)
+	if err != nil {
+		return nil, err
+	}
 
 	subSchema := orderedmap.New()
 	err = json.Unmarshal(fieldJson, &subSchema)
@@ -332,12 +360,17 @@ func getGithubFile(url string) ([]byte, error) {
 		if err := json.Unmarshal(body, &data); err != nil {
 			return nil, err
 		}
-		decodedContent, err = base64.StdEncoding.DecodeString(data["content"].(string))
+		decodedContent, err = base64.StdEncoding.DecodeString(
+			data["content"].(string),
+		)
 		if err != nil {
 			return nil, err
 		}
 		if len(decodedContent) == 0 {
-			return nil, fmt.Errorf("get file failed, url: %s, content is empty", url)
+			return nil, fmt.Errorf(
+				"get file failed, url: %s, content is empty",
+				url,
+			)
 		}
 	} else {
 		return nil, fmt.Errorf("get file failed, url: %s, status code: %d", url, resp.StatusCode)
@@ -355,7 +388,10 @@ func generateBsonD(orderedMap orderedmap.OrderedMap) bson.D {
 	return bsonData
 }
 
-func (s *schemaService) generateBsonDArray(orderedMap orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+func (s *schemaService) generateBsonDArray(
+	orderedMap orderedmap.OrderedMap,
+	fieldListMap map[string]string,
+) bson.D {
 	items, _ := orderedMap.Get("items")
 	itemsMap := items.(orderedmap.OrderedMap)
 	parsedSubSchema := s.parseProperties(itemsMap, fieldListMap)
@@ -364,16 +400,23 @@ func (s *schemaService) generateBsonDArray(orderedMap orderedmap.OrderedMap, fie
 	bsonData := bson.D{}
 	for _, key := range orderedMap.Keys() {
 		if key == "items" {
-			bsonData = append(bsonData, bson.E{Key: key, Value: parsedSubSchema})
+			bsonData = append(
+				bsonData,
+				bson.E{Key: key, Value: parsedSubSchema},
+			)
 		} else {
 			value, _ := orderedMap.Get(key)
 			bsonData = append(bsonData, bson.E{Key: key, Value: value})
 		}
 	}
+
 	return bsonData
 }
 
-func (s *schemaService) generateBsonDObject(orderedMap orderedmap.OrderedMap, fieldListMap map[string]string) bson.D {
+func (s *schemaService) generateBsonDObject(
+	orderedMap orderedmap.OrderedMap,
+	fieldListMap map[string]string,
+) bson.D {
 	bsonData := bson.D{}
 	for _, key := range orderedMap.Keys() {
 		value, _ := orderedMap.Get(key)
@@ -383,7 +426,10 @@ func (s *schemaService) generateBsonDObject(orderedMap orderedmap.OrderedMap, fi
 		if !ok {
 			bsonData = append(bsonData, bson.E{Key: key, Value: value})
 		} else {
-			bsonData = append(bsonData, bson.E{Key: key, Value: s.parseProperties(vMap, fieldListMap)})
+			bsonData = append(bsonData, bson.E{
+				Key:   key,
+				Value: s.parseProperties(vMap, fieldListMap),
+			})
 		}
 	}
 	return bsonData

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/global"
-	"github.com/gin-gonic/gin"
 )
 
 func init() {

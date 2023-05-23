@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	stan "github.com/nats-io/stan.go"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
-	"github.com/nats-io/stan.go"
 )
 
 type NodeHandler interface {
@@ -55,7 +56,7 @@ func (handler *nodeHandler) Validated() error {
 				return
 			}
 
-			msg.Ack()
+			_ = msg.Ack()
 		}()
 	}).Listen()
 }
@@ -85,7 +86,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 				return
 			}
 
-			msg.Ack()
+			_ = msg.Ack()
 		}()
 	}).Listen()
 }

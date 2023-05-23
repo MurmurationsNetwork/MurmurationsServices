@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
-	"github.com/lucsky/cuid"
-	"github.com/xuri/excelize/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/lucsky/cuid"
+	excelize "github.com/xuri/excelize/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 )
 
 // global variables
@@ -26,7 +28,11 @@ func Init() {
 }
 
 func mongoInit() {
-	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
+	uri := mongo.GetURI(
+		config.Conf.Mongo.USERNAME,
+		config.Conf.Mongo.PASSWORD,
+		config.Conf.Mongo.HOST,
+	)
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
@@ -46,33 +52,45 @@ func readArgs(args []string) (string, int, int, error) {
 		1. EXCEL_URL 2. FROM (row) 3. TO (row)
 	*/
 	if len(args) != 4 {
-		return "", 0, 0, fmt.Errorf("Missing arguments: please check the arguments.")
+		return "", 0, 0, fmt.Errorf(
+			"missing arguments: please check the arguments",
+		)
 	}
+
 	from, err := strconv.Atoi(args[2])
-	to, err := strconv.Atoi(os.Args[3])
 	if err != nil {
-		return "", 0, 0, fmt.Errorf("From or to argument must be an integer.")
+		return "", 0, 0, fmt.Errorf("from argument must be an integer: %v", err)
 	}
+
+	to, err := strconv.Atoi(args[3])
+	if err != nil {
+		return "", 0, 0, fmt.Errorf("to argument must be an integer: %v", err)
+	}
+
 	return args[1], from, to, nil
 }
 
 func downloadExcel(url string) error {
 	fmt.Println("Downloading Excel file from remote server...")
 	output, err := os.Create(fileName)
-	defer output.Close()
 	if err != nil {
 		return fmt.Errorf("Error while creating %s file: %s", fileName, err)
 	}
+	defer output.Close()
 
 	res, err := http.Get(url)
-	defer res.Body.Close()
 	if err != nil {
 		return fmt.Errorf("Error while downloading from %s: %s", url, err)
 	}
+	defer res.Body.Close()
 
 	n, err := io.Copy(output, res.Body)
 	if err != nil {
-		return fmt.Errorf("Error while receiving data from %s: %s", fileName, err)
+		return fmt.Errorf(
+			"Error while receiving data from %s: %s",
+			fileName,
+			err,
+		)
 	}
 	fmt.Println("Excel file retrieved successfully: ", n, "bytes downloaded.")
 	return nil
@@ -83,7 +101,11 @@ func importData(row int, file *excelize.File) (bool, error) {
 	axis := "C" + strconv.Itoa(row)
 	name, err := file.GetCellValue(sheetName, axis)
 	if err != nil {
-		return false, fmt.Errorf("Error reading Excel file. Axis: %s, error message: %s", axis, err)
+		return false, fmt.Errorf(
+			"Error reading Excel file. Axis: %s, error message: %s",
+			axis,
+			err,
+		)
 	}
 
 	// If database has same oid item, keep the old data and show warning message
@@ -93,20 +115,68 @@ func importData(row int, file *excelize.File) (bool, error) {
 		return false, fmt.Errorf("Error when trying to find a profile: %s", err)
 	}
 	if result > 0 {
-		return true, fmt.Errorf("Warning: profile already exists. The old data has not been overwritten. Row: %v, Name: %s\n", row, name)
+		return true, fmt.Errorf(
+			"Warning: profile already exists. The old data has not been overwritten. Row: %v, Name: %s\n",
+			row,
+			name,
+		)
 	}
 
 	// Todo: This seeder will be abandoned in near future, so I create data in simple way.
 	locality, err := file.GetCellValue(sheetName, "D"+strconv.Itoa(row))
-	region, err := file.GetCellValue(sheetName, "E"+strconv.Itoa(row))
-	countryName, err := file.GetCellValue(sheetName, "G"+strconv.Itoa(row))
-	description, err := file.GetCellValue(sheetName, "I"+strconv.Itoa(row))
-	primaryUrl, err := file.GetCellValue(sheetName, "J"+strconv.Itoa(row))
-	lat, err := file.GetCellValue(sheetName, "K"+strconv.Itoa(row))
-	lon, err := file.GetCellValue(sheetName, "L"+strconv.Itoa(row))
-
 	if err != nil {
-		return false, fmt.Errorf("Error when getting excel cell value: %s", err)
+		return false, fmt.Errorf(
+			"error when getting excel cell value for locality: %w",
+			err,
+		)
+	}
+
+	region, err := file.GetCellValue(sheetName, "E"+strconv.Itoa(row))
+	if err != nil {
+		return false, fmt.Errorf(
+			"error when getting excel cell value for region: %w",
+			err,
+		)
+	}
+
+	countryName, err := file.GetCellValue(sheetName, "G"+strconv.Itoa(row))
+	if err != nil {
+		return false, fmt.Errorf(
+			"error when getting excel cell value for country name: %w",
+			err,
+		)
+	}
+
+	description, err := file.GetCellValue(sheetName, "I"+strconv.Itoa(row))
+	if err != nil {
+		return false, fmt.Errorf(
+			"error when getting excel cell value for description: %w",
+			err,
+		)
+	}
+
+	primaryUrl, err := file.GetCellValue(sheetName, "J"+strconv.Itoa(row))
+	if err != nil {
+		return false, fmt.Errorf(
+			"error when getting excel cell value for primary URL: %w",
+			err,
+		)
+	}
+
+	lat, err := file.GetCellValue(sheetName, "K"+strconv.Itoa(row))
+	if err != nil {
+		return false, fmt.Errorf(
+			"error when getting excel cell value for latitude: %w",
+			err,
+		)
+	}
+
+	lon, err := file.GetCellValue(sheetName, "L"+strconv.Itoa(row))
+	if err != nil {
+		return false, fmt.Errorf(
+			"error when getting excel cell value for longitude: %w",
+			err,
+		)
 	}
 
 	profile := make(map[string]interface{})
@@ -119,10 +189,14 @@ func importData(row int, file *excelize.File) (bool, error) {
 	profile["country_name"] = countryName
 	geolocation := make(map[string]interface{})
 	geolocation["lat"], err = strconv.ParseFloat(lat, 64)
+	if err != nil {
+		return false, fmt.Errorf("error when parsing latitude: %w", err)
+	}
 	geolocation["lon"], err = strconv.ParseFloat(lon, 64)
 	if err != nil {
-		return false, fmt.Errorf("Error when parsing float number: %s", err)
+		return false, fmt.Errorf("error when parsing longitude: %w", err)
 	}
+
 	profile["geolocation"] = geolocation
 	profile["tags"] = []string{"Co-op"}
 
@@ -142,10 +216,18 @@ func importData(row int, file *excelize.File) (bool, error) {
 	validateUrl := config.Conf.Index.URL + "/v2/validate"
 	isValid, failureReasons, err := importutil.Validate(validateUrl, profile)
 	if err != nil {
-		return false, fmt.Errorf("Error when trying to validate a profile: %s", err)
+		return false, fmt.Errorf(
+			"Error when trying to validate a profile: %s",
+			err,
+		)
 	}
 	if !isValid {
-		return true, fmt.Errorf("Warning: skipped importing this row because profile validation failed. Row: %v, Name: %s, Failure Reasons: %s", row, name, failureReasons)
+		return true, fmt.Errorf(
+			"Warning: skipped importing this row because profile validation failed. Row: %v, Name: %s, Failure Reasons: %s",
+			row,
+			name,
+			failureReasons,
+		)
 	}
 
 	// Save to MongoDB, return url to post index
@@ -161,14 +243,23 @@ func importData(row int, file *excelize.File) (bool, error) {
 	profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profile["cuid"].(string)
 	nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 	if err != nil {
-		return false, fmt.Errorf("failed to post %s to Index: %s", profileUrl, err)
+		return false, fmt.Errorf(
+			"failed to post %s to Index: %s",
+			profileUrl,
+			err,
+		)
 	}
 
 	// update NodeId
 	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": true}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	_, err = mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)
+	_, err = mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Profile,
+		filter,
+		update,
+		opt,
+	)
 	if err != nil {
 		return true, err
 	}
@@ -234,7 +325,13 @@ func main() {
 	totalNums := to - from + 1
 	failedNums := totalNums - successNums - skippedNums
 
-	fmt.Printf("Successfully imported profiles. Total profiles: %v, Success: %v , Skipped: %v, Failed: %v\n", totalNums, successNums, skippedNums, failedNums)
+	fmt.Printf(
+		"Successfully imported profiles. Total profiles: %v, Success: %v , Skipped: %v, Failed: %v\n",
+		totalNums,
+		successNums,
+		skippedNums,
+		failedNums,
+	)
 
 	// Disconnect MongoDB and delete excel file
 	err = cleanUp()

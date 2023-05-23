@@ -7,15 +7,15 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )
 
-type respond struct {
+type Respond struct {
 	Data interface{} `json:"data,omitempty"`
 }
 
-type addNodeVO struct {
+type AddNodeVO struct {
 	NodeID string `json:"node_id,omitempty"`
 }
 
-type getNodeVO struct {
+type GetNodeVO struct {
 	ID             string    `json:"node_id,omitempty"`
 	ProfileURL     string    `json:"profile_url,omitempty"`
 	ProfileHash    *string   `json:"profile_hash,omitempty"`
@@ -24,19 +24,22 @@ type getNodeVO struct {
 	FailureReasons *[]string `json:"failure_reasons,omitempty"`
 }
 
-type searchNodeVO struct {
+type SearchNodeVO struct {
 	ProfileURL  string `json:"profile_url,omitempty"`
 	LastUpdated *int64 `json:"last_updated,omitempty"`
 }
 
-func (handler *nodeHandler) toAddNodeVO(node *entity.Node) interface{} {
-	return addNodeVO{
+func (handler *nodeHandler) ToAddNodeVO(node *entity.Node) interface{} {
+	return AddNodeVO{
 		NodeID: node.ID,
 	}
 }
 
-func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {
-	if node.Status != constant.NodeStatus.Validated && node.Status != constant.NodeStatus.Posted && node.Status != constant.NodeStatus.Deleted && node.Status != constant.NodeStatus.PostFailed {
+func (handler *nodeHandler) ToGetNodeVO(node *entity.Node) interface{} {
+	if node.Status != constant.NodeStatus.Validated &&
+		node.Status != constant.NodeStatus.Posted &&
+		node.Status != constant.NodeStatus.Deleted &&
+		node.Status != constant.NodeStatus.PostFailed {
 		node.ProfileHash = nil
 		node.LastUpdated = nil
 	}
@@ -45,18 +48,18 @@ func (handler *nodeHandler) toGetNodeVO(node *entity.Node) interface{} {
 	}
 
 	nodeJSON, _ := json.Marshal(toDTO(node))
-	var res getNodeVO
-	json.Unmarshal(nodeJSON, &res)
+	var res GetNodeVO
+	_ = json.Unmarshal(nodeJSON, &res)
 	return res
 }
 
-func (handler *nodeHandler) toSearchNodeVO(nodes entity.Nodes) interface{} {
+func (handler *nodeHandler) ToSearchNodeVO(nodes entity.Nodes) interface{} {
 	data := make([]interface{}, len(nodes))
 	for index, node := range nodes {
 		nodeJson, _ := json.Marshal(node)
-		var res searchNodeVO
-		json.Unmarshal(nodeJson, &res)
+		var res SearchNodeVO
+		_ = json.Unmarshal(nodeJson, &res)
 		data[index] = res
 	}
-	return respond{Data: data}
+	return Respond{Data: data}
 }

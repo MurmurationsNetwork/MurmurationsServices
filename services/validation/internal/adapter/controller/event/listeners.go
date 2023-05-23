@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	stan "github.com/nats-io/stan.go"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
-	"github.com/nats-io/stan.go"
 )
 
 type NodeHandler interface {
@@ -49,7 +50,7 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 				Version:    nodeCreatedData.Version,
 			})
 
-			msg.Ack()
+			_ = msg.Ack()
 		}()
 	}).Listen()
 }

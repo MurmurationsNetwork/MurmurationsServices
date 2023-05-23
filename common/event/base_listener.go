@@ -61,7 +61,7 @@ func (l *listener) UpdateOptions(opts ...stan.SubscriptionOption) {
 func DefaultMsgHandler() stan.MsgHandler {
 	return func(msg *stan.Msg) {
 		fmt.Println("receiving message: ", msg.Sequence, string(msg.Data))
-		msg.Ack()
+		_ = msg.Ack()
 	}
 }
 

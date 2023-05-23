@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFindAlpha2ByName(t *testing.T) {
@@ -13,7 +13,8 @@ func TestFindAlpha2ByName(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Return a sample response
 		response := `{"TD": ["chad"]}`
-		w.Write([]byte(response))
+		_, err := w.Write([]byte(response))
+		require.NoError(t, err)
 	}))
 	defer mockServer.Close()
 
@@ -21,6 +22,6 @@ func TestFindAlpha2ByName(t *testing.T) {
 
 	var country interface{} = "Chad"
 	countryIso, err := FindAlpha2ByName(url, country)
-	assert.Equal(t, "TD", countryIso)
-	assert.Equal(t, nil, err)
+	require.Equal(t, "TD", countryIso)
+	require.Equal(t, nil, err)
 }

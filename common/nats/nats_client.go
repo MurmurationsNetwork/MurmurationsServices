@@ -1,8 +1,9 @@
 package nats
 
 import (
+	stan "github.com/nats-io/stan.go"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/nats-io/stan.go"
 )
 
 type natsClient struct {

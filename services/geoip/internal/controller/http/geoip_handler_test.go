@@ -7,7 +7,8 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/internal/controller/http"
 	"github.com/gin-gonic/gin"
-	"github.com/oschwald/geoip2-golang"
+
+	geoip2 "github.com/oschwald/geoip2-golang"
 	"github.com/stretchr/testify/assert"
 )
 

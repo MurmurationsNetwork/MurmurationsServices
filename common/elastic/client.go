@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/olivere/elastic/v7"
+	elastic "github.com/olivere/elastic/v7"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 )
@@ -138,7 +138,7 @@ func (c *esClient) DeleteMany(index string, q *Query) error {
 		if elastic.IsNotFound(err) {
 			return nil
 		}
-		logger.Error(fmt.Sprintf("error when trying to delete documents"), err)
+		logger.Error("error when trying to delete documents", err)
 		return err
 	}
 	return nil

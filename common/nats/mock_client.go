@@ -1,7 +1,7 @@
 package nats
 
 import (
-	"github.com/nats-io/stan.go"
+	stan "github.com/nats-io/stan.go"
 )
 
 type mockClient struct {
