@@ -24,3 +24,11 @@ data:
   {{- else }}
   LIBRARY_CDN_URL: https://test-cdn.murmurations.network
   {{- end }}
+  # Delete TTL, notice: need to modify the value in nodecleaner service as well
+  {{- if eq .Values.global.env "production" }}
+  DELETED_TTL: "15552000" # 6 months = 180 days * 24 hrs * 60 mins * 60 secs
+  {{- else if eq .Values.global.env "staging" }}
+  DELETED_TTL: "172800" # 48 hrs
+  {{- else }}
+  DELETED_TTL: "120" # 2 mins
+  {{- end }}

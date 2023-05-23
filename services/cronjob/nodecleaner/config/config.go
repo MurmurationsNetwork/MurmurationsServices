@@ -9,10 +9,9 @@ import (
 var Conf = config{}
 
 type config struct {
-	Mongo      mongoConf
-	ES         esConf
-	TTL        int `env:"TTL,required"`
-	DELETEDTTL int `env:"DELETED_TTL,required"`
+	Mongo mongoConf
+	ES    esConf
+	TTL   ttlConf
 }
 
 type mongoConf struct {
@@ -24,6 +23,11 @@ type mongoConf struct {
 
 type esConf struct {
 	URL string `env:"ELASTICSEARCH_URL,required"`
+}
+
+type ttlConf struct {
+	TTL        int64 `env:"TTL,required"`
+	DeletedTTL int64 `env:"DELETED_TTL,required"`
 }
 
 func Init() {

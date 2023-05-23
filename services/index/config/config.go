@@ -15,6 +15,7 @@ type config struct {
 	Mongo   mongoConf
 	ES      esConf
 	Nats    natsConf
+	TTL     ttlConf
 }
 
 type serverConf struct {
@@ -49,6 +50,10 @@ type natsConf struct {
 	ClusterID string `env:"NATS_CLUSTER_ID,required"`
 	ClientID  string `env:"NATS_CLIENT_ID,required"`
 	URL       string `env:"NATS_URL,required"`
+}
+
+type ttlConf struct {
+	DeletedTTL int64 `env:"DELETED_TTL,required"`
 }
 
 func Init() {

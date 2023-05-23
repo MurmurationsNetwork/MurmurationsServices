@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
 	"net/http"
 	"strings"
 	"time"
@@ -204,7 +205,9 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	meta := jsonapi.NewMeta(fmt.Sprintf("The Index has recorded as deleted the profile that was previously posted at: %s", profileUrl), "", "")
+	deleteTtl := dateutil.FormatSeconds(config.Conf.TTL.DeletedTTL)
+
+	meta := jsonapi.NewMeta(fmt.Sprintf("The Index has recorded as deleted the profile that was previously posted at: %s -- It will be completely removed from the index in %s.", profileUrl, deleteTtl), "", "")
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }

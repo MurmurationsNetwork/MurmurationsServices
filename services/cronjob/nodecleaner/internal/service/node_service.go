@@ -27,7 +27,7 @@ func NewNodeService(nodeRepo db.NodeRepository) NodesService {
 func (svc *nodesService) Remove() error {
 	return svc.nodeRepo.Remove(
 		constant.NodeStatus.ValidationFailed,
-		dateutil.NowSubtract(time.Duration(config.Conf.TTL)*time.Second),
+		dateutil.NowSubtract(time.Duration(config.Conf.TTL.TTL)*time.Second),
 	)
 }
 
