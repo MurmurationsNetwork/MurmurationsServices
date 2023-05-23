@@ -84,11 +84,9 @@ func convertBsonDToMap(bsonD bson.D) *orderedmap.OrderedMap {
 		key := element.Key
 		value := element.Value
 
-		switch value.(type) {
-		case bson.D:
-			innerDoc := value.(bson.D)
+		if innerDoc, ok := value.(bson.D); ok {
 			result.Set(key, convertBsonDToMap(innerDoc))
-		default:
+		} else {
 			result.Set(key, value)
 		}
 	}

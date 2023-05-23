@@ -3,7 +3,7 @@ package validateurl
 import (
 	"testing"
 
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidate(t *testing.T) {

@@ -3,11 +3,13 @@ package app
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
+
+	corslib "github.com/gin-contrib/cors"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware/limiter"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
-	corslib "github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 )
 
 func getMiddlewares() []gin.HandlerFunc {

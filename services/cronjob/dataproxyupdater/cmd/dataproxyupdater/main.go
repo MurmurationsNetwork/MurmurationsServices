@@ -3,6 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -12,12 +19,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/service"
 	"github.com/lucsky/cuid"
-	"io"
-	"net/http"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func init() {
@@ -259,10 +260,11 @@ func getUrl(entry string, since int64, until int64, limit int, offset int) strin
 
 func getProfiles(url string) ([]map[string]interface{}, error) {
 	res, err := httputil.Get(url)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("can't get data from" + url)
 	}
+
+	defer res.Body.Close()
 
 	var bodyJson []map[string]interface{}
 	decoder := json.NewDecoder(res.Body)

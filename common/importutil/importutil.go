@@ -41,14 +41,23 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	result := mongo.Client.FindOne(constant.MongoIndex.Mapping, filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("Could not find mapping for the following schema: %s", schemaName)
+			return nil, fmt.Errorf(
+				"Could not find mapping for the following schema: %s",
+				schemaName,
+			)
 		}
-		return nil, fmt.Errorf("Error when trying to find schema mapping; error message: %s", result.Err())
+		return nil, fmt.Errorf(
+			"Error when trying to find schema mapping; error message: %s",
+			result.Err(),
+		)
 	}
 	schemaRaw := make(map[string]interface{})
 	err := result.Decode(schemaRaw)
 	if err != nil {
-		return nil, fmt.Errorf("Error when trying to parse database response; error message: %s", err)
+		return nil, fmt.Errorf(
+			"Error when trying to parse database response; error message: %s",
+			err,
+		)
 	}
 
 	// remove id and __v
@@ -77,7 +86,10 @@ func Hash(doc string) (string, error) {
 	return hex.EncodeToString(sum[0:]), nil
 }
 
-func MapFieldsName(profile map[string]interface{}, mapping map[string]string) map[string]interface{} {
+func MapFieldsName(
+	profile map[string]interface{},
+	mapping map[string]string,
+) map[string]interface{} {
 	profileJson := make(map[string]interface{})
 
 	for k, v := range mapping {
@@ -87,7 +99,9 @@ func MapFieldsName(profile map[string]interface{}, mapping map[string]string) ma
 		// Truncate latitude & longitude after the 8th decimal place since extra precision is superfluous
 		if k == "latitude" || k == "longitude" {
 			precision := math.Pow(10, float64(8))
-			truncatedValue := math.Round(profile[v].(float64)*precision) / precision
+			truncatedValue := math.Round(
+				profile[v].(float64)*precision,
+			) / precision
 			profileJson[k] = truncatedValue
 			continue
 		}
@@ -102,7 +116,11 @@ func MapFieldsName(profile map[string]interface{}, mapping map[string]string) ma
 	return profileJson
 }
 
-func MapProfile(profile map[string]interface{}, mapping map[string]string, schema string) (map[string]interface{}, error) {
+func MapProfile(
+	profile map[string]interface{},
+	mapping map[string]string,
+	schema string,
+) (map[string]interface{}, error) {
 	// Convert KVM field names to Org Schema field names
 	profileJson := MapFieldsName(profile, mapping)
 
@@ -157,21 +175,32 @@ func HashProfile(profile map[string]interface{}) (string, error) {
 	return profileHash, nil
 }
 
-func Validate(validateUrl string, profile map[string]interface{}) (bool, string, error) {
+func Validate(
+	validateUrl string,
+	profile map[string]interface{},
+) (bool, string, error) {
 	profileJson, err := json.Marshal(profile)
 	if err != nil {
 		return false, "", err
 	}
 
 	// Validate from index service
-	res, err := http.Post(validateUrl, "application/json", bytes.NewBuffer(profileJson))
+	res, err := http.Post(
+		validateUrl,
+		"application/json",
+		bytes.NewBuffer(profileJson),
+	)
 	if err != nil {
-		return false, "", err
+		return false, "", fmt.Errorf("failed to post request: %w", err)
 	}
 
 	var resBody map[string]interface{}
-	json.NewDecoder(res.Body).Decode(&resBody)
-	if res.StatusCode != 200 {
+	err = json.NewDecoder(res.Body).Decode(&resBody)
+	if err != nil {
+		return false, "", fmt.Errorf("failed to decode response body: %w", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
 		if resBody["errors"] != nil {
 			var errors []string
 			for _, item := range resBody["errors"].([]interface{}) {
@@ -182,6 +211,7 @@ func Validate(validateUrl string, profile map[string]interface{}) (bool, string,
 		}
 		return false, "failed without reasons!", nil
 	}
+
 	return true, "", nil
 }
 
@@ -193,22 +223,39 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 		errStr := "Error when trying to marshal a profile at `profile_url`: " + postProfile["profile_url"]
 		logger.Error(errStr, err)
 	}
-	res, err := http.Post(postNodeUrl, "application/json", bytes.NewBuffer(postProfileJson))
+	res, err := http.Post(
+		postNodeUrl,
+		"application/json",
+		bytes.NewBuffer(postProfileJson),
+	)
 	if err != nil {
 		return "", err
 	}
 	if res.StatusCode != 200 {
 		var resBody map[string]interface{}
-		json.NewDecoder(res.Body).Decode(&resBody)
+
+		err = json.NewDecoder(res.Body).Decode(&resBody)
+		if err != nil {
+			return "", err
+		}
+
 		if resBody["errors"] != nil {
 			var errors []string
 			for _, item := range resBody["errors"].([]interface{}) {
 				errors = append(errors, fmt.Sprintf("%#v", item))
 			}
 			errorsStr := strings.Join(errors, ",")
-			return "", fmt.Errorf("Post failed with status code: " + strconv.Itoa(res.StatusCode) + " at `profile_url`: " + postProfile["profile_url"] + " with error: " + errorsStr)
+			return "", fmt.Errorf(
+				"Post failed with status code: " + strconv.Itoa(
+					res.StatusCode,
+				) + " at `profile_url`: " + postProfile["profile_url"] + " with error: " + errorsStr,
+			)
 		}
-		return "", fmt.Errorf("Post failed with status code: " + strconv.Itoa(res.StatusCode) + "at `profile_url`: " + postProfile["profile_url"])
+		return "", fmt.Errorf(
+			"Post failed with status code: " + strconv.Itoa(
+				res.StatusCode,
+			) + "at `profile_url`: " + postProfile["profile_url"],
+		)
 	}
 
 	// Get POST /node body response
@@ -241,16 +288,29 @@ func DeleteIndex(deleteNodeUrl string, nodeId string) error {
 	}
 	if res.StatusCode != 200 {
 		var resBody map[string]interface{}
-		json.NewDecoder(res.Body).Decode(&resBody)
+
+		err = json.NewDecoder(res.Body).Decode(&resBody)
+		if err != nil {
+			return err
+		}
+
 		if resBody["errors"] != nil {
 			var errors []string
 			for _, item := range resBody["errors"].([]interface{}) {
 				errors = append(errors, fmt.Sprintf("%#v", item))
 			}
 			errorsStr := strings.Join(errors, ",")
-			return fmt.Errorf("Delete failed with status code: " + strconv.Itoa(res.StatusCode) + " for `node_id`: " + nodeId + " with error: " + errorsStr)
+			return fmt.Errorf(
+				"Delete failed with status code: " + strconv.Itoa(
+					res.StatusCode,
+				) + " for `node_id`: " + nodeId + " with error: " + errorsStr,
+			)
 		}
-		return fmt.Errorf("Delete failed with status code: " + strconv.Itoa(res.StatusCode) + " for `node_id`: " + nodeId)
+		return fmt.Errorf(
+			"Delete failed with status code: " + strconv.Itoa(
+				res.StatusCode,
+			) + " for `node_id`: " + nodeId,
+		)
 	}
 	return nil
 }

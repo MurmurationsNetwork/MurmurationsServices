@@ -3,8 +3,9 @@ package nats
 import (
 	"os"
 
+	stan "github.com/nats-io/stan.go"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
-	"github.com/nats-io/stan.go"
 )
 
 var (

@@ -2,12 +2,14 @@ package db
 
 import (
 	"context"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/entity"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/entity"
 )
 
 type UpdateRepository interface {
@@ -30,18 +32,31 @@ type updateRepository struct {
 func (r *updateRepository) Get(schemaName string) *entity.Update {
 	filter := bson.M{"schema": schemaName}
 
-	result := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Update).FindOne(context.Background(), filter)
+	result := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Update).
+		FindOne(context.Background(), filter)
 
 	var res *entity.Update
-	result.Decode(&res)
+	_ = result.Decode(&res)
 
 	return res
 }
 
-func (r *updateRepository) Save(schemaName string, lastUpdated int64, apiEntry string) error {
-	filter := bson.M{"schema": schemaName, "last_updated": lastUpdated, "has_error": false, "api_entry": apiEntry}
+func (r *updateRepository) Save(
+	schemaName string,
+	lastUpdated int64,
+	apiEntry string,
+) error {
+	filter := bson.M{
+		"schema":       schemaName,
+		"last_updated": lastUpdated,
+		"has_error":    false,
+		"api_entry":    apiEntry,
+	}
 
-	_, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Update).InsertOne(context.Background(), filter)
+	_, err := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Update).
+		InsertOne(context.Background(), filter)
 
 	if err != nil {
 		return err
@@ -55,7 +70,9 @@ func (r *updateRepository) Update(schemaName string, lastUpdated int64) error {
 	update := bson.M{"$set": bson.M{"last_updated": lastUpdated}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Update).FindOneAndUpdate(context.Background(), filter, update, opt)
+	result := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Update).
+		FindOneAndUpdate(context.Background(), filter, update, opt)
 
 	if result.Err() != nil {
 		return result.Err()
@@ -64,12 +81,19 @@ func (r *updateRepository) Update(schemaName string, lastUpdated int64) error {
 	return nil
 }
 
-func (r *updateRepository) SaveError(schemaName string, errorMessage string) error {
+func (r *updateRepository) SaveError(
+	schemaName string,
+	errorMessage string,
+) error {
 	filter := bson.M{"schema": schemaName}
-	update := bson.M{"$set": bson.M{"has_error": true, "error_message": errorMessage}}
+	update := bson.M{
+		"$set": bson.M{"has_error": true, "error_message": errorMessage},
+	}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Update).FindOneAndUpdate(context.Background(), filter, update, opt)
+	result := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Update).
+		FindOneAndUpdate(context.Background(), filter, update, opt)
 
 	if result.Err() != nil {
 		return result.Err()

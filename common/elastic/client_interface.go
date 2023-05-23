@@ -1,9 +1,10 @@
 package elastic
 
 import (
-	"github.com/olivere/elastic/v7"
 	"os"
 	"time"
+
+	elastic "github.com/olivere/elastic/v7"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"

@@ -3,7 +3,7 @@ package cryptoutil
 import (
 	"testing"
 
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSHA256(t *testing.T) {

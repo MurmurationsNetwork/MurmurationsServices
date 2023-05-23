@@ -3,9 +3,10 @@ package global
 import (
 	"fmt"
 
+	geoip2 "github.com/oschwald/geoip2-golang"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/config"
-	"github.com/oschwald/geoip2-golang"
 )
 
 var DB *geoip2.Reader

@@ -12,7 +12,9 @@ func init() {
 }
 
 func main() {
-	nodeUsecase := usecase.NewNodeUsecase((repository.NewNodeRepository(mongo.Client.GetClient())))
-	nodeUsecase.RevalidateNodes()
+	nodeUsecase := usecase.NewNodeUsecase(
+		(repository.NewNodeRepository(mongo.Client.GetClient())),
+	)
+	_ = nodeUsecase.RevalidateNodes()
 	mongo.Client.Disconnect()
 }

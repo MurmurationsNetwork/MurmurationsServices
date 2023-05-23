@@ -63,7 +63,7 @@ func (l logger) Print(v ...interface{}) {
 
 func Info(msg string, tags ...zap.Field) {
 	log.log.Info(msg, tags...)
-	log.log.Sync()
+	_ = log.log.Sync()
 }
 
 func Error(msg string, err error, tags ...zap.Field) {
@@ -71,17 +71,17 @@ func Error(msg string, err error, tags ...zap.Field) {
 		tags = append(tags, zap.NamedError("error", err))
 	}
 	log.log.Error(msg, tags...)
-	log.log.Sync()
+	_ = log.log.Sync()
 }
 
 func Panic(msg string, err error, tags ...zap.Field) {
 	tags = append(tags, zap.NamedError("error", err))
 	log.log.Panic(msg, tags...)
-	log.log.Sync()
+	_ = log.log.Sync()
 }
 
 func Fatal(msg string, err error, tags ...zap.Field) {
 	tags = append(tags, zap.NamedError("error", err))
 	log.log.Fatal(msg, tags...)
-	log.log.Sync()
+	_ = log.log.Sync()
 }
