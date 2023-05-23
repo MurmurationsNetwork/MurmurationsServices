@@ -20,6 +20,17 @@ jobs:
       - name: Test
         run: make test
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.39
+
   build-index:
     name: Build Index
     needs: test
