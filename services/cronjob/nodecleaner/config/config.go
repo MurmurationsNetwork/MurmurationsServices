@@ -26,8 +26,8 @@ type esConf struct {
 }
 
 type ttlConf struct {
-	TTL        int64 `env:"TTL,required"`
-	DeletedTTL int64 `env:"DELETED_TTL,required"`
+	ValidationFailedTTL int64 `env:"VALIDATION_FAILED_TTL,required"`
+	DeletedTTL          int64 `env:"DELETED_TTL,required"`
 }
 
 func Init() {
