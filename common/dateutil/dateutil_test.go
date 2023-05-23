@@ -32,3 +32,25 @@ func TestNowSubtract(t *testing.T) {
 	actual = NowSubtract(86400 * time.Second)
 	assert.Equal(t, actual, expect)
 }
+
+func TestFormatSeconds(t *testing.T) {
+	expect := "1 minutes 40 seconds"
+	actual := FormatSeconds(100)
+	assert.Equal(t, actual, expect)
+
+	expect = ""
+	actual = FormatSeconds(-1)
+	assert.Equal(t, actual, expect)
+
+	expect = "6 months"
+	actual = FormatSeconds(15552000)
+	assert.Equal(t, actual, expect)
+
+	expect = "2 days"
+	actual = FormatSeconds(172800)
+	assert.Equal(t, actual, expect)
+
+	expect = "2 minutes"
+	actual = FormatSeconds(120)
+	assert.Equal(t, actual, expect)
+}

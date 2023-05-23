@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// delete mongoDB data
-	deletedTimeout := dateutil.NowSubtract(time.Duration(config.Conf.DELETEDTTL) * time.Second)
+	deletedTimeout := dateutil.NowSubtract(time.Duration(config.Conf.TTL.DeletedTTL) * time.Second)
 
 	err = svc.RemoveDeleted(constant.NodeStatus.Deleted, deletedTimeout)
 	if err != nil {
