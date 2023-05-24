@@ -12,7 +12,9 @@ func mapUrls(router *gin.Engine) {
 	mappingsHandler := http.NewMappingsHandler(db.NewMappingRepository())
 	profilesHandler := http.NewProfilesHandler(db.NewProfileRepository())
 	updatesHandler := http.NewUpdatesHandler(db.NewUpdateRepository())
-	batchesHandler := http.NewBatchesHandler(usecase.NewBatchService(db.NewBatchRepository()))
+	batchesHandler := http.NewBatchesHandler(
+		usecase.NewBatchService(db.NewBatchRepository()),
+	)
 
 	v1 := router.Group("/v1")
 	{

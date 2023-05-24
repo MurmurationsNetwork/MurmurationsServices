@@ -26,7 +26,8 @@ func StartApplication() {
 	closed := make(chan struct{})
 	go waitForShutdown(server, closed)
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := server.ListenAndServe(); err != nil &&
+		err != http.ErrServerClosed {
 		logger.Panic("Error when trying to start the server", err)
 	}
 

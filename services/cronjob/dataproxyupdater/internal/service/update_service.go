@@ -26,7 +26,11 @@ func (svc *updatesService) Get(schemaName string) *entity.Update {
 	return svc.updateRepo.Get(schemaName)
 }
 
-func (svc *updatesService) Save(schemaName string, lastUpdated int64, apiEntry string) error {
+func (svc *updatesService) Save(
+	schemaName string,
+	lastUpdated int64,
+	apiEntry string,
+) error {
 	return svc.updateRepo.Save(schemaName, lastUpdated, apiEntry)
 }
 
@@ -34,6 +38,9 @@ func (svc *updatesService) Update(schemaName string, lastUpdated int64) error {
 	return svc.updateRepo.Update(schemaName, lastUpdated)
 }
 
-func (svc *updatesService) SaveError(schemaName string, errorMessage string) error {
+func (svc *updatesService) SaveError(
+	schemaName string,
+	errorMessage string,
+) error {
 	return svc.updateRepo.SaveError(schemaName, errorMessage)
 }

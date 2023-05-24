@@ -70,7 +70,11 @@ func (l *listener) Listen() error {
 		return ErrNilMsgHandler
 	}
 
-	_, err := l.client.QueueSubscribe(string(l.subject), l.qgroup, l.msgHandler, l.opts...)
+	_, err := l.client.QueueSubscribe(
+		string(l.subject),
+		l.qgroup,
+		l.msgHandler,
+		l.opts...)
 	if err != nil {
 		return err
 	}

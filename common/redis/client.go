@@ -19,7 +19,11 @@ func (r *redisImpl) Ping() error {
 	return nil
 }
 
-func (r *redisImpl) Set(key string, value interface{}, expiration time.Duration) error {
+func (r *redisImpl) Set(
+	key string,
+	value interface{},
+	expiration time.Duration,
+) error {
 	err := r.client.Set(context.Background(), key, value, 0).Err()
 	if err != nil {
 		return err

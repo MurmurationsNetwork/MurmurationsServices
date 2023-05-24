@@ -10,11 +10,17 @@ type mockClient struct {
 	client *mongo.Client
 }
 
-func (c *mockClient) FindOne(collection string, filter primitive.M) *mongo.SingleResult {
+func (c *mockClient) FindOne(
+	collection string,
+	filter primitive.M,
+) *mongo.SingleResult {
 	return nil
 }
 
-func (c *mockClient) Count(collection string, filter primitive.M) (int64, error) {
+func (c *mockClient) Count(
+	collection string,
+	filter primitive.M,
+) (int64, error) {
 	return 0, nil
 }
 
@@ -23,11 +29,20 @@ func (c *mockClient) InsertOne(collection string, document interface{},
 	return &mongo.InsertOneResult{}, nil
 }
 
-func (c *mockClient) FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error) {
+func (c *mockClient) FindOneAndUpdate(
+	collection string,
+	filter primitive.M,
+	update primitive.M,
+	opts ...*options.FindOneAndUpdateOptions,
+) (*mongo.SingleResult, error) {
 	return &mongo.SingleResult{}, nil
 }
 
-func (c *mockClient) Find(collection string, filter primitive.M, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+func (c *mockClient) Find(
+	collection string,
+	filter primitive.M,
+	opts ...*options.FindOptions,
+) (*mongo.Cursor, error) {
 	return &mongo.Cursor{}, nil
 }
 

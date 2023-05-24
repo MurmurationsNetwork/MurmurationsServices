@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
@@ -25,11 +26,19 @@ func (r *mappingRepository) Save(mapping map[string]string) resterr.RestErr {
 	update := bson.M{"$set": mapping}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Mapping, filter, update, opt)
+	_, err := mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Mapping,
+		filter,
+		update,
+		opt,
+	)
 	if err != nil {
 		logger.Error("Error when trying to create a node", err)
-		return resterr.NewInternalServerError("Error when trying to add a node.", errors.New("database error"))
+		return resterr.NewInternalServerError(
+			"Error when trying to add a node.",
+			errors.New("database error"),
+		)
 	}
-	
+
 	return nil
 }

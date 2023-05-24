@@ -19,12 +19,15 @@ func (c *esClient) setClient(client *elastic.Client) {
 
 func (c *esClient) CreateMappings(indices []Index) error {
 	for _, index := range indices {
-		exists, err := c.client.IndexExists(string(index.Name)).Do(context.Background())
+		exists, err := c.client.IndexExists(string(index.Name)).
+			Do(context.Background())
 		if err != nil {
 			return err
 		}
 		if !exists {
-			createIndex, err := c.client.CreateIndex(string(index.Name)).BodyString(index.Body).Do(context.Background())
+			createIndex, err := c.client.CreateIndex(string(index.Name)).
+				BodyString(index.Body).
+				Do(context.Background())
 			if err != nil {
 				return err
 			}
@@ -36,7 +39,10 @@ func (c *esClient) CreateMappings(indices []Index) error {
 	return nil
 }
 
-func (c *esClient) Index(index string, doc interface{}) (*elastic.IndexResponse, error) {
+func (c *esClient) Index(
+	index string,
+	doc interface{},
+) (*elastic.IndexResponse, error) {
 	ctx := context.Background()
 	result, err := c.client.Index().
 		Index(index).
@@ -44,14 +50,24 @@ func (c *esClient) Index(index string, doc interface{}) (*elastic.IndexResponse,
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying to index document in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to index document in Index: %s",
+				index,
+			),
+			err,
+		)
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elastic.IndexResponse, error) {
+func (c *esClient) IndexWithID(
+	index string,
+	id string,
+	doc interface{},
+) (*elastic.IndexResponse, error) {
 	ctx := context.Background()
 	result, err := c.client.Index().
 		Index(index).
@@ -60,14 +76,23 @@ func (c *esClient) IndexWithID(index string, id string, doc interface{}) (*elast
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying to index a document in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to index a document in Index: %s",
+				index,
+			),
+			err,
+		)
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error) {
+func (c *esClient) Search(
+	index string,
+	q *Query,
+) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 
 	// sort strategy - 1. _score 2. primary_url
@@ -83,14 +108,24 @@ func (c *esClient) Search(index string, q *Query) (*elastic.SearchResult, error)
 		SortBy(sortQuery1, sortQuery2).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying to search documents in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to search documents in Index: %s",
+				index,
+			),
+			err,
+		)
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (c *esClient) Update(index string, id string, update map[string]interface{}) error {
+func (c *esClient) Update(
+	index string,
+	id string,
+	update map[string]interface{},
+) error {
 	ctx := context.Background()
 	_, err := c.client.Update().
 		Index(index).
@@ -103,7 +138,13 @@ func (c *esClient) Update(index string, id string, update map[string]interface{}
 		if elastic.IsNotFound(err) {
 			return nil
 		}
-		logger.Error(fmt.Sprintf("Error when trying to delete a document in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to delete a document in Index: %s",
+				index,
+			),
+			err,
+		)
 		return err
 	}
 	return nil
@@ -121,7 +162,13 @@ func (c *esClient) Delete(index string, id string) error {
 		if elastic.IsNotFound(err) {
 			return nil
 		}
-		logger.Error(fmt.Sprintf("Error when trying to delete a document in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to delete a document in Index: %s",
+				index,
+			),
+			err,
+		)
 		return err
 	}
 	return nil
@@ -144,7 +191,11 @@ func (c *esClient) DeleteMany(index string, q *Query) error {
 	return nil
 }
 
-func (c *esClient) Export(index string, q *Query, searchAfter []interface{}) (*elastic.SearchResult, error) {
+func (c *esClient) Export(
+	index string,
+	q *Query,
+	searchAfter []interface{},
+) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 
 	sortQuery1 := elastic.NewFieldSort("last_updated")
@@ -160,17 +211,27 @@ func (c *esClient) Export(index string, q *Query, searchAfter []interface{}) (*e
 		SortBy(sortQuery1, sortQuery2).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying to search documents in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to search documents in Index: %s",
+				index,
+			),
+			err,
+		)
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (c *esClient) GetNodes(index string, q *Query) (*elastic.SearchResult, error) {
+func (c *esClient) GetNodes(
+	index string,
+	q *Query,
+) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 
-	source := elastic.NewFetchSourceContext(true).Include("geolocation", "profile_url")
+	source := elastic.NewFetchSourceContext(true).
+		Include("geolocation", "profile_url")
 
 	// sort strategy - 1. _score 2. primary_url
 	sortQuery1 := elastic.NewFieldSort("_score").Desc()
@@ -186,7 +247,13 @@ func (c *esClient) GetNodes(index string, q *Query) (*elastic.SearchResult, erro
 		SortBy(sortQuery1, sortQuery2).
 		Do(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying to search documents in Index: %s", index), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to search documents in Index: %s",
+				index,
+			),
+			err,
+		)
 		return nil, err
 	}
 

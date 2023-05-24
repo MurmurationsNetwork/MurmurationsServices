@@ -8,7 +8,10 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-func parseValidateError(schema string, resultErrors []gojsonschema.ResultError) ([]string, []string, [][]string) {
+func parseValidateError(
+	schema string,
+	resultErrors []gojsonschema.ResultError,
+) ([]string, []string, [][]string) {
 	var (
 		failedTitles, failedDetails []string
 		failedSources               [][]string
@@ -86,7 +89,12 @@ func getSchemaURL(schemaUrl string, linkedSchema string) string {
 	return schemaUrl + "/v2/schemas/" + linkedSchema
 }
 
-func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateData string, schemaLoader string) ([]string, []string, [][]string, []int) {
+func ValidateAgainstSchemas(
+	schemaUrl string,
+	linkedSchemas []string,
+	validateData string,
+	schemaLoader string,
+) ([]string, []string, [][]string, []int) {
 	var (
 		titles, details []string
 		sources         [][]string
@@ -96,30 +104,48 @@ func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateDa
 	for _, linkedSchema := range linkedSchemas {
 		schemaURL := getSchemaURL(schemaUrl, linkedSchema)
 
-		schema, err := gojsonschema.NewSchema(gojsonschema.NewReferenceLoader(schemaURL))
+		schema, err := gojsonschema.NewSchema(
+			gojsonschema.NewReferenceLoader(schemaURL),
+		)
 		if err != nil {
 			titles = append(titles, []string{"Schema Not Found"}...)
-			details = append(details, []string{"Could not locate the following schema in the Library: " + linkedSchema}...)
-			sources = append(sources, [][]string{{"pointer", "/linked_schemas"}}...)
+			details = append(
+				details,
+				[]string{
+					"Could not locate the following schema in the Library: " + linkedSchema,
+				}...)
+			sources = append(
+				sources,
+				[][]string{{"pointer", "/linked_schemas"}}...)
 			errorStatus = append(errorStatus, http.StatusNotFound)
 			continue
 		}
 
 		var result *gojsonschema.Result
 		if schemaLoader == "reference" {
-			result, err = schema.Validate(gojsonschema.NewReferenceLoader(validateData))
+			result, err = schema.Validate(
+				gojsonschema.NewReferenceLoader(validateData),
+			)
 		} else {
 			result, err = schema.Validate(gojsonschema.NewStringLoader(validateData))
 		}
 		if err != nil {
 			titles = append(titles, "Cannot Validate Document")
-			details = append(details, []string{"Error when trying to validate document: ", err.Error()}...)
+			details = append(
+				details,
+				[]string{
+					"Error when trying to validate document: ",
+					err.Error(),
+				}...)
 			errorStatus = append(errorStatus, http.StatusBadRequest)
 			continue
 		}
 
 		if !result.Valid() {
-			failedTitles, failedDetails, failedSources := parseValidateError(linkedSchema, result.Errors())
+			failedTitles, failedDetails, failedSources := parseValidateError(
+				linkedSchema,
+				result.Errors(),
+			)
 			titles = append(titles, failedTitles...)
 			details = append(details, failedDetails...)
 			sources = append(sources, failedSources...)
@@ -132,7 +158,11 @@ func ValidateAgainstSchemas(schemaUrl string, linkedSchemas []string, validateDa
 	return titles, details, sources, errorStatus
 }
 
-func ValidateAgainstSchemasWithoutURL(linkedSchemas []string, validateSchemas []string, validateData map[string]interface{}) ([]string, []string, [][]string, []int) {
+func ValidateAgainstSchemasWithoutURL(
+	linkedSchemas []string,
+	validateSchemas []string,
+	validateData map[string]interface{},
+) ([]string, []string, [][]string, []int) {
 	var (
 		titles, details []string
 		sources         [][]string
@@ -140,11 +170,19 @@ func ValidateAgainstSchemasWithoutURL(linkedSchemas []string, validateSchemas []
 	)
 
 	for i, linkedSchema := range linkedSchemas {
-		schema, err := gojsonschema.NewSchema(gojsonschema.NewStringLoader(linkedSchema))
+		schema, err := gojsonschema.NewSchema(
+			gojsonschema.NewStringLoader(linkedSchema),
+		)
 		if err != nil {
 			titles = append(titles, []string{"Schema Not Found"}...)
-			details = append(details, []string{"Could not parse the schema: " + validateSchemas[i]}...)
-			sources = append(sources, [][]string{{"pointer", "/linked_schemas"}}...)
+			details = append(
+				details,
+				[]string{
+					"Could not parse the schema: " + validateSchemas[i],
+				}...)
+			sources = append(
+				sources,
+				[][]string{{"pointer", "/linked_schemas"}}...)
 			errorStatus = append(errorStatus, http.StatusNotFound)
 			continue
 		}
@@ -153,13 +191,21 @@ func ValidateAgainstSchemasWithoutURL(linkedSchemas []string, validateSchemas []
 		result, err = schema.Validate(gojsonschema.NewGoLoader(validateData))
 		if err != nil {
 			titles = append(titles, "Cannot Validate Document")
-			details = append(details, []string{"Error when trying to validate document: ", err.Error()}...)
+			details = append(
+				details,
+				[]string{
+					"Error when trying to validate document: ",
+					err.Error(),
+				}...)
 			errorStatus = append(errorStatus, http.StatusBadRequest)
 			continue
 		}
 
 		if !result.Valid() {
-			failedTitles, failedDetails, failedSources := parseValidateError(validateSchemas[i], result.Errors())
+			failedTitles, failedDetails, failedSources := parseValidateError(
+				validateSchemas[i],
+				result.Errors(),
+			)
 			titles = append(titles, failedTitles...)
 			details = append(details, failedDetails...)
 			sources = append(sources, failedSources...)

@@ -11,7 +11,11 @@ func (r *redismock) Ping() error {
 	return nil
 }
 
-func (r *redismock) Set(key string, value interface{}, expiration time.Duration) error {
+func (r *redismock) Set(
+	key string,
+	value interface{},
+	expiration time.Duration,
+) error {
 	return nil
 }
 

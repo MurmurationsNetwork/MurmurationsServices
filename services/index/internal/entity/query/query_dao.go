@@ -12,25 +12,46 @@ func (q *EsQuery) Build(isMap bool) *elastic.Query {
 	subQueries := elastic.NewQueries()
 
 	if q.Schema != nil {
-		subQueries = append(subQueries, elastic.NewWildcardQuery("linked_schemas", *q.Schema+"*"))
+		subQueries = append(
+			subQueries,
+			elastic.NewWildcardQuery("linked_schemas", *q.Schema+"*"),
+		)
 	}
 	if q.LastUpdated != nil {
-		subQueries = append(subQueries, elastic.NewRangeQuery("last_updated").Gte(q.LastUpdated))
+		subQueries = append(
+			subQueries,
+			elastic.NewRangeQuery("last_updated").Gte(q.LastUpdated),
+		)
 	}
 	if q.Locality != nil {
-		subQueries = append(subQueries, elastic.NewTextQuery("locality", *q.Locality))
+		subQueries = append(
+			subQueries,
+			elastic.NewTextQuery("locality", *q.Locality),
+		)
 	}
 	if q.Region != nil {
-		subQueries = append(subQueries, elastic.NewTextQuery("region", *q.Region))
+		subQueries = append(
+			subQueries,
+			elastic.NewTextQuery("region", *q.Region),
+		)
 	}
 	if q.Country != nil {
-		subQueries = append(subQueries, elastic.NewTextQuery("country", *q.Country))
+		subQueries = append(
+			subQueries,
+			elastic.NewTextQuery("country", *q.Country),
+		)
 	}
 	if q.Status != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("status", *q.Status))
+		subQueries = append(
+			subQueries,
+			elastic.NewMatchQuery("status", *q.Status),
+		)
 	}
 	if q.PrimaryUrl != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("primary_url", *q.PrimaryUrl))
+		subQueries = append(
+			subQueries,
+			elastic.NewMatchQuery("primary_url", *q.PrimaryUrl),
+		)
 	}
 
 	if q.Tags != nil {
@@ -47,7 +68,13 @@ func (q *EsQuery) Build(isMap bool) *elastic.Query {
 
 	filters := elastic.NewQueries()
 	if q.Lat != nil && q.Lon != nil && q.Range != nil {
-		filters = append(filters, elastic.NewGeoDistanceQuery("geolocation").Lat(*q.Lat).Lon(*q.Lon).Distance(*q.Range))
+		filters = append(
+			filters,
+			elastic.NewGeoDistanceQuery("geolocation").
+				Lat(*q.Lat).
+				Lon(*q.Lon).
+				Distance(*q.Range),
+		)
 	}
 
 	if isMap {
@@ -77,7 +104,10 @@ func (q *EsBlockQuery) BuildBlock() *elastic.Query {
 	subQueries := elastic.NewQueries()
 
 	if q.Schema != nil {
-		subQueries = append(subQueries, elastic.NewWildcardQuery("linked_schemas", *q.Schema+"*"))
+		subQueries = append(
+			subQueries,
+			elastic.NewWildcardQuery("linked_schemas", *q.Schema+"*"),
+		)
 	}
 
 	query.Must(subQueries...)

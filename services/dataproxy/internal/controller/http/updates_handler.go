@@ -1,9 +1,10 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UpdatesHandler interface {

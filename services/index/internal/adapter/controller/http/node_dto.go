@@ -1,25 +1,31 @@
 package http
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )
 
 type nodeDTO struct {
-	ID             string           `json:"node_id" `
-	ProfileURL     string           `json:"profile_url" `
-	ProfileHash    *string          `json:"profile_hash" `
-	Status         string           `json:"status" `
-	LastUpdated    *int64           `json:"last_updated" `
-	FailureReasons *[]jsonapi.Error `json:"failure_reasons" `
+	ID             string           `json:"node_id"`
+	ProfileURL     string           `json:"profile_url"`
+	ProfileHash    *string          `json:"profile_hash"`
+	Status         string           `json:"status"`
+	LastUpdated    *int64           `json:"last_updated"`
+	FailureReasons *[]jsonapi.Error `json:"failure_reasons"`
 }
 
 func (dto *nodeDTO) Validate() []jsonapi.Error {
 	if dto.ProfileURL == "" {
-		return jsonapi.NewError([]string{"Missing Required Property"}, []string{"The `profile_url` property is required."}, nil, []int{http.StatusBadRequest})
+		return jsonapi.NewError(
+			[]string{"Missing Required Property"},
+			[]string{"The `profile_url` property is required."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 	}
 	u, err := url.Parse(dto.ProfileURL)
 	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
@@ -28,8 +34,15 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 	if u.Scheme == "http" {
 		uCount = 1
 	}
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || uCount == 0 {
-		return jsonapi.NewError([]string{"Invalid Profile URL"}, []string{"The `profile_url` is not a valid URL."}, nil, []int{http.StatusBadRequest})
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") ||
+		u.Host == "" ||
+		uCount == 0 {
+		return jsonapi.NewError(
+			[]string{"Invalid Profile URL"},
+			[]string{"The `profile_url` is not a valid URL."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 	}
 	return nil
 }

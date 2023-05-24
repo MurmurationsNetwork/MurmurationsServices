@@ -12,7 +12,11 @@ func Init() {
 }
 
 func natsInit() {
-	err := nats.NewClient(config.Conf.Nats.ClusterID, config.Conf.Nats.ClientID, config.Conf.Nats.URL)
+	err := nats.NewClient(
+		config.Conf.Nats.ClusterID,
+		config.Conf.Nats.ClientID,
+		config.Conf.Nats.URL,
+	)
 	if err != nil {
 		logger.Panic("error when trying to connect nats", err)
 	}

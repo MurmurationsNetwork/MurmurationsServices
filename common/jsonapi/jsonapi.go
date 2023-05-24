@@ -1,9 +1,10 @@
 package jsonapi
 
 import (
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type JsonApi struct {
@@ -40,7 +41,12 @@ type Meta struct {
 
 // JSON API Response Combination
 
-func Response(data interface{}, errors []Error, link *Link, meta *Meta) JsonApi {
+func Response(
+	data interface{},
+	errors []Error,
+	link *Link,
+	meta *Meta,
+) JsonApi {
 	return JsonApi{
 		Data:   data,
 		Errors: errors,
@@ -51,7 +57,12 @@ func Response(data interface{}, errors []Error, link *Link, meta *Meta) JsonApi 
 
 // JSON API Internal Data
 
-func NewError(titles []string, details []string, sources [][]string, status []int) []Error {
+func NewError(
+	titles []string,
+	details []string,
+	sources [][]string,
+	status []int,
+) []Error {
 	var errors []Error
 	for i := 0; i < len(titles); i++ {
 		if len(details) != 0 && len(sources) != 0 {
@@ -90,9 +101,17 @@ func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
 
 	query := c.Request.RequestURI
 	if currentPage != 0 {
-		if strings.Contains(query, "?page="+strconv.Itoa(int(currentPage))+"&") {
+		if strings.Contains(
+			query,
+			"?page="+strconv.Itoa(int(currentPage))+"&",
+		) {
 			// if page is the first query and query also has the other parameters
-			query = strings.Replace(query, "page="+strconv.Itoa(int(currentPage))+"&", "", -1)
+			query = strings.Replace(
+				query,
+				"page="+strconv.Itoa(int(currentPage))+"&",
+				"",
+				-1,
+			)
 		} else if strings.Contains(query, "?page="+strconv.Itoa(int(currentPage))) {
 			// if query only has page parameter
 			query = strings.Replace(query, "?page="+strconv.Itoa(int(currentPage)), "", -1)
@@ -155,7 +174,11 @@ func NewMeta(message string, nodeId string, profileUrl string) *Meta {
 	}
 }
 
-func NewSearchMeta(message string, numberOfResults int64, totalPages int64) *Meta {
+func NewSearchMeta(
+	message string,
+	numberOfResults int64,
+	totalPages int64,
+) *Meta {
 	return &Meta{
 		Message:         message,
 		NumberOfResults: numberOfResults,

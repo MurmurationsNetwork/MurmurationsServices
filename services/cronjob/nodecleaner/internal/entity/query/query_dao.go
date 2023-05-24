@@ -10,12 +10,18 @@ func (q *EsQuery) Build() *elastic.Query {
 	subQueries := elastic.NewQueries()
 
 	if q.Status != nil {
-		subQueries = append(subQueries, elastic.NewMatchQuery("status", *q.Status))
+		subQueries = append(
+			subQueries,
+			elastic.NewMatchQuery("status", *q.Status),
+		)
 	}
 
 	filters := elastic.NewQueries()
 	if q.TimeBefore != nil {
-		filters = append(filters, elastic.NewRangeQuery("last_updated").Lte(*q.TimeBefore))
+		filters = append(
+			filters,
+			elastic.NewRangeQuery("last_updated").Lte(*q.TimeBefore),
+		)
 	}
 
 	query.Must(subQueries...).Filter(filters...)

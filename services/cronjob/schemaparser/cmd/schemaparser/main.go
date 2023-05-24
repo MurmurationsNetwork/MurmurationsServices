@@ -15,16 +15,24 @@ func init() {
 }
 
 func main() {
-	svc := service.NewSchemaService(db.NewSchemaRepository(), redisadapter.NewClient())
+	svc := service.NewSchemaService(
+		db.NewSchemaRepository(),
+		redisadapter.NewClient(),
+	)
 
 	url := config.Conf.Github.BranchURL
 	branchInfo, err := svc.GetBranchInfo(url)
 	if err != nil {
-		logger.Error("Error when trying to get last_commit and schema_list from: "+url, err)
+		logger.Error(
+			"Error when trying to get last_commit and schema_list from: "+url,
+			err,
+		)
 		return
 	}
 
-	hasNewCommit, err := svc.HasNewCommit(branchInfo.Commit.InnerCommit.Author.Date)
+	hasNewCommit, err := svc.HasNewCommit(
+		branchInfo.Commit.InnerCommit.Author.Date,
+	)
 	if err != nil {
 		logger.Error("Error when trying to get schemas:lastCommit", err)
 		return

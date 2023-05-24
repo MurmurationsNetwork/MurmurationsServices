@@ -30,7 +30,11 @@ func Init() {
 }
 
 func mongoInit() {
-	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
+	uri := mongo.GetURI(
+		config.Conf.Mongo.USERNAME,
+		config.Conf.Mongo.PASSWORD,
+		config.Conf.Mongo.HOST,
+	)
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
@@ -50,17 +54,25 @@ func readArgs(args []string) (string, string, int, int, error) {
 		1. EXCEL_URL 2. SCHEMA_NAME 3. FROM (row) 4. TO (row)
 	*/
 	if len(args) != 5 {
-		return "", "", 0, 0, fmt.Errorf("Missing arguments: please check the arguments.")
+		return "", "", 0, 0, fmt.Errorf(
+			"Missing arguments: please check the arguments.",
+		)
 	}
 
 	from, err := strconv.Atoi(args[3])
 	if err != nil {
-		return "", "", 0, 0, fmt.Errorf("from argument must be an integer: %v", err)
+		return "", "", 0, 0, fmt.Errorf(
+			"from argument must be an integer: %v",
+			err,
+		)
 	}
 
 	to, err := strconv.Atoi(os.Args[4])
 	if err != nil {
-		return "", "", 0, 0, fmt.Errorf("to argument must be an integer: %v", err)
+		return "", "", 0, 0, fmt.Errorf(
+			"to argument must be an integer: %v",
+			err,
+		)
 	}
 
 	return args[1], args[2], from, to, nil
@@ -82,18 +94,31 @@ func downloadExcel(url string) error {
 
 	n, err := io.Copy(output, res.Body)
 	if err != nil {
-		return fmt.Errorf("Error while receiving data from %s: %s", fileName, err)
+		return fmt.Errorf(
+			"Error while receiving data from %s: %s",
+			fileName,
+			err,
+		)
 	}
 	fmt.Println("Excel file retrieved successfully: ", n, "bytes downloaded.")
 	return nil
 }
 
-func importData(row int, schemaName string, mapping map[string]string, file *excelize.File) (bool, error) {
+func importData(
+	row int,
+	schemaName string,
+	mapping map[string]string,
+	file *excelize.File,
+) (bool, error) {
 	// get excel oid
 	axis := "A" + strconv.Itoa(row)
 	oid, err := file.GetCellValue(sheetName, axis)
 	if err != nil {
-		return false, fmt.Errorf("Error reading Excel file. Axis: %s, error message: %s", axis, err)
+		return false, fmt.Errorf(
+			"Error reading Excel file. Axis: %s, error message: %s",
+			axis,
+			err,
+		)
 	}
 
 	// If database has same oid item, keep the old data and show warning message
@@ -103,7 +128,11 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 		return false, fmt.Errorf("Error when trying to find a profile: %s", err)
 	}
 	if result > 0 {
-		return true, fmt.Errorf("Warning: profile already exists. The old data has not been overwritten. Row: %v, OID: %s\n", row, oid)
+		return true, fmt.Errorf(
+			"Warning: profile already exists. The old data has not been overwritten. Row: %v, OID: %s\n",
+			row,
+			oid,
+		)
 	}
 
 	url := "https://api.ofdb.io/v0/entries/" + oid
@@ -124,19 +153,34 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 		return true, fmt.Errorf("Profile doesn't exist. OID: " + oid)
 	}
 
-	profileJson, err := importutil.MapProfile(oldProfiles[0], mapping, schemaName)
+	profileJson, err := importutil.MapProfile(
+		oldProfiles[0],
+		mapping,
+		schemaName,
+	)
 	if err != nil {
 		return false, fmt.Errorf("Error when trying to map a profile: %s", err)
 	}
 
 	// Validate data
 	validateUrl := config.Conf.Index.URL + "/v2/validate"
-	isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
+	isValid, failureReasons, err := importutil.Validate(
+		validateUrl,
+		profileJson,
+	)
 	if err != nil {
-		return false, fmt.Errorf("Error when trying to validate a profile: %s", err)
+		return false, fmt.Errorf(
+			"Error when trying to validate a profile: %s",
+			err,
+		)
 	}
 	if !isValid {
-		return true, fmt.Errorf("Warning: skipped importing this row because profile validation failed. Row: %v, OID: %s, Failure Reasons: %s", row, oid, failureReasons)
+		return true, fmt.Errorf(
+			"Warning: skipped importing this row because profile validation failed. Row: %v, OID: %s, Failure Reasons: %s",
+			row,
+			oid,
+			failureReasons,
+		)
 	}
 
 	// Save to MongoDB, return url to post index
@@ -152,14 +196,23 @@ func importData(row int, schemaName string, mapping map[string]string, file *exc
 	profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
 	nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 	if err != nil {
-		return false, fmt.Errorf("failed to post %s to Index: %s", profileUrl, err)
+		return false, fmt.Errorf(
+			"failed to post %s to Index: %s",
+			profileUrl,
+			err,
+		)
 	}
 
 	// update NodeId
 	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": true}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	_, err = mongo.Client.FindOneAndUpdate(constant.MongoIndex.Profile, filter, update, opt)
+	_, err = mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Profile,
+		filter,
+		update,
+		opt,
+	)
 	if err != nil {
 		return true, err
 	}
@@ -232,7 +285,13 @@ func main() {
 	totalNums := to - from + 1
 	failedNums := totalNums - successNums - skippedNums
 
-	fmt.Printf("Successfully imported profiles. Total profiles: %v, Success: %v , Skipped: %v, Failed: %v\n", totalNums, successNums, skippedNums, failedNums)
+	fmt.Printf(
+		"Successfully imported profiles. Total profiles: %v, Success: %v , Skipped: %v, Failed: %v\n",
+		totalNums,
+		successNums,
+		skippedNums,
+		failedNums,
+	)
 
 	// Disconnect MongoDB and delete excel file
 	err = cleanUp()

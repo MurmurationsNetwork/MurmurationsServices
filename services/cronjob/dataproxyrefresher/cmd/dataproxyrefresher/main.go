@@ -32,7 +32,9 @@ func main() {
 	schemaName := "karte_von_morgen-v1.0.0"
 	apiEntry := "https://api.ofdb.io/v0/entries/"
 
-	svc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
+	svc := service.NewProfileService(
+		db.NewProfileRepository(mongo.Client.GetClient()),
+	)
 
 	curTime := time.Now().Unix()
 	refreshBefore := curTime - config.Conf.RefreshTTL
@@ -58,44 +60,71 @@ func main() {
 		url := apiEntry + profile.Oid
 		res, err := http.Get(url)
 		if err != nil {
-			logger.Error("Failed to get data from API. Profile CUID:"+profile.Cuid, err)
+			logger.Error(
+				"Failed to get data from API. Profile CUID:"+profile.Cuid,
+				err,
+			)
 			cleanUp()
 		}
 		defer res.Body.Close()
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			logger.Error("Failed to read data from API. Profile CUID:"+profile.Cuid, err)
+			logger.Error(
+				"Failed to read data from API. Profile CUID:"+profile.Cuid,
+				err,
+			)
 			cleanUp()
 		}
 
 		var profileData []interface{}
 		err = json.Unmarshal(bodyBytes, &profileData)
 		if err != nil {
-			logger.Error("Failed to unmarshal data from API. Profile CUID:"+profile.Cuid, err)
+			logger.Error(
+				"Failed to unmarshal data from API. Profile CUID:"+profile.Cuid,
+				err,
+			)
 			cleanUp()
 		}
 
 		// If the node still exist, don't delete it and update access_time
 		if len(profileData) > 0 {
-			profileJson := importutil.MapFieldsName(profileData[0].(map[string]interface{}), mapping)
+			profileJson := importutil.MapFieldsName(
+				profileData[0].(map[string]interface{}),
+				mapping,
+			)
 			doc, err := json.Marshal(profileJson)
 			if err != nil {
-				logger.Error("Failed to marshal data. Profile CUID: "+profile.Cuid, err)
+				logger.Error(
+					"Failed to marshal data. Profile CUID: "+profile.Cuid,
+					err,
+				)
 				cleanUp()
 			}
 			profileHash, err := importutil.Hash(string(doc))
 			if err != nil {
-				logger.Error("Failed to hash data. Profile CUID: "+profile.Cuid, err)
+				logger.Error(
+					"Failed to hash data. Profile CUID: "+profile.Cuid,
+					err,
+				)
 				cleanUp()
 			}
 
 			if profileHash != profile.SourceDataHash {
-				logger.Info("Source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash)
+				logger.Info(
+					"Source data hash mismatch: " + profile.Cuid + " - " + profile.Oid + " : " + profile.SourceDataHash + " - " + profileHash,
+				)
 
 				// reconstruct data
-				profileJson, err = importutil.MapProfile(profileData[0].(map[string]interface{}), mapping, schemaName)
+				profileJson, err = importutil.MapProfile(
+					profileData[0].(map[string]interface{}),
+					mapping,
+					schemaName,
+				)
 				if err != nil {
-					logger.Error("Map profile failed. Profile ID: "+profile.Oid, err)
+					logger.Error(
+						"Map profile failed. Profile ID: "+profile.Oid,
+						err,
+					)
 					cleanUp()
 				}
 				oid := profileJson["oid"].(string)
@@ -107,27 +136,43 @@ func main() {
 
 				// validate data
 				validateUrl := config.Conf.Index.URL + "/v2/validate"
-				isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
+				isValid, failureReasons, err := importutil.Validate(
+					validateUrl,
+					profileJson,
+				)
 				if err != nil {
-					logger.Error("Validate profile failed. Profile ID: "+profile.Oid+". error message: ", err)
+					logger.Error(
+						"Validate profile failed. Profile ID: "+profile.Oid+". error message: ",
+						err,
+					)
 					cleanUp()
 				}
 				if !isValid {
-					logger.Info("Validate profile failed. Profile ID: " + profile.Oid + ". failure reasons: " + failureReasons)
+					logger.Info(
+						"Validate profile failed. Profile ID: " + profile.Oid + ". failure reasons: " + failureReasons,
+					)
 					cleanUp()
 				}
-				profileSvc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
+				profileSvc := service.NewProfileService(
+					db.NewProfileRepository(mongo.Client.GetClient()),
+				)
 				// save to Mongo
 				count, err := profileSvc.Count(profile.Oid)
 				if err != nil {
-					logger.Error("Can't count profile. Profile ID: "+profile.Oid, err)
+					logger.Error(
+						"Can't count profile. Profile ID: "+profile.Oid,
+						err,
+					)
 					cleanUp()
 				}
 				if count <= 0 {
 					profileJson["cuid"] = cuid.New()
 					err := profileSvc.Add(profileJson)
 					if err != nil {
-						logger.Error("Can't add a profile. Profile ID: "+profile.Oid, err)
+						logger.Error(
+							"Can't add a profile. Profile ID: "+profile.Oid,
+							err,
+						)
 						cleanUp()
 					}
 				} else {
@@ -144,7 +189,10 @@ func main() {
 				profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
 				nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 				if err != nil {
-					logger.Error("Failed to post profile to Index. Profile URL: "+profileUrl, err)
+					logger.Error(
+						"Failed to post profile to Index. Profile URL: "+profileUrl,
+						err,
+					)
 					cleanUp()
 				}
 

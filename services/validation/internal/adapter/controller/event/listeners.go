@@ -34,14 +34,23 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					logger.Error(fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err), errors.New("panic"))
+					logger.Error(
+						fmt.Sprintf(
+							"Panic occurred in nodeCreated handler: %v",
+							err,
+						),
+						errors.New("panic"),
+					)
 				}
 			}()
 
 			var nodeCreatedData event.NodeCreatedData
 			err := json.Unmarshal(msg.Data, &nodeCreatedData)
 			if err != nil {
-				logger.Error("Error when trying to parsing nodeCreatedData", err)
+				logger.Error(
+					"Error when trying to parsing nodeCreatedData",
+					err,
+				)
 				return
 			}
 
@@ -52,5 +61,6 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 
 			_ = msg.Ack()
 		}()
-	}).Listen()
+	}).
+		Listen()
 }

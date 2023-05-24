@@ -24,7 +24,12 @@ func (r *schemaRepository) Update(schema *domain.Schema) error {
 	update := bson.M{"$set": schema}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	_, err := mongo.Client.FindOneAndUpdate(constant.MongoIndex.Schema, filter, update, opt)
+	_, err := mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Schema,
+		filter,
+		update,
+		opt,
+	)
 	if err != nil {
 		return err
 	}

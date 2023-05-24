@@ -33,7 +33,12 @@ func NewBatchesHandler(batchService usecase.BatchUsecase) BatchesHandler {
 func (handler *batchesHandler) GetBatchesByUserID(c *gin.Context) {
 	userId := c.Query("user_id")
 	if len(userId) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid `user_id`"}, []string{"The `user_id` is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid `user_id`"},
+			[]string{"The `user_id` is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -41,7 +46,14 @@ func (handler *batchesHandler) GetBatchesByUserID(c *gin.Context) {
 
 	batches, err := handler.batchUsecase.GetBatchesByUserID(userId)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"Get Batches Failed"}, []string{"Failed to get batches by `user_id`: " + userId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Get Batches Failed"},
+			[]string{
+				"Failed to get batches by `user_id`: " + userId + " with error: " + err.Error(),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -73,21 +85,40 @@ func (handler *batchesHandler) Validate(c *gin.Context) {
 		return
 	}
 
-	line, err, validationError := handler.batchUsecase.Validate(schemas, records)
+	line, err, validationError := handler.batchUsecase.Validate(
+		schemas,
+		records,
+	)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"CSV Validation Failed"}, []string{"Failed to validate line " + strconv.Itoa(line) + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"CSV Validation Failed"},
+			[]string{
+				"Failed to validate line " + strconv.Itoa(
+					line,
+				) + " with error: " + err.Error(),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 	if validationError != nil {
-		meta := jsonapi.NewBatchMeta("Failed to validate line "+strconv.Itoa(line), "")
+		meta := jsonapi.NewBatchMeta(
+			"Failed to validate line "+strconv.Itoa(line),
+			"",
+		)
 		res := jsonapi.Response(nil, validationError, nil, meta)
 		c.JSON(validationError[0].Status, res)
 		return
 	}
 
-	meta := jsonapi.NewMeta("The submitted CSV file was validated successfully.", "", "")
+	meta := jsonapi.NewMeta(
+		"The submitted CSV file was validated successfully.",
+		"",
+		"",
+	)
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
@@ -98,7 +129,12 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	// batch title is required
 	title := c.PostForm("title")
 	if title == "" {
-		errors := jsonapi.NewError([]string{"Missing `title`"}, []string{"The `title` is required."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Missing `title`"},
+			[]string{"The `title` is required."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -107,7 +143,12 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	// The `user_id` is 25 characters long (cuid format)
 	userId := c.PostForm("user_id")
 	if len(userId) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid `user_id`"}, []string{"The `user_id` is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid `user_id`"},
+			[]string{"The `user_id` is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -138,22 +179,44 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	batchId, line, err, validationError := handler.batchUsecase.Import(title, schemas, records, userId, metaName, metaUrl)
+	batchId, line, err, validationError := handler.batchUsecase.Import(
+		title,
+		schemas,
+		records,
+		userId,
+		metaName,
+		metaUrl,
+	)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"CSV Import Failed"}, []string{"Failed to import line " + strconv.Itoa(line) + " in `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"CSV Import Failed"},
+			[]string{
+				"Failed to import line " + strconv.Itoa(
+					line,
+				) + " in `batch_id`: " + batchId + " with error: " + err.Error(),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		meta := jsonapi.NewBatchMeta("", batchId)
 		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 	if validationError != nil {
-		meta := jsonapi.NewBatchMeta("Failed to validate line "+strconv.Itoa(line), batchId)
+		meta := jsonapi.NewBatchMeta(
+			"Failed to validate line "+strconv.Itoa(line),
+			batchId,
+		)
 		res := jsonapi.Response(nil, validationError, nil, meta)
 		c.JSON(validationError[0].Status, res)
 		return
 	}
 
-	meta := jsonapi.NewBatchMeta("The submitted CSV file was imported successfully.", batchId)
+	meta := jsonapi.NewBatchMeta(
+		"The submitted CSV file was imported successfully.",
+		batchId,
+	)
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
@@ -162,7 +225,12 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	// batch title is required
 	title := c.PostForm("title")
 	if title == "" {
-		errors := jsonapi.NewError([]string{"Missing `title`"}, []string{"The `title` is required."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Missing `title`"},
+			[]string{"The `title` is required."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -170,7 +238,12 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 
 	userId := c.PostForm("user_id")
 	if len(userId) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid `user_id`"}, []string{"The `user_id` is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid `user_id`"},
+			[]string{"The `user_id` is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -178,7 +251,12 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 
 	batchId := c.PostForm("batch_id")
 	if len(batchId) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid `batch_id`"}, []string{"The `batch_id` is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid `batch_id`"},
+			[]string{"The `batch_id` is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -202,22 +280,44 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaUrl := c.PostForm("meta_url")
 
-	line, err, validationError := handler.batchUsecase.Edit(title, records, userId, batchId, metaName, metaUrl)
+	line, err, validationError := handler.batchUsecase.Edit(
+		title,
+		records,
+		userId,
+		batchId,
+		metaName,
+		metaUrl,
+	)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"CSV Edit Failed"}, []string{"Failed to edit line " + strconv.Itoa(line) + " for `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"CSV Edit Failed"},
+			[]string{
+				"Failed to edit line " + strconv.Itoa(
+					line,
+				) + " for `batch_id`: " + batchId + " with error: " + err.Error(),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		meta := jsonapi.NewBatchMeta("", batchId)
 		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 	if validationError != nil {
-		meta := jsonapi.NewBatchMeta("Failed to validate line "+strconv.Itoa(line), batchId)
+		meta := jsonapi.NewBatchMeta(
+			"Failed to validate line "+strconv.Itoa(line),
+			batchId,
+		)
 		res := jsonapi.Response(nil, validationError, nil, meta)
 		c.JSON(validationError[0].Status, res)
 		return
 	}
 
-	meta := jsonapi.NewBatchMeta("The submitted CSV file was updated successfully.", batchId)
+	meta := jsonapi.NewBatchMeta(
+		"The submitted CSV file was updated successfully.",
+		batchId,
+	)
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
@@ -225,7 +325,12 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 func (handler *batchesHandler) Delete(c *gin.Context) {
 	userId := c.PostForm("user_id")
 	if len(userId) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid `user_id`"}, []string{"The `user_id` is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid `user_id`"},
+			[]string{"The `user_id` is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -233,7 +338,12 @@ func (handler *batchesHandler) Delete(c *gin.Context) {
 
 	batchId := c.PostForm("batch_id")
 	if len(batchId) != 25 {
-		errors := jsonapi.NewError([]string{"Invalid `batch_id`"}, []string{"The `batch_id` is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid `batch_id`"},
+			[]string{"The `batch_id` is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -242,14 +352,24 @@ func (handler *batchesHandler) Delete(c *gin.Context) {
 	// Call delete service
 	err := handler.batchUsecase.Delete(userId, batchId)
 	if err != nil {
-		errors := jsonapi.NewError([]string{"Delete Batch Failed"}, []string{"Failed to delete `batch_id`: " + batchId + " with error: " + err.Error()}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Delete Batch Failed"},
+			[]string{
+				"Failed to delete `batch_id`: " + batchId + " with error: " + err.Error(),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		meta := jsonapi.NewBatchMeta("", batchId)
 		res := jsonapi.Response(nil, errors, nil, meta)
 		c.JSON(errors[0].Status, res)
 		return
 	}
 
-	meta := jsonapi.NewBatchMeta("The submitted `batch_id` was successfully deleted.", batchId)
+	meta := jsonapi.NewBatchMeta(
+		"The submitted `batch_id` was successfully deleted.",
+		batchId,
+	)
 	res := jsonapi.Response(nil, nil, nil, meta)
 	c.JSON(http.StatusOK, res)
 }
@@ -258,14 +378,24 @@ func validateFile(c *gin.Context) (*multipart.FileHeader, []jsonapi.Error) {
 	// Get fields from the POST request
 	file, err := c.FormFile("file")
 	if err != nil {
-		errors := jsonapi.NewError([]string{"Get File Error"}, []string{"The submitted document could not be parsed."}, [][]string{{"parameter", "file"}}, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Get File Error"},
+			[]string{"The submitted document could not be parsed."},
+			[][]string{{"parameter", "file"}},
+			[]int{http.StatusBadRequest},
+		)
 		return nil, errors
 	}
 
 	// If the file is not CSV, we cannot process it
 	fileName := file.Filename
 	if fileName[len(fileName)-4:] != ".csv" {
-		errors := jsonapi.NewError([]string{"Get File Error"}, []string{"The submitted document is not a CSV file."}, [][]string{{"parameter", "file"}}, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Get File Error"},
+			[]string{"The submitted document is not a CSV file."},
+			[][]string{{"parameter", "file"}},
+			[]int{http.StatusBadRequest},
+		)
 		return nil, errors
 	}
 
@@ -276,7 +406,12 @@ func validateSchema(c *gin.Context) ([]string, []jsonapi.Error) {
 	// Get schemas from the POST request
 	rawSchemas := c.PostForm("schemas")
 	if rawSchemas == "" {
-		errors := jsonapi.NewError([]string{"Invalid Query Parameter"}, []string{"The following query parameter is not valid: schemas."}, [][]string{{"parameter", "schemas"}}, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid Query Parameter"},
+			[]string{"The following query parameter is not valid: schemas."},
+			[][]string{{"parameter", "schemas"}},
+			[]int{http.StatusBadRequest},
+		)
 		return nil, errors
 	}
 
@@ -295,14 +430,24 @@ func parseCsv(file *multipart.FileHeader) ([][]string, []jsonapi.Error) {
 	// Parse CSV and put all data in service
 	rawFile, err := file.Open()
 	if err != nil {
-		errors := jsonapi.NewError([]string{"File Open Error"}, []string{"The file is corrupted and cannot be opened."}, [][]string{{"parameter", "file"}}, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"File Open Error"},
+			[]string{"The file is corrupted and cannot be opened."},
+			[][]string{{"parameter", "file"}},
+			[]int{http.StatusBadRequest},
+		)
 		return nil, errors
 	}
 
 	csvReader := csv.NewReader(rawFile)
 	records, err := csvReader.ReadAll()
 	if err != nil {
-		errors := jsonapi.NewError([]string{"File Open Error"}, []string{"Unable to parse file as CSV."}, [][]string{{"parameter", "file"}}, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"File Open Error"},
+			[]string{"Unable to parse file as CSV."},
+			[][]string{{"parameter", "file"}},
+			[]int{http.StatusBadRequest},
+		)
 		return nil, errors
 	}
 

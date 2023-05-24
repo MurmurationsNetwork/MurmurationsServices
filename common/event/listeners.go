@@ -4,7 +4,11 @@ import (
 	stan "github.com/nats-io/stan.go"
 )
 
-func NewNodeCreatedListener(client stan.Conn, qgroup string, handler stan.MsgHandler) Listener {
+func NewNodeCreatedListener(
+	client stan.Conn,
+	qgroup string,
+	handler stan.MsgHandler,
+) Listener {
 	return NewListener(&ListenerConfig{
 		Client:     client,
 		Subject:    nodeCreated,
@@ -13,7 +17,11 @@ func NewNodeCreatedListener(client stan.Conn, qgroup string, handler stan.MsgHan
 	})
 }
 
-func NewNodeValidatedListener(client stan.Conn, qgroup string, handler stan.MsgHandler) Listener {
+func NewNodeValidatedListener(
+	client stan.Conn,
+	qgroup string,
+	handler stan.MsgHandler,
+) Listener {
 	return NewListener(&ListenerConfig{
 		Client:     client,
 		Subject:    nodeValidated,
@@ -22,7 +30,11 @@ func NewNodeValidatedListener(client stan.Conn, qgroup string, handler stan.MsgH
 	})
 }
 
-func NewNodeValidationFailedListener(client stan.Conn, qgroup string, handler stan.MsgHandler) Listener {
+func NewNodeValidationFailedListener(
+	client stan.Conn,
+	qgroup string,
+	handler stan.MsgHandler,
+) Listener {
 	return NewListener(&ListenerConfig{
 		Client:     client,
 		Subject:    nodeValidationFailed,
