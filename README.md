@@ -40,6 +40,14 @@ docker pull kibana:7.17.5
 
 2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v1/ping` and `data-proxy.murmurations.dev/v1/ping`
 
+## Using Pre-commit
+
+1. Install pre-commit on your Mac by running `brew install pre-commit`.
+
+2. Run `pre-commit install` to set up the git hook scripts in your local repository.
+
+Now, pre-commit will run automatically on `git commit`. If you want to manually run all pre-commit hooks on a repository, run `pre-commit run --all-files`.
+
 ## Run in DigitalOcean
 
 1. Install [Helm](https://helm.sh/docs/intro/install/) and [doctl](https://github.com/digitalocean/doctl#installing-doctl)
