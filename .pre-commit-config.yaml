@@ -1,0 +1,12 @@
+---
+repos:
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.52.2
+    hooks:
+      - id: golangci-lint
+
+  - repo: https://github.com/segmentio/golines
+    rev: v0.11.0
+    hooks:
+      - id: golines
+        entry: golines -m 80 -w .
