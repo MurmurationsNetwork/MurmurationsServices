@@ -20,9 +20,17 @@ type geoInfo struct {
 }
 
 func getGeoInfo(ip string) *geoInfo {
-	bytes, err := httputil.GetByte(fmt.Sprintf("http://geoip-app:8080/city/%s", ip))
+	bytes, err := httputil.GetByte(
+		fmt.Sprintf("http://geoip-app:8080/city/%s", ip),
+	)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying get http://geoip-app:8080/city/%s", ip), err)
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying get http://geoip-app:8080/city/%s",
+				ip,
+			),
+			err,
+		)
 		return &geoInfo{}
 	}
 

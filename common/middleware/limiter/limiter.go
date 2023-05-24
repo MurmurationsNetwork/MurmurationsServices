@@ -1,9 +1,10 @@
 package limiter
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"net/http"
 	"strconv"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/gin-gonic/gin"
@@ -39,13 +40,24 @@ func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 	ipRateLimiter := limiter.New(store, rate)
 
 	return func(c *gin.Context) {
-		if c.Request.Method == options.Method || options.Method == defaultMethod {
+		if c.Request.Method == options.Method ||
+			options.Method == defaultMethod {
 			ip := c.ClientIP()
 
 			context, err := ipRateLimiter.Get(c, ip)
 			if err != nil {
-				logger.Error("Error when trying to get ipRateLimiter context", err)
-				errors := jsonapi.NewError([]string{"Internal Server Error"}, []string{"An internal server error was triggered and has been logged. Please try your request again later."}, nil, []int{http.StatusInternalServerError})
+				logger.Error(
+					"Error when trying to get ipRateLimiter context",
+					err,
+				)
+				errors := jsonapi.NewError(
+					[]string{"Internal Server Error"},
+					[]string{
+						"An internal server error was triggered and has been logged. Please try your request again later.",
+					},
+					nil,
+					[]int{http.StatusInternalServerError},
+				)
 				res := jsonapi.Response(nil, errors, nil, nil)
 				c.JSON(errors[0].Status, res)
 				c.Abort()
@@ -53,11 +65,21 @@ func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 			}
 
 			c.Header("X-RateLimit-Limit", strconv.FormatInt(context.Limit, 10))
-			c.Header("X-RateLimit-Remaining", strconv.FormatInt(context.Remaining, 10))
+			c.Header(
+				"X-RateLimit-Remaining",
+				strconv.FormatInt(context.Remaining, 10),
+			)
 			c.Header("X-RateLimit-Reset", strconv.FormatInt(context.Reset, 10))
 
 			if context.Reached {
-				errors := jsonapi.NewError([]string{"Too Many Requests"}, []string{"You have exceeded the maximum number of requests per minute/hour. Please try again later. For more information see: https://docs.murmurations.network/developers/rate-limits.html"}, nil, []int{http.StatusTooManyRequests})
+				errors := jsonapi.NewError(
+					[]string{"Too Many Requests"},
+					[]string{
+						"You have exceeded the maximum number of requests per minute/hour. Please try again later. For more information see: https://docs.murmurations.network/developers/rate-limits.html",
+					},
+					nil,
+					[]int{http.StatusTooManyRequests},
+				)
 				res := jsonapi.Response(nil, errors, nil, nil)
 				c.JSON(errors[0].Status, res)
 				c.Abort()

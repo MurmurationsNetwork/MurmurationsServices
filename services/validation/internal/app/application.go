@@ -29,7 +29,8 @@ func StartApplication() {
 	if err := listenToEvents(); err != nil && err != http.ErrServerClosed {
 		logger.Panic("Error when trying to listen events", err)
 	}
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := server.ListenAndServe(); err != nil &&
+		err != http.ErrServerClosed {
 		logger.Panic("Error when trying to start the server", err)
 	}
 

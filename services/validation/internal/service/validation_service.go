@@ -2,6 +2,9 @@ package service
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
@@ -14,8 +17,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
 	"github.com/xeipuuv/gojsonschema"
-	"net/http"
-	"strings"
 )
 
 type ValidationService interface {
@@ -33,32 +34,69 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 	data, err := svc.readFromProfileURL(node.ProfileURL)
 	if err != nil {
 		logger.Info("Could not read from profile_url: " + node.ProfileURL)
-		errors := jsonapi.NewError([]string{"Profile Not Found"}, []string{fmt.Sprintf("Could not find or read from (invalid JSON) the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusNotFound})
+		errors := jsonapi.NewError(
+			[]string{"Profile Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not find or read from (invalid JSON) the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
+		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
 	// Validate against the default schema.
-	titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemas(config.Conf.Library.InternalURL, []string{"default-v2.0.0"}, node.ProfileURL, "reference")
+	titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemas(
+		config.Conf.Library.InternalURL,
+		[]string{"default-v2.0.0"},
+		node.ProfileURL,
+		"reference",
+	)
 	if len(titles) != 0 {
 		errors := jsonapi.NewError(titles, details, sources, errorStatus)
-		logger.Info("Failed to validate against schemas: " + fmt.Sprintf("%v", errors))
+		logger.Info(
+			"Failed to validate against schemas: " + fmt.Sprintf("%v", errors),
+		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
-		logger.Info("Could not read linked_schemas from profile_url: " + node.ProfileURL)
-		errors := jsonapi.NewError([]string{"Profile Not Found"}, []string{fmt.Sprintf("Could not find or read from (invalid JSON) the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusNotFound})
+		logger.Info(
+			"Could not read linked_schemas from profile_url: " + node.ProfileURL,
+		)
+		errors := jsonapi.NewError(
+			[]string{"Profile Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not find or read from (invalid JSON) the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
+		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
 	// Validate against schemes specify inside the profile data.
-	titles, details, sources, errorStatus = validatenode.ValidateAgainstSchemas(config.Conf.Library.InternalURL, linkedSchemas, node.ProfileURL, "reference")
+	titles, details, sources, errorStatus = validatenode.ValidateAgainstSchemas(
+		config.Conf.Library.InternalURL,
+		linkedSchemas,
+		node.ProfileURL,
+		"reference",
+	)
 	if len(titles) != 0 {
-		message := "Failed to validate against schemas: " + strings.Join(titles, " ")
+		message := "Failed to validate against schemas: " + strings.Join(
+			titles,
+			" ",
+		)
 		logger.Info(message)
 		errors := jsonapi.NewError(titles, details, sources, errorStatus)
 		svc.sendNodeValidationFailedEvent(node, &errors)
@@ -67,22 +105,37 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 
 	jsonStr, err := httputil.GetJSONStr(node.ProfileURL)
 	if err != nil {
-		logger.Info("Could not get JSON string from profile_url: " + node.ProfileURL)
-		errors := jsonapi.NewError([]string{"Profile Not Found"}, []string{fmt.Sprintf("Could not find or read from (invalid JSON) the profile_url: %s", node.ProfileURL)}, nil, []int{http.StatusNotFound})
+		logger.Info(
+			"Could not get JSON string from profile_url: " + node.ProfileURL,
+		)
+		errors := jsonapi.NewError(
+			[]string{"Profile Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not find or read from (invalid JSON) the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
+		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
-	event.NewNodeValidatedPublisher(nats.Client.Client()).Publish(event.NodeValidatedData{
-		ProfileURL:  node.ProfileURL,
-		ProfileHash: cryptoutil.GetSHA256(jsonStr),
-		ProfileStr:  jsonStr,
-		LastUpdated: dateutil.GetNowUnix(),
-		Version:     node.Version,
-	})
+	event.NewNodeValidatedPublisher(nats.Client.Client()).
+		Publish(event.NodeValidatedData{
+			ProfileURL:  node.ProfileURL,
+			ProfileHash: cryptoutil.GetSHA256(jsonStr),
+			ProfileStr:  jsonStr,
+			LastUpdated: dateutil.GetNowUnix(),
+			Version:     node.Version,
+		})
 }
 
-func (svc *validationService) readFromProfileURL(profileURL string) (interface{}, error) {
+func (svc *validationService) readFromProfileURL(
+	profileURL string,
+) (interface{}, error) {
 	document := gojsonschema.NewReferenceLoader(profileURL)
 
 	var data interface{}
@@ -139,10 +192,14 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 	return linkedSchemas, true
 }
 
-func (svc *validationService) sendNodeValidationFailedEvent(node *entity.Node, FailureReasons *[]jsonapi.Error) {
-	event.NewNodeValidationFailedPublisher(nats.Client.Client()).Publish(event.NodeValidationFailedData{
-		ProfileURL:     node.ProfileURL,
-		FailureReasons: FailureReasons,
-		Version:        node.Version,
-	})
+func (svc *validationService) sendNodeValidationFailedEvent(
+	node *entity.Node,
+	FailureReasons *[]jsonapi.Error,
+) {
+	event.NewNodeValidationFailedPublisher(nats.Client.Client()).
+		Publish(event.NodeValidationFailedData{
+			ProfileURL:     node.ProfileURL,
+			FailureReasons: FailureReasons,
+			Version:        node.Version,
+		})
 }

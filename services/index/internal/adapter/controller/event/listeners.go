@@ -34,14 +34,23 @@ func (handler *nodeHandler) Validated() error {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					logger.Error(fmt.Sprintf("Panic occurred in nodeValidated handler: %v", err), errors.New("panic"))
+					logger.Error(
+						fmt.Sprintf(
+							"Panic occurred in nodeValidated handler: %v",
+							err,
+						),
+						errors.New("panic"),
+					)
 				}
 			}()
 
 			var nodeValidatedData event.NodeValidatedData
 			err := json.Unmarshal(msg.Data, &nodeValidatedData)
 			if err != nil {
-				logger.Error("Error when trying to parse nodeValidatedData", err)
+				logger.Error(
+					"Error when trying to parse nodeValidatedData",
+					err,
+				)
 				return
 			}
 
@@ -58,7 +67,8 @@ func (handler *nodeHandler) Validated() error {
 
 			_ = msg.Ack()
 		}()
-	}).Listen()
+	}).
+		Listen()
 }
 
 func (handler *nodeHandler) ValidationFailed() error {
@@ -66,14 +76,23 @@ func (handler *nodeHandler) ValidationFailed() error {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					logger.Error(fmt.Sprintf("Panic occurred in nodeValidationFailed handler: %v", err), errors.New("panic"))
+					logger.Error(
+						fmt.Sprintf(
+							"Panic occurred in nodeValidationFailed handler: %v",
+							err,
+						),
+						errors.New("panic"),
+					)
 				}
 			}()
 
 			var nodeValidationFailedData event.NodeValidationFailedData
 			err := json.Unmarshal(msg.Data, &nodeValidationFailedData)
 			if err != nil {
-				logger.Error("Error when trying to parse nodeValidationFailedData", err)
+				logger.Error(
+					"Error when trying to parse nodeValidationFailedData",
+					err,
+				)
 				return
 			}
 
@@ -88,5 +107,6 @@ func (handler *nodeHandler) ValidationFailed() error {
 
 			_ = msg.Ack()
 		}()
-	}).Listen()
+	}).
+		Listen()
 }

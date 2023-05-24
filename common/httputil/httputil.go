@@ -51,7 +51,10 @@ func GetByte(url string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return []byte{}, fmt.Errorf("error the requested URL %s returned 404 not found", url)
+		return []byte{}, fmt.Errorf(
+			"error the requested URL %s returned 404 not found",
+			url,
+		)
 	}
 
 	data, err := io.ReadAll(resp.Body)
@@ -77,7 +80,10 @@ func GetByteWithBearerToken(url string, token string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return []byte{}, fmt.Errorf("error the requested URL %s returned 404 not found", url)
+		return []byte{}, fmt.Errorf(
+			"error the requested URL %s returned 404 not found",
+			url,
+		)
 	}
 
 	// Read the response body into a byte array

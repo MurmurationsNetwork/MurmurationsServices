@@ -7,7 +7,9 @@ import (
 )
 
 func listenToEvents() error {
-	nodeHandler := event.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
+	nodeHandler := event.NewNodeHandler(
+		usecase.NewNodeService(db.NewRepository()),
+	)
 
 	err := nodeHandler.Validated()
 	if err != nil {

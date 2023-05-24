@@ -1,9 +1,10 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type ProfilesHandler interface {
@@ -14,7 +15,9 @@ type profilesHandler struct {
 	profileRepository db.ProfileRepository
 }
 
-func NewProfilesHandler(profileRepository db.ProfileRepository) ProfilesHandler {
+func NewProfilesHandler(
+	profileRepository db.ProfileRepository,
+) ProfilesHandler {
 	return &profilesHandler{
 		profileRepository: profileRepository,
 	}

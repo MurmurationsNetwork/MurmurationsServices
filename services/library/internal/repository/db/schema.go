@@ -38,9 +38,24 @@ func (r *schemaRepo) Get(schemaName string) (interface{}, []jsonapi.Error) {
 	err := result.Decode(&singleSchema)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, jsonapi.NewError([]string{"Schema Not Found"}, []string{fmt.Sprintf("Could not locate the following schema in the Library: %s", schemaName)}, nil, []int{http.StatusNotFound})
+			return nil, jsonapi.NewError(
+				[]string{"Schema Not Found"},
+				[]string{
+					fmt.Sprintf(
+						"Could not locate the following schema in the Library: %s",
+						schemaName,
+					),
+				},
+				nil,
+				[]int{http.StatusNotFound},
+			)
 		}
-		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to decode schema."}, nil, []int{http.StatusInternalServerError})
+		return nil, jsonapi.NewError(
+			[]string{"Database Error"},
+			[]string{"Error when trying to decode schema."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
 	}
 
 	fullSchema := convertBsonDToMap(singleSchema.FullSchema)
@@ -54,7 +69,12 @@ func (r *schemaRepo) Search() (schema.Schemas, []jsonapi.Error) {
 
 	if err != nil {
 		logger.Error("Error when trying to find schemas", err)
-		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to find schemas."}, nil, []int{http.StatusInternalServerError})
+		return nil, jsonapi.NewError(
+			[]string{"Database Error"},
+			[]string{"Error when trying to find schemas."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
 	}
 
 	var schemas schema.Schemas
@@ -63,14 +83,24 @@ func (r *schemaRepo) Search() (schema.Schemas, []jsonapi.Error) {
 		err := cur.Decode(&schema)
 		if err != nil {
 			logger.Error("Error when trying to parse a schema from db", err)
-			return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to find schemas."}, nil, []int{http.StatusInternalServerError})
+			return nil, jsonapi.NewError(
+				[]string{"Database Error"},
+				[]string{"Error when trying to find schemas."},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
 		}
 		schemas = append(schemas, &schema)
 	}
 
 	if err := cur.Err(); err != nil {
 		logger.Error("Error when trying to find schemas", err)
-		return nil, jsonapi.NewError([]string{"Database Error"}, []string{"Error when trying to find schemas."}, nil, []int{http.StatusInternalServerError})
+		return nil, jsonapi.NewError(
+			[]string{"Database Error"},
+			[]string{"Error when trying to find schemas."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
 	}
 
 	cur.Close(context.TODO())

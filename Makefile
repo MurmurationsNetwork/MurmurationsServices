@@ -1,3 +1,10 @@
+# format formats the code.
+.PHONY: format
+format:
+	golines -m 80 -w $(shell pwd)
+
+# test runs the unit tests.
+.PHONY: test
 test:
 	export ENV=test && go test ./...
 

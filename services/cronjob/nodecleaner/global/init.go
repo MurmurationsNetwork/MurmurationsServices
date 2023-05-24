@@ -14,7 +14,11 @@ func Init() {
 }
 
 func mongoInit() {
-	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
+	uri := mongo.GetURI(
+		config.Conf.Mongo.USERNAME,
+		config.Conf.Mongo.PASSWORD,
+		config.Conf.Mongo.HOST,
+	)
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {

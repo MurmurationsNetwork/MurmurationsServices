@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 	"net/http"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,12 @@ func NewSchemaHandler(svc service.SchemaService) SchemaHandler {
 func (handler *schemaHandler) Get(c *gin.Context) {
 	schemaName, found := c.Params.Get("schemaName")
 	if !found {
-		errors := jsonapi.NewError([]string{"Invalid Schema Name"}, []string{"The schema name is not valid."}, nil, []int{http.StatusBadRequest})
+		errors := jsonapi.NewError(
+			[]string{"Invalid Schema Name"},
+			[]string{"The schema name is not valid."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return

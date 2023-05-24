@@ -17,7 +17,11 @@ func Init() {
 }
 
 func mongoInit() {
-	uri := mongo.GetURI(config.Conf.Mongo.USERNAME, config.Conf.Mongo.PASSWORD, config.Conf.Mongo.HOST)
+	uri := mongo.GetURI(
+		config.Conf.Mongo.USERNAME,
+		config.Conf.Mongo.PASSWORD,
+		config.Conf.Mongo.HOST,
+	)
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
@@ -104,7 +108,11 @@ func esInit() {
 }
 
 func natsInit() {
-	err := nats.NewClient(config.Conf.Nats.ClusterID, config.Conf.Nats.ClientID, config.Conf.Nats.URL)
+	err := nats.NewClient(
+		config.Conf.Nats.ClusterID,
+		config.Conf.Nats.ClientID,
+		config.Conf.Nats.URL,
+	)
 	if err != nil {
 		logger.Panic("Error when trying to connect nats", err)
 	}

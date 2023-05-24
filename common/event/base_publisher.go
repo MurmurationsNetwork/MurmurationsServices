@@ -30,7 +30,12 @@ func NewPublisher(config *publisherConfig) Publisher {
 		subject: config.Subject,
 		ackHandler: func(guid string, err error) {
 			if err != nil {
-				logger.Error("error when trying to publish "+string(config.Subject)+" event.", err)
+				logger.Error(
+					"error when trying to publish "+string(
+						config.Subject,
+					)+" event.",
+					err,
+				)
 			}
 		},
 	}

@@ -2,14 +2,15 @@ package usecase
 
 import (
 	"errors"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/validatenode"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 	"io"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/validatenode"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
@@ -20,8 +21,22 @@ import (
 type BatchUsecase interface {
 	GetBatchesByUserID(string) ([]entity.Batch, error)
 	Validate([]string, [][]string) (int, error, []jsonapi.Error)
-	Import(string, []string, [][]string, string, string, string) (string, int, error, []jsonapi.Error)
-	Edit(string, [][]string, string, string, string, string) (int, error, []jsonapi.Error)
+	Import(
+		string,
+		[]string,
+		[][]string,
+		string,
+		string,
+		string,
+	) (string, int, error, []jsonapi.Error)
+	Edit(
+		string,
+		[][]string,
+		string,
+		string,
+		string,
+		string,
+	) (int, error, []jsonapi.Error)
 	Delete(string, string) error
 }
 
@@ -35,7 +50,9 @@ func NewBatchService(batchRepo db.BatchRepository) BatchUsecase {
 	}
 }
 
-func (s *batchUsecase) GetBatchesByUserID(userId string) ([]entity.Batch, error) {
+func (s *batchUsecase) GetBatchesByUserID(
+	userId string,
+) ([]entity.Batch, error) {
 	batches, err := s.batchRepo.GetBatchesByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -44,9 +61,14 @@ func (s *batchUsecase) GetBatchesByUserID(userId string) ([]entity.Batch, error)
 	return batches, nil
 }
 
-func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, error, []jsonapi.Error) {
+func (s *batchUsecase) Validate(
+	schemas []string,
+	records [][]string,
+) (int, error, []jsonapi.Error) {
 	if len(records) > 1001 {
-		return -1, errors.New("the CSV file cannot contain more than 1,000 rows"), nil
+		return -1, errors.New(
+			"the CSV file cannot contain more than 1,000 rows",
+		), nil
 	}
 
 	rawProfiles := csvToMap(records)
@@ -64,18 +86,36 @@ func (s *batchUsecase) Validate(schemas []string, records [][]string) (int, erro
 		}
 
 		// Validate data and if needed, respond with error
-		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(validateJsonSchemas, validateSchemas, profile)
+		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(
+			validateJsonSchemas,
+			validateSchemas,
+			profile,
+		)
 		if len(titles) != 0 {
-			return line, nil, jsonapi.NewError(titles, details, sources, errorStatus)
+			return line, nil, jsonapi.NewError(
+				titles,
+				details,
+				sources,
+				errorStatus,
+			)
 		}
 	}
 
 	return -1, nil, nil
 }
 
-func (s *batchUsecase) Import(title string, schemas []string, records [][]string, userId string, metaName string, metaUrl string) (string, int, error, []jsonapi.Error) {
+func (s *batchUsecase) Import(
+	title string,
+	schemas []string,
+	records [][]string,
+	userId string,
+	metaName string,
+	metaUrl string,
+) (string, int, error, []jsonapi.Error) {
 	if len(records) > 1001 {
-		return "", -1, errors.New("the CSV file cannot contain more than 1,000 rows"), nil
+		return "", -1, errors.New(
+			"the CSV file cannot contain more than 1,000 rows",
+		), nil
 	}
 
 	// Generate `batch_id` using cuid and save it to MongoDB
@@ -100,9 +140,18 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 		}
 
 		// Validate data and if needed, respond with error
-		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(validateJsonSchemas, validateSchemas, profile)
+		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(
+			validateJsonSchemas,
+			validateSchemas,
+			profile,
+		)
 		if len(titles) != 0 {
-			return batchId, line, nil, jsonapi.NewError(titles, details, sources, errorStatus)
+			return batchId, line, nil, jsonapi.NewError(
+				titles,
+				details,
+				sources,
+				errorStatus,
+			)
 		}
 
 		// Hash profile
@@ -147,7 +196,9 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 		if err != nil {
-			return batchId, line, errors.New("Import to MurmurationsServices Index failed: " + err.Error()), nil
+			return batchId, line, errors.New(
+				"Import to MurmurationsServices Index failed: " + err.Error(),
+			), nil
 		}
 
 		// Save `node_id` to MongoDB
@@ -155,16 +206,27 @@ func (s *batchUsecase) Import(title string, schemas []string, records [][]string
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
 		if err != nil {
-			return batchId, line, errors.New("Save node_id to Mongo failed: " + err.Error()), nil
+			return batchId, line, errors.New(
+				"Save node_id to Mongo failed: " + err.Error(),
+			), nil
 		}
 	}
 
 	return batchId, -1, nil, nil
 }
 
-func (s *batchUsecase) Edit(title string, records [][]string, userId string, batchId string, metaName string, metaUrl string) (int, error, []jsonapi.Error) {
+func (s *batchUsecase) Edit(
+	title string,
+	records [][]string,
+	userId string,
+	batchId string,
+	metaName string,
+	metaUrl string,
+) (int, error, []jsonapi.Error) {
 	if len(records) > 1001 {
-		return -1, errors.New("the CSV file cannot contain more than 1,000 rows"), nil
+		return -1, errors.New(
+			"the CSV file cannot contain more than 1,000 rows",
+		), nil
 	}
 
 	// Check if `batch_id` belongs to user
@@ -173,7 +235,9 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 		return -1, err, nil
 	}
 	if !isValid {
-		return -1, errors.New("the `batch_id` doesn't belong to the specified user"), nil
+		return -1, errors.New(
+			"the `batch_id` doesn't belong to the specified user",
+		), nil
 	}
 
 	// save current schemas to batch collection
@@ -183,7 +247,9 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 	}
 
 	// Get profile `oid`, cuid and hash by `batch_id`
-	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchId(batchId)
+	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchId(
+		batchId,
+	)
 	if err != nil {
 		return -1, err, nil
 	}
@@ -203,9 +269,18 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 		}
 
 		// Validate data and if needed, respond with error
-		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(validateJsonSchemas, validateSchemas, profile)
+		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(
+			validateJsonSchemas,
+			validateSchemas,
+			profile,
+		)
 		if len(titles) != 0 {
-			return line, nil, jsonapi.NewError(titles, details, sources, errorStatus)
+			return line, nil, jsonapi.NewError(
+				titles,
+				details,
+				sources,
+				errorStatus,
+			)
 		}
 
 		// Hash profile
@@ -269,7 +344,9 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 		profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
 		if err != nil {
-			return line, errors.New("Import to Index failed: " + err.Error()), nil
+			return line, errors.New(
+				"Import to Index failed: " + err.Error(),
+			), nil
 		}
 
 		// Save `node_id` to MongoDB
@@ -277,7 +354,9 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeId(profileCuid, profile)
 		if err != nil {
-			return line, errors.New("Save node_id to MongoDB failed: " + err.Error()), nil
+			return line, errors.New(
+				"Save node_id to MongoDB failed: " + err.Error(),
+			), nil
 		}
 	}
 
@@ -302,7 +381,9 @@ func (s *batchUsecase) Edit(title string, records [][]string, userId string, bat
 				deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + nodeId
 				err := importutil.DeleteIndex(deleteNodeUrl, nodeId)
 				if err != nil {
-					return -1, errors.New("failed to delete from Index : " + err.Error()), nil
+					return -1, errors.New(
+						"failed to delete from Index : " + err.Error(),
+					), nil
 				}
 			}
 		}
@@ -340,7 +421,9 @@ func (s *batchUsecase) Delete(userId string, batchId string) error {
 			deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + nodeId
 			err := importutil.DeleteIndex(deleteNodeUrl, nodeId)
 			if err != nil {
-				return errors.New("Delete profile from MurmurationsServices Index failed: " + err.Error())
+				return errors.New(
+					"Delete profile from MurmurationsServices Index failed: " + err.Error(),
+				)
 			}
 		}
 	}
@@ -372,7 +455,10 @@ func csvToMap(records [][]string) []map[string]string {
 }
 
 // Convert one-to-one map[string]string to profile data structure
-func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]interface{}, error) {
+func mapToProfile(
+	rawProfile map[string]string,
+	schemas []string,
+) (map[string]interface{}, error) {
 	// Sort rawProfile by key
 	keys := make([]string, 0, len(rawProfile))
 	// Validate `oid` field
@@ -412,7 +498,11 @@ func mapToProfile(rawProfile map[string]string, schemas []string) (map[string]in
 }
 
 // Destructure field name and save field value to profile data structure
-func destructField(profile map[string]interface{}, field string, value string) (map[string]interface{}, error) {
+func destructField(
+	profile map[string]interface{},
+	field string,
+	value string,
+) (map[string]interface{}, error) {
 	// Destructure field name
 	// e.g., "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
 	fieldName := strings.Split(field, ".")
@@ -437,7 +527,10 @@ func destructField(profile map[string]interface{}, field string, value string) (
 				if _, ok := current[path[i]]; !ok {
 					current[path[i]] = make([]interface{}, 0)
 				}
-				current[path[i]] = append(current[path[i]].([]interface{}), destructValue(value))
+				current[path[i]] = append(
+					current[path[i]].([]interface{}),
+					destructValue(value),
+				)
 				break
 			}
 		}
@@ -448,13 +541,24 @@ func destructField(profile map[string]interface{}, field string, value string) (
 					current[path[i]] = make([]map[string]interface{}, 0)
 				}
 				if _, ok := current[path[i]].([]map[string]interface{}); !ok {
-					return nil, errors.New("Check if the fields are duplicated or have different types of fields with the same name. Invalid field name: " + field)
+					return nil, errors.New(
+						"Check if the fields are duplicated or have different types of fields with the same name. Invalid field name: " + field,
+					)
 				}
-				if len(current[path[i]].([]map[string]interface{})) <= arrayNum {
-					current[path[i]] = append(current[path[i]].([]map[string]interface{}), make(map[string]interface{}))
+				if len(
+					current[path[i]].([]map[string]interface{}),
+				) <= arrayNum {
+					current[path[i]] = append(
+						current[path[i]].([]map[string]interface{}),
+						make(map[string]interface{}),
+					)
 				}
-				if len(current[path[i]].([]map[string]interface{}))-1 != arrayNum {
-					return nil, errors.New("Check the field name's array number is sequential and starts from 0. Invalid field name: " + field)
+				if len(
+					current[path[i]].([]map[string]interface{}),
+				)-1 != arrayNum {
+					return nil, errors.New(
+						"Check the field name's array number is sequential and starts from 0. Invalid field name: " + field,
+					)
 				}
 				current = current[path[i]].([]map[string]interface{})[arrayNum]
 				continue
@@ -469,7 +573,9 @@ func destructField(profile map[string]interface{}, field string, value string) (
 			current[p] = make(map[string]interface{})
 		}
 		if _, ok := current[p].(map[string]interface{}); !ok {
-			return nil, errors.New("Check if the fields are duplicated or have different types of fields with the same name. Invalid field name: " + field)
+			return nil, errors.New(
+				"Check if the fields are duplicated or have different types of fields with the same name. Invalid field name: " + field,
+			)
 		}
 		current = current[p].(map[string]interface{})
 	}

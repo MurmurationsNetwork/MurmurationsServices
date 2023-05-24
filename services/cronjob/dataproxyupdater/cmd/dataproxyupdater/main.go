@@ -42,8 +42,12 @@ func main() {
 	schemaName := "karte_von_morgen-v1.0.0"
 	apiEntry := "https://api.ofdb.io/v0"
 
-	svc := service.NewUpdateService(db.NewUpdateRepository(mongo.Client.GetClient()))
-	profileSvc := service.NewProfileService(db.NewProfileRepository(mongo.Client.GetClient()))
+	svc := service.NewUpdateService(
+		db.NewUpdateRepository(mongo.Client.GetClient()),
+	)
+	profileSvc := service.NewProfileService(
+		db.NewProfileRepository(mongo.Client.GetClient()),
+	)
 
 	update := svc.Get(schemaName)
 
@@ -96,7 +100,11 @@ func main() {
 	}
 	for len(profiles) > 0 {
 		for _, oldProfile := range profiles {
-			profileJson, err := importutil.MapProfile(oldProfile, mapping, schemaName)
+			profileJson, err := importutil.MapProfile(
+				oldProfile,
+				mapping,
+				schemaName,
+			)
 			if err != nil {
 				errStr := "map profile failed, profile id is " + oldProfile["id"].(string) + ". error message: " + err.Error()
 				logger.Error("map profile failed", err)
@@ -111,7 +119,10 @@ func main() {
 
 			// validate data
 			validateUrl := config.Conf.Index.URL + "/v2/validate"
-			isValid, failureReasons, err := importutil.Validate(validateUrl, profileJson)
+			isValid, failureReasons, err := importutil.Validate(
+				validateUrl,
+				profileJson,
+			)
 			if err != nil {
 				errStr := "validate profile failed, profile id is " + oid + ". error message: " + err.Error()
 				logger.Error("validate profile failed", err)
@@ -248,7 +259,13 @@ func main() {
 	cleanUp()
 }
 
-func getUrl(entry string, since int64, until int64, limit int, offset int) string {
+func getUrl(
+	entry string,
+	since int64,
+	until int64,
+	limit int,
+	offset int,
+) string {
 	sinceStr := strconv.FormatInt(since, 10)
 	limitStr := strconv.Itoa(limit)
 	offsetStr := strconv.Itoa(offset)

@@ -18,8 +18,17 @@ type mongoClientInterface interface {
 	Count(collection string, filter primitive.M) (int64, error)
 	InsertOne(collection string, document interface{},
 		opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
-	FindOneAndUpdate(collection string, filter primitive.M, update primitive.M, opts ...*options.FindOneAndUpdateOptions) (*mongo.SingleResult, error)
-	Find(collection string, filter primitive.M, opts ...*options.FindOptions) (*mongo.Cursor, error)
+	FindOneAndUpdate(
+		collection string,
+		filter primitive.M,
+		update primitive.M,
+		opts ...*options.FindOneAndUpdateOptions,
+	) (*mongo.SingleResult, error)
+	Find(
+		collection string,
+		filter primitive.M,
+		opts ...*options.FindOptions,
+	) (*mongo.Cursor, error)
 	DeleteOne(collection string, filter primitive.M) error
 	DeleteMany(collection string, filter primitive.M) error
 
@@ -43,7 +52,10 @@ func NewClient(url string, dbName string) error {
 
 	if os.Getenv("ENV") != "test" {
 		var err error
-		client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(url))
+		client, err = mongo.Connect(
+			context.Background(),
+			options.Client().ApplyURI(url),
+		)
 		if err != nil {
 			return err
 		}

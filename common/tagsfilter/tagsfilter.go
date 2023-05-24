@@ -2,15 +2,20 @@ package tagsfilter
 
 import (
 	"encoding/json"
-	"golang.org/x/exp/utf8string"
 	"unicode/utf8"
+
+	"golang.org/x/exp/utf8string"
 )
 
 type Data struct {
 	Tags []interface{} `json:"tags"`
 }
 
-func Filter(arraySize int, stringLength int, profileStr string) ([]string, error) {
+func Filter(
+	arraySize int,
+	stringLength int,
+	profileStr string,
+) ([]string, error) {
 	var (
 		size   int
 		result []string

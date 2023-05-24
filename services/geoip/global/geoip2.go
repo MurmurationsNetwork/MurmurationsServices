@@ -15,6 +15,12 @@ func geoip2Init() {
 	var err error
 	DB, err = geoip2.Open(config.Conf.Server.DBLocation)
 	if err != nil {
-		logger.Panic(fmt.Sprintf("Error when trying to Open GeoLite2-City.mmdb at %s", config.Conf.Server.DBLocation), err)
+		logger.Panic(
+			fmt.Sprintf(
+				"Error when trying to Open GeoLite2-City.mmdb at %s",
+				config.Conf.Server.DBLocation,
+			),
+			err,
+		)
 	}
 }

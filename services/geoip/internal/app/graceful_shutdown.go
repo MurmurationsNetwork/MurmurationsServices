@@ -18,7 +18,10 @@ func waitForShutdown(server *http.Server, closed chan struct{}) {
 
 	cleanup()
 
-	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.Server.TimeoutIdle)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		config.Conf.Server.TimeoutIdle,
+	)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {

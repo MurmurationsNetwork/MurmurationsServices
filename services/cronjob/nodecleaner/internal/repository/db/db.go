@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/entity/query"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
@@ -37,13 +38,21 @@ func (r *nodeRepository) Remove(status string, timeBefore int64) error {
 		},
 	}
 
-	result, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Node).DeleteMany(context.Background(), filter)
+	result, err := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Node).
+		DeleteMany(context.Background(), filter)
 	if err != nil {
 		return err
 	}
 
 	if result.DeletedCount != 0 {
-		logger.Info(fmt.Sprintf("Delete %d nodes with %s status", result.DeletedCount, status))
+		logger.Info(
+			fmt.Sprintf(
+				"Delete %d nodes with %s status",
+				result.DeletedCount,
+				status,
+			),
+		)
 	}
 
 	return nil
@@ -57,13 +66,21 @@ func (r *nodeRepository) RemoveDeleted(status string, timeBefore int64) error {
 		},
 	}
 
-	result, err := r.client.Database(config.Conf.Mongo.DBName).Collection(constant.MongoIndex.Node).DeleteMany(context.Background(), filter)
+	result, err := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Node).
+		DeleteMany(context.Background(), filter)
 	if err != nil {
 		return err
 	}
 
 	if result.DeletedCount != 0 {
-		logger.Info(fmt.Sprintf("Delete %d nodes with %s status", result.DeletedCount, status))
+		logger.Info(
+			fmt.Sprintf(
+				"Delete %d nodes with %s status",
+				result.DeletedCount,
+				status,
+			),
+		)
 	}
 
 	return nil

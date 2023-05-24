@@ -10,7 +10,9 @@ import (
 func mapUrls(router *gin.Engine) {
 	deprecationHandler := http.NewDeprecationHandler()
 	pingHandler := http.NewPingHandler()
-	nodeHandler := http.NewNodeHandler(usecase.NewNodeService(db.NewRepository()))
+	nodeHandler := http.NewNodeHandler(
+		usecase.NewNodeService(db.NewRepository()),
+	)
 
 	v1 := router.Group("/v1")
 	{
