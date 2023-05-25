@@ -12,10 +12,10 @@ func parseValidateError(
 	schema string,
 	resultErrors []gojsonschema.ResultError,
 ) ([]string, []string, [][]string) {
-	var (
-		failedTitles, failedDetails []string
-		failedSources               [][]string
-	)
+	failedTitles := make([]string, 0, len(resultErrors))
+	failedDetails := make([]string, 0, len(resultErrors))
+	failedSources := make([][]string, 0, len(resultErrors))
+
 	for _, desc := range resultErrors {
 		// title
 		failedType := desc.Type()

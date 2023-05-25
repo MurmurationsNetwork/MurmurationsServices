@@ -22,7 +22,7 @@ func FindAlpha2ByName(
 
 	var countryNames map[string][]string
 
-	err = json.Unmarshal([]byte(countries), &countryNames)
+	err = json.Unmarshal(countries, &countryNames)
 
 	if err != nil {
 		return "undefined", err
