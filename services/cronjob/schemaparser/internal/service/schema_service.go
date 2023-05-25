@@ -199,7 +199,7 @@ func (s *schemaService) getSchema(
 	return &data, parsedFullData, nil
 }
 
-// Direct generate the bson.D type for saving to MongoDB
+// Direct generate the bson.D type for saving to MongoDB.
 func (s *schemaService) parseProperties(
 	fullData orderedmap.OrderedMap,
 	fieldListMap map[string]string,

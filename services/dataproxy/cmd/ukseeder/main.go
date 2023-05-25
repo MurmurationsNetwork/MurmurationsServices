@@ -18,9 +18,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 )
 
-// global variables
-var fileName = "co-ops-uk-data_2021_q3-tidied.xlsx"
-var sheetName = "open_data_organisations_2021_q3"
+const (
+	fileName  = "co-ops-uk-data_2021_q3-tidied.xlsx"
+	sheetName = "open_data_organisations_2021_q3"
+)
 
 func Init() {
 	config.Init()

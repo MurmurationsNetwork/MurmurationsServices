@@ -20,9 +20,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 )
 
-// global variables
-var fileName = "schema.xlsx"
-var sheetName = "sheet1"
+const (
+	fileName  = "schema.xlsx"
+	sheetName = "sheet1"
+)
 
 func Init() {
 	config.Init()

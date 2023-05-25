@@ -437,7 +437,7 @@ func (s *batchUsecase) Delete(userId string, batchId string) error {
 	return nil
 }
 
-// Convert csv to one-to-one map[string]string
+// Convert csv to one-to-one map[string]string.
 func csvToMap(records [][]string) []map[string]string {
 	csvHeader := records[0]
 	var rawProfiles []map[string]string
@@ -454,7 +454,7 @@ func csvToMap(records [][]string) []map[string]string {
 	return rawProfiles
 }
 
-// Convert one-to-one map[string]string to profile data structure
+// Convert one-to-one map[string]string to profile data structure.
 func mapToProfile(
 	rawProfile map[string]string,
 	schemas []string,
@@ -497,7 +497,7 @@ func mapToProfile(
 	return profile, nil
 }
 
-// Destructure field name and save field value to profile data structure
+// Destructure field name and save field value to profile data structure.
 func destructField(
 	profile map[string]interface{},
 	field string,

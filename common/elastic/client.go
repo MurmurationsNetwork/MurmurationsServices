@@ -19,13 +19,13 @@ func (c *esClient) setClient(client *elastic.Client) {
 
 func (c *esClient) CreateMappings(indices []Index) error {
 	for _, index := range indices {
-		exists, err := c.client.IndexExists(string(index.Name)).
+		exists, err := c.client.IndexExists(index.Name).
 			Do(context.Background())
 		if err != nil {
 			return err
 		}
 		if !exists {
-			createIndex, err := c.client.CreateIndex(string(index.Name)).
+			createIndex, err := c.client.CreateIndex(index.Name).
 				BodyString(index.Body).
 				Do(context.Background())
 			if err != nil {
