@@ -66,21 +66,21 @@ func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
 
 func (s *schemaService) UpdateSchemas(branchSha string) error {
 	// Get schema folder list and field folder list
-	schemaListUrl, fieldListUrl, err := getBranchFolders(branchSha)
+	schemaListURL, fieldListURL, err := getBranchFolders(branchSha)
 
 	if err != nil {
 		return err
 	}
 
-	// Read field folder list and create a map of field name and field url
-	fieldListMap, err := getFieldsUrlMap(fieldListUrl)
+	// Read field folder list and create a map of field name and field URL
+	fieldListMap, err := getFieldsURLMap(fieldListURL)
 
 	if err != nil {
 		return err
 	}
 
 	// Read schema folder list
-	schemaList, err := getGithubTree(schemaListUrl)
+	schemaList, err := getGithubTree(schemaListURL)
 
 	if err != nil {
 		return err
@@ -88,7 +88,7 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 
 	for _, schemaName := range schemaList {
 		schemaNameMap := schemaName.(map[string]interface{})
-		schema, fullJson, err := s.getSchema(
+		schema, fullJSON, err := s.getSchema(
 			schemaNameMap["url"].(string),
 			fieldListMap,
 		)
@@ -96,7 +96,7 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 			return err
 		}
 
-		err = s.updateSchema(schema, fullJson)
+		err = s.updateSchema(schema, fullJSON)
 		if err != nil {
 			return err
 		}
@@ -154,14 +154,14 @@ func shouldSetLastCommitTime(oldTime, newTime string) (bool, error) {
 
 func (s *schemaService) updateSchema(
 	schema *domain.SchemaJSON,
-	fullJson bson.D,
+	fullJSON bson.D,
 ) error {
 	doc := &domain.Schema{
 		Title:       schema.Title,
 		Description: schema.Description,
 		Name:        schema.Metadata.Schema.Name,
 		URL:         schema.Metadata.Schema.URL,
-		FullSchema:  fullJson,
+		FullSchema:  fullJSON,
 	}
 	err := s.repo.Update(doc)
 	if err != nil {
@@ -175,20 +175,20 @@ func (s *schemaService) getSchema(
 	fieldListMap map[string]string,
 ) (*domain.SchemaJSON, bson.D, error) {
 	// Get schema json from GitHub API
-	schemaJson, err := getGithubFile(url)
+	schemaJSON, err := getGithubFile(url)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Get the schema json and full json
 	var data domain.SchemaJSON
-	err = json.Unmarshal(schemaJson, &data)
+	err = json.Unmarshal(schemaJSON, &data)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	fullData := orderedmap.New()
-	err = json.Unmarshal(schemaJson, &fullData)
+	err = json.Unmarshal(schemaJSON, &fullData)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -199,7 +199,7 @@ func (s *schemaService) getSchema(
 	return &data, parsedFullData, nil
 }
 
-// Direct generate the bson.D type for saving to MongoDB
+// Direct generate the bson.D type for saving to MongoDB.
 func (s *schemaService) parseProperties(
 	fullData orderedmap.OrderedMap,
 	fieldListMap map[string]string,
@@ -252,23 +252,23 @@ func (s *schemaService) schemaParser(
 ) (*orderedmap.OrderedMap, error) {
 	_, fieldName := path.Split(url)
 
-	fieldListUrl := fieldListMap[fieldName]
+	fieldListURL := fieldListMap[fieldName]
 
-	if fieldListUrl == "" {
+	if fieldListURL == "" {
 		return nil, fmt.Errorf(
-			"get schema failed, url: %s, fieldListUrl is empty",
+			"get schema failed, url: %s, fieldListURL is empty",
 			url,
 		)
 	}
 
 	// Get field json from GitHub API
-	fieldJson, err := getGithubFile(fieldListUrl)
+	fieldJSON, err := getGithubFile(fieldListURL)
 	if err != nil {
 		return nil, err
 	}
 
 	subSchema := orderedmap.New()
-	err = json.Unmarshal(fieldJson, &subSchema)
+	err = json.Unmarshal(fieldJSON, &subSchema)
 	if err != nil {
 		return nil, err
 	}
@@ -286,30 +286,30 @@ func getBranchFolders(branchSha string) (string, string, error) {
 	}
 
 	var (
-		schemaListUrl string
-		fieldListUrl  string
+		schemaListURL string
+		fieldListURL  string
 	)
 	for _, item := range rootList {
 		itemMap := item.(map[string]interface{})
 		if itemMap["path"].(string) == "schemas" {
-			schemaListUrl = itemMap["url"].(string)
+			schemaListURL = itemMap["url"].(string)
 		} else if itemMap["path"].(string) == "fields" {
-			fieldListUrl = itemMap["url"].(string)
+			fieldListURL = itemMap["url"].(string)
 		}
 	}
 
-	if schemaListUrl == "" {
+	if schemaListURL == "" {
 		return "", "", fmt.Errorf("schemas folder not found")
 	}
-	if fieldListUrl == "" {
+	if fieldListURL == "" {
 		return "", "", fmt.Errorf("fields folder not found")
 	}
 
-	return schemaListUrl, fieldListUrl, nil
+	return schemaListURL, fieldListURL, nil
 }
 
-func getFieldsUrlMap(fieldListUrl string) (map[string]string, error) {
-	fieldList, err := getGithubTree(fieldListUrl)
+func getFieldsURLMap(fieldListURL string) (map[string]string, error) {
+	fieldList, err := getGithubTree(fieldListURL)
 	if err != nil {
 		return nil, err
 	}
@@ -318,11 +318,11 @@ func getFieldsUrlMap(fieldListUrl string) (map[string]string, error) {
 	for _, field := range fieldList {
 		fieldMap := field.(map[string]interface{})
 		fieldPath := fieldMap["path"].(string)
-		fieldUrl := fieldMap["url"].(string)
-		if len(fieldPath) > 0 && len(fieldUrl) > 0 {
-			fieldListMap[fieldPath] = fieldUrl
+		fieldURL := fieldMap["url"].(string)
+		if len(fieldPath) > 0 && len(fieldURL) > 0 {
+			fieldListMap[fieldPath] = fieldURL
 		} else {
-			return nil, fmt.Errorf("field path or url is empty" + fieldPath + fieldUrl)
+			return nil, fmt.Errorf("field path or url is empty" + fieldPath + fieldURL)
 		}
 	}
 

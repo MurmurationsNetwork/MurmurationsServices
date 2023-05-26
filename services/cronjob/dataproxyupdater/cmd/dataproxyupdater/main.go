@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lucsky/cuid"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
@@ -18,7 +20,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/service"
-	"github.com/lucsky/cuid"
 )
 
 func init() {
@@ -86,12 +87,12 @@ func main() {
 
 	// recent-changes API
 	// only process 100 data in once
-	entry := update.ApiEntry + "/entries/recently-changed"
+	entry := update.APIEntry + "/entries/recently-changed"
 	limit := 100
 	offset := 0
 	until := time.Now().Unix()
 
-	url := getUrl(entry, update.LastUpdated, until, limit, offset)
+	url := getURL(entry, update.LastUpdated, until, limit, offset)
 	profiles, err := getProfiles(url)
 	if err != nil {
 		errStr := "get profile failed" + err.Error()
@@ -100,7 +101,7 @@ func main() {
 	}
 	for len(profiles) > 0 {
 		for _, oldProfile := range profiles {
-			profileJson, err := importutil.MapProfile(
+			profileJSON, err := importutil.MapProfile(
 				oldProfile,
 				mapping,
 				schemaName,
@@ -110,18 +111,18 @@ func main() {
 				logger.Error("map profile failed", err)
 				errCleanUp(schemaName, svc, errStr)
 			}
-			oid := profileJson["oid"].(string)
+			oid := profileJSON["oid"].(string)
 
-			if profileJson["primary_url"] == nil {
+			if profileJSON["primary_url"] == nil {
 				logger.Info("primary_url is empty, profile id is " + oid)
 				continue
 			}
 
 			// validate data
-			validateUrl := config.Conf.Index.URL + "/v2/validate"
+			validateURL := config.Conf.Index.URL + "/v2/validate"
 			isValid, failureReasons, err := importutil.Validate(
-				validateUrl,
-				profileJson,
+				validateURL,
+				profileJSON,
 			)
 			if err != nil {
 				errStr := "validate profile failed, profile id is " + oid + ". error message: " + err.Error()
@@ -142,35 +143,35 @@ func main() {
 				errCleanUp(schemaName, svc, errStr)
 			}
 			if count <= 0 {
-				profileJson["cuid"] = cuid.New()
-				err := profileSvc.Add(profileJson)
+				profileJSON["cuid"] = cuid.New()
+				err := profileSvc.Add(profileJSON)
 				if err != nil {
 					errStr := "can't add a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
 			} else {
-				result, err := profileSvc.Update(oid, profileJson)
+				result, err := profileSvc.Update(oid, profileJSON)
 				if err != nil {
 					errStr := "can't update a profile, profile id is " + oid
 					logger.Info(errStr)
 					errCleanUp(schemaName, svc, errStr)
 				}
-				profileJson["cuid"] = result["cuid"]
+				profileJSON["cuid"] = result["cuid"]
 			}
 
 			// post update to Index
-			postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
-			profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
-			nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
+			postNodeURL := config.Conf.Index.URL + "/v2/nodes"
+			profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
+			nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 			if err != nil {
-				errStr := "failed to post profile to Index, profile url is " + profileUrl + ". error message: " + err.Error()
+				errStr := "failed to post profile to Index, profile url is " + profileURL + ". error message: " + err.Error()
 				logger.Error(errStr, err)
 				errCleanUp(schemaName, svc, errStr)
 			}
 
 			// save node_id to profile
-			err = profileSvc.UpdateNodeId(oid, nodeId)
+			err = profileSvc.UpdateNodeID(oid, nodeID)
 			if err != nil {
 				errStr := "update node id failed. profile id is " + oid
 				logger.Error(errStr, err)
@@ -178,7 +179,7 @@ func main() {
 			}
 		}
 		offset += limit
-		url = getUrl(entry, update.LastUpdated, until, limit, offset)
+		url = getURL(entry, update.LastUpdated, until, limit, offset)
 		profiles, err = getProfiles(url)
 		if err != nil {
 			errStr := "get profile failed" + err.Error()
@@ -204,16 +205,16 @@ func main() {
 	}
 
 	for _, notPostedProfile := range notPostedProfiles {
-		getNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + notPostedProfile.NodeId
-		res, err := http.Get(getNodeUrl)
+		getNodeURL := config.Conf.Index.URL + "/v2/nodes/" + notPostedProfile.NodeID
+		res, err := http.Get(getNodeURL)
 		if err != nil {
-			errStr := "failed to get not posted nodes, node id is " + notPostedProfile.NodeId + err.Error()
+			errStr := "failed to get not posted nodes, node id is " + notPostedProfile.NodeID + err.Error()
 			logger.Error("failed to get not posted nodes", err)
 			errCleanUp(schemaName, svc, errStr)
 		}
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			errStr := "read post body failed. node id is " + notPostedProfile.NodeId + err.Error()
+			errStr := "read post body failed. node id is " + notPostedProfile.NodeID + err.Error()
 			logger.Error(errStr, err)
 			errCleanUp(schemaName, svc, errStr)
 		}
@@ -221,7 +222,7 @@ func main() {
 		var nodeData importutil.NodeData
 		err = json.Unmarshal(bodyBytes, &nodeData)
 		if err != nil {
-			errStr := "unmarshal body failed. node id is " + notPostedProfile.NodeId + err.Error()
+			errStr := "unmarshal body failed. node id is " + notPostedProfile.NodeID + err.Error()
 			logger.Error(errStr, err)
 			errCleanUp(schemaName, svc, errStr)
 		}
@@ -236,9 +237,9 @@ func main() {
 		}
 
 		if nodeData.Data.Status == "posted" {
-			err = profileSvc.UpdateIsPosted(notPostedProfile.NodeId)
+			err = profileSvc.UpdateIsPosted(notPostedProfile.NodeID)
 			if err != nil {
-				errStr := "update isPosted failed. node id is " + notPostedProfile.NodeId + err.Error()
+				errStr := "update isPosted failed. node id is " + notPostedProfile.NodeID + err.Error()
 				logger.Error(errStr, err)
 				errCleanUp(schemaName, svc, errStr)
 			}
@@ -249,9 +250,9 @@ func main() {
 					errors = append(errors, fmt.Sprintf("%#v", item))
 				}
 				errorsStr := strings.Join(errors, ",")
-				logger.Info("node id " + notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ". Error messages: " + errorsStr)
+				logger.Info("node id " + notPostedProfile.NodeID + " is not posted. Profile url is " + nodeData.Data.ProfileURL + ". Error messages: " + errorsStr)
 			} else {
-				logger.Info("node id " + notPostedProfile.NodeId + " is not posted. Profile url is " + nodeData.Data.ProfileUrl + ".")
+				logger.Info("node id " + notPostedProfile.NodeID + " is not posted. Profile url is " + nodeData.Data.ProfileURL + ".")
 			}
 		}
 	}
@@ -259,7 +260,7 @@ func main() {
 	cleanUp()
 }
 
-func getUrl(
+func getURL(
 	entry string,
 	since int64,
 	until int64,
@@ -270,9 +271,9 @@ func getUrl(
 	limitStr := strconv.Itoa(limit)
 	offsetStr := strconv.Itoa(offset)
 	untilStr := strconv.FormatInt(until, 10)
-	apiUrl := entry + "/?since=" + sinceStr + "&limit=" + limitStr + "&offset=" + offsetStr + "&until=" + untilStr
+	apiURL := entry + "/?since=" + sinceStr + "&limit=" + limitStr + "&offset=" + offsetStr + "&until=" + untilStr
 
-	return apiUrl
+	return apiURL
 }
 
 func getProfiles(url string) ([]map[string]interface{}, error) {
@@ -283,12 +284,12 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 
 	defer res.Body.Close()
 
-	var bodyJson []map[string]interface{}
+	var bodyJSON []map[string]interface{}
 	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&bodyJson)
+	err = decoder.Decode(&bodyJSON)
 	if err != nil {
 		return nil, fmt.Errorf("can't parse data from" + url)
 	}
 
-	return bodyJson, nil
+	return bodyJSON, nil
 }

@@ -20,9 +20,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 )
 
-// global variables
-var fileName = "schema.xlsx"
-var sheetName = "sheet1"
+const (
+	fileName  = "schema.xlsx"
+	sheetName = "sheet1"
+)
 
 func Init() {
 	config.Init()
@@ -55,7 +56,7 @@ func readArgs(args []string) (string, string, int, int, error) {
 	*/
 	if len(args) != 5 {
 		return "", "", 0, 0, fmt.Errorf(
-			"Missing arguments: please check the arguments.",
+			"missing arguments: please check the arguments",
 		)
 	}
 
@@ -82,20 +83,20 @@ func downloadExcel(url string) error {
 	fmt.Println("Downloading Excel file from remote server...")
 	output, err := os.Create(fileName)
 	if err != nil {
-		return fmt.Errorf("Error while creating %s file: %s", fileName, err)
+		return fmt.Errorf("error while creating %s file: %s", fileName, err)
 	}
 	defer output.Close()
 
 	res, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("Error while downloading from %s: %s", url, err)
+		return fmt.Errorf("error while downloading from %s: %s", url, err)
 	}
 	defer res.Body.Close()
 
 	n, err := io.Copy(output, res.Body)
 	if err != nil {
 		return fmt.Errorf(
-			"Error while receiving data from %s: %s",
+			"error while receiving data from %s: %s",
 			fileName,
 			err,
 		)
@@ -115,7 +116,7 @@ func importData(
 	oid, err := file.GetCellValue(sheetName, axis)
 	if err != nil {
 		return false, fmt.Errorf(
-			"Error reading Excel file. Axis: %s, error message: %s",
+			"error reading Excel file. Axis: %s, error message: %s",
 			axis,
 			err,
 		)
@@ -125,11 +126,11 @@ func importData(
 	filter := bson.M{"oid": oid}
 	result, err := mongo.Client.Count(constant.MongoIndex.Profile, filter)
 	if err != nil {
-		return false, fmt.Errorf("Error when trying to find a profile: %s", err)
+		return false, fmt.Errorf("error when trying to find a profile: %s", err)
 	}
 	if result > 0 {
 		return true, fmt.Errorf(
-			"Warning: profile already exists. The old data has not been overwritten. Row: %v, OID: %s\n",
+			"warning: profile already exists. The old data has not been overwritten. Row: %v, OID: %s",
 			row,
 			oid,
 		)
@@ -146,37 +147,37 @@ func importData(
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&oldProfiles)
 	if err != nil {
-		return false, fmt.Errorf("Can't parse data from " + url)
+		return false, fmt.Errorf("can't parse data from " + url)
 	}
 
 	if len(oldProfiles) == 0 {
-		return true, fmt.Errorf("Profile doesn't exist. OID: " + oid)
+		return true, fmt.Errorf("profile doesn't exist. OID: " + oid)
 	}
 
-	profileJson, err := importutil.MapProfile(
+	profileJSON, err := importutil.MapProfile(
 		oldProfiles[0],
 		mapping,
 		schemaName,
 	)
 	if err != nil {
-		return false, fmt.Errorf("Error when trying to map a profile: %s", err)
+		return false, fmt.Errorf("error when trying to map a profile: %s", err)
 	}
 
 	// Validate data
-	validateUrl := config.Conf.Index.URL + "/v2/validate"
+	validateURL := config.Conf.Index.URL + "/v2/validate"
 	isValid, failureReasons, err := importutil.Validate(
-		validateUrl,
-		profileJson,
+		validateURL,
+		profileJSON,
 	)
 	if err != nil {
 		return false, fmt.Errorf(
-			"Error when trying to validate a profile: %s",
+			"error when trying to validate a profile: %s",
 			err,
 		)
 	}
 	if !isValid {
 		return true, fmt.Errorf(
-			"Warning: skipped importing this row because profile validation failed. Row: %v, OID: %s, Failure Reasons: %s",
+			"warning: skipped importing this row because profile validation failed. Row: %v, OID: %s, Failure Reasons: %s",
 			row,
 			oid,
 			failureReasons,
@@ -185,26 +186,26 @@ func importData(
 
 	// Save to MongoDB, return url to post index
 	// Generate cid for item
-	profileJson["cuid"] = cuid.New()
-	_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJson)
+	profileJSON["cuid"] = cuid.New()
+	_, err = mongo.Client.InsertOne(constant.MongoIndex.Profile, profileJSON)
 	if err != nil {
-		return false, fmt.Errorf("Error when trying to save a profile: %s", err)
+		return false, fmt.Errorf("error when trying to save a profile: %s", err)
 	}
 
 	// Post to index service
-	postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
-	profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
-	nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
+	postNodeURL := config.Conf.Index.URL + "/v2/nodes"
+	profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
+	nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 	if err != nil {
 		return false, fmt.Errorf(
 			"failed to post %s to Index: %s",
-			profileUrl,
+			profileURL,
 			err,
 		)
 	}
 
-	// update NodeId
-	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": true}}
+	// update NodeID
+	update := bson.M{"$set": bson.M{"node_id": nodeID, "is_posted": true}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	_, err = mongo.Client.FindOneAndUpdate(
@@ -227,7 +228,7 @@ func cleanUp() error {
 	// delete the local file
 	err := os.Remove(fileName)
 	if err != nil {
-		return fmt.Errorf("Error when deleting the file %s - %s", fileName, err)
+		return fmt.Errorf("error when deleting the file %s - %s", fileName, err)
 	}
 	return nil
 }

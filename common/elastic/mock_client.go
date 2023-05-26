@@ -7,62 +7,62 @@ import (
 type mockClient struct {
 }
 
-func (c *mockClient) setClient(client *elastic.Client) {
+func (*mockClient) setClient(_ *elastic.Client) {
 }
 
-func (c *mockClient) CreateMappings(indices []Index) error {
+func (*mockClient) CreateMappings(_ []Index) error {
 	return nil
 }
 
-func (c *mockClient) Index(
-	index string,
-	doc interface{},
+func (*mockClient) Index(
+	_ string,
+	_ interface{},
 ) (*elastic.IndexResponse, error) {
 	return nil, nil
 }
 
-func (c *mockClient) IndexWithID(
-	index string,
-	id string,
-	doc interface{},
+func (*mockClient) IndexWithID(
+	_ string,
+	_ string,
+	_ interface{},
 ) (*elastic.IndexResponse, error) {
 	return nil, nil
 }
 
-func (c *mockClient) Search(
-	index string,
-	query *Query,
+func (*mockClient) Search(
+	_ string,
+	_ *Query,
 ) (*elastic.SearchResult, error) {
 	return nil, nil
 }
 
-func (c *mockClient) Update(
-	index string,
-	id string,
-	update map[string]interface{},
+func (*mockClient) Update(
+	_ string,
+	_ string,
+	_ map[string]interface{},
 ) error {
 	return nil
 }
 
-func (c *mockClient) Delete(index string, id string) error {
+func (*mockClient) Delete(_ string, _ string) error {
 	return nil
 }
 
-func (c *mockClient) DeleteMany(index string, query *Query) error {
+func (*mockClient) DeleteMany(_ string, _ *Query) error {
 	return nil
 }
 
-func (c *mockClient) Export(
-	index string,
-	query *Query,
-	searchAfter []interface{},
+func (*mockClient) Export(
+	_ string,
+	_ *Query,
+	_ []interface{},
 ) (*elastic.SearchResult, error) {
 	return nil, nil
 }
 
-func (c *mockClient) GetNodes(
-	index string,
-	query *Query,
+func (*mockClient) GetNodes(
+	_ string,
+	_ *Query,
 ) (*elastic.SearchResult, error) {
 	return nil, nil
 }

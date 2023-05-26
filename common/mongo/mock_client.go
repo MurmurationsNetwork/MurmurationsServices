@@ -11,46 +11,49 @@ type mockClient struct {
 }
 
 func (c *mockClient) FindOne(
-	collection string,
-	filter primitive.M,
+	_ string,
+	_ primitive.M,
 ) *mongo.SingleResult {
 	return nil
 }
 
 func (c *mockClient) Count(
-	collection string,
-	filter primitive.M,
+	_ string,
+	_ primitive.M,
 ) (int64, error) {
 	return 0, nil
 }
 
-func (c *mockClient) InsertOne(collection string, document interface{},
-	opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
+func (c *mockClient) InsertOne(
+	_ string,
+	_ interface{},
+	_ ...*options.InsertOneOptions,
+) (*mongo.InsertOneResult, error) {
 	return &mongo.InsertOneResult{}, nil
 }
 
 func (c *mockClient) FindOneAndUpdate(
-	collection string,
-	filter primitive.M,
-	update primitive.M,
-	opts ...*options.FindOneAndUpdateOptions,
+	_ string,
+	_ primitive.M,
+	_ primitive.M,
+	_ ...*options.FindOneAndUpdateOptions,
 ) (*mongo.SingleResult, error) {
 	return &mongo.SingleResult{}, nil
 }
 
 func (c *mockClient) Find(
-	collection string,
-	filter primitive.M,
-	opts ...*options.FindOptions,
+	_ string,
+	_ primitive.M,
+	_ ...*options.FindOptions,
 ) (*mongo.Cursor, error) {
 	return &mongo.Cursor{}, nil
 }
 
-func (c *mockClient) DeleteOne(collection string, filter primitive.M) error {
+func (c *mockClient) DeleteOne(_ string, _ primitive.M) error {
 	return nil
 }
 
-func (c *mockClient) DeleteMany(collection string, filter primitive.M) error {
+func (c *mockClient) DeleteMany(_ string, _ primitive.M) error {
 	return nil
 }
 
@@ -65,5 +68,5 @@ func (c *mockClient) GetClient() *mongo.Client {
 	return c.client
 }
 
-func (c *mockClient) setClient(client *mongo.Client, dbName string) {
+func (c *mockClient) setClient(_ *mongo.Client, _ string) {
 }

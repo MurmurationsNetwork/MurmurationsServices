@@ -22,7 +22,7 @@ type NodeUsecase interface {
 	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
 	SetNodeValid(node *entity.Node) error
 	SetNodeInvalid(node *entity.Node) error
-	Search(query *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
+	Search(query *query.EsQuery) (*query.Results, []jsonapi.Error)
 	Delete(nodeID string) (string, []jsonapi.Error)
 	Export(
 		query *query.EsBlockQuery,
@@ -107,10 +107,7 @@ func (s *nodeUsecase) SetNodeValid(node *entity.Node) error {
 	node.Status = constant.NodeStatus.Validated
 	node.FailureReasons = &[]jsonapi.Error{}
 
-	if err := s.nodeRepo.Update(node); err != nil {
-		return err
-	}
-	return nil
+	return s.nodeRepo.Update(node)
 }
 
 func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
@@ -121,15 +118,12 @@ func (s *nodeUsecase) SetNodeInvalid(node *entity.Node) error {
 	lastUpdated := dateutil.GetZeroValueUnix()
 	node.LastUpdated = &lastUpdated
 
-	if err := s.nodeRepo.Update(node); err != nil {
-		return err
-	}
-	return nil
+	return s.nodeRepo.Update(node)
 }
 
 func (s *nodeUsecase) Search(
 	query *query.EsQuery,
-) (*query.QueryResults, []jsonapi.Error) {
+) (*query.Results, []jsonapi.Error) {
 	result, err := s.nodeRepo.Search(query)
 	if err != nil {
 		return nil, err
@@ -163,29 +157,22 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 	defer resp.Body.Close()
 
 	// check the response is json or not (issue-266)
-	var bodyJson interface{}
-	isJson := true
+	var bodyJSON interface{}
+	isJSON := true
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&bodyJson)
+	err = decoder.Decode(&bodyJSON)
 	if err != nil {
-		isJson = false
+		isJSON = false
 	}
 
-	if resp.StatusCode == http.StatusNotFound || !isJson {
+	if resp.StatusCode == http.StatusNotFound || !isJSON {
 		if node.Status == constant.NodeStatus.Posted ||
 			node.Status == constant.NodeStatus.Deleted {
 			err := s.nodeRepo.SoftDelete(node)
-			if err != nil {
-				return node.ProfileURL, err
-			}
-			return node.ProfileURL, nil
-		} else {
-			err := s.nodeRepo.Delete(node)
-			if err != nil {
-				return node.ProfileURL, err
-			}
-			return node.ProfileURL, nil
+			return node.ProfileURL, err
 		}
+		err := s.nodeRepo.Delete(node)
+		return node.ProfileURL, err
 	}
 
 	if resp.StatusCode == http.StatusOK {

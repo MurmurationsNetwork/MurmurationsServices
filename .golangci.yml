@@ -1,29 +1,61 @@
-# linters-settings: This section is used to configure individual linters.
-linters-settings:
-  # gofmt: Configuration for the gofmt linter.
-  gofmt:
-    # simplify: Simplify code when possible.
-    simplify: true
-  # misspell: Configuration for the misspell linter.
-  misspell:
-    # locale: Set the locale to US to catch US-specific spelling mistakes.
-    locale: US
-
-# run: This section is used to configure how golangci-lint runs.
+---
 run:
   # timeout: Set a timeout of 5 minutes.
   timeout: 5m
-  # skip-dirs: Skip the specified directories.
-  skip-dirs:
-    - vendor
 
-# issues: This section is used to configure how golangci-lint handles issues.
+linters:
+  enable:
+    - dogsled
+    - exportloopref
+    - godot
+    - gofmt
+    - revive
+    - govet
+    - misspell
+    - nakedret
+    - nolintlint
+    - prealloc
+    - staticcheck
+    - unconvert
+    - whitespace
+
+linters-settings:
+  # Recommended settings from https://github.com/mgechev/revive#recommended-configuration.
+  revive:
+    ignoreGeneratedHeader: false
+    severity: "warning"
+    confidence: 0.8
+    errorCode: 0
+    warningCode: 0
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: error-naming
+      - name: exported
+      - name: if-return
+      - name: increment-decrement
+      - name: var-naming
+      - name: var-declaration
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+
 issues:
-  # exclude-rules: Exclude the specified rules.
   exclude-rules:
-    # Each rule is a dictionary with a linters list and a text string.
     - linters:
-        # linters: The rule applies to these linters.
         - staticcheck
       # text: Ignore using a deprecated function, variable, constant or field.
       text: "SA1019"

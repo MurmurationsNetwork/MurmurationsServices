@@ -41,10 +41,10 @@ func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
 	}
 }
 
-func (handler *nodeHandler) getNodeId(
+func (handler *nodeHandler) getNodeID(
 	params gin.Params,
 ) (string, []jsonapi.Error) {
-	nodeId, found := params.Get("nodeId")
+	nodeID, found := params.Get("nodeID")
 	if !found {
 		return "", jsonapi.NewError(
 			[]string{"Invalid Node Id"},
@@ -53,7 +53,7 @@ func (handler *nodeHandler) getNodeId(
 			[]int{http.StatusBadRequest},
 		)
 	}
-	return nodeId, nil
+	return nodeID, nil
 }
 
 func (handler *nodeHandler) Add(c *gin.Context) {
@@ -88,14 +88,14 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 }
 
 func (handler *nodeHandler) Get(c *gin.Context) {
-	nodeId, err := handler.getNodeId(c.Params)
+	nodeID, err := handler.getNodeID(c.Params)
 	if err != nil {
 		res := jsonapi.Response(nil, err, nil, nil)
 		c.JSON(err[0].Status, res)
 		return
 	}
 
-	node, err := handler.nodeUsecase.GetNode(nodeId)
+	node, err := handler.nodeUsecase.GetNode(nodeID)
 	if err != nil {
 		res := jsonapi.Response(nil, err, nil, nil)
 		c.JSON(err[0].Status, res)
@@ -252,7 +252,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 }
 
 func (handler *nodeHandler) Delete(c *gin.Context) {
-	if c.Params.ByName("nodeId") == "" {
+	if c.Params.ByName("nodeID") == "" {
 		errors := jsonapi.NewError(
 			[]string{"Missing Path Parameter"},
 			[]string{"The `node_id` path parameter is missing."},
@@ -264,29 +264,29 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	nodeId, err := handler.getNodeId(c.Params)
+	nodeID, err := handler.getNodeID(c.Params)
 	if err != nil {
 		res := jsonapi.Response(nil, err, nil, nil)
 		c.JSON(err[0].Status, res)
 		return
 	}
 
-	profileUrl, err := handler.nodeUsecase.Delete(nodeId)
+	profileURL, err := handler.nodeUsecase.Delete(nodeID)
 	if err != nil {
-		meta := jsonapi.NewMeta("", nodeId, profileUrl)
+		meta := jsonapi.NewMeta("", nodeID, profileURL)
 		res := jsonapi.Response(nil, err, nil, meta)
 		c.JSON(err[0].Status, res)
 		return
 	}
 
-	deleteTtl := dateutil.FormatSeconds(config.Conf.TTL.DeletedTTL)
+	deleteTTL := dateutil.FormatSeconds(config.Conf.TTL.DeletedTTL)
 
 	meta := jsonapi.NewMeta(
 		fmt.Sprintf(
 			"The Index has recorded as deleted the profile that was previously "+
 				"posted at: %s -- It will be completely removed from the index in %s.",
-			profileUrl,
-			deleteTtl,
+			profileURL,
+			deleteTTL,
 		),
 		"",
 		"",

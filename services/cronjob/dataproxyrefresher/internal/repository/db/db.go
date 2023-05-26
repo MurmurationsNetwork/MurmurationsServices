@@ -13,16 +13,16 @@ import (
 )
 
 type ProfileRepository interface {
-	Count(profileId string) (int64, error)
-	Add(profileJson map[string]interface{}) error
+	Count(profileID string) (int64, error)
+	Add(profileJSON map[string]interface{}) error
 	Update(
-		profileId string,
-		profileJson map[string]interface{},
+		profileID string,
+		profileJSON map[string]interface{},
 	) (map[string]interface{}, error)
-	UpdateNodeId(profileId string, nodeId string) error
+	UpdateNodeID(profileID string, nodeID string) error
 	FindLessThan(schemaName string, timestamp int64) ([]entity.Profile, error)
-	UpdateAccessTime(profileId string) error
-	Delete(profileId string) error
+	UpdateAccessTime(profileID string) error
+	Delete(profileID string) error
 }
 
 func NewProfileRepository(client *mongo.Client) ProfileRepository {
@@ -35,8 +35,8 @@ type profileRepository struct {
 	client *mongo.Client
 }
 
-func (r *profileRepository) Count(profileId string) (int64, error) {
-	filter := bson.M{"oid": profileId}
+func (r *profileRepository) Count(profileID string) (int64, error) {
+	filter := bson.M{"oid": profileID}
 
 	count, err := r.client.Database(config.Conf.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
@@ -47,10 +47,10 @@ func (r *profileRepository) Count(profileId string) (int64, error) {
 	return count, nil
 }
 
-func (r *profileRepository) Add(profileJson map[string]interface{}) error {
+func (r *profileRepository) Add(profileJSON map[string]interface{}) error {
 	_, err := r.client.Database(config.Conf.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
-		InsertOne(context.Background(), profileJson)
+		InsertOne(context.Background(), profileJSON)
 
 	if err != nil {
 		return err
@@ -60,11 +60,11 @@ func (r *profileRepository) Add(profileJson map[string]interface{}) error {
 }
 
 func (r *profileRepository) Update(
-	profileId string,
-	profileJson map[string]interface{},
+	profileID string,
+	profileJSON map[string]interface{},
 ) (map[string]interface{}, error) {
-	filter := bson.M{"oid": profileId}
-	update := bson.M{"$set": profileJson}
+	filter := bson.M{"oid": profileID}
+	update := bson.M{"$set": profileJSON}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	result := r.client.Database(config.Conf.Mongo.DBName).
@@ -84,12 +84,12 @@ func (r *profileRepository) Update(
 	return profile, nil
 }
 
-func (r *profileRepository) UpdateNodeId(
-	profileId string,
-	nodeId string,
+func (r *profileRepository) UpdateNodeID(
+	profileID string,
+	nodeID string,
 ) error {
-	filter := bson.M{"oid": profileId}
-	update := bson.M{"$set": bson.M{"node_id": nodeId, "is_posted": false}}
+	filter := bson.M{"oid": profileID}
+	update := bson.M{"$set": bson.M{"node_id": nodeID, "is_posted": false}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	result := r.client.Database(config.Conf.Mongo.DBName).
@@ -131,9 +131,9 @@ func (r *profileRepository) FindLessThan(
 	return profiles, nil
 }
 
-func (r *profileRepository) UpdateAccessTime(profileId string) error {
+func (r *profileRepository) UpdateAccessTime(profileID string) error {
 	timestamp := time.Now().Unix()
-	filter := bson.M{"oid": profileId}
+	filter := bson.M{"oid": profileID}
 	update := bson.M{
 		"$set": bson.M{"metadata.sources.$[].access_time": timestamp},
 	}
@@ -150,8 +150,8 @@ func (r *profileRepository) UpdateAccessTime(profileId string) error {
 	return nil
 }
 
-func (r *profileRepository) Delete(profileId string) error {
-	filter := bson.M{"cuid": profileId}
+func (r *profileRepository) Delete(profileID string) error {
+	filter := bson.M{"cuid": profileID}
 
 	_, err := r.client.Database(config.Conf.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).

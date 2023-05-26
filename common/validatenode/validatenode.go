@@ -12,10 +12,10 @@ func parseValidateError(
 	schema string,
 	resultErrors []gojsonschema.ResultError,
 ) ([]string, []string, [][]string) {
-	var (
-		failedTitles, failedDetails []string
-		failedSources               [][]string
-	)
+	failedTitles := make([]string, 0, len(resultErrors))
+	failedDetails := make([]string, 0, len(resultErrors))
+	failedSources := make([][]string, 0, len(resultErrors))
+
 	for _, desc := range resultErrors {
 		// title
 		failedType := desc.Type()
@@ -85,12 +85,12 @@ func parseValidateError(
 	return failedTitles, failedDetails, failedSources
 }
 
-func getSchemaURL(schemaUrl string, linkedSchema string) string {
-	return schemaUrl + "/v2/schemas/" + linkedSchema
+func getSchemaURL(schemaURL string, linkedSchema string) string {
+	return schemaURL + "/v2/schemas/" + linkedSchema
 }
 
 func ValidateAgainstSchemas(
-	schemaUrl string,
+	schemaURL string,
 	linkedSchemas []string,
 	validateData string,
 	schemaLoader string,
@@ -102,7 +102,7 @@ func ValidateAgainstSchemas(
 	)
 
 	for _, linkedSchema := range linkedSchemas {
-		schemaURL := getSchemaURL(schemaUrl, linkedSchema)
+		schemaURL := getSchemaURL(schemaURL, linkedSchema)
 
 		schema, err := gojsonschema.NewSchema(
 			gojsonschema.NewReferenceLoader(schemaURL),

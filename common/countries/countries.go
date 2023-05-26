@@ -9,10 +9,10 @@ import (
 )
 
 func FindAlpha2ByName(
-	countryUrl string,
+	countryURL string,
 	country interface{},
 ) (countryCode string, err error) {
-	res, err := http.Get(countryUrl)
+	res, err := http.Get(countryURL)
 	if err != nil {
 		fmt.Println("Get country map failed")
 		return "undefined", err
@@ -22,7 +22,7 @@ func FindAlpha2ByName(
 
 	var countryNames map[string][]string
 
-	err = json.Unmarshal([]byte(countries), &countryNames)
+	err = json.Unmarshal(countries, &countryNames)
 
 	if err != nil {
 		return "undefined", err

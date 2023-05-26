@@ -7,18 +7,18 @@ import (
 type redismock struct {
 }
 
-func (r *redismock) Ping() error {
+func (*redismock) Ping() error {
 	return nil
 }
 
-func (r *redismock) Set(
-	key string,
-	value interface{},
-	expiration time.Duration,
+func (*redismock) Set(
+	_ string,
+	_ interface{},
+	_ time.Duration,
 ) error {
 	return nil
 }
 
-func (r *redismock) Get(key string) (string, error) {
+func (*redismock) Get(_ string) (string, error) {
 	return "", nil
 }

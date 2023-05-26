@@ -13,22 +13,15 @@ type redisImpl struct {
 
 func (r *redisImpl) Ping() error {
 	ping := r.client.Ping(context.Background())
-	if err := ping.Err(); err != nil {
-		return err
-	}
-	return nil
+	return ping.Err()
 }
 
 func (r *redisImpl) Set(
 	key string,
 	value interface{},
-	expiration time.Duration,
+	_ time.Duration,
 ) error {
-	err := r.client.Set(context.Background(), key, value, 0).Err()
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.client.Set(context.Background(), key, value, 0).Err()
 }
 
 func (r *redisImpl) Get(key string) (string, error) {

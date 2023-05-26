@@ -88,11 +88,11 @@ func main() {
 
 		// If the node still exist, don't delete it and update access_time
 		if len(profileData) > 0 {
-			profileJson := importutil.MapFieldsName(
+			profileJSON := importutil.MapFieldsName(
 				profileData[0].(map[string]interface{}),
 				mapping,
 			)
-			doc, err := json.Marshal(profileJson)
+			doc, err := json.Marshal(profileJSON)
 			if err != nil {
 				logger.Error(
 					"Failed to marshal data. Profile CUID: "+profile.Cuid,
@@ -115,7 +115,7 @@ func main() {
 				)
 
 				// reconstruct data
-				profileJson, err = importutil.MapProfile(
+				profileJSON, err = importutil.MapProfile(
 					profileData[0].(map[string]interface{}),
 					mapping,
 					schemaName,
@@ -127,18 +127,18 @@ func main() {
 					)
 					cleanUp()
 				}
-				oid := profileJson["oid"].(string)
+				oid := profileJSON["oid"].(string)
 
-				if profileJson["primary_url"] == nil {
+				if profileJSON["primary_url"] == nil {
 					logger.Info("The primary_url is empty. Profile ID: " + oid)
 					continue
 				}
 
 				// validate data
-				validateUrl := config.Conf.Index.URL + "/v2/validate"
+				validateURL := config.Conf.Index.URL + "/v2/validate"
 				isValid, failureReasons, err := importutil.Validate(
-					validateUrl,
-					profileJson,
+					validateURL,
+					profileJSON,
 				)
 				if err != nil {
 					logger.Error(
@@ -166,8 +166,8 @@ func main() {
 					cleanUp()
 				}
 				if count <= 0 {
-					profileJson["cuid"] = cuid.New()
-					err := profileSvc.Add(profileJson)
+					profileJSON["cuid"] = cuid.New()
+					err := profileSvc.Add(profileJSON)
 					if err != nil {
 						logger.Error(
 							"Can't add a profile. Profile ID: "+profile.Oid,
@@ -176,28 +176,28 @@ func main() {
 						cleanUp()
 					}
 				} else {
-					result, err := profileSvc.Update(profile.Oid, profileJson)
+					result, err := profileSvc.Update(profile.Oid, profileJSON)
 					if err != nil {
 						logger.Error("Can't update a profile. Profile ID: "+profile.Oid, err)
 						cleanUp()
 					}
-					profileJson["cuid"] = result["cuid"]
+					profileJSON["cuid"] = result["cuid"]
 				}
 
 				// post update to Index
-				postNodeUrl := config.Conf.Index.URL + "/v2/nodes"
-				profileUrl := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJson["cuid"].(string)
-				nodeId, err := importutil.PostIndex(postNodeUrl, profileUrl)
+				postNodeURL := config.Conf.Index.URL + "/v2/nodes"
+				profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
+				nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 				if err != nil {
 					logger.Error(
-						"Failed to post profile to Index. Profile URL: "+profileUrl,
+						"Failed to post profile to Index. Profile URL: "+profileURL,
 						err,
 					)
 					cleanUp()
 				}
 
 				// save node_id to profile
-				err = profileSvc.UpdateNodeId(oid, nodeId)
+				err = profileSvc.UpdateNodeID(oid, nodeID)
 				if err != nil {
 					logger.Error("Update node id failed. Profile ID: "+oid, err)
 					cleanUp()
@@ -215,17 +215,17 @@ func main() {
 				logger.Error("Failed to delete data from profiles. Profile CUID: "+profile.Cuid, err)
 				cleanUp()
 			}
-			deleteNodeUrl := config.Conf.Index.URL + "/v2/nodes/" + profile.NodeId
+			deleteNodeURL := config.Conf.Index.URL + "/v2/nodes/" + profile.NodeID
 
 			client := &http.Client{}
-			req, err := http.NewRequest(http.MethodDelete, deleteNodeUrl, nil)
+			req, err := http.NewRequest(http.MethodDelete, deleteNodeURL, nil)
 			if err != nil {
-				logger.Error("Failed to delete data from Index service Profile node ID: "+profile.NodeId, err)
+				logger.Error("Failed to delete data from Index service Profile node ID: "+profile.NodeID, err)
 				cleanUp()
 			}
 			res, err = client.Do(req)
 			if err != nil {
-				logger.Error("Failed to delete data from Index service. Profile node ID: "+profile.NodeId, err)
+				logger.Error("Failed to delete data from Index service. Profile node ID: "+profile.NodeID, err)
 				cleanUp()
 			}
 			defer res.Body.Close()
@@ -239,9 +239,9 @@ func main() {
 						errors = append(errors, fmt.Sprintf("%#v", item))
 					}
 					errorsStr := strings.Join(errors, ",")
-					logger.Info("Failed to delete data from Index service. Profile node ID: " + profile.NodeId + " - Error message: " + errorsStr)
+					logger.Info("Failed to delete data from Index service. Profile node ID: " + profile.NodeID + " - Error message: " + errorsStr)
 				} else {
-					logger.Info("Failed to delete data from Index service. Profile node ID: " + profile.NodeId)
+					logger.Info("Failed to delete data from Index service. Profile node ID: " + profile.NodeID)
 				}
 			}
 		}

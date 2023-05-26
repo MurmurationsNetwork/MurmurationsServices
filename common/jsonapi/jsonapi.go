@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type JsonApi struct {
+type JSONAPI struct {
 	Data   interface{} `json:"data,omitempty"`
 	Errors []Error     `json:"errors,omitempty"`
 	Links  *Link       `json:"links,omitempty"`
@@ -31,12 +31,12 @@ type Link struct {
 
 type Meta struct {
 	Message         string        `json:"message,omitempty"`
-	NodeId          string        `json:"node_id,omitempty"`
-	ProfileUrl      string        `json:"profile_url,omitempty"`
+	NodeID          string        `json:"node_id,omitempty"`
+	ProfileURL      string        `json:"profile_url,omitempty"`
 	NumberOfResults int64         `json:"number_of_results,omitempty"`
 	TotalPages      int64         `json:"total_pages,omitempty"`
 	Sort            []interface{} `json:"sort,omitempty"`
-	BatchId         string        `json:"batch_id,omitempty"`
+	BatchID         string        `json:"batch_id,omitempty"`
 }
 
 // JSON API Response Combination
@@ -46,8 +46,8 @@ func Response(
 	errors []Error,
 	link *Link,
 	meta *Meta,
-) JsonApi {
-	return JsonApi{
+) JSONAPI {
+	return JSONAPI{
 		Data:   data,
 		Errors: errors,
 		Links:  link,
@@ -166,11 +166,11 @@ func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
 	}
 }
 
-func NewMeta(message string, nodeId string, profileUrl string) *Meta {
+func NewMeta(message string, nodeID string, profileURL string) *Meta {
 	return &Meta{
 		Message:    message,
-		NodeId:     nodeId,
-		ProfileUrl: profileUrl,
+		NodeID:     nodeID,
+		ProfileURL: profileURL,
 	}
 }
 
@@ -192,9 +192,9 @@ func NewBlockSearchMeta(sort []interface{}) *Meta {
 	}
 }
 
-func NewBatchMeta(message string, batchId string) *Meta {
+func NewBatchMeta(message string, batchID string) *Meta {
 	return &Meta{
 		Message: message,
-		BatchId: batchId,
+		BatchID: batchID,
 	}
 }

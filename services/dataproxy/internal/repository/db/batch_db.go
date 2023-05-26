@@ -10,26 +10,26 @@ import (
 )
 
 type BatchRepository interface {
-	GetBatchesByUserID(userId string) ([]entity.Batch, error)
+	GetBatchesByUserID(userID string) ([]entity.Batch, error)
 	SaveUser(
-		userId string,
+		userID string,
 		batchTitle string,
-		batchId string,
+		batchID string,
 		schemas []string,
 	) error
-	UpdateBatchTitle(batchTitle string, batchId string) ([]string, error)
+	UpdateBatchTitle(batchTitle string, batchID string) ([]string, error)
 	SaveProfile(profile map[string]interface{}) error
-	SaveNodeId(profileId string, profile map[string]interface{}) error
-	CheckUser(userId string, batchId string) (bool, error)
+	SaveNodeID(profileID string, profile map[string]interface{}) error
+	CheckUser(userID string, batchID string) (bool, error)
 	GetProfileByCuid(cuid string) (map[string]interface{}, error)
-	GetProfilesByBatchId(batchId string) ([]map[string]interface{}, error)
-	GetProfileOidsAndHashesByBatchId(
-		batchId string,
+	GetProfilesByBatchID(batchID string) ([]map[string]interface{}, error)
+	GetProfileOidsAndHashesByBatchID(
+		batchID string,
 	) (map[string][2]string, error)
-	UpdateProfile(profileId string, profile map[string]interface{}) error
+	UpdateProfile(profileID string, profile map[string]interface{}) error
 	DeleteProfileByCuid(cuid string) error
-	DeleteProfilesByBatchId(batchId string) error
-	DeleteBatchId(batchId string) error
+	DeleteProfilesByBatchID(batchID string) error
+	DeleteBatchID(batchID string) error
 }
 
 type batchRepository struct{}
@@ -39,9 +39,9 @@ func NewBatchRepository() BatchRepository {
 }
 
 func (r *batchRepository) GetBatchesByUserID(
-	userId string,
+	userID string,
 ) ([]entity.Batch, error) {
-	filter := bson.M{"user_id": userId}
+	filter := bson.M{"user_id": userID}
 	opts := options.Find().SetProjection(bson.M{"user_id": 0})
 	cursor, err := mongo.Client.Find(constant.MongoIndex.Batch, filter, opts)
 	if err != nil {
@@ -61,15 +61,15 @@ func (r *batchRepository) GetBatchesByUserID(
 }
 
 func (r *batchRepository) SaveUser(
-	userId string,
+	userID string,
 	batchTitle string,
-	batchId string,
+	batchID string,
 	schemas []string,
 ) error {
 	doc := entity.Batch{
-		UserId:  userId,
+		UserID:  userID,
 		Title:   batchTitle,
-		BatchId: batchId,
+		BatchID: batchID,
 		Schemas: schemas,
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)
@@ -82,9 +82,9 @@ func (r *batchRepository) SaveUser(
 
 func (r *batchRepository) UpdateBatchTitle(
 	batchTitle string,
-	batchId string,
+	batchID string,
 ) ([]string, error) {
-	filter := bson.M{"batch_id": batchId}
+	filter := bson.M{"batch_id": batchID}
 	update := bson.M{"$set": bson.M{"title": batchTitle}}
 	result, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Batch,
@@ -111,11 +111,11 @@ func (r *batchRepository) SaveProfile(profile map[string]interface{}) error {
 	return nil
 }
 
-func (r *batchRepository) SaveNodeId(
-	profileId string,
+func (r *batchRepository) SaveNodeID(
+	profileID string,
 	profile map[string]interface{},
 ) error {
-	filter := bson.M{"cuid": profileId}
+	filter := bson.M{"cuid": profileID}
 	update := bson.M{"$set": profile}
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Profile,
@@ -130,10 +130,10 @@ func (r *batchRepository) SaveNodeId(
 }
 
 func (r *batchRepository) CheckUser(
-	userId string,
-	batchId string,
+	userID string,
+	batchID string,
 ) (bool, error) {
-	filter := bson.M{"user_id": userId, "batch_id": batchId}
+	filter := bson.M{"user_id": userID, "batch_id": batchID}
 	count, err := mongo.Client.Count(constant.MongoIndex.Batch, filter)
 	if err != nil {
 		return false, err
@@ -159,10 +159,10 @@ func (r *batchRepository) GetProfileByCuid(
 	return profile, nil
 }
 
-func (r *batchRepository) GetProfilesByBatchId(
-	batchId string,
+func (r *batchRepository) GetProfilesByBatchID(
+	batchID string,
 ) ([]map[string]interface{}, error) {
-	filter := bson.M{"batch_id": batchId}
+	filter := bson.M{"batch_id": batchID}
 	cursor, err := mongo.Client.Find(constant.MongoIndex.Profile, filter)
 	if err != nil {
 		return nil, err
@@ -176,10 +176,10 @@ func (r *batchRepository) GetProfilesByBatchId(
 	return profiles, nil
 }
 
-func (r *batchRepository) GetProfileOidsAndHashesByBatchId(
-	batchId string,
+func (r *batchRepository) GetProfileOidsAndHashesByBatchID(
+	batchID string,
 ) (map[string][2]string, error) {
-	filter := bson.M{"batch_id": batchId}
+	filter := bson.M{"batch_id": batchID}
 	opts := options.Find().
 		SetProjection(bson.D{{Key: "_id", Value: 0}, {Key: "oid", Value: 1}, {Key: "cuid", Value: 1}, {Key: "source_data_hash", Value: 1}})
 	cursor, err := mongo.Client.Find(constant.MongoIndex.Profile, filter, opts)
@@ -204,10 +204,10 @@ func (r *batchRepository) GetProfileOidsAndHashesByBatchId(
 }
 
 func (r *batchRepository) UpdateProfile(
-	profileId string,
+	profileID string,
 	profile map[string]interface{},
 ) error {
-	filter := bson.M{"cuid": profileId}
+	filter := bson.M{"cuid": profileID}
 
 	// This part is used to remove the fields that are not in the new profile
 	// get field name from mongoDB
@@ -251,8 +251,8 @@ func (r *batchRepository) DeleteProfileByCuid(cuid string) error {
 	return nil
 }
 
-func (r *batchRepository) DeleteProfilesByBatchId(batchId string) error {
-	filter := bson.M{"batch_id": batchId}
+func (r *batchRepository) DeleteProfilesByBatchID(batchID string) error {
+	filter := bson.M{"batch_id": batchID}
 	err := mongo.Client.DeleteMany(constant.MongoIndex.Profile, filter)
 	if err != nil {
 		return err
@@ -261,8 +261,8 @@ func (r *batchRepository) DeleteProfilesByBatchId(batchId string) error {
 	return nil
 }
 
-func (r *batchRepository) DeleteBatchId(batchId string) error {
-	filter := bson.M{"batch_id": batchId}
+func (r *batchRepository) DeleteBatchID(batchID string) error {
+	filter := bson.M{"batch_id": batchID}
 	err := mongo.Client.DeleteOne(constant.MongoIndex.Batch, filter)
 	if err != nil {
 		return err

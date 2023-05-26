@@ -14,7 +14,7 @@ import (
 
 type fakeGeoIPService struct{}
 
-func (f fakeGeoIPService) GetCity(ip string) (*geoip2.City, resterr.RestErr) {
+func (f fakeGeoIPService) GetCity(_ string) (*geoip2.City, resterr.RestErr) {
 	names := map[string]string{
 		"en": "Taiwan",
 	}

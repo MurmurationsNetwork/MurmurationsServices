@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func mapUrls(router *gin.Engine) {
+func mapURLs(router *gin.Engine) {
 	gepIPHandler := http.NewGepIPHandler(service.NewGeoIPService())
 	router.GET("/city/:ip", gepIPHandler.GetCity)
 
