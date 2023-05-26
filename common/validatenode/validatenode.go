@@ -85,12 +85,12 @@ func parseValidateError(
 	return failedTitles, failedDetails, failedSources
 }
 
-func getSchemaURL(schemaUrl string, linkedSchema string) string {
-	return schemaUrl + "/v2/schemas/" + linkedSchema
+func getSchemaURL(schemaURL string, linkedSchema string) string {
+	return schemaURL + "/v2/schemas/" + linkedSchema
 }
 
 func ValidateAgainstSchemas(
-	schemaUrl string,
+	schemaURL string,
 	linkedSchemas []string,
 	validateData string,
 	schemaLoader string,
@@ -102,7 +102,7 @@ func ValidateAgainstSchemas(
 	)
 
 	for _, linkedSchema := range linkedSchemas {
-		schemaURL := getSchemaURL(schemaUrl, linkedSchema)
+		schemaURL := getSchemaURL(schemaURL, linkedSchema)
 
 		schema, err := gojsonschema.NewSchema(
 			gojsonschema.NewReferenceLoader(schemaURL),

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func mapUrls(router *gin.Engine) {
+func mapURLs(router *gin.Engine) {
 	deprecationHandler := http.NewDeprecationHandler()
 	pingHandler := http.NewPingHandler()
 	schemaHandler := http.NewSchemaHandler(

@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 )
 
 var defaultSkipPaths = []string{"/ping"}
 
 func NewLogger() gin.HandlerFunc {
-	return LoggerWithConfig(gin.LoggerConfig{})
+	return NewLoggerWithConfig(gin.LoggerConfig{})
 }
 
-func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
+func NewLoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 	notlogged := conf.SkipPaths
 	notlogged = append(notlogged, defaultSkipPaths...)
 

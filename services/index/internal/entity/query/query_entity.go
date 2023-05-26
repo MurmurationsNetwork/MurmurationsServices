@@ -18,16 +18,16 @@ type EsQuery struct {
 	TagsFilter *string `form:"tags_filter"`
 	TagsExact  *string `form:"tags_exact"`
 
-	PrimaryUrl *string `form:"primary_url"`
+	PrimaryURL *string `form:"primary_url"`
 
 	Page     int64 `form:"page,default=0"`
 	PageSize int64 `form:"page_size,default=30"`
 }
 
-type QueryResult map[string]interface{}
+type Result map[string]interface{}
 
-type QueryResults struct {
-	Result          []QueryResult
+type Results struct {
+	Result          []Result
 	NumberOfResults int64
 	TotalPages      int64
 }
@@ -41,7 +41,7 @@ type EsBlockQuery struct {
 }
 
 type BlockQueryResults struct {
-	Result []QueryResult
+	Result []Result
 	Sort   []interface{}
 }
 

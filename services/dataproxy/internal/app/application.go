@@ -19,7 +19,7 @@ func StartApplication() {
 	router := gin.New()
 	router.Use(getMiddlewares()...)
 
-	mapUrls(router)
+	mapURLs(router)
 
 	server := getServer(router)
 

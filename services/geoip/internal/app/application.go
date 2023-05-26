@@ -19,7 +19,7 @@ func StartApplication() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
-	mapUrls(router)
+	mapURLs(router)
 
 	server := getServer(router)
 

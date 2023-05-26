@@ -56,9 +56,9 @@ func (handler *nodeHandler) ToGetNodeVO(node *entity.Node) interface{} {
 func (handler *nodeHandler) ToSearchNodeVO(nodes entity.Nodes) interface{} {
 	data := make([]interface{}, len(nodes))
 	for index, node := range nodes {
-		nodeJson, _ := json.Marshal(node)
+		nodeJSON, _ := json.Marshal(node)
 		var res SearchNodeVO
-		_ = json.Unmarshal(nodeJson, &res)
+		_ = json.Unmarshal(nodeJSON, &res)
 		data[index] = res
 	}
 	return Respond{Data: data}

@@ -26,8 +26,8 @@ var KvmCategory = map[string]string{
 }
 
 type Node struct {
-	NodeId     string `json:"node_id,omitempty"`
-	ProfileUrl string `json:"profile_url,omitempty"`
+	NodeID     string `json:"node_id,omitempty"`
+	ProfileURL string `json:"profile_url,omitempty"`
 	Status     string `json:"status,omitempty"`
 }
 
@@ -90,7 +90,7 @@ func MapFieldsName(
 	profile map[string]interface{},
 	mapping map[string]string,
 ) map[string]interface{} {
-	profileJson := make(map[string]interface{})
+	profileJSON := make(map[string]interface{})
 
 	for k, v := range mapping {
 		if profile[v] == nil || profile[v] == "" {
@@ -102,18 +102,18 @@ func MapFieldsName(
 			truncatedValue := math.Round(
 				profile[v].(float64)*precision,
 			) / precision
-			profileJson[k] = truncatedValue
+			profileJSON[k] = truncatedValue
 			continue
 		}
 		// Trim extra space (except in tags and kvm_category)
 		if k != "tags" && k != "kvm_category" {
-			profileJson[k] = strings.TrimSpace(profile[v].(string))
+			profileJSON[k] = strings.TrimSpace(profile[v].(string))
 			continue
 		}
-		profileJson[k] = profile[v]
+		profileJSON[k] = profile[v]
 	}
 
-	return profileJson
+	return profileJSON
 }
 
 func MapProfile(
@@ -122,45 +122,45 @@ func MapProfile(
 	schema string,
 ) (map[string]interface{}, error) {
 	// Convert KVM field names to Org Schema field names
-	profileJson := MapFieldsName(profile, mapping)
+	profileJSON := MapFieldsName(profile, mapping)
 
 	// Hash the updated data
-	profileHash, err := HashProfile(profileJson)
+	profileHash, err := HashProfile(profileJSON)
 	if err != nil {
 		return nil, err
 	}
 
 	// hash
-	profileJson["source_data_hash"] = profileHash
+	profileJSON["source_data_hash"] = profileHash
 	// oid
-	profileJson["oid"] = profile["id"]
+	profileJSON["oid"] = profile["id"]
 	// schema
 	s := []string{schema}
-	profileJson["linked_schemas"] = s
+	profileJSON["linked_schemas"] = s
 	// metadata
 	metadata := map[string]interface{}{
 		"sources": []map[string]interface{}{
 			{
 				"name":             "Karte von Morgen / Map of Tomorrow",
 				"url":              "https://kartevonmorgen.org",
-				"profile_data_url": "https://api.ofdb.io/v0/entries/" + profileJson["oid"].(string),
+				"profile_data_url": "https://api.ofdb.io/v0/entries/" + profileJSON["oid"].(string),
 				"access_time":      time.Now().Unix(),
 			},
 		},
 	}
-	profileJson["metadata"] = metadata
+	profileJSON["metadata"] = metadata
 
 	// Replace kvm_category with real name
-	if profileJson["kvm_category"] != nil {
-		categoriesInterface := profileJson["kvm_category"].([]interface{})
+	if profileJSON["kvm_category"] != nil {
+		categoriesInterface := profileJSON["kvm_category"].([]interface{})
 		categoriesString := make([]string, len(categoriesInterface))
 		for i, v := range categoriesInterface {
 			categoriesString[i] = KvmCategory[v.(string)]
 		}
-		profileJson["kvm_category"] = categoriesString
+		profileJSON["kvm_category"] = categoriesString
 	}
 
-	return profileJson, nil
+	return profileJSON, nil
 }
 
 func HashProfile(profile map[string]interface{}) (string, error) {
@@ -176,19 +176,19 @@ func HashProfile(profile map[string]interface{}) (string, error) {
 }
 
 func Validate(
-	validateUrl string,
+	validateURL string,
 	profile map[string]interface{},
 ) (bool, string, error) {
-	profileJson, err := json.Marshal(profile)
+	profileJSON, err := json.Marshal(profile)
 	if err != nil {
 		return false, "", err
 	}
 
 	// Validate from index service
 	res, err := http.Post(
-		validateUrl,
+		validateURL,
 		"application/json",
-		bytes.NewBuffer(profileJson),
+		bytes.NewBuffer(profileJSON),
 	)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to post request: %w", err)
@@ -215,18 +215,18 @@ func Validate(
 	return true, "", nil
 }
 
-func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
+func PostIndex(postNodeURL string, profileURL string) (string, error) {
 	postProfile := make(map[string]string)
-	postProfile["profile_url"] = profileUrl
-	postProfileJson, err := json.Marshal(postProfile)
+	postProfile["profile_url"] = profileURL
+	postProfileJSON, err := json.Marshal(postProfile)
 	if err != nil {
 		errStr := "Error when trying to marshal a profile at `profile_url`: " + postProfile["profile_url"]
 		logger.Error(errStr, err)
 	}
 	res, err := http.Post(
-		postNodeUrl,
+		postNodeURL,
 		"application/json",
-		bytes.NewBuffer(postProfileJson),
+		bytes.NewBuffer(postProfileJSON),
 	)
 	if err != nil {
 		return "", err
@@ -270,16 +270,16 @@ func PostIndex(postNodeUrl string, profileUrl string) (string, error) {
 		return "", err
 	}
 
-	return nodeData.Data.NodeId, nil
+	return nodeData.Data.NodeID, nil
 }
 
-func DeleteIndex(deleteNodeUrl string, nodeId string) error {
-	req, err := http.NewRequest("DELETE", deleteNodeUrl, nil)
+func DeleteIndex(deleteNodeURL string, nodeID string) error {
+	req, err := http.NewRequest("DELETE", deleteNodeURL, nil)
 	if err != nil {
 		return err
 	}
 	q := req.URL.Query()
-	q.Add("node_id", nodeId)
+	q.Add("node_id", nodeID)
 	req.URL.RawQuery = q.Encode()
 
 	res, err := http.DefaultClient.Do(req)
@@ -303,13 +303,13 @@ func DeleteIndex(deleteNodeUrl string, nodeId string) error {
 			return fmt.Errorf(
 				"Delete failed with status code: " + strconv.Itoa(
 					res.StatusCode,
-				) + " for `node_id`: " + nodeId + " with error: " + errorsStr,
+				) + " for `node_id`: " + nodeID + " with error: " + errorsStr,
 			)
 		}
 		return fmt.Errorf(
 			"Delete failed with status code: " + strconv.Itoa(
 				res.StatusCode,
-			) + " for `node_id`: " + nodeId,
+			) + " for `node_id`: " + nodeID,
 		)
 	}
 	return nil
