@@ -13,10 +13,10 @@ import (
 var defaultSkipPaths = []string{"/ping"}
 
 func NewLogger() gin.HandlerFunc {
-	return NewWithConfig(gin.LoggerConfig{})
+	return NewLoggerWithConfig(gin.LoggerConfig{})
 }
 
-func NewWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
+func NewLoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 	notlogged := conf.SkipPaths
 	notlogged = append(notlogged, defaultSkipPaths...)
 
