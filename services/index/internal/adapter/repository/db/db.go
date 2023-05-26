@@ -32,7 +32,7 @@ type NodeRepository interface {
 	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
 	Get(nodeID string) (*entity.Node, []jsonapi.Error)
 	Update(node *entity.Node) error
-	Search(q *query.EsQuery) (*query.QueryResults, []jsonapi.Error)
+	Search(q *query.EsQuery) (*query.Results, []jsonapi.Error)
 	Delete(node *entity.Node) []jsonapi.Error
 	SoftDelete(node *entity.Node) []jsonapi.Error
 	Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
@@ -235,13 +235,13 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 					return err
 				}
 				countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
-				profileUrlStr := fmt.Sprintf("%v", profileJSON["profile_url"])
+				profileURLStr := fmt.Sprintf("%v", profileJSON["profile_url"])
 				if countryCode != "undefined" {
 					profileJSON["country"] = countryCode
-					fmt.Println("Country code matched: " + countryStr + " = " + countryCode + " --- profile_url: " + profileUrlStr)
+					fmt.Println("Country code matched: " + countryStr + " = " + countryCode + " --- profile_url: " + profileURLStr)
 				} else {
 					// can't find countryCode, log to server
-					fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileUrlStr)
+					fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileURLStr)
 				}
 			}
 		}
@@ -343,7 +343,7 @@ func (r *nodeRepository) setPosted(node *entity.Node) error {
 
 func (r *nodeRepository) Search(
 	q *query.EsQuery,
-) (*query.QueryResults, []jsonapi.Error) {
+) (*query.Results, []jsonapi.Error) {
 	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build(false))
 	if err != nil {
 		return nil, jsonapi.NewError(
@@ -354,10 +354,10 @@ func (r *nodeRepository) Search(
 		)
 	}
 
-	queryResults := make([]query.QueryResult, 0)
+	queryResults := make([]query.Result, 0)
 	for _, hit := range result.Hits.Hits {
 		bytes, _ := hit.Source.MarshalJSON()
-		var result query.QueryResult
+		var result query.Result
 		if err := json.Unmarshal(bytes, &result); err != nil {
 			return nil, jsonapi.NewError(
 				[]string{"Database Error"},
@@ -369,7 +369,7 @@ func (r *nodeRepository) Search(
 		queryResults = append(queryResults, result)
 	}
 
-	return &query.QueryResults{
+	return &query.Results{
 		Result:          queryResults,
 		NumberOfResults: result.Hits.TotalHits.Value,
 		TotalPages: pagination.TotalPages(
@@ -474,12 +474,12 @@ func (r *nodeRepository) Export(
 		)
 	}
 
-	queryResults := make([]query.QueryResult, 0)
+	queryResults := make([]query.Result, 0)
 	hitLength := len(result.Hits.Hits)
 	var sort []interface{}
 	for index, hit := range result.Hits.Hits {
 		bytes, _ := hit.Source.MarshalJSON()
-		var result query.QueryResult
+		var result query.Result
 		if err := json.Unmarshal(bytes, &result); err != nil {
 			return nil, jsonapi.NewError(
 				[]string{"Database Error"},

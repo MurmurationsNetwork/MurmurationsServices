@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func mapUrls(router *gin.Engine) {
+func mapURLs(router *gin.Engine) {
 	pingHandler := http.NewPingHandler()
 	router.GET("/ping", pingHandler.Ping)
 }

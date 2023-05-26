@@ -6,16 +6,16 @@ import (
 )
 
 type ProfilesService interface {
-	Count(profileId string) (int64, error)
-	Add(profileJson map[string]interface{}) error
+	Count(profileID string) (int64, error)
+	Add(profileJSON map[string]interface{}) error
 	Update(
-		profileId string,
-		profileJson map[string]interface{},
+		profileID string,
+		profileJSON map[string]interface{},
 	) (map[string]interface{}, error)
-	UpdateNodeId(profileId string, nodeId string) error
+	UpdateNodeID(profileID string, nodeID string) error
 	FindLessThan(schemaName string, timestamp int64) ([]entity.Profile, error)
-	UpdateAccessTime(profileId string) error
-	Delete(profileId string) error
+	UpdateAccessTime(profileID string) error
+	Delete(profileID string) error
 }
 
 type profilesService struct {
@@ -28,26 +28,26 @@ func NewProfileService(profileRepo db.ProfileRepository) ProfilesService {
 	}
 }
 
-func (svc *profilesService) Count(profileId string) (int64, error) {
-	return svc.profileRepo.Count(profileId)
+func (svc *profilesService) Count(profileID string) (int64, error) {
+	return svc.profileRepo.Count(profileID)
 }
 
-func (svc *profilesService) Add(profileJson map[string]interface{}) error {
-	return svc.profileRepo.Add(profileJson)
+func (svc *profilesService) Add(profileJSON map[string]interface{}) error {
+	return svc.profileRepo.Add(profileJSON)
 }
 
 func (svc *profilesService) Update(
-	profileId string,
-	profileJson map[string]interface{},
+	profileID string,
+	profileJSON map[string]interface{},
 ) (map[string]interface{}, error) {
-	return svc.profileRepo.Update(profileId, profileJson)
+	return svc.profileRepo.Update(profileID, profileJSON)
 }
 
-func (svc *profilesService) UpdateNodeId(
-	profileId string,
-	nodeId string,
+func (svc *profilesService) UpdateNodeID(
+	profileID string,
+	nodeID string,
 ) error {
-	return svc.profileRepo.UpdateNodeId(profileId, nodeId)
+	return svc.profileRepo.UpdateNodeID(profileID, nodeID)
 }
 
 func (svc *profilesService) FindLessThan(
@@ -57,10 +57,10 @@ func (svc *profilesService) FindLessThan(
 	return svc.profileRepo.FindLessThan(schemaName, timestamp)
 }
 
-func (svc *profilesService) UpdateAccessTime(profileId string) error {
-	return svc.profileRepo.UpdateAccessTime(profileId)
+func (svc *profilesService) UpdateAccessTime(profileID string) error {
+	return svc.profileRepo.UpdateAccessTime(profileID)
 }
 
-func (svc *profilesService) Delete(profileId string) error {
-	return svc.profileRepo.Delete(profileId)
+func (svc *profilesService) Delete(profileID string) error {
+	return svc.profileRepo.Delete(profileID)
 }

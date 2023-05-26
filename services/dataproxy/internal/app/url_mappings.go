@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func mapUrls(router *gin.Engine) {
+func mapURLs(router *gin.Engine) {
 	pingHandler := http.NewPingHandler()
 	mappingsHandler := http.NewMappingsHandler(db.NewMappingRepository())
 	profilesHandler := http.NewProfilesHandler(db.NewProfileRepository())
@@ -20,7 +20,7 @@ func mapUrls(router *gin.Engine) {
 	{
 		v1.GET("/ping", pingHandler.Ping)
 		v1.POST("/mappings", mappingsHandler.Create)
-		v1.GET("/profiles/:profileId", profilesHandler.Get)
+		v1.GET("/profiles/:profileID", profilesHandler.Get)
 		v1.GET("/health/:schemaName", updatesHandler.Get)
 
 		// for csv batch import

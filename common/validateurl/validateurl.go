@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-func Validate(rawUrl string) (string, error) {
-	if !strings.Contains(rawUrl, "http") {
-		rawUrl = "https://" + rawUrl
+func Validate(rawURL string) (string, error) {
+	if !strings.Contains(rawURL, "http") {
+		rawURL = "https://" + rawURL
 	}
-	u, err := url.ParseRequestURI(rawUrl)
+	u, err := url.ParseRequestURI(rawURL)
 	if err != nil {
 		return "", err
 	}
@@ -23,26 +23,26 @@ func Validate(rawUrl string) (string, error) {
 		host = u.Host
 	}
 
-	validatedUrl := host
+	validatedURL := host
 
 	// url path
 	if u.Path != "" {
-		validatedUrl += u.Path
-		if validatedUrl[(len(validatedUrl)-1):] == "/" {
-			validatedUrl = validatedUrl[:(len(validatedUrl) - 1)]
+		validatedURL += u.Path
+		if validatedURL[(len(validatedURL)-1):] == "/" {
+			validatedURL = validatedURL[:(len(validatedURL) - 1)]
 		}
 	}
 
 	// url query
 	if u.RawQuery != "" {
-		validatedUrl += "?" + u.RawQuery
+		validatedURL += "?" + u.RawQuery
 	}
 
 	// if we have the "://", remove the right side of it
-	position := strings.Index(validatedUrl, "://")
+	position := strings.Index(validatedURL, "://")
 	if position != -1 {
-		validatedUrl = validatedUrl[:position]
+		validatedURL = validatedURL[:position]
 	}
 
-	return validatedUrl, nil
+	return validatedURL, nil
 }

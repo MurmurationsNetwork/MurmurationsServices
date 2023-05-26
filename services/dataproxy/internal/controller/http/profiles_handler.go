@@ -24,8 +24,8 @@ func NewProfilesHandler(
 }
 
 func (handler *profilesHandler) Get(c *gin.Context) {
-	profileId := c.Param("profileId")
-	profile, err := handler.profileRepository.GetProfile(profileId)
+	profileID := c.Param("profileID")
+	profile, err := handler.profileRepository.GetProfile(profileID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, err)
 		return

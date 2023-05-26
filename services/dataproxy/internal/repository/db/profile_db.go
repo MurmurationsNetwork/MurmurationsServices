@@ -12,7 +12,7 @@ import (
 )
 
 type ProfileRepository interface {
-	GetProfile(profileId string) (map[string]interface{}, resterr.RestErr)
+	GetProfile(profileID string) (map[string]interface{}, resterr.RestErr)
 }
 
 type profileRepository struct{}
@@ -22,15 +22,15 @@ func NewProfileRepository() ProfileRepository {
 }
 
 func (r *profileRepository) GetProfile(
-	profileId string,
+	profileID string,
 ) (map[string]interface{}, resterr.RestErr) {
-	filter := bson.M{"cuid": profileId}
+	filter := bson.M{"cuid": profileID}
 
 	result := mongo.Client.FindOne(constant.MongoIndex.Profile, filter)
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
 			return nil, resterr.NewNotFoundError(
-				fmt.Sprintf("Could not find profile_id: %s", profileId),
+				fmt.Sprintf("Could not find profile_id: %s", profileID),
 			)
 		}
 		logger.Error("Error when trying to find a node", result.Err())

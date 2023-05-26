@@ -47,10 +47,10 @@ func (q *EsQuery) Build(isMap bool) *elastic.Query {
 			elastic.NewMatchQuery("status", *q.Status),
 		)
 	}
-	if q.PrimaryUrl != nil {
+	if q.PrimaryURL != nil {
 		subQueries = append(
 			subQueries,
-			elastic.NewMatchQuery("primary_url", *q.PrimaryUrl),
+			elastic.NewMatchQuery("primary_url", *q.PrimaryURL),
 		)
 	}
 

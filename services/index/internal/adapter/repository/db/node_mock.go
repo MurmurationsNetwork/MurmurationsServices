@@ -8,11 +8,11 @@ import (
 
 type mockNodeRepository struct{}
 
-func (r *mockNodeRepository) Add(node *entity.Node) []jsonapi.Error {
+func (*mockNodeRepository) Add(_ *entity.Node) []jsonapi.Error {
 	return nil
 }
 
-func (r *mockNodeRepository) GetNode(
+func (*mockNodeRepository) GetNode(
 	nodeID string,
 ) (*entity.Node, []jsonapi.Error) {
 	return &entity.Node{
@@ -20,7 +20,7 @@ func (r *mockNodeRepository) GetNode(
 	}, nil
 }
 
-func (r *mockNodeRepository) Get(
+func (*mockNodeRepository) Get(
 	nodeID string,
 ) (*entity.Node, []jsonapi.Error) {
 	return &entity.Node{
@@ -28,32 +28,32 @@ func (r *mockNodeRepository) Get(
 	}, nil
 }
 
-func (r *mockNodeRepository) Update(node *entity.Node) error {
+func (*mockNodeRepository) Update(_ *entity.Node) error {
 	return nil
 }
 
-func (r *mockNodeRepository) Search(
-	q *query.EsQuery,
-) (*query.QueryResults, []jsonapi.Error) {
+func (*mockNodeRepository) Search(
+	_ *query.EsQuery,
+) (*query.Results, []jsonapi.Error) {
 	return nil, nil
 }
 
-func (r *mockNodeRepository) Delete(node *entity.Node) []jsonapi.Error {
+func (*mockNodeRepository) Delete(_ *entity.Node) []jsonapi.Error {
 	return nil
 }
 
-func (r *mockNodeRepository) SoftDelete(node *entity.Node) []jsonapi.Error {
+func (*mockNodeRepository) SoftDelete(_ *entity.Node) []jsonapi.Error {
 	return nil
 }
 
-func (r *mockNodeRepository) Export(
-	q *query.EsBlockQuery,
+func (*mockNodeRepository) Export(
+	_ *query.EsBlockQuery,
 ) (*query.BlockQueryResults, []jsonapi.Error) {
 	return nil, nil
 }
 
-func (r *mockNodeRepository) GetNodes(
-	q *query.EsQuery,
+func (*mockNodeRepository) GetNodes(
+	_ *query.EsQuery,
 ) (*query.MapQueryResults, []jsonapi.Error) {
 	return nil, nil
 }

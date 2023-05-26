@@ -5,10 +5,10 @@ type EsQuery struct {
 	TimeBefore *int64
 }
 
-type QueryResult map[string]interface{}
+type Result map[string]interface{}
 
-type QueryResults struct {
-	Result          []QueryResult
+type Results struct {
+	Result          []Result
 	NumberOfResults int64
 	TotalPages      int64
 }
