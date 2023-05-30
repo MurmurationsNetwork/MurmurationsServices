@@ -48,6 +48,13 @@ docker pull kibana:7.17.5
 
 Now, pre-commit will run automatically on `git commit`. If you want to manually run all pre-commit hooks on a repository, run `pre-commit run --all-files`.
 
+## Running E2E Tests Locally
+
+1. Ensure that you have Newman installed. If not, install it using the following command: `npm install -g newman`.
+2. Execute the command `make dev` to set up the servers.
+3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
+
+
 ## Run in DigitalOcean
 
 1. Install [Helm](https://helm.sh/docs/intro/install/) and [doctl](https://github.com/digitalocean/doctl#installing-doctl)

@@ -1,14 +1,3 @@
-# format formats the code.
-.PHONY: format
-format:
-	golines -m 80 -w $(shell pwd)
-
-# test runs the unit tests.
-.PHONY: test
-test:
-	export ENV=test && go test ./...
-
-# -------------------------------------------------------------
 # Set Environment
 # if I don't set the DEPLOY_ENV, then default is local
 DEPLOY_ENV ?= local
@@ -19,15 +8,25 @@ else
 	ENV_FILE = tests/e2e-local-env.json
 endif
 
-# ---------------------------------------------------------------
-
-newman-test:
-	newman run tests/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
-
-# ---------------------------------------------------------------
-
+# Set up the development servers
+.PHONY: dev
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
+
+# Format formats the code.
+.PHONY: format
+format:
+	golines -m 80 -w $(shell pwd)
+
+# Runs the unit tests.
+.PHONY: test
+test:
+	export ENV=test && go test ./...
+
+# Run the end-to-end (E2E) tests using newman.
+.PHONY: newman-test
+newman-test:
+	newman run tests/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
 
 # ---------------------------------------------------------------
 
