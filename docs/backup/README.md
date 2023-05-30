@@ -41,7 +41,7 @@ velero install \
   --plugins velero/velero-plugin-for-aws:v1.0.0,digitalocean/velero-plugin:v1.0.0 \
   --backup-location-config s3Url=https://<REGION>.digitaloceanspaces.com,region=<REGION> \
   --use-volume-snapshots=false \
-  --secret-file .doc/backup/cloud-credentials
+  --secret-file docs/backup/cloud-credentials
 ```
 
 Check for logs in Velero
@@ -62,13 +62,13 @@ velero snapshot-location create default --provider digitalocean.com/velero
 Execute the following command for updating the secret in velero namespace
 
 ```
-kubectl patch secret/cloud-credentials -p "$(cat .doc/backup/velero-secret.patch.yaml)" --namespace velero
+kubectl patch secret/cloud-credentials -p "$(cat docs/backup/velero-secret.patch.yaml)" --namespace velero
 ```
 
 Execute the following command for updating the deployment to use the secret
 
 ```
-kubectl patch deployment/velero -p "$(cat .doc/backup/velero-deployment.patch.yaml)" --namespace velero
+kubectl patch deployment/velero -p "$(cat docs/backup/velero-deployment.patch.yaml)" --namespace velero
 ```
 
 ## 8. Setup backup
