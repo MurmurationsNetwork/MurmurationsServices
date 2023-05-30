@@ -9,14 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/lucsky/cuid"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/service"
-	"github.com/lucsky/cuid"
 )
 
 func init() {

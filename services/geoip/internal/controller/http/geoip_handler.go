@@ -3,9 +3,10 @@ package http
 import (
 	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/internal/service"
 	"github.com/gin-gonic/gin"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/internal/service"
 )
 
 type GepIPHandler interface {

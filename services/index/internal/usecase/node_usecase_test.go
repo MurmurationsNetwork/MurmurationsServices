@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )

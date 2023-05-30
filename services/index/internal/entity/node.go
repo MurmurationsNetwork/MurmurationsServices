@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+import "github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 
 type Node struct {
 	ID             string

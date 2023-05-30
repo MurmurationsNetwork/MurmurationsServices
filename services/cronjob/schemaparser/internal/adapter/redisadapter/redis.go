@@ -1,8 +1,8 @@
 package redisadapter
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/redis"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 )
 

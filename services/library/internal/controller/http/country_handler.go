@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 	"github.com/gin-gonic/gin"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 )
 
 type CountryHandler interface {

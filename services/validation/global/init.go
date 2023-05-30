@@ -1,8 +1,8 @@
 package global
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 )
 

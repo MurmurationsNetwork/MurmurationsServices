@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 var defaultSkipPaths = []string{"/ping"}

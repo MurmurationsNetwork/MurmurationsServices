@@ -3,8 +3,8 @@ package service
 import (
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/dateutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/db"
 )

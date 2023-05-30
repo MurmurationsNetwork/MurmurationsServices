@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/entity/query"
-
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/entity/query"
 )
 
 type NodeRepository interface {

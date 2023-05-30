@@ -11,9 +11,9 @@ import (
 	"github.com/tevino/abool"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/common/middleware/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/controller/event"

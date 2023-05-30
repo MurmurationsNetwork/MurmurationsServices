@@ -4,12 +4,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 )
 
 type UpdateRepository interface {

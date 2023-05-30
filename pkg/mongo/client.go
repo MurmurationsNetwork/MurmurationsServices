@@ -4,13 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 type mongoClient struct {

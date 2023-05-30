@@ -3,9 +3,9 @@ package http
 import (
 	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 )
 
 type DeprecationHandler interface {

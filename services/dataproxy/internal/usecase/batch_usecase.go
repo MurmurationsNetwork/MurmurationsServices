@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/validatenode"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
-
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
 	"github.com/lucsky/cuid"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
 )
 
 type BatchUsecase interface {

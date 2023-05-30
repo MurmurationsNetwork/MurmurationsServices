@@ -7,9 +7,9 @@ import (
 
 	stan "github.com/nats-io/stan.go"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/event"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )

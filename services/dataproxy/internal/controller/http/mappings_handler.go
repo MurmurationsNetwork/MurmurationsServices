@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
+	"github.com/gin-gonic/gin"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
-	"github.com/gin-gonic/gin"
 )
 
 type MappingsHandler interface {

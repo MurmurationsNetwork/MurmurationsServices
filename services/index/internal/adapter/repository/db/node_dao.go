@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )
 

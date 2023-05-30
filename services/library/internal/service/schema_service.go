@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/domain/schema"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/db"
 )

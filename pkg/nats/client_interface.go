@@ -5,7 +5,7 @@ import (
 
 	stan "github.com/nats-io/stan.go"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
 )
 
 var (

@@ -13,10 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 )
 
 var KvmCategory = map[string]string{

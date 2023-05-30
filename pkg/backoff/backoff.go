@@ -6,7 +6,7 @@ import (
 
 	backoff "github.com/cenkalti/backoff/v4"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 // NewBackoff is a utility function that implements an exponential backoff

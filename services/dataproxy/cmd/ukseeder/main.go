@@ -12,9 +12,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 )
 

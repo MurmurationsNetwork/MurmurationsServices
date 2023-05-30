@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	"github.com/gin-gonic/gin"
 	limiter "github.com/ulule/limiter/v3"
 	memory "github.com/ulule/limiter/v3/drivers/store/memory"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 const (

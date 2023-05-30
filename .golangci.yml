@@ -18,6 +18,7 @@ linters:
     - staticcheck
     - unconvert
     - whitespace
+    - goimports
 
 linters-settings:
   # Recommended settings from https://github.com/mgechev/revive#recommended-configuration.
@@ -52,6 +53,12 @@ linters-settings:
       - name: unused-parameter
       - name: unreachable-code
       - name: redefines-builtin-id
+  goimports:
+    # This configuration ensures the following import order:
+    # 1. Standard library packages (built-in)
+    # 2. Third-party packages
+    # 3. Packages from the same project
+    local-prefixes: github.com/MurmurationsNetwork/MurmurationsServices
 
 issues:
   exclude-rules:
