@@ -27,17 +27,17 @@ func init() {
 
 // Service represents the validation service.
 type Service struct {
-	// HTTP server.
+	// HTTP server
 	server *http.Server
-	// Atomic boolean to manage service state.
+	// Atomic boolean to manage service state
 	run *abool.AtomicBool
-	// Node event handler.
+	// Node event handler
 	nodeHandler event.NodeHandler
-	// Ensures cleanup is only run once.
+	// Ensures cleanup is only run once
 	runCleanup sync.Once
-	// Context for shutdown.
+	// Context for shutdown
 	shutdownCtx context.Context
-	// Cancel function for shutdown context.
+	// Cancel function for shutdown context
 	shutdownCancelCtx context.CancelFunc
 }
 

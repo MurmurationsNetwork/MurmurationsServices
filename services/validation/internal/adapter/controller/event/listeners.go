@@ -30,7 +30,7 @@ func NewNodeHandler(validationService service.ValidationService) NodeHandler {
 	}
 }
 
-// NewNodeCreatedListener starts a listener for node created events.
+// NewNodeCreatedListener starts a listener for node-created events.
 func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(
 		nats.Client.Client(),
@@ -53,7 +53,7 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 				err := json.Unmarshal(msg.Data, &nodeCreatedData)
 				if err != nil {
 					logger.Error(
-						"Error when trying to parsing nodeCreatedData",
+						"Error when trying to parse nodeCreatedData",
 						err,
 					)
 					return

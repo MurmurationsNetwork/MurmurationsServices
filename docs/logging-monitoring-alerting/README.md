@@ -23,10 +23,10 @@ helm repo update
 
 ### 1. Deploy Prometheus with Grafana
 
-- Revise `adminPassword` in .doc/logging-monitoring-alerting/prom-stack-values.yaml
+- Revise `adminPassword` in docs/logging-monitoring-alerting/prom-stack-values.yaml
 
 ```
-helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 40.3.1 -n kube-monitoring -f .doc/logging-monitoring-alerting/prom-stack-values.yaml --install
+helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --version 40.3.1 -n kube-monitoring -f docs/logging-monitoring-alerting/prom-stack-values.yaml --install
 ```
 
 - Check the available resources
@@ -44,7 +44,7 @@ kubectl port-forward alertmanager-kube-prom-stack-kube-prome-alertmanager-0 9093
 ### 2. Install Loki & Promtail
 
 ```
-helm upgrade loki grafana/loki-stack --version 2.8.3  -n kube-monitoring -f .doc/logging-monitoring-alerting/loki-stack-values.yaml --install
+helm upgrade loki grafana/loki-stack --version 2.8.3  -n kube-monitoring -f docs/logging-monitoring-alerting/loki-stack-values.yaml --install
 ```
 
 - Navigate to Grafana: https://localhost:3000
@@ -95,8 +95,8 @@ Now again add one more dashboard: 8685
 ![image](https://user-images.githubusercontent.com/11765228/115195120-f49eb800-a120-11eb-971a-993c668e6af4.png)
 
 - Find loki's uid in setting > datasources
-- Replace all of loki with new uid (`"uid": "pvuSqSenk"`) in [(.doc/logging-monitoring-alerting/grafana-logging.json)](.doc/logging-monitoring-alerting/grafana-logging.json)
-- Import via panel json [(.doc/logging-monitoring-alerting/grafana-logging.json)](.doc/logging-monitoring-alerting/grafana-logging.json)
+- Replace all of loki with new uid (`"uid": "pvuSqSenk"`) in [(docs/logging-monitoring-alerting/grafana-logging.json)](docs/logging-monitoring-alerting/grafana-logging.json)
+- Import via panel json [(docs/logging-monitoring-alerting/grafana-logging.json)](docs/logging-monitoring-alerting/grafana-logging.json)
 
 ## Alerting
 

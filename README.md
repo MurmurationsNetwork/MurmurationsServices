@@ -13,7 +13,7 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 2. Install [Helm](https://helm.sh/docs/intro/install/)
 
-3. Install [NGINX Ingress Controller](.doc/ingress-nginx)
+3. Install [NGINX Ingress Controller](docs/ingress-nginx)
 
 4. Install [Skaffold](https://skaffold.dev/docs/install/)
 
@@ -24,7 +24,7 @@ docker pull elasticsearch:7.17.5
 docker pull kibana:7.17.5
 ```
 
-6. [Create secrets](.doc/secrets.md) for each service
+6. [Create secrets](docs/secrets.md) for each service
 
 7. Add the following to your host file `sudo vim /etc/hosts`
 
@@ -61,20 +61,20 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 
 2. Create Kubernetes Clusters in DigitalOcean and install [metrics-server](https://github.com/kubernetes-sigs/metrics-server#installation) for monitoring CPU/MEM
 
-3. Install [NGINX Ingress Controller](.doc/ingress-nginx)
+3. Install [NGINX Ingress Controller](docs/ingress-nginx)
 
-4. [Create secrets](.doc/secrets.md) for each service
+4. [Create secrets](docs/secrets.md) for each service
 
-5. [Create PVCs](.doc/pvcs.md) for each service
+5. [Create PVCs](docs/pvcs.md) for each service
 
-6. [Deploy services](.doc/deploy-services.md)
+6. [Deploy services](docs/deploy-services.md)
 
-7. [Installing and Configuring Cert-Manager](.doc/cert-manager.md)
+7. [Installing and Configuring Cert-Manager](docs/cert-manager.md)
 
 8. Try `index.murmurations.network/v2/ping` or `library.murmurations.network/v1/ping`
 
 **Optional**
 
-- [Logging, Monitoring and Alerting](.doc/logging-monitoring-alerting/README.md)
+- [Logging, Monitoring and Alerting](docs/logging-monitoring-alerting/README.md)
 
-- [Seed the data](.doc/seed.md)
+- [Seed the data](docs/seed.md)

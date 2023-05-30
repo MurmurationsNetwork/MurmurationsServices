@@ -21,5 +21,5 @@ Note: k8s version v1.24.0 is not compatible with the current latest ingress-ngin
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 kubectl create namespace ingress-nginx
-helm upgrade ingress-nginx ingress-nginx/ingress-nginx -f .doc/ingress-nginx/values-ingress-nginx.yaml -n ingress-nginx --install
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx -f docs/ingress-nginx/values-ingress-nginx.yaml -n ingress-nginx --install
 ```

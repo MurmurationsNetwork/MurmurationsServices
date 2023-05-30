@@ -11,7 +11,7 @@ build:
     - image: murmurations/validation
       context: .
       docker:
-        dockerfile: services/validation/docker/Dockerfile-dev
+        dockerfile: build/validation/package/Dockerfile-dev
     - image: murmurations/library
       context: .
       docker:
