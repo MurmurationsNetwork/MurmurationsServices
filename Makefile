@@ -1,5 +1,11 @@
-# Set Environment
-# if I don't set the DEPLOY_ENV, then default is local
+#--------------------------
+# Include other Makefiles.
+#--------------------------
+include ./build/validation/mk/Makefile
+
+#--------------------------
+# Set environment variables.
+#--------------------------
 DEPLOY_ENV ?= local
 
 ifeq ($(DEPLOY_ENV), staging)
@@ -8,22 +14,30 @@ else
 	ENV_FILE = tests/e2e-local-env.json
 endif
 
+#--------------------------
 # Set up the development servers
+#--------------------------
 .PHONY: dev
 dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
+#--------------------------
 # Format formats the code.
+#--------------------------
 .PHONY: format
 format:
 	golines -m 80 -w $(shell pwd)
 
+#--------------------------
 # Runs the unit tests.
+#--------------------------
 .PHONY: test
 test:
 	export ENV=test && go test ./...
 
+#--------------------------
 # Run the end-to-end (E2E) tests using newman.
+#--------------------------
 .PHONY: newman-test
 newman-test:
 	newman run tests/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
@@ -32,9 +46,6 @@ newman-test:
 
 docker-build-index:
 	$(MAKE) -C services/index/ docker-build
-
-docker-build-validation:
-	$(MAKE) -C services/validation/ docker-build
 
 docker-build-library:
 	$(MAKE) -C services/library/ docker-build
