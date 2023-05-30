@@ -50,7 +50,8 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 		return
 	}
 
-	// Validate against the default schema.
+	// Validate against the default schema. The default schema ensures there is
+	// at least one schema defined for validating the node profile.
 	titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemas(
 		config.Conf.Library.InternalURL,
 		[]string{"default-v2.0.0"},
@@ -86,7 +87,7 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 		return
 	}
 
-	// Validate against schemes specify inside the profile data.
+	// Validate against the schemas specified in the profile data.
 	titles, details, sources, errorStatus = validatenode.ValidateAgainstSchemas(
 		config.Conf.Library.InternalURL,
 		linkedSchemas,
