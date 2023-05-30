@@ -1,10 +1,11 @@
 package app
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/controller/http"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
-	"github.com/gin-gonic/gin"
 )
 
 func mapURLs(router *gin.Engine) {

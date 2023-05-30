@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/xeipuuv/gojsonschema"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
@@ -16,7 +18,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
-	"github.com/xeipuuv/gojsonschema"
 )
 
 type ValidationService interface {

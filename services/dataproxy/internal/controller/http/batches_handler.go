@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/usecase"
-	"github.com/gin-gonic/gin"
 )
 
 type BatchesHandler interface {

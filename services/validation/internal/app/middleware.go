@@ -1,8 +1,9 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/gin-gonic/gin"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 )
 
 func getMiddlewares() []gin.HandlerFunc {
