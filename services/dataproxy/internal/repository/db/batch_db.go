@@ -1,12 +1,13 @@
 package db
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/net/context"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/entity"
 )
 
 type BatchRepository interface {

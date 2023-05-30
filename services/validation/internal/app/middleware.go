@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/gin-gonic/gin"
 )
 

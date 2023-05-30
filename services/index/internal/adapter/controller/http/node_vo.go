@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )
 

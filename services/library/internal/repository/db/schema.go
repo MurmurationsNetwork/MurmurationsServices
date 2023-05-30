@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/domain/schema"
 	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/domain/schema"
 )
 
 type SchemaRepo interface {

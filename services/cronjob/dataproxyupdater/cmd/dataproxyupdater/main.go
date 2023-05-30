@@ -12,10 +12,10 @@ import (
 
 	"github.com/lucsky/cuid"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/importutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/db"

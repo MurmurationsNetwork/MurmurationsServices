@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
 	stan "github.com/nats-io/stan.go"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 type Publisher interface {

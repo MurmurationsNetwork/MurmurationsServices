@@ -4,12 +4,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/resterr"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/internal/controller/http"
 	"github.com/gin-gonic/gin"
-
 	geoip2 "github.com/oschwald/geoip2-golang"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/resterr"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/internal/controller/http"
 )
 
 type fakeGeoIPService struct{}

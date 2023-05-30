@@ -9,14 +9,14 @@ import (
 	"path"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/redis"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/domain"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/repository/db"
-	"github.com/iancoleman/orderedmap"
 )
 
 type SchemaService interface {

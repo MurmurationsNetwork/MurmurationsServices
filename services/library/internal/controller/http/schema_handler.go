@@ -3,10 +3,10 @@ package http
 import (
 	"net/http"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
-
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
 	"github.com/gin-gonic/gin"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
 )
 
 type SchemaHandler interface {

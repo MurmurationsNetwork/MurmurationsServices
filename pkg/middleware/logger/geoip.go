@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 type respond struct {

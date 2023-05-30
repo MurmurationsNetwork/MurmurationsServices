@@ -1,8 +1,8 @@
 package query
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/pagination"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/pagination"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 

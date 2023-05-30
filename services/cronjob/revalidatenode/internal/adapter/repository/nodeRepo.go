@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/internal/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/internal/entity"
 )
 
 type NodeRepository interface {

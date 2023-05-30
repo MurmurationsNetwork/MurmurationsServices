@@ -6,8 +6,8 @@ import (
 
 	elastic "github.com/olivere/elastic/v7"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/backoff"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
 var (

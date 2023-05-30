@@ -1,6 +1,6 @@
 package event
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/common/jsonapi"
+import "github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 
 type NodeCreatedData struct {
 	ProfileURL string `json:"profile_url"`

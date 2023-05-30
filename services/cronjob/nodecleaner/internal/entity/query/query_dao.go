@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/elastic"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
 )
 
 func (q *EsQuery) Build() *elastic.Query {

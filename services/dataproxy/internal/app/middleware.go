@@ -3,8 +3,8 @@ package app
 import (
 	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware/limiter"
-	"github.com/MurmurationsNetwork/MurmurationsServices/common/middleware/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	corslib "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
