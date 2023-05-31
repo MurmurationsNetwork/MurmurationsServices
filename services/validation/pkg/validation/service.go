@@ -110,7 +110,9 @@ func (s *Service) WaitUntilUp() <-chan struct{} {
 				close(initialized)
 				return
 			}
-			logger.Info("Ping failed, waiting for service to go up...")
+			logger.Info(
+				"Ping failed, waiting for service to finish starting...",
+			)
 			time.Sleep(time.Second)
 		}
 	}()
