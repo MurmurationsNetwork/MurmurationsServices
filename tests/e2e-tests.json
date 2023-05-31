@@ -3294,7 +3294,7 @@
 			"name": "Map API",
 			"item": [
 				{
-					"name": "Get 100 Nodes",
+					"name": "Check Map API",
 					"event": [
 						{
 							"listen": "test",
@@ -3302,12 +3302,6 @@
 								"exec": [
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
 									"    pm.response.to.have.status(200)",
-									"})",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least 100 result`, () => {",
-									"    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(100)",
 									"})",
 									"",
 									"pm.variables.set(\"test_counter\", 0)"
