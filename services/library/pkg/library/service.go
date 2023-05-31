@@ -29,17 +29,17 @@ func init() {
 
 // Service represents the library service.
 type Service struct {
-	// HTTP server.
+	// HTTP server
 	server *http.Server
-	// Atomic boolean to manage service state.
+	// Atomic boolean to manage service state
 	run *abool.AtomicBool
-	// HTTP router for the library service.
+	// HTTP router for the library service
 	router *gin.Engine
-	// Ensures cleanup is only run once.
+	// Ensures cleanup is only run once
 	runCleanup sync.Once
-	// Context for shutdown.
+	// Context for shutdown
 	shutdownCtx context.Context
-	// Cancel function for shutdown context.
+	// Cancel function for shutdown context
 	shutdownCancelCtx context.CancelFunc
 }
 
