@@ -10,3 +10,10 @@ repos:
     hooks:
       - id: golines
         entry: golines -m 80 -w .
+
+  - repo: local
+    hooks:
+      - id: newman
+        name: newman
+        entry: make newman-test
+        language: system
