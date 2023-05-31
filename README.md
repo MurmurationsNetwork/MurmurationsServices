@@ -75,7 +75,7 @@ docker pull kibana:7.17.5
    exit 0
    ```
 
-4. Run `pre-commit install` to set up the git hook scripts in your local repository.
+4. Run `pre-commit install` to set up the git hook scripts in your local repository. You can safely ignore the "`Running in migration mode with existing hooks`" message.
 
 Now, pre-commit will run automatically on `git commit`. If you want to manually run all pre-commit hooks on a repository, run `pre-commit run --all-files`.
 
