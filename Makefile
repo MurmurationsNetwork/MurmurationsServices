@@ -2,6 +2,7 @@
 # Include other Makefiles.
 #--------------------------
 include ./build/validation/mk/Makefile
+include ./build/library/mk/Makefile
 
 #--------------------------
 # Set environment variables.
@@ -46,9 +47,6 @@ newman-test:
 
 docker-build-index:
 	$(MAKE) -C services/index/ docker-build
-
-docker-build-library:
-	$(MAKE) -C services/library/ docker-build
 
 docker-build-nodecleaner:
 	$(MAKE) -C services/cronjob/nodecleaner/ docker-build
