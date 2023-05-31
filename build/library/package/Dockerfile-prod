@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 # Copy the static binary from the build stage to the runtime stage
 COPY --from=build /bin/library /app/library
 
+# Copy Static Files
+COPY --from=build /src/library/services/library/static /app/static
+
 EXPOSE 8000
 
 CMD ["/app/library"]
