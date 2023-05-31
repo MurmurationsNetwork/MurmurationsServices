@@ -38,7 +38,7 @@ docker pull kibana:7.17.5
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v1/ping` and `data-proxy.murmurations.dev/v1/ping`
+2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v2/ping` and `data-proxy.murmurations.dev/v1/ping`
 
 ## Using Pre-commit and custom git hooks
 
