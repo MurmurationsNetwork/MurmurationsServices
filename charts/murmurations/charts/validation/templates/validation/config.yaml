@@ -4,14 +4,9 @@ metadata:
   name: validation-app-config
 data:
   SERVER_PORT: "8080"
-  SERVER_TIMEOUT_READ: 5s
-  SERVER_TIMEOUT_WRITE: 10s
-  SERVER_TIMEOUT_IDLE: 15s
-  NATS_CLUSTER_ID: murmurations
-  NATS_URL: http://nats:4222
-  LIBRARY_URL: http://library-app:8080
-  {{- if eq .Values.global.env "production" }}
-  LIBRARY_CDN_URL: https://cdn.murmurations.network
-  {{- else }}
-  LIBRARY_CDN_URL: https://test-cdn.murmurations.network
-  {{- end }}
+  SERVER_TIMEOUT_READ: "5s"
+  SERVER_TIMEOUT_WRITE: "10s"
+  SERVER_TIMEOUT_IDLE: "15s"
+  NATS_CLUSTER_ID: "murmurations"
+  NATS_URL: "http://nats:4222"
+  LIBRARY_URL: "http://library-app:8080"
