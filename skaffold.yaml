@@ -15,7 +15,7 @@ build:
     - image: murmurations/library
       context: .
       docker:
-        dockerfile: services/library/docker/Dockerfile-dev
+        dockerfile: build/library/package/Dockerfile-dev
     - image: murmurations/nodecleaner
       context: .
       docker:

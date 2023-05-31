@@ -1,4 +1,0 @@
-package app
-
-func cleanup() {
-}
