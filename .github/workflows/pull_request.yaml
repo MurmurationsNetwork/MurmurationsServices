@@ -1,3 +1,8 @@
+# This workflow defines two jobs that run tests and linting for a Go project
+# when a pull request is opened or updated on the main branch. By using GitHub
+# Actions, the project can automatically run tests and linting on every pull
+# request, which helps ensure that the code is high quality and free of errors.
+
 name: PR
 
 on:

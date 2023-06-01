@@ -1,3 +1,9 @@
+# This is a GitHub Actions workflow file that defines a workflow named test. The
+# workflow is triggered by a push event on the main branch and automates the
+# build, test, and deployment process for the project's components. The workflow
+# uses make commands to build and publish Docker images for each component and
+# deploys the components to a Kubernetes cluster on DigitalOcean.
+
 name: test
 
 on:
@@ -6,6 +12,14 @@ on:
       - main
 
 jobs:
+
+# The `test` job executes unit tests for the project and consists of three
+# steps. The first step uses the actions/checkout action to check out the code
+# for the project. The second step uses the actions/setup-go action to set up
+# the Go environment with version 1.19.5. The third step runs the make test
+# command, which is defined in the project's Makefile and runs the tests for the
+# project.
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -19,6 +33,14 @@ jobs:
 
       - name: Test
         run: make test
+
+# This `build-*` jobs build and publish Docker images for different components
+# of the project. Each job runs on an ubuntu-latest runner and has three steps.
+# The first step uses the actions/checkout action to check out the code for the
+# project. The second step uses the docker/login-action action to log in to
+# DockerHub using the secrets.DOCKERHUB_USERNAME and secrets.DOCKERHUB_TOKEN
+# secrets. The third step runs a make command to build and publish the Docker
+# image for the component.
 
   build-index:
     name: Build Index
@@ -180,6 +202,20 @@ jobs:
       - name: Publish dataproxyrefresher docker images
         run: make docker-push-dataproxyrefresher
 
+# The `deploy` job automates the deployment process for the project's
+# components. The job is triggered by the completion of several other jobs,
+# which are specified using the needs key. The job runs on an ubuntu-latest
+# runner and deploys various components of the project to a Kubernetes cluster
+# on DigitalOcean.
+
+# The job consists of several steps that use the make command to restart the
+# deployments for each component. The first step uses the actions/checkout
+# action to check out the code for the project. The second step installs doctl,
+# a command-line tool for managing DigitalOcean resources, and saves the
+# kubeconfig for the Kubernetes cluster with short-lived credentials. The
+# remaining steps restart the deployments for each component using the make
+# deploy-<component> command.
+
   deploy:
     name: Deploy
     needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy, build-dataproxyupdater, build-dataproxyrefresher ]
@@ -224,6 +260,11 @@ jobs:
 
       - name: Restart dataproxyrefresher deployment
         run: make deploy-dataproxyrefresher DEPLOY_ENV=staging
+
+# This job automates the end-to-end testing process for the project's
+# components. The job is triggered by the completion of the deploy job, and uses
+# the newman tool to execute the end-to-end tests and a custom shell script to
+# check the availability of the endpoints.
 
   e2e_test:
     name: E2E Test
