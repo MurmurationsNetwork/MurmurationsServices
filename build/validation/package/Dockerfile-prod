@@ -15,8 +15,9 @@ WORKDIR /src/validation
 # Copy the entire project to the working directory
 ADD . /src/validation
 
-# Build the Go app with CGO disabled to create a fully static binary,
-# output the executable to /bin/validation, compile the validation app under ./cmd/validation
+# Build the Go app with CGO disabled to create a fully static binary, output the
+# executable to /bin/validation, compile the validation app under
+# ./cmd/validation
 RUN CGO_ENABLED=0 go build -o /bin/validation ./cmd/validation
 
 # --- Runtime Stage ---
