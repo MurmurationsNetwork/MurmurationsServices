@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Start by logging a message to indicate that the service is starting up.
-	logger.Info("Library service starting.")
+	logger.Info("Library service starting")
 
 	// Create a new instance of the library.Service struct using the
 	// library.NewService function. This function initializes the service and
