@@ -1,3 +1,20 @@
+# This is a dependabot.yml file that specifies the update schedule for two
+# package ecosystems: gomod and github-actions. The updates key contains a list
+# of dictionaries, where each dictionary specifies the package ecosystem, the
+# directory to update, and the update schedule. In this case, both ecosystems
+# are set to update daily, and the root directory is specified with the forward
+# slash /.
+
+# The gomod package ecosystem is used for Go modules, which are a way to manage
+# dependencies in Go projects. Dependabot is a tool that automates dependency
+# updates, so this file is telling Dependabot to check for updates to Go modules
+# and GitHub Actions on a daily basis.
+
+# Overall, this file is a configuration file that helps automate the process of
+# keeping dependencies up to date. By specifying the package ecosystems and
+# update schedule, Dependabot can automatically check for updates and create
+# pull requests to update the dependencies in the project.
+
 version: 2
 updates:
   - package-ecosystem: "gomod"
