@@ -1,3 +1,11 @@
+# The purpose of this Dockerfile is to create a Docker image that can be used to
+# run the validation app. The build stage compiles the Go app and creates a
+# fully static binary, which is then copied to the runtime stage. The runtime
+# stage sets up the environment for running the app and copies the static binary
+# and files to the appropriate locations. By using a Docker image, the app can
+# be easily deployed to different environments without worrying about
+# dependencies or configuration.
+
 # --- Build Stage ---
 FROM golang:1.19.5-alpine as build
 

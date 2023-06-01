@@ -1,17 +1,41 @@
+# This is a Dockerfile that defines a development environment for a Go application. 
+
+# The FROM command specifies the base image to use, which in this case is
+# golang:1.19.5-alpine. Alpine is a lightweight Linux distribution, which makes
+# it a good choice for Docker images. The golang:1.19.5-alpine image is an image
+# that contains the Go programming language.
 FROM golang:1.19.5-alpine
 
+# The RUN command updates the package index inside the container using apk
+# update. Alpine uses the apk package manager, which is similar to apt-get on
+# Ubuntu.
 RUN apk update
 
-# Set the working directory inside the container.
+# The WORKDIR command sets the working directory inside the container to
+# /src/library. This is where the application code will be copied to.
 WORKDIR /src/library
 
+# The COPY command copies the go.mod and go.sum files to the working directory.
+# The go.mod file contains the dependencies for the application, and the go.sum
+# file contains the checksums for the dependencies.
 COPY go.mod go.sum ./
 
+# The RUN command then downloads the dependencies specified in the go.mod file
+# using go mod download. This command is run before copying the application code
+# to take advantage of Docker's caching mechanism. If the go.mod file hasn't
+# changed, then the dependencies don't need to be downloaded again, speeding up
+# the build process.
 RUN go mod download
 
-# Install the latest version of reflex for hot reloading of go applications.
+# The next RUN command installs the latest version of reflex, which is a tool
+# for hot reloading Go applications. Hot reloading allows developers to see
+# changes to their code immediately without having to manually restart the
+# application. The go install command installs reflex from the
+# github.com/cespare/reflex repository.
 RUN go install github.com/cespare/reflex@latest
 
-# This command will start the application using Reflex for hot reloading when
-# the Docker container is run.
+# The CMD command specifies the command to run when the container starts. In
+# this case, it runs reflex with the configuration file located at
+# ./build/library/reflex.conf. This will start the application using reflex for
+# hot reloading when the Docker container is run.
 CMD ["reflex", "-c", "./build/library/reflex.conf"]
