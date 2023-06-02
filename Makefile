@@ -1,8 +1,12 @@
 #--------------------------
 # Include other Makefiles.
 #--------------------------
-include ./build/validation/mk/Makefile
+include ./build/geoip/mk/Makefile
+include ./build/index/mk/Makefile
 include ./build/library/mk/Makefile
+include ./build/revalidatenode/mk/Makefile
+include ./build/schemaparser/mk/Makefile
+include ./build/validation/mk/Makefile
 
 #--------------------------
 # Set environment variables.
@@ -23,13 +27,6 @@ dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
 #--------------------------
-# Format formats the code.
-#--------------------------
-.PHONY: format
-format:
-	golines -m 80 -w $(shell pwd)
-
-#--------------------------
 # Runs the unit tests.
 #--------------------------
 .PHONY: test
@@ -45,20 +42,8 @@ newman-test:
 
 # ---------------------------------------------------------------
 
-docker-build-index:
-	$(MAKE) -C services/index/ docker-build
-
 docker-build-nodecleaner:
 	$(MAKE) -C services/cronjob/nodecleaner/ docker-build
-
-docker-build-schemaparser:
-	$(MAKE) -C services/cronjob/schemaparser/ docker-build
-
-docker-build-revalidatenode:
-	$(MAKE) -C services/cronjob/revalidatenode/ docker-build
-
-docker-build-geoip:
-	$(MAKE) -C services/geoip/ docker-build
 
 docker-build-dataproxy:
 	$(MAKE) -C services/dataproxy/ docker-build

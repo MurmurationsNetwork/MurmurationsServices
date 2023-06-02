@@ -26,7 +26,7 @@ spec:
                     name: schemaparser-secret
           {{- if eq .Values.global.env "development" }}
               command: ["go", "run"]
-              args: ["services/cronjob/schemaparser/cmd/schemaparser/main.go"]
+              args: ["cmd/schemaparser/main.go"]
               volumeMounts:
                 - mountPath: /src
                   name: source-path

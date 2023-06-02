@@ -1,2 +1,2 @@
 docker-build-library:
-	docker build -f build/library/package/Dockerfile-prod -t murmurations/library .
+	docker build -f build/library/docker/Dockerfile-prod -t murmurations/library .

@@ -1,4 +1,4 @@
-package library
+package index
 
 import (
 	"context"
@@ -17,24 +17,28 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/global"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/controller/rest"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/global"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/controller/rest"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
 )
 
 func init() {
 	global.Init()
 }
 
-// Service represents the library service.
+// Service represents the index service.
 type Service struct {
 	// HTTP server
 	server *http.Server
+	// Node event handler
+	nodeHandler event.NodeHandler
 	// Atomic boolean to manage service state
 	run *abool.AtomicBool
-	// HTTP router for the library service
+	// HTTP router for the index service
 	router *gin.Engine
 	// Ensures cleanup is only run once
 	runCleanup sync.Once
@@ -44,13 +48,16 @@ type Service struct {
 	shutdownCancelCtx context.CancelFunc
 }
 
-// NewService initializes a new library service.
+// NewService initializes a new index service.
 func NewService() *Service {
 	svc := &Service{
 		run: abool.New(),
 	}
 
 	svc.setupServer()
+	svc.nodeHandler = event.NewNodeHandler(
+		usecase.NewNodeService(db.NewRepository()),
+	)
 	core.InstallShutdownHandler(svc.Shutdown)
 
 	return svc
@@ -111,12 +118,13 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 		}),
 		midlogger.NewLogger(),
 		// CORS for all origins, allowing:
-		// - GET and POST methods
+		// - GET, POST and DELETE methods
 		// - Origin, Authorization and Content-Type header
 		// - Credentials share
 		// - Preflight requests cached for 12 hours
 		cors.New(cors.Config{
 			AllowOrigins: []string{"*"},
+			AllowMethods: []string{"GET", "POST", "DELETE"},
 			AllowHeaders: []string{
 				"Origin",
 				"Authorization",
@@ -133,19 +141,31 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 func (s *Service) registerRoutes() {
 	deprecationHandler := rest.NewDeprecationHandler()
 	pingHandler := rest.NewPingHandler()
-	schemaHandler := rest.NewSchemaHandler(
-		service.NewSchemaService(db.NewSchemaRepo()),
+	nodeHandler := rest.NewNodeHandler(
+		usecase.NewNodeService(db.NewRepository()),
 	)
-	countryHandler := rest.NewCountryHandler()
 
 	v1 := s.router.Group("/v1")
 	v1.Any("/*any", deprecationHandler.DeprecationV1)
 
 	v2 := s.router.Group("/v2")
 	v2.GET("/ping", pingHandler.Ping)
-	v2.GET("/schemas", schemaHandler.Search)
-	v2.GET("/schemas/:schemaName", schemaHandler.Get)
-	v2.GET("/countries", countryHandler.GetMap)
+
+	// Node related routes
+	{
+		v2.POST("/nodes", nodeHandler.Add)
+		v2.GET("/nodes/:nodeID", nodeHandler.Get)
+		v2.GET("/nodes", nodeHandler.Search)
+		v2.DELETE("/nodes", nodeHandler.Delete)
+		v2.DELETE("/nodes/:nodeID", nodeHandler.Delete)
+		v2.POST("/validate", nodeHandler.Validate)
+		// synchronously response
+		v2.POST("/nodes-sync", nodeHandler.AddSync)
+		// block search
+		v2.POST("/export", nodeHandler.Export)
+		// get nodes for map, response format [lon, lat, profile_url]
+		v2.GET("/get-nodes", nodeHandler.GetNodes)
+	}
 }
 
 // panic performs a cleanup and then emit the supplied message as the panic value.
@@ -154,16 +174,24 @@ func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 	logger.Panic(msg, err, logFields...)
 }
 
-// Run starts the library service and will block until the service is shutdown.
+// Run starts the index service and will block until the service is shutdown.
 func (s *Service) Run() {
 	s.run.Set()
+	if err := s.nodeHandler.Validated(); err != nil &&
+		err != http.ErrServerClosed {
+		s.panic("Error when trying to listen events", err)
+	}
+	if err := s.nodeHandler.ValidationFailed(); err != nil &&
+		err != http.ErrServerClosed {
+		s.panic("Error when trying to listen events", err)
+	}
 	if err := s.server.ListenAndServe(); err != nil &&
 		err != http.ErrServerClosed {
 		s.panic("Error when trying to start the server", err)
 	}
 }
 
-// WaitUntilUp returns a channel which blocks until the library service is up.
+// WaitUntilUp returns a channel which blocks until the index service is up.
 func (s *Service) WaitUntilUp() <-chan struct{} {
 	initialized := make(chan struct{})
 	go func() {
@@ -187,11 +215,11 @@ func (s *Service) WaitUntilUp() <-chan struct{} {
 	return initialized
 }
 
-// Shutdown stops the library service.
+// Shutdown stops the index service.
 func (s *Service) Shutdown() {
 	if s.run.IsSet() {
 		if err := s.server.Shutdown(s.shutdownCtx); err != nil {
-			logger.Error("Library service shutdown failure", err)
+			logger.Error("Index service shutdown failure", err)
 		}
 	}
 	s.cleanup()
@@ -202,6 +230,7 @@ func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
 		s.shutdownCancelCtx()
 		mongo.Client.Disconnect()
-		logger.Info("Library service stopped gracefully")
+		nats.Client.Disconnect()
+		logger.Info("Index service stopped gracefully")
 	})
 }
