@@ -45,8 +45,8 @@ application. The `go install` command installs reflex from the
 
 The `CMD` command specifies the command to run when the container starts. In
 this case, it runs `reflex` with the configuration file located at
-[/build/library/reflex.conf](/build/library/reflex.conf). This will start the
-application using `reflex` for hot reloading when the Docker container is run.
+`/build/<service_name>/reflex.conf`. This will start the application using
+`reflex` for hot reloading when the Docker container is run.
 
 ## `<service_name>/package/Dockerfile-prod`
 
