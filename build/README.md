@@ -12,7 +12,7 @@ image for a service. By running `make docker-build-<service_name>`, the command
 specified in the target will be executed, resulting in a Docker image that can
 be used to deploy the service.
 
-## `<service_name>/package/Dockerfile-dev`
+## `<service_name>/docker/Dockerfile-dev`
 
 This is a Dockerfile that defines a development environment for a service. 
 
@@ -48,7 +48,7 @@ this case, it runs `reflex` with the configuration file located at
 `/build/<service_name>/reflex.conf`. This will start the application using
 `reflex` for hot reloading when the Docker container is run.
 
-## `<service_name>/package/Dockerfile-prod`
+## `<service_name>/docker/Dockerfile-prod`
 
 This is a Dockerfile that defines a production environment for a service. 
 
