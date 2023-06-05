@@ -54,7 +54,7 @@ func (nc *NodeCleaner) Run() {
 		db.NewNodeRepository(mongo.Client.GetClient()),
 	)
 
-	err := svc.Remove()
+	err := svc.RemoveValidationFailed()
 	if err != nil {
 		logger.Panic(
 			"Failed to delete nodes with 'validation_failed' status",

@@ -15,7 +15,7 @@ import (
 )
 
 type NodeRepository interface {
-	Remove(status string, timeBefore int64) error
+	RemoveValidationFailed(status string, timeBefore int64) error
 	RemoveDeleted(status string, timeBefore int64) error
 	RemoveES(status string, timeBefore int64) error
 }
@@ -30,7 +30,7 @@ type nodeRepository struct {
 	client *mongo.Client
 }
 
-func (r *nodeRepository) Remove(status string, timeBefore int64) error {
+func (r *nodeRepository) RemoveValidationFailed(status string, timeBefore int64) error {
 	filter := bson.M{
 		"status": status,
 		"createdAt": bson.M{
