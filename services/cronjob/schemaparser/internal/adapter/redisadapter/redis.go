@@ -10,7 +10,7 @@ func NewClient() redis.Redis {
 	client := redis.NewClient(config.Conf.Redis.URL)
 	err := client.Ping()
 	if err != nil {
-		logger.Panic("error when trying to ping the redis", err)
+		logger.Panic("error when trying to ping Redis", err)
 		return nil
 	}
 	return client

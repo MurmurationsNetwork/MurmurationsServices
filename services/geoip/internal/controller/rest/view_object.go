@@ -15,7 +15,7 @@ type cityVO struct {
 	Lon     float64 `json:"lon,omitempty"`
 }
 
-func (handler *gepIPHandler) toCityVO(record *geoip2.City) interface{} {
+func (handler *geoIPHandler) toCityVO(record *geoip2.City) interface{} {
 	res := cityVO{
 		City:    record.City.Names["en"],
 		Country: record.Country.IsoCode,

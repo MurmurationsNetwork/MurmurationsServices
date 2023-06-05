@@ -48,18 +48,18 @@ func TestGetCity(t *testing.T) {
 					Value: "1.164.203.137",
 				},
 			},
-			bodyStr: `{"message":"Invalid ip.","status":400}`,
+			bodyStr: `{"message":"Invalid IP address.","status":400}`,
 		},
 	}
 
 	for _, tc := range tests {
 		geoIPService := fakeGeoIPService{}
-		gepIPHandler := rest.NewGepIPHandler(geoIPService)
+		geoIPHandler := rest.NewGeoIPHandler(geoIPService)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Params = tc.param
 
-		gepIPHandler.GetCity(c)
+		geoIPHandler.GetCity(c)
 
 		assert.Equal(t, tc.bodyStr, w.Body.String())
 	}

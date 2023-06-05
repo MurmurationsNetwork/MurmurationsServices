@@ -9,24 +9,24 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/geoip/internal/service"
 )
 
-type GepIPHandler interface {
+type GeoIPHandler interface {
 	GetCity(c *gin.Context)
 }
 
-type gepIPHandler struct {
+type geoIPHandler struct {
 	svc service.GeoIPService
 }
 
-func NewGepIPHandler(svc service.GeoIPService) GepIPHandler {
-	return &gepIPHandler{
+func NewGeoIPHandler(svc service.GeoIPService) GeoIPHandler {
+	return &geoIPHandler{
 		svc: svc,
 	}
 }
 
-func (handler *gepIPHandler) GetCity(c *gin.Context) {
+func (handler *geoIPHandler) GetCity(c *gin.Context) {
 	ip, found := c.Params.Get("ip")
 	if !found {
-		restErr := resterr.NewBadRequestError("Invalid ip.")
+		restErr := resterr.NewBadRequestError("Invalid IP address.")
 		c.JSON(restErr.Status(), restErr)
 		return
 	}

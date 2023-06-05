@@ -79,8 +79,8 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 
 // registerRoutes sets up the routes for the HTTP server.
 func (s *Service) registerRoutes() {
-	gepIPHandler := rest.NewGepIPHandler(service.NewGeoIPService())
-	s.router.GET("/city/:ip", gepIPHandler.GetCity)
+	geoIPHandler := rest.NewGeoIPHandler(service.NewGeoIPService())
+	s.router.GET("/city/:ip", geoIPHandler.GetCity)
 
 	pingHandler := rest.NewPingHandler()
 	s.router.GET("/ping", pingHandler.Ping)
