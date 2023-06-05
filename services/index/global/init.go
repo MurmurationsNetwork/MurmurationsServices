@@ -75,16 +75,16 @@ func esInit() {
 
 	err := elastic.NewClient(config.Conf.ES.URL)
 	if err != nil {
-		logger.Panic("Error when trying to ping the ElasticSearch", err)
+		logger.Panic("Error when trying to ping Elasticsearch", err)
 		return
 	}
 	err = elastic.Client.CreateMappings(indices)
 	if err != nil {
-		logger.Panic("Error when trying to create index for ElasticSearch", err)
+		logger.Panic("Error when trying to create index for Elasticsearch", err)
 		return
 	}
 
-	logger.Info("ElasticSearch index created")
+	logger.Info("Elasticsearch index created")
 }
 
 func natsInit() {

@@ -148,7 +148,7 @@ func (s *Service) registerRoutes() {
 	v2.GET("/countries", countryHandler.GetMap)
 }
 
-// panic performs a cleanup and then emit the supplied message as the panic value.
+// panic performs a cleanup and then emits the supplied message as the panic value.
 func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 	s.cleanup()
 	logger.Panic(msg, err, logFields...)

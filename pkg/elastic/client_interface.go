@@ -60,7 +60,7 @@ func NewClient(url string) error {
 		}
 		err := backoff.NewBackoff(
 			operation,
-			"Trying to re-connect ElasticSearch",
+			"Trying to re-connect Elasticsearch",
 		)
 		if err != nil {
 			return err

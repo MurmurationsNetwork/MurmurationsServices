@@ -41,7 +41,7 @@ func NewCronJob() *NodeCleaner {
 
 	err = elastic.NewClient(config.Conf.ES.URL)
 	if err != nil {
-		logger.Panic("Failed to connect to ElasticSearch", err)
+		logger.Panic("Failed to connect to Elasticsearch", err)
 	}
 
 	return &NodeCleaner{}
@@ -77,7 +77,7 @@ func (nc *NodeCleaner) Run() {
 	err = svc.RemoveES(constant.NodeStatus.Deleted, deletedTimeout)
 	if err != nil {
 		logger.Panic(
-			"Failed to delete nodes with 'deleted' status in ElasticSearch",
+			"Failed to delete nodes with 'deleted' status in Elasticsearch",
 			err,
 		)
 	}
