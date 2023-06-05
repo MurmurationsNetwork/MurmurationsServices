@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	logger.Info("Start loading the schemas from the library repo...")
+	logger.Info("Start loading schemas...")
 	s := schemaparser.NewCronJob()
 	s.Run()
-	logger.Info("Library repo schemas loaded successfully")
+	logger.Info("Schemas were loaded successfully")
 }

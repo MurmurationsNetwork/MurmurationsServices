@@ -9,5 +9,5 @@ func main() {
 	logger.Info("Start revalidating nodes...")
 	s := revalidatenode.NewCronJob()
 	s.Run()
-	logger.Info("Nodes were successfully revalidated")
+	logger.Info("Nodes were revalidated successfully")
 }

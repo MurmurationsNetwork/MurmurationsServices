@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	logger.Info("Start cleaning nodes...")
+	logger.Info("Start cleaning up nodes...")
 	s := nodecleaner.NewCronJob()
 	s.Run()
 	logger.Info("Nodes were cleaned up successfully")
