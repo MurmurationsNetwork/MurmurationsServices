@@ -1,8 +1,13 @@
 #--------------------------
 # Include other Makefiles.
 #--------------------------
-include ./build/validation/mk/Makefile
+include ./build/geoip/mk/Makefile
+include ./build/index/mk/Makefile
 include ./build/library/mk/Makefile
+include ./build/revalidatenode/mk/Makefile
+include ./build/nodecleaner/mk/Makefile
+include ./build/schemaparser/mk/Makefile
+include ./build/validation/mk/Makefile
 
 #--------------------------
 # Set environment variables.
@@ -23,13 +28,6 @@ dev:
 	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
 
 #--------------------------
-# Format formats the code.
-#--------------------------
-.PHONY: format
-format:
-	golines -m 80 -w $(shell pwd)
-
-#--------------------------
 # Runs the unit tests.
 #--------------------------
 .PHONY: test
@@ -45,21 +43,6 @@ newman-test:
 
 # ---------------------------------------------------------------
 
-docker-build-index:
-	$(MAKE) -C services/index/ docker-build
-
-docker-build-nodecleaner:
-	$(MAKE) -C services/cronjob/nodecleaner/ docker-build
-
-docker-build-schemaparser:
-	$(MAKE) -C services/cronjob/schemaparser/ docker-build
-
-docker-build-revalidatenode:
-	$(MAKE) -C services/cronjob/revalidatenode/ docker-build
-
-docker-build-geoip:
-	$(MAKE) -C services/geoip/ docker-build
-
 docker-build-dataproxy:
 	$(MAKE) -C services/dataproxy/ docker-build
 
@@ -71,36 +54,45 @@ docker-build-dataproxyrefresher:
 
 # ---------------------------------------------------------------
 
-TAG ?= $(shell git rev-parse --short ${GITHUB_SHA})$(and $(shell git status -s),-dirty)
+# The TAG value is constructed based on the commit SHA.
+# If running in a GitHub Actions environment, it uses the GITHUB_SHA.
+# In a local environment, it uses the SHA of the HEAD commit.
+TAG ?= $(shell git rev-parse --short $(if $(GITHUB_SHA),$(GITHUB_SHA),HEAD))
 
-docker-tag-index: docker-build-index
-	docker tag murmurations/index murmurations/index:${TAG}
+check-clean:
+	@if [ -n "$(shell git status --porcelain)" ]; then \
+		echo "Uncommitted changes present. Please commit them before running this command."; \
+		exit 1; \
+	fi
 
-docker-tag-validation: docker-build-validation
+docker-tag-index: check-clean docker-build-index
+	docker tag murmurations/index murmurations/index:$(TAG)
+
+docker-tag-validation: check-clean docker-build-validation
 	docker tag murmurations/validation murmurations/validation:${TAG}
 
-docker-tag-library: docker-build-library
+docker-tag-library: check-clean docker-build-library
 	docker tag murmurations/library murmurations/library:${TAG}
 
-docker-tag-nodecleaner: docker-build-nodecleaner
+docker-tag-nodecleaner: check-clean docker-build-nodecleaner
 	docker tag murmurations/nodecleaner murmurations/nodecleaner:${TAG}
 
-docker-tag-schemaparser: docker-build-schemaparser
+docker-tag-schemaparser: check-clean docker-build-schemaparser
 	docker tag murmurations/schemaparser murmurations/schemaparser:${TAG}
 
-docker-tag-revalidatenode: docker-build-revalidatenode
+docker-tag-revalidatenode: check-clean docker-build-revalidatenode
 	docker tag murmurations/revalidatenode murmurations/revalidatenode:${TAG}
 
-docker-tag-geoip: docker-build-geoip
+docker-tag-geoip: check-clean docker-build-geoip
 	docker tag murmurations/geoip murmurations/geoip:${TAG}
 
-docker-tag-dataproxy: docker-build-dataproxy
+docker-tag-dataproxy: check-clean docker-build-dataproxy
 	docker tag murmurations/dataproxy murmurations/dataproxy:${TAG}
 
-docker-tag-dataproxyupdater: docker-build-dataproxyupdater
+docker-tag-dataproxyupdater: check-clean docker-build-dataproxyupdater
 	docker tag murmurations/dataproxyupdater murmurations/dataproxyupdater:${TAG}
 
-docker-tag-dataproxyrefresher: docker-build-dataproxyrefresher
+docker-tag-dataproxyrefresher: check-clean docker-build-dataproxyrefresher
 	docker tag murmurations/dataproxyrefresher murmurations/dataproxyrefresher:${TAG}
 
 # ---------------------------------------------------------------

@@ -4,46 +4,46 @@ build:
   local:
     push: false
   artifacts:
-    - image: murmurations/index
-      context: .
-      docker:
-        dockerfile: services/index/docker/Dockerfile-dev
-    - image: murmurations/validation
-      context: .
-      docker:
-        dockerfile: build/validation/package/Dockerfile-dev
-    - image: murmurations/library
-      context: .
-      docker:
-        dockerfile: build/library/package/Dockerfile-dev
-    - image: murmurations/nodecleaner
-      context: .
-      docker:
-        dockerfile: services/cronjob/nodecleaner/docker/Dockerfile-dev
-    - image: murmurations/schemaparser
-      context: .
-      docker:
-        dockerfile: services/cronjob/schemaparser/docker/Dockerfile-dev
-    - image: murmurations/revalidatenode
-      context: .
-      docker:
-        dockerfile: services/cronjob/revalidatenode/docker/Dockerfile-dev
-    - image: murmurations/geoip
-      context: .
-      docker:
-        dockerfile: services/geoip/docker/Dockerfile-dev
     - image: murmurations/dataproxy
       context: .
       docker:
         dockerfile: services/dataproxy/docker/Dockerfile-dev
-    - image: murmurations/dataproxyupdater
-      context: .
-      docker:
-        dockerfile: services/cronjob/dataproxyupdater/docker/Dockerfile-dev
     - image: murmurations/dataproxyrefresher
       context: .
       docker:
         dockerfile: services/cronjob/dataproxyrefresher/docker/Dockerfile-dev
+    - image: murmurations/dataproxyupdater
+      context: .
+      docker:
+        dockerfile: services/cronjob/dataproxyupdater/docker/Dockerfile-dev
+    - image: murmurations/geoip
+      context: .
+      docker:
+        dockerfile: build/geoip/docker/Dockerfile-dev
+    - image: murmurations/index
+      context: .
+      docker:
+        dockerfile: build/index/docker/Dockerfile-dev
+    - image: murmurations/library
+      context: .
+      docker:
+        dockerfile: build/library/docker/Dockerfile-dev
+    - image: murmurations/nodecleaner
+      context: .
+      docker:
+        dockerfile: build/nodecleaner/docker/Dockerfile-dev
+    - image: murmurations/revalidatenode
+      context: .
+      docker:
+        dockerfile: build/revalidatenode/docker/Dockerfile-dev
+    - image: murmurations/schemaparser
+      context: .
+      docker:
+        dockerfile: build/schemaparser/docker/Dockerfile-dev
+    - image: murmurations/validation
+      context: .
+      docker:
+        dockerfile: build/validation/docker/Dockerfile-dev
 deploy:
   helm:
     releases:

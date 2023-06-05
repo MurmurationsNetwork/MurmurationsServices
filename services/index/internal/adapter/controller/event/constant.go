@@ -1,3 +1,3 @@
 package event
 
-const QGROOP = "index-qgroup"
+const QGROUP = "index-qgroup"

@@ -1,0 +1,17 @@
+FROM golang:1.19.5-alpine
+
+RUN apk update
+
+# Set the working directory inside the container.
+WORKDIR /src/index
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+# Install the latest version of reflex for hot reloading of go applications.
+RUN go install github.com/cespare/reflex@latest
+
+# This command will start the application using Reflex for hot reloading when
+# the Docker container is run.
+CMD ["reflex", "-c", "./build/index/reflex.conf"]

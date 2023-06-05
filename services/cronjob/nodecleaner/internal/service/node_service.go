@@ -10,7 +10,7 @@ import (
 )
 
 type NodesService interface {
-	Remove() error
+	RemoveValidationFailed() error
 	RemoveDeleted(status string, timeBefore int64) error
 	RemoveES(status string, timeBefore int64) error
 }
@@ -25,8 +25,8 @@ func NewNodeService(nodeRepo db.NodeRepository) NodesService {
 	}
 }
 
-func (svc *nodesService) Remove() error {
-	return svc.nodeRepo.Remove(
+func (svc *nodesService) RemoveValidationFailed() error {
+	return svc.nodeRepo.RemoveValidationFailed(
 		constant.NodeStatus.ValidationFailed,
 		dateutil.NowSubtract(
 			time.Duration(config.Conf.TTL.ValidationFailedTTL)*time.Second,

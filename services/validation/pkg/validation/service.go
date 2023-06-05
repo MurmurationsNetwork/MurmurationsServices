@@ -11,6 +11,7 @@ import (
 	"github.com/tevino/abool"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
@@ -49,7 +50,7 @@ func NewService() *Service {
 
 	svc.setupServer()
 	svc.nodeHandler = event.NewNodeHandler(service.NewValidationService())
-	InstallShutdownHandler(svc.Shutdown)
+	core.InstallShutdownHandler(svc.Shutdown)
 
 	return svc
 }
@@ -76,7 +77,7 @@ func (s *Service) setupServer() {
 	)
 }
 
-// panic performs a cleanup and then emit the supplied message as the panic value.
+// panic performs a cleanup and then emits the supplied message as the panic value.
 func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 	s.cleanup()
 	logger.Panic(msg, err, logFields...)

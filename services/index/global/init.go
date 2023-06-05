@@ -4,34 +4,14 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
 func Init() {
 	config.Init()
-	mongoInit()
 	esInit()
 	natsInit()
-}
-
-func mongoInit() {
-	uri := mongo.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
-	)
-
-	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
-	if err != nil {
-		logger.Panic("Error when trying to connect to MongoDB", err)
-	}
-
-	err = mongo.Client.Ping()
-	if err != nil {
-		logger.Panic("Error when trying to ping the MongoDB", err)
-	}
 }
 
 func esInit() {
@@ -95,16 +75,16 @@ func esInit() {
 
 	err := elastic.NewClient(config.Conf.ES.URL)
 	if err != nil {
-		logger.Panic("Error when trying to ping the ElasticSearch", err)
+		logger.Panic("Error when trying to ping Elasticsearch", err)
 		return
 	}
 	err = elastic.Client.CreateMappings(indices)
 	if err != nil {
-		logger.Panic("Error when trying to create index for ElasticSearch", err)
+		logger.Panic("Error when trying to create index for Elasticsearch", err)
 		return
 	}
 
-	logger.Info("ElasticSearch index created")
+	logger.Info("Elasticsearch index created")
 }
 
 func natsInit() {

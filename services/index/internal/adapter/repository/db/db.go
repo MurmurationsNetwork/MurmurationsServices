@@ -277,13 +277,13 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 			profileJSON,
 		)
 		if err != nil {
-			// Fail to parse into ElasticSearch, set the status to 'post_failed'.
+			// Fail to parse into Elasticsearch, set the status to 'post_failed'.
 			err = r.setPostFailed(node)
 			if err != nil {
 				return err
 			}
 		} else {
-			// Successfully parse into ElasticSearch, set the statue to 'posted'.
+			// Successfully parse into Elasticsearch, set the status to 'posted'.
 			err = r.setPosted(node)
 			if err != nil {
 				return err

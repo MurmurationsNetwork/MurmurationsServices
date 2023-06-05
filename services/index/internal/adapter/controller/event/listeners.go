@@ -30,7 +30,7 @@ func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
 }
 
 func (handler *nodeHandler) Validated() error {
-	return event.NewNodeValidatedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
+	return event.NewNodeValidatedListener(nats.Client.Client(), QGROUP, func(msg *stan.Msg) {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
@@ -72,7 +72,7 @@ func (handler *nodeHandler) Validated() error {
 }
 
 func (handler *nodeHandler) ValidationFailed() error {
-	return event.NewNodeValidationFailedListener(nats.Client.Client(), QGROOP, func(msg *stan.Msg) {
+	return event.NewNodeValidationFailedListener(nats.Client.Client(), QGROUP, func(msg *stan.Msg) {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {

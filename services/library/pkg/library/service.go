@@ -12,6 +12,7 @@ import (
 	"github.com/tevino/abool"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
@@ -50,7 +51,7 @@ func NewService() *Service {
 	}
 
 	svc.setupServer()
-	InstallShutdownHandler(svc.Shutdown)
+	core.InstallShutdownHandler(svc.Shutdown)
 
 	return svc
 }
@@ -147,7 +148,7 @@ func (s *Service) registerRoutes() {
 	v2.GET("/countries", countryHandler.GetMap)
 }
 
-// panic performs a cleanup and then emit the supplied message as the panic value.
+// panic performs a cleanup and then emits the supplied message as the panic value.
 func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 	s.cleanup()
 	logger.Panic(msg, err, logFields...)
@@ -200,7 +201,7 @@ func (s *Service) Shutdown() {
 func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
 		s.shutdownCancelCtx()
-		_ = mongo.Client.GetClient().Disconnect(context.Background())
+		mongo.Client.Disconnect()
 		logger.Info("Library service stopped gracefully")
 	})
 }
