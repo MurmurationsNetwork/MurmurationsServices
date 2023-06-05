@@ -30,7 +30,10 @@ type nodeRepository struct {
 	client *mongo.Client
 }
 
-func (r *nodeRepository) RemoveValidationFailed(status string, timeBefore int64) error {
+func (r *nodeRepository) RemoveValidationFailed(
+	status string,
+	timeBefore int64,
+) error {
 	filter := bson.M{
 		"status": status,
 		"createdAt": bson.M{
