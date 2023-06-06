@@ -16,22 +16,17 @@ import (
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/global"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/controller/event"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/adapter/controller/rest"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/rest"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )
-
-func init() {
-	global.Init()
-}
 
 // Service represents the validation service.
 type Service struct {
 	// HTTP server
 	server *http.Server
 	// Atomic boolean to manage service state
-	run *abool.AtomicBool
+	isRunning *abool.AtomicBool
 	// Node event handler
 	nodeHandler event.NodeHandler
 	// Ensures cleanup is only run once
@@ -45,7 +40,7 @@ type Service struct {
 // NewService initializes a new validation service.
 func NewService() *Service {
 	svc := &Service{
-		run: abool.New(),
+		isRunning: abool.New(),
 	}
 
 	svc.setupServer()
@@ -57,6 +52,15 @@ func NewService() *Service {
 
 // setupServer configures and initializes the HTTP server.
 func (s *Service) setupServer() {
+	err := nats.NewClient(
+		config.Values.NATS.ClusterID,
+		config.Values.NATS.ClientID,
+		config.Values.NATS.URL,
+	)
+	if err != nil {
+		logger.Panic("failed to connect to NATS", err)
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery(), midlogger.NewLogger())
@@ -65,11 +69,11 @@ func (s *Service) setupServer() {
 	router.GET("/ping", pingHandler.Ping)
 
 	s.server = &http.Server{
-		Addr:         fmt.Sprintf(":%s", config.Conf.Server.Port),
+		Addr:         fmt.Sprintf(":%s", config.Values.Server.Port),
 		Handler:      router,
-		ReadTimeout:  config.Conf.Server.TimeoutRead,
-		WriteTimeout: config.Conf.Server.TimeoutWrite,
-		IdleTimeout:  config.Conf.Server.TimeoutIdle,
+		ReadTimeout:  config.Values.Server.TimeoutRead,
+		WriteTimeout: config.Values.Server.TimeoutWrite,
+		IdleTimeout:  config.Values.Server.TimeoutIdle,
 	}
 
 	s.shutdownCtx, s.shutdownCancelCtx = context.WithCancel(
@@ -85,7 +89,7 @@ func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 
 // Run starts the validation service and will block until the service is shutdown.
 func (s *Service) Run() {
-	s.run.Set()
+	s.isRunning.Set()
 	if err := s.nodeHandler.NewNodeCreatedListener(); err != nil &&
 		err != http.ErrServerClosed {
 		s.panic("Error when trying to listen events", err)
@@ -104,7 +108,7 @@ func (s *Service) WaitUntilUp() <-chan struct{} {
 			resp, err := http.Get(
 				fmt.Sprintf(
 					"http://localhost:%s/ping",
-					config.Conf.Server.Port,
+					config.Values.Server.Port,
 				),
 			)
 			if err == nil && resp.StatusCode == http.StatusOK {
@@ -122,7 +126,7 @@ func (s *Service) WaitUntilUp() <-chan struct{} {
 
 // Shutdown stops the validation service.
 func (s *Service) Shutdown() {
-	if s.run.IsSet() {
+	if s.isRunning.IsSet() {
 		if err := s.server.Shutdown(s.shutdownCtx); err != nil {
 			logger.Error("Validation service shutdown failure", err)
 		}
@@ -135,6 +139,6 @@ func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
 		s.shutdownCancelCtx()
 		nats.Client.Disconnect()
-		logger.Info("validation service stopped gracefully")
+		logger.Info("Validation service stopped gracefully")
 	})
 }
