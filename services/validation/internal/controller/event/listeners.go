@@ -10,7 +10,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )
 
@@ -59,7 +59,7 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 					return
 				}
 
-				handler.validationService.ValidateNode(&entity.Node{
+				handler.validationService.ValidateNode(&model.Node{
 					ProfileURL: nodeCreatedData.ProfileURL,
 					Version:    nodeCreatedData.Version,
 				})

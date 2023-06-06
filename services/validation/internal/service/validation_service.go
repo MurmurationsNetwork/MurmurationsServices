@@ -17,11 +17,11 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/entity"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
 
 type ValidationService interface {
-	ValidateNode(node *entity.Node)
+	ValidateNode(node *model.Node)
 }
 
 type validationService struct {
@@ -31,7 +31,7 @@ func NewValidationService() ValidationService {
 	return &validationService{}
 }
 
-func (svc *validationService) ValidateNode(node *entity.Node) {
+func (svc *validationService) ValidateNode(node *model.Node) {
 	data, err := svc.readFromProfileURL(node.ProfileURL)
 	if err != nil {
 		logger.Info("Could not read from profile_url: " + node.ProfileURL)
@@ -53,7 +53,7 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 	// Validate against the default schema. The default schema ensures there is
 	// at least one schema defined for validating the node profile.
 	titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemas(
-		config.Conf.Library.InternalURL,
+		config.Values.Library.InternalURL,
 		[]string{"default-v2.0.0"},
 		node.ProfileURL,
 		"reference",
@@ -89,7 +89,7 @@ func (svc *validationService) ValidateNode(node *entity.Node) {
 
 	// Validate against the schemas specified in the profile data.
 	titles, details, sources, errorStatus = validatenode.ValidateAgainstSchemas(
-		config.Conf.Library.InternalURL,
+		config.Values.Library.InternalURL,
 		linkedSchemas,
 		node.ProfileURL,
 		"reference",
@@ -195,7 +195,7 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 }
 
 func (svc *validationService) sendNodeValidationFailedEvent(
-	node *entity.Node,
+	node *model.Node,
 	FailureReasons *[]jsonapi.Error,
 ) {
 	event.NewNodeValidationFailedPublisher(nats.Client.Client()).

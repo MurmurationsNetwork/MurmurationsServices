@@ -1,40 +1,43 @@
 package config
 
 import (
-	"log"
 	"time"
-
-	env "github.com/caarlos0/env/v6"
 )
 
-var Conf = config{}
+// Values holds the application configuration.
+var Values = Config{}
 
-type config struct {
-	Server  serverConf
-	Library libraryConf
-	Nats    natsConf
+// Config represents the application configuration structure.
+type Config struct {
+	Server  ServerConfig
+	Library LibraryConfig
+	NATS    NATSConfig
 }
 
-type serverConf struct {
-	Port         string        `env:"SERVER_PORT,required"`
-	TimeoutRead  time.Duration `env:"SERVER_TIMEOUT_READ,required"`
+// ServerConfig holds the server related configuration.
+type ServerConfig struct {
+	// Server port
+	Port string `env:"SERVER_PORT,required"`
+	// Server read timeout
+	TimeoutRead time.Duration `env:"SERVER_TIMEOUT_READ,required"`
+	// Server write timeout
 	TimeoutWrite time.Duration `env:"SERVER_TIMEOUT_WRITE,required"`
-	TimeoutIdle  time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
+	// Server idle timeout
+	TimeoutIdle time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
 }
 
-type libraryConf struct {
+// LibraryConfig holds the library related configuration.
+type LibraryConfig struct {
+	// Internal URL of the library
 	InternalURL string `env:"LIBRARY_URL,required"`
 }
 
-type natsConf struct {
+// NATSConfig holds the NATS related configuration.
+type NATSConfig struct {
+	// NATS cluster ID
 	ClusterID string `env:"NATS_CLUSTER_ID,required"`
-	ClientID  string `env:"NATS_CLIENT_ID,required"`
-	URL       string `env:"NATS_URL,required"`
-}
-
-func Init() {
-	err := env.Parse(&Conf)
-	if err != nil {
-		log.Fatalf("Failed to decode environment variables: %s", err)
-	}
+	// NATS client ID
+	ClientID string `env:"NATS_CLIENT_ID,required"`
+	// NATS URL
+	URL string `env:"NATS_URL,required"`
 }
