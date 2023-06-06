@@ -15,9 +15,9 @@ include ./build/validation/mk/Makefile
 DEPLOY_ENV ?= local
 
 ifeq ($(DEPLOY_ENV), staging)
-	ENV_FILE = tests/e2e-staging-env.json
+	ENV_FILE = test/e2e-staging-env.json
 else
-	ENV_FILE = tests/e2e-local-env.json
+	ENV_FILE = test/e2e-local-env.json
 endif
 
 #--------------------------
@@ -39,7 +39,7 @@ test:
 #--------------------------
 .PHONY: newman-test
 newman-test:
-	newman run tests/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
+	newman run test/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
 
 # ---------------------------------------------------------------
 

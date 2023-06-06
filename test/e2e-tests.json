@@ -3384,7 +3384,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./tests/organizations_schema-v1.0.0-example-import.csv"
+									"src": "./test/organizations_schema-v1.0.0-example-import.csv"
 								},
 								{
 									"key": "schemas",
@@ -3440,7 +3440,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./tests/organizations_schema-v1.0.0-example-import.csv"
+									"src": "./test/organizations_schema-v1.0.0-example-import.csv"
 								},
 								{
 									"key": "schemas",
@@ -3552,7 +3552,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./tests/organizations_schema-v1.0.0-example-edit.csv"
+									"src": "./test/organizations_schema-v1.0.0-example-edit.csv"
 								},
 								{
 									"key": "schemas",

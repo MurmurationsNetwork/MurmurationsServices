@@ -1,4 +1,7 @@
 #!/bin/bash
+# This is a bash script that checks the HTTP status code of a given host until
+# it matches a desired status code or until a specified timeout.
+
 set -eux
 
 declare HOST=$1
