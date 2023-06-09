@@ -10,8 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 )
 
 type mongoClient struct {
@@ -112,7 +112,7 @@ func (c *mongoClient) Ping() error {
 		}
 		return nil
 	}
-	err := backoff.NewBackoff(operation, "Trying to re-connect MongoDB")
+	err := retry.Do(operation, "Trying to re-connect MongoDB")
 	if err != nil {
 		return err
 	}

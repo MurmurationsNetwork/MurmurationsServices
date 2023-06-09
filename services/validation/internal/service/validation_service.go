@@ -7,7 +7,6 @@ import (
 
 	"github.com/xeipuuv/gojsonschema"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
@@ -15,6 +14,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
@@ -34,19 +34,7 @@ func NewValidationService() ValidationService {
 func (svc *validationService) ValidateNode(node *model.Node) {
 	data, err := svc.readFromProfileURL(node.ProfileURL)
 	if err != nil {
-		logger.Info("Could not read from profile_url: " + node.ProfileURL)
-		errors := jsonapi.NewError(
-			[]string{"Profile Not Found"},
-			[]string{
-				fmt.Sprintf(
-					"Could not find or read from (invalid JSON) the profile_url: %s",
-					node.ProfileURL,
-				),
-			},
-			nil,
-			[]int{http.StatusNotFound},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
+		svc.handleNodeValidationError(node, "Could not read from profile_url")
 		return
 	}
 
@@ -69,21 +57,10 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
-		logger.Info(
-			"Could not read linked_schemas from profile_url: " + node.ProfileURL,
+		svc.handleNodeValidationError(
+			node,
+			"Could not read linked_schemas from profile_url",
 		)
-		errors := jsonapi.NewError(
-			[]string{"Profile Not Found"},
-			[]string{
-				fmt.Sprintf(
-					"Could not find or read from (invalid JSON) the profile_url: %s",
-					node.ProfileURL,
-				),
-			},
-			nil,
-			[]int{http.StatusNotFound},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
@@ -107,21 +84,10 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 
 	jsonStr, err := httputil.GetJSONStr(node.ProfileURL)
 	if err != nil {
-		logger.Info(
-			"Could not get JSON string from profile_url: " + node.ProfileURL,
+		svc.handleNodeValidationError(
+			node,
+			"Could not get JSON string from profile_url",
 		)
-		errors := jsonapi.NewError(
-			[]string{"Profile Not Found"},
-			[]string{
-				fmt.Sprintf(
-					"Could not find or read from (invalid JSON) the profile_url: %s",
-					node.ProfileURL,
-				),
-			},
-			nil,
-			[]int{http.StatusNotFound},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
@@ -158,7 +124,7 @@ func (svc *validationService) readFromProfileURL(
 			}
 			return nil
 		}
-		err := backoff.NewBackoff(operation, "Could not read from profile_url: "+profileURL)
+		err := retry.Do(operation, "Could not read from profile_url: "+profileURL)
 		if err != nil {
 			return nil, err
 		}
@@ -167,31 +133,23 @@ func (svc *validationService) readFromProfileURL(
 	return data, nil
 }
 
-func getLinkedSchemas(data interface{}) ([]string, bool) {
-	json, ok := data.(map[string]interface{})
-	if !ok {
-		return nil, false
-	}
-	_, ok = json["linked_schemas"]
-	if !ok {
-		return nil, false
-	}
-	arrInterface, ok := json["linked_schemas"].([]interface{})
-	if !ok {
-		return nil, false
-	}
-
-	var linkedSchemas = make([]string, 0)
-
-	for _, data := range arrInterface {
-		linkedSchema, ok := data.(string)
-		if !ok {
-			return nil, false
-		}
-		linkedSchemas = append(linkedSchemas, linkedSchema)
-	}
-
-	return linkedSchemas, true
+func (svc *validationService) handleNodeValidationError(
+	node *model.Node,
+	errMsg string,
+) {
+	logger.Info(fmt.Sprintf("%s: %s", errMsg, node.ProfileURL))
+	errors := jsonapi.NewError(
+		[]string{"Profile Not Found"},
+		[]string{
+			fmt.Sprintf(
+				"Could not find or read from (invalid JSON) the profile_url: %s",
+				node.ProfileURL,
+			),
+		},
+		nil,
+		[]int{http.StatusNotFound},
+	)
+	svc.sendNodeValidationFailedEvent(node, &errors)
 }
 
 func (svc *validationService) sendNodeValidationFailedEvent(
@@ -204,4 +162,32 @@ func (svc *validationService) sendNodeValidationFailedEvent(
 			FailureReasons: FailureReasons,
 			Version:        node.Version,
 		})
+}
+
+func getLinkedSchemas(data interface{}) ([]string, bool) {
+	jsonData, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, false
+	}
+
+	linkedSchemasInterface, ok := jsonData["linked_schemas"]
+	if !ok {
+		return nil, false
+	}
+
+	arrInterface, ok := linkedSchemasInterface.([]interface{})
+	if !ok {
+		return nil, false
+	}
+
+	linkedSchemas := make([]string, len(arrInterface))
+	for i, data := range arrInterface {
+		linkedSchema, ok := data.(string)
+		if !ok {
+			return nil, false
+		}
+		linkedSchemas[i] = linkedSchema
+	}
+
+	return linkedSchemas, true
 }

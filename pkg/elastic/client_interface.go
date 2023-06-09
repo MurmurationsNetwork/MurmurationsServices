@@ -6,8 +6,8 @@ import (
 
 	elastic "github.com/olivere/elastic/v7"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 )
 
 var (
@@ -58,7 +58,7 @@ func NewClient(url string) error {
 
 			return nil
 		}
-		err := backoff.NewBackoff(
+		err := retry.Do(
 			operation,
 			"Trying to re-connect Elasticsearch",
 		)
