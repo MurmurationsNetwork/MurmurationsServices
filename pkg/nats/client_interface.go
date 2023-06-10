@@ -5,7 +5,7 @@ import (
 
 	stan "github.com/nats-io/stan.go"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/backoff"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 )
 
 var (
@@ -41,7 +41,7 @@ func NewClient(stanClusterID, clientID, natsURL string) error {
 			}
 			return nil
 		}
-		err := backoff.NewBackoff(operation, "Trying to re-connect NATS")
+		err := retry.Do(operation)
 		if err != nil {
 			return ErrConnectReqTimeout
 		}
