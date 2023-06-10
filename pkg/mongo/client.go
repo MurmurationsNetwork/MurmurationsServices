@@ -112,7 +112,7 @@ func (c *mongoClient) Ping() error {
 		}
 		return nil
 	}
-	err := retry.Do(operation, "Trying to re-connect MongoDB")
+	err := retry.Do(operation)
 	if err != nil {
 		return err
 	}

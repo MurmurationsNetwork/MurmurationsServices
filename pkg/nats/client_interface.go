@@ -41,7 +41,7 @@ func NewClient(stanClusterID, clientID, natsURL string) error {
 			}
 			return nil
 		}
-		err := retry.Do(operation, "Trying to re-connect NATS")
+		err := retry.Do(operation)
 		if err != nil {
 			return ErrConnectReqTimeout
 		}

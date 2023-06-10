@@ -124,7 +124,7 @@ func (svc *validationService) readFromProfileURL(
 			}
 			return nil
 		}
-		err := retry.Do(operation, "Could not read from profile_url: "+profileURL)
+		err := retry.Do(operation)
 		if err != nil {
 			return nil, err
 		}

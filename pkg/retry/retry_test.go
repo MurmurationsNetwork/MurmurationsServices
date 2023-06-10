@@ -26,7 +26,8 @@ func testFunc() func() error {
 func TestRetry(t *testing.T) {
 	retryFunc := testFunc()
 
-	err := retry.Do(retryFunc, "Testing retry logic",
+	err := retry.Do(
+		retryFunc,
 		retry.WithInitialBackoff(1*time.Millisecond),
 		retry.WithMaxBackoff(1*time.Second),
 		retry.WithMultiplier(2),

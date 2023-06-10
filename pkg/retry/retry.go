@@ -63,7 +63,6 @@ func WithRandomizationFactor(randomizationFactor float64) Option {
 // Do executes the provided function with retry logic.
 func Do(
 	fn func() error,
-	message string,
 	opts ...Option,
 ) error {
 	r := &Retry{
@@ -90,8 +89,7 @@ func Do(
 		func(err error, time time.Duration) {
 			logger.Info(
 				fmt.Sprintf(
-					"%s, %s, retry in %0.f seconds \n",
-					message,
+					"%s, retry in %0.f seconds \n",
 					err,
 					time.Seconds(),
 				),

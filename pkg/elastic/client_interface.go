@@ -58,10 +58,7 @@ func NewClient(url string) error {
 
 			return nil
 		}
-		err := retry.Do(
-			operation,
-			"Trying to re-connect Elasticsearch",
-		)
+		err := retry.Do(operation)
 		if err != nil {
 			return err
 		}
