@@ -419,19 +419,24 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
 
 	// Validate against schemes specify inside the profile data.
-	titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemas(
+	result := validatenode.ValidateAgainstSchemas(
 		config.Conf.Library.InternalURL,
 		linkedSchemas,
 		string(jsonString),
 		"string",
 	)
-	if len(titles) != 0 {
+	if !result.Valid {
 		message := "Failed to validate against schemas: " + strings.Join(
-			titles,
+			result.ErrorMessages,
 			" ",
 		)
 		logger.Info(message)
-		errors := jsonapi.NewError(titles, details, sources, errorStatus)
+		errors := jsonapi.NewError(
+			result.ErrorMessages,
+			result.Details,
+			result.Sources,
+			result.ErrorStatus,
+		)
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return

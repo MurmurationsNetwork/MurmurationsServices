@@ -86,17 +86,17 @@ func (s *batchUsecase) Validate(
 		}
 
 		// Validate data and if needed, respond with error
-		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(
+		result := validatenode.ValidateAgainstSchemasWithoutURL(
 			validateJSONSchemas,
 			validateSchemas,
 			profile,
 		)
-		if len(titles) != 0 {
+		if !result.Valid {
 			return line, jsonapi.NewError(
-				titles,
-				details,
-				sources,
-				errorStatus,
+				result.ErrorMessages,
+				result.Details,
+				result.Sources,
+				result.ErrorStatus,
 			), nil
 		}
 	}
@@ -140,17 +140,17 @@ func (s *batchUsecase) Import(
 		}
 
 		// Validate data and if needed, respond with error
-		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(
+		result := validatenode.ValidateAgainstSchemasWithoutURL(
 			validateJSONSchemas,
 			validateSchemas,
 			profile,
 		)
-		if len(titles) != 0 {
+		if !result.Valid {
 			return batchID, line, jsonapi.NewError(
-				titles,
-				details,
-				sources,
-				errorStatus,
+				result.ErrorMessages,
+				result.Details,
+				result.Sources,
+				result.ErrorStatus,
 			), nil
 		}
 
@@ -269,17 +269,17 @@ func (s *batchUsecase) Edit(
 		}
 
 		// Validate data and if needed, respond with error
-		titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemasWithoutURL(
+		result := validatenode.ValidateAgainstSchemasWithoutURL(
 			validateJSONSchemas,
 			validateSchemas,
 			profile,
 		)
-		if len(titles) != 0 {
+		if !result.Valid {
 			return line, jsonapi.NewError(
-				titles,
-				details,
-				sources,
-				errorStatus,
+				result.ErrorMessages,
+				result.Details,
+				result.Sources,
+				result.ErrorStatus,
 			), nil
 		}
 
