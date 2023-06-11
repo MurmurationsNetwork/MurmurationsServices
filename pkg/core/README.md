@@ -14,7 +14,7 @@ Usage:
 
 ```go
 core.InstallShutdownHandler(func() {
-	// Your shutdown logic here
+    // Your shutdown logic here
 })
 ```
 
