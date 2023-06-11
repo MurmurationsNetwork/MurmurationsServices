@@ -17,4 +17,3 @@ This service is designed to validate nodes created by users. It ensures that the
 ## Implementation Details
 
 The service operates by first listening for node-created events. When a node is created, the event triggers the validation process. The node's profile is read from the provided URL and validated against a default schema. It is then validated against any schemas linked in the profile data. If the node's profile passes all validation requirements, a `NodeValidated` event is published.
-

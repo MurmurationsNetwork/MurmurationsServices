@@ -8,6 +8,171 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
+// ValidationResult is the results from a schema validation operation.
+type ValidationResult struct {
+	// Whether the validation passed.
+	Valid bool
+	// Titles of the validation errors.
+	ErrorMessages []string
+	// Detailed descriptions of the validation errors.
+	Details []string
+	// Sources indicates the failing pieces of data.
+	Sources [][]string
+	// HTTP status codes associated with each error.
+	ErrorStatus []int
+}
+
+// ValidateAgainstSchemas validates a data string against a set of schemas.
+func ValidateAgainstSchemas(
+	schemaURL string,
+	linkedSchemas []string,
+	validateData string,
+	schemaLoader string,
+) *ValidationResult {
+	var (
+		errorMessages []string
+		details       []string
+		sources       [][]string
+		errorStatus   []int
+	)
+
+	for _, linkedSchema := range linkedSchemas {
+		// Construct the full schema URL.
+		schemaURL := getSchemaURL(schemaURL, linkedSchema)
+
+		// Load the schema.
+		schema, err := gojsonschema.NewSchema(
+			gojsonschema.NewReferenceLoader(schemaURL),
+		)
+		if err != nil {
+			errorMessages = append(errorMessages, "Schema Not Found")
+			details = append(
+				details,
+				fmt.Sprintf(
+					"Could not locate the following schema in the Library: %s",
+					linkedSchema,
+				),
+			)
+			sources = append(sources, []string{"pointer", "/linked_schemas"})
+			errorStatus = append(errorStatus, http.StatusNotFound)
+			continue
+		}
+
+		var result *gojsonschema.Result
+
+		// Validate the data against the schema.
+		if schemaLoader == "reference" {
+			result, err = schema.Validate(
+				gojsonschema.NewReferenceLoader(validateData),
+			)
+		} else {
+			result, err = schema.Validate(gojsonschema.NewStringLoader(validateData))
+		}
+
+		if err != nil {
+			errorMessages = append(errorMessages, "Cannot Validate Document")
+			details = append(
+				details,
+				fmt.Sprintf(
+					"Error when trying to validate document: %s",
+					err.Error(),
+				),
+			)
+			errorStatus = append(errorStatus, http.StatusBadRequest)
+			continue
+		}
+
+		if !result.Valid() {
+			failedTitles, failedDetails, failedSources := parseValidateError(
+				linkedSchema,
+				result.Errors(),
+			)
+			errorMessages = append(errorMessages, failedTitles...)
+			details = append(details, failedDetails...)
+			sources = append(sources, failedSources...)
+			for i := 0; i < len(failedTitles); i++ {
+				errorStatus = append(errorStatus, http.StatusBadRequest)
+			}
+		}
+	}
+
+	return &ValidationResult{
+		Valid:         len(errorMessages) == 0,
+		ErrorMessages: errorMessages,
+		Details:       details,
+		Sources:       sources,
+		ErrorStatus:   errorStatus,
+	}
+}
+
+func ValidateAgainstSchemasWithoutURL(
+	linkedSchemas []string,
+	validateSchemas []string,
+	validateData map[string]interface{},
+) *ValidationResult {
+	var (
+		errorMessages, details []string
+		sources                [][]string
+		errorStatus            []int
+	)
+
+	for i, linkedSchema := range linkedSchemas {
+		schema, err := gojsonschema.NewSchema(
+			gojsonschema.NewStringLoader(linkedSchema),
+		)
+		if err != nil {
+			errorMessages = append(
+				errorMessages,
+				[]string{"Schema Not Found"}...)
+			details = append(
+				details,
+				[]string{
+					"Could not parse the schema: " + validateSchemas[i],
+				}...)
+			sources = append(
+				sources,
+				[][]string{{"pointer", "/linked_schemas"}}...)
+			errorStatus = append(errorStatus, http.StatusNotFound)
+			continue
+		}
+
+		var result *gojsonschema.Result
+		result, err = schema.Validate(gojsonschema.NewGoLoader(validateData))
+		if err != nil {
+			errorMessages = append(errorMessages, "Cannot Validate Document")
+			details = append(
+				details,
+				[]string{
+					"Error when trying to validate document: ",
+					err.Error(),
+				}...)
+			errorStatus = append(errorStatus, http.StatusBadRequest)
+			continue
+		}
+
+		if !result.Valid() {
+			failederrorMessages, failedDetails, failedSources := parseValidateError(
+				validateSchemas[i],
+				result.Errors(),
+			)
+			errorMessages = append(errorMessages, failederrorMessages...)
+			details = append(details, failedDetails...)
+			sources = append(sources, failedSources...)
+			for i := 0; i < len(errorMessages); i++ {
+				errorStatus = append(errorStatus, http.StatusBadRequest)
+			}
+		}
+	}
+
+	return &ValidationResult{
+		Valid:         len(errorMessages) == 0,
+		ErrorMessages: errorMessages,
+		Details:       details,
+		Sources:       sources,
+		ErrorStatus:   errorStatus,
+	}
+}
+
 func parseValidateError(
 	schema string,
 	resultErrors []gojsonschema.ResultError,
@@ -87,133 +252,4 @@ func parseValidateError(
 
 func getSchemaURL(schemaURL string, linkedSchema string) string {
 	return schemaURL + "/v2/schemas/" + linkedSchema
-}
-
-func ValidateAgainstSchemas(
-	schemaURL string,
-	linkedSchemas []string,
-	validateData string,
-	schemaLoader string,
-) ([]string, []string, [][]string, []int) {
-	var (
-		titles, details []string
-		sources         [][]string
-		errorStatus     []int
-	)
-
-	for _, linkedSchema := range linkedSchemas {
-		schemaURL := getSchemaURL(schemaURL, linkedSchema)
-
-		schema, err := gojsonschema.NewSchema(
-			gojsonschema.NewReferenceLoader(schemaURL),
-		)
-		if err != nil {
-			titles = append(titles, []string{"Schema Not Found"}...)
-			details = append(
-				details,
-				[]string{
-					"Could not locate the following schema in the Library: " + linkedSchema,
-				}...)
-			sources = append(
-				sources,
-				[][]string{{"pointer", "/linked_schemas"}}...)
-			errorStatus = append(errorStatus, http.StatusNotFound)
-			continue
-		}
-
-		var result *gojsonschema.Result
-		if schemaLoader == "reference" {
-			result, err = schema.Validate(
-				gojsonschema.NewReferenceLoader(validateData),
-			)
-		} else {
-			result, err = schema.Validate(gojsonschema.NewStringLoader(validateData))
-		}
-		if err != nil {
-			titles = append(titles, "Cannot Validate Document")
-			details = append(
-				details,
-				[]string{
-					"Error when trying to validate document: ",
-					err.Error(),
-				}...)
-			errorStatus = append(errorStatus, http.StatusBadRequest)
-			continue
-		}
-
-		if !result.Valid() {
-			failedTitles, failedDetails, failedSources := parseValidateError(
-				linkedSchema,
-				result.Errors(),
-			)
-			titles = append(titles, failedTitles...)
-			details = append(details, failedDetails...)
-			sources = append(sources, failedSources...)
-			for i := 0; i < len(titles); i++ {
-				errorStatus = append(errorStatus, http.StatusBadRequest)
-			}
-		}
-	}
-
-	return titles, details, sources, errorStatus
-}
-
-func ValidateAgainstSchemasWithoutURL(
-	linkedSchemas []string,
-	validateSchemas []string,
-	validateData map[string]interface{},
-) ([]string, []string, [][]string, []int) {
-	var (
-		titles, details []string
-		sources         [][]string
-		errorStatus     []int
-	)
-
-	for i, linkedSchema := range linkedSchemas {
-		schema, err := gojsonschema.NewSchema(
-			gojsonschema.NewStringLoader(linkedSchema),
-		)
-		if err != nil {
-			titles = append(titles, []string{"Schema Not Found"}...)
-			details = append(
-				details,
-				[]string{
-					"Could not parse the schema: " + validateSchemas[i],
-				}...)
-			sources = append(
-				sources,
-				[][]string{{"pointer", "/linked_schemas"}}...)
-			errorStatus = append(errorStatus, http.StatusNotFound)
-			continue
-		}
-
-		var result *gojsonschema.Result
-		result, err = schema.Validate(gojsonschema.NewGoLoader(validateData))
-		if err != nil {
-			titles = append(titles, "Cannot Validate Document")
-			details = append(
-				details,
-				[]string{
-					"Error when trying to validate document: ",
-					err.Error(),
-				}...)
-			errorStatus = append(errorStatus, http.StatusBadRequest)
-			continue
-		}
-
-		if !result.Valid() {
-			failedTitles, failedDetails, failedSources := parseValidateError(
-				validateSchemas[i],
-				result.Errors(),
-			)
-			titles = append(titles, failedTitles...)
-			details = append(details, failedDetails...)
-			sources = append(sources, failedSources...)
-			for i := 0; i < len(titles); i++ {
-				errorStatus = append(errorStatus, http.StatusBadRequest)
-			}
-		}
-	}
-
-	return titles, details, sources, errorStatus
 }

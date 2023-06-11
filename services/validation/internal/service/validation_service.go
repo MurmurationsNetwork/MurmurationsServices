@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 
@@ -40,14 +39,19 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 
 	// Validate against the default schema. The default schema ensures there is
 	// at least one schema defined for validating the node profile.
-	titles, details, sources, errorStatus := validatenode.ValidateAgainstSchemas(
+	result := validatenode.ValidateAgainstSchemas(
 		config.Values.Library.InternalURL,
 		[]string{"default-v2.0.0"},
 		node.ProfileURL,
 		"reference",
 	)
-	if len(titles) != 0 {
-		errors := jsonapi.NewError(titles, details, sources, errorStatus)
+	if !result.Valid {
+		errors := jsonapi.NewError(
+			result.ErrorMessages,
+			result.Details,
+			result.Sources,
+			result.ErrorStatus,
+		)
 		logger.Info(
 			"Failed to validate against schemas: " + fmt.Sprintf("%v", errors),
 		)
@@ -65,19 +69,22 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	}
 
 	// Validate against the schemas specified in the profile data.
-	titles, details, sources, errorStatus = validatenode.ValidateAgainstSchemas(
+	result = validatenode.ValidateAgainstSchemas(
 		config.Values.Library.InternalURL,
 		linkedSchemas,
 		node.ProfileURL,
 		"reference",
 	)
-	if len(titles) != 0 {
-		message := "Failed to validate against schemas: " + strings.Join(
-			titles,
-			" ",
+	if !result.Valid {
+		errors := jsonapi.NewError(
+			result.ErrorMessages,
+			result.Details,
+			result.Sources,
+			result.ErrorStatus,
 		)
-		logger.Info(message)
-		errors := jsonapi.NewError(titles, details, sources, errorStatus)
+		logger.Info(
+			"Failed to validate against schemas: " + fmt.Sprintf("%v", errors),
+		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
