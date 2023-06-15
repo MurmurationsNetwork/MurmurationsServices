@@ -79,10 +79,11 @@ func GetByteWithBearerToken(url string, token string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusNotFound {
+	if resp.StatusCode != http.StatusOK {
 		return []byte{}, fmt.Errorf(
-			"error the requested URL %s returned 404 not found",
+			"error the requested URL %s returned %d status code",
 			url,
+			resp.StatusCode,
 		)
 	}
 
