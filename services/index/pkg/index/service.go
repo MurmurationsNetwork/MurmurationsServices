@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
@@ -139,17 +140,15 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 
 // registerRoutes sets up the routes for the HTTP server.
 func (s *Service) registerRoutes() {
-	deprecationHandler := rest.NewDeprecationHandler()
-	pingHandler := rest.NewPingHandler()
 	nodeHandler := rest.NewNodeHandler(
 		usecase.NewNodeService(db.NewRepository()),
 	)
 
 	v1 := s.router.Group("/v1")
-	v1.Any("/*any", deprecationHandler.DeprecationV1)
+	v1.Any("/*any", handler.DeprecationHandler)
 
 	v2 := s.router.Group("/v2")
-	v2.GET("/ping", pingHandler.Ping)
+	v2.GET("/ping", handler.PingHandler)
 
 	// Node related routes
 	{

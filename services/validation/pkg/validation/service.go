@@ -12,12 +12,12 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/event"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/rest"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )
 
@@ -65,8 +65,7 @@ func (s *Service) setupServer() {
 	router := gin.New()
 	router.Use(gin.Recovery(), midlogger.NewLogger())
 
-	pingHandler := rest.NewPingHandler()
-	router.GET("/ping", pingHandler.Ping)
+	router.GET("/ping", handler.PingHandler)
 
 	s.server = &http.Server{
 		Addr:         fmt.Sprintf(":%s", config.Values.Server.Port),
