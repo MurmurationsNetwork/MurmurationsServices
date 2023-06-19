@@ -45,8 +45,8 @@ func (handler *schemaHandler) Get(c *gin.Context) {
 
 	schema, err := handler.svc.Get(schemaName)
 	if err != nil {
-		var schemaNotFoundError *library.SchemaNotFoundError
-		var dbError *library.DatabaseError
+		var schemaNotFoundError library.SchemaNotFoundError
+		var dbError library.DatabaseError
 
 		switch {
 		case errors.As(err, &schemaNotFoundError):
