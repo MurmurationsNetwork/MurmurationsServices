@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 )
 
 func TestPing(t *testing.T) {
