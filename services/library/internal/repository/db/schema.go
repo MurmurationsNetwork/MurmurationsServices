@@ -34,9 +34,9 @@ func (r *schemaRepo) Get(schemaName string) (interface{}, error) {
 	err := result.Decode(&singleSchema)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, &library.SchemaNotFoundError{SchemaName: schemaName}
+			return nil, library.SchemaNotFoundError{SchemaName: schemaName}
 		}
-		return nil, &library.DatabaseError{Operation: "decode schema"}
+		return nil, library.DatabaseError{Operation: "decode schema"}
 	}
 
 	return singleSchema.ToMap(), nil

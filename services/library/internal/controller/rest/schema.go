@@ -31,6 +31,8 @@ func NewSchemaHandler(svc service.SchemaService) SchemaHandler {
 // Get fetches a schema with a specific name.
 func (handler *schemaHandler) Get(c *gin.Context) {
 	schemaName, found := c.Params.Get("schemaName")
+	// This normally won't happen, as if the user doesn't provide the name,
+	// it will be considered a different API call.
 	if !found {
 		errors := jsonapi.NewError(
 			[]string{"Invalid Schema Name"},
