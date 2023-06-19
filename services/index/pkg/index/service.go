@@ -145,7 +145,7 @@ func (s *Service) registerRoutes() {
 	)
 
 	v1 := s.router.Group("/v1")
-	v1.Any("/*any", handler.DeprecationHandler)
+	v1.Any("/*any", handler.NewDeprecationHandler("Index"))
 
 	v2 := s.router.Group("/v2")
 	v2.GET("/ping", handler.PingHandler)

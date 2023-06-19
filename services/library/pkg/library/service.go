@@ -133,7 +133,7 @@ func (s *Service) registerRoutes() {
 	countryHandler := rest.NewCountryHandler()
 
 	v1 := s.router.Group("/v1")
-	v1.Any("/*any", handler.DeprecationHandler)
+	v1.Any("/*any", handler.NewDeprecationHandler("Library"))
 
 	v2 := s.router.Group("/v2")
 	v2.GET("/ping", handler.PingHandler)
