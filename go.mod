@@ -12,7 +12,7 @@ require (
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/stan.go v0.10.4
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/oschwald/geoip2-golang v1.8.0
+	github.com/oschwald/geoip2-golang v1.9.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tevino/abool v1.2.0
 	github.com/ulule/limiter/v3 v3.11.2
@@ -55,7 +55,7 @@ require (
 	github.com/nats-io/nats.go v1.22.1 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/oschwald/maxminddb-golang v1.10.0 // indirect
+	github.com/oschwald/maxminddb-golang v1.11.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
