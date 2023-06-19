@@ -57,6 +57,9 @@ func (sc *SchemaCron) Run() {
 
 	// If there's no new commit, there's nothing to do.
 	if !hasNewCommit {
+		logger.Info(
+			"No new commit found. Latest commit on GitHub: " + branchInfo.Commit.InnerCommit.Author.Date,
+		)
 		return
 	}
 
