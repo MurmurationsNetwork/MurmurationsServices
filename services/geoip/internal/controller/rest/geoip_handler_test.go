@@ -20,8 +20,8 @@ func (f fakeGeoIPService) GetCity(_ string) (*geoip2.City, resterr.RestErr) {
 	}
 	return &geoip2.City{
 		City: struct {
-			GeoNameID uint              "maxminddb:\"geoname_id\""
 			Names     map[string]string "maxminddb:\"names\""
+			GeoNameID uint              "maxminddb:\"geoname_id\""
 		}{
 			Names: names,
 		},
