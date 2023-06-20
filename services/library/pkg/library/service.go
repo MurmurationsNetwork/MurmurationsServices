@@ -13,20 +13,16 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/controller/rest"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/db"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
 )
-
-func init() {
-	global.Init()
-}
 
 // Service represents the library service.
 type Service struct {
@@ -68,11 +64,11 @@ func (s *Service) setupServer() {
 	}
 
 	s.server = &http.Server{
-		Addr:         fmt.Sprintf(":%s", config.Conf.Server.Port),
+		Addr:         fmt.Sprintf(":%s", config.Values.Server.Port),
 		Handler:      s.router,
-		ReadTimeout:  config.Conf.Server.TimeoutRead,
-		WriteTimeout: config.Conf.Server.TimeoutWrite,
-		IdleTimeout:  config.Conf.Server.TimeoutIdle,
+		ReadTimeout:  config.Values.Server.TimeoutRead,
+		WriteTimeout: config.Values.Server.TimeoutWrite,
+		IdleTimeout:  config.Values.Server.TimeoutIdle,
 	}
 
 	s.shutdownCtx, s.shutdownCancelCtx = context.WithCancel(
@@ -83,11 +79,11 @@ func (s *Service) setupServer() {
 // connectToMongoDB establishes a connection to MongoDB.
 func (s *Service) connectToMongoDB() error {
 	uri := mongo.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
+		config.Values.Mongo.Username,
+		config.Values.Mongo.Password,
+		config.Values.Mongo.Host,
 	)
-	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
+	err := mongo.NewClient(uri, config.Values.Mongo.DBName)
 	if err != nil {
 		return err
 	}
@@ -102,11 +98,11 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		gin.Recovery(),
 		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Conf.Server.PostRateLimitPeriod,
+			Period: config.Values.Server.PostRateLimitPeriod,
 			Method: "POST",
 		}),
 		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Conf.Server.GetRateLimitPeriod,
+			Period: config.Values.Server.GetRateLimitPeriod,
 			Method: "GET",
 		}),
 		midlogger.NewLogger(),
@@ -131,18 +127,16 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 
 // registerRoutes sets up the routes for the HTTP server.
 func (s *Service) registerRoutes() {
-	deprecationHandler := rest.NewDeprecationHandler()
-	pingHandler := rest.NewPingHandler()
 	schemaHandler := rest.NewSchemaHandler(
 		service.NewSchemaService(db.NewSchemaRepo()),
 	)
 	countryHandler := rest.NewCountryHandler()
 
 	v1 := s.router.Group("/v1")
-	v1.Any("/*any", deprecationHandler.DeprecationV1)
+	v1.Any("/*any", handler.NewDeprecationHandler("Library"))
 
 	v2 := s.router.Group("/v2")
-	v2.GET("/ping", pingHandler.Ping)
+	v2.GET("/ping", handler.PingHandler)
 	v2.GET("/schemas", schemaHandler.Search)
 	v2.GET("/schemas/:schemaName", schemaHandler.Get)
 	v2.GET("/countries", countryHandler.GetMap)
@@ -171,7 +165,7 @@ func (s *Service) WaitUntilUp() <-chan struct{} {
 			resp, err := http.Get(
 				fmt.Sprintf(
 					"http://localhost:%s/v2/ping",
-					config.Conf.Server.Port,
+					config.Values.Server.Port,
 				),
 			)
 			if err == nil && resp.StatusCode == http.StatusOK {

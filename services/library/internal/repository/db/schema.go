@@ -2,124 +2,69 @@ package db
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 
-	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/domain/schema"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/library"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/model"
 )
 
+// SchemaRepo defines the methods a SchemaRepo can perform.
 type SchemaRepo interface {
-	Get(schemaName string) (interface{}, []jsonapi.Error)
-	Search() (schema.Schemas, []jsonapi.Error)
+	Get(schemaName string) (interface{}, error)
+	Search() (*model.Schemas, error)
 }
 
 type schemaRepo struct{}
 
+// NewSchemaRepo returns a new schema repository.
 func NewSchemaRepo() SchemaRepo {
 	return &schemaRepo{}
 }
 
-type SingleSchema struct {
-	Description string `bson:"description"`
-	FullSchema  bson.D `bson:"full_schema"`
-}
-
-func (r *schemaRepo) Get(schemaName string) (interface{}, []jsonapi.Error) {
+// Get retrieves a specific schema from the DB based on its name.
+func (r *schemaRepo) Get(schemaName string) (interface{}, error) {
 	filter := bson.M{"name": schemaName}
 	result := mongo.Client.FindOne(constant.MongoIndex.Schema, filter)
 
-	var singleSchema SingleSchema
+	var singleSchema model.SingleSchema
 	err := result.Decode(&singleSchema)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, jsonapi.NewError(
-				[]string{"Schema Not Found"},
-				[]string{
-					fmt.Sprintf(
-						"Could not locate the following schema in the Library: %s",
-						schemaName,
-					),
-				},
-				nil,
-				[]int{http.StatusNotFound},
-			)
+			return nil, library.SchemaNotFoundError{SchemaName: schemaName}
 		}
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to decode schema."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, library.DatabaseError{Err: err}
 	}
 
-	fullSchema := convertBsonDToMap(singleSchema.FullSchema)
-
-	return fullSchema, nil
+	return singleSchema.ToMap(), nil
 }
 
-func (r *schemaRepo) Search() (schema.Schemas, []jsonapi.Error) {
+// Search retrieves all schemas from the DB.
+func (r *schemaRepo) Search() (*model.Schemas, error) {
 	filter := bson.M{}
-	cur, err := mongo.Client.Find(constant.MongoIndex.Schema, filter)
 
+	cur, err := mongo.Client.Find(constant.MongoIndex.Schema, filter)
 	if err != nil {
-		logger.Error("Error when trying to find schemas", err)
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to find schemas."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, library.DatabaseError{Err: err}
 	}
 
-	var schemas schema.Schemas
+	var schemas model.Schemas
 	for cur.Next(context.TODO()) {
-		var schema schema.Schema
+		var schema model.Schema
 		err := cur.Decode(&schema)
 		if err != nil {
-			logger.Error("Error when trying to parse a schema from db", err)
-			return nil, jsonapi.NewError(
-				[]string{"Database Error"},
-				[]string{"Error when trying to find schemas."},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
+			return nil, library.DatabaseError{Err: err}
 		}
 		schemas = append(schemas, &schema)
 	}
 
 	if err := cur.Err(); err != nil {
-		logger.Error("Error when trying to find schemas", err)
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to find schemas."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, library.DatabaseError{Err: err}
 	}
 
 	cur.Close(context.TODO())
 
-	return schemas, nil
-}
-
-func convertBsonDToMap(bsonD bson.D) *orderedmap.OrderedMap {
-	result := orderedmap.New()
-	for _, element := range bsonD {
-		key := element.Key
-		value := element.Value
-
-		if innerDoc, ok := value.(bson.D); ok {
-			result.Set(key, convertBsonDToMap(innerDoc))
-		} else {
-			result.Set(key, value)
-		}
-	}
-	return result
+	return &schemas, nil
 }

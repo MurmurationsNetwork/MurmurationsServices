@@ -1,4 +1,4 @@
-package rest_test
+package handler_test
 
 import (
 	"net/http"
@@ -8,18 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/rest"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 )
 
 func TestPing(t *testing.T) {
 	// Set up the Gin router.
 	router := gin.Default()
 
-	// Create a new ping handler.
-	handler := rest.NewPingHandler()
-
 	// Register the Ping endpoint.
-	router.GET("/ping", handler.Ping)
+	router.GET("/ping", handler.PingHandler)
 
 	// Create a request to the Ping endpoint.
 	req, err := http.NewRequest(http.MethodGet, "/ping", nil)
@@ -33,5 +30,5 @@ func TestPing(t *testing.T) {
 
 	// Check the status code and body.
 	assert.Equal(t, http.StatusOK, resp.Code)
-	assert.Equal(t, "pong", resp.Body.String())
+	assert.Equal(t, "pong!", resp.Body.String())
 }

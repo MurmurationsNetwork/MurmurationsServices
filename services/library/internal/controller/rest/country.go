@@ -10,6 +10,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 )
 
+// CountryHandler defines the methods that a country handler should implement.
 type CountryHandler interface {
 	GetMap(c *gin.Context)
 }
@@ -17,13 +18,15 @@ type CountryHandler interface {
 type countryHandler struct {
 }
 
+// NewCountryHandler creates a new country handler.
 func NewCountryHandler() CountryHandler {
 	return &countryHandler{}
 }
 
+// GetMap handles the request to get the country map.
 func (handler *countryHandler) GetMap(c *gin.Context) {
 	contents, err := os.ReadFile(
-		config.Conf.Static.StaticFilePath + "/countries.json",
+		config.Values.Static.StaticFilePath + "/countries.json",
 	)
 
 	if err != nil {

@@ -1,43 +1,49 @@
 package config
 
 import (
-	"log"
 	"time"
-
-	env "github.com/caarlos0/env/v6"
 )
 
-var Conf = config{}
+// Values holds the application configuration.
+var Values = Config{}
 
-type config struct {
-	Server serverConf
-	Mongo  mongoConf
-	Static staticConf
+// Config holds all configuration data for the application.
+type Config struct {
+	Server serverConfig
+	Mongo  mongoConfig
+	Static staticConfig
 }
 
-type serverConf struct {
-	Port                string        `env:"SERVER_PORT,required"`
-	TimeoutRead         time.Duration `env:"SERVER_TIMEOUT_READ,required"`
-	TimeoutWrite        time.Duration `env:"SERVER_TIMEOUT_WRITE,required"`
-	TimeoutIdle         time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
-	GetRateLimitPeriod  string        `env:"GET_RATE_LIMIT_PERIOD,required"`
-	PostRateLimitPeriod string        `env:"POST_RATE_LIMIT_PERIOD,required"`
+// serverConfig holds server-specific configuration.
+type serverConfig struct {
+	// Server's port
+	Port string `env:"SERVER_PORT,required"`
+	// Timeout for reading data
+	TimeoutRead time.Duration `env:"SERVER_TIMEOUT_READ,required"`
+	// Timeout for writing data
+	TimeoutWrite time.Duration `env:"SERVER_TIMEOUT_WRITE,required"`
+	// Timeout for idle connections
+	TimeoutIdle time.Duration `env:"SERVER_TIMEOUT_IDLE,required"`
+	// Rate limit period for GET requests
+	GetRateLimitPeriod string `env:"GET_RATE_LIMIT_PERIOD,required"`
+	// Rate limit period for POST requests
+	PostRateLimitPeriod string `env:"POST_RATE_LIMIT_PERIOD,required"`
 }
 
-type mongoConf struct {
-	USERNAME string `env:"MONGO_USERNAME,required"`
-	PASSWORD string `env:"MONGO_PASSWORD,required"`
-	HOST     string `env:"MONGO_HOST,required"`
-	DBName   string `env:"MONGO_DB_NAME,required"`
+// mongoConfig holds MongoDB-specific configuration.
+type mongoConfig struct {
+	// MongoDB username
+	Username string `env:"MONGO_USERNAME,required"`
+	// MongoDB password
+	Password string `env:"MONGO_PASSWORD,required"`
+	// MongoDB host
+	Host string `env:"MONGO_HOST,required"`
+	// MongoDB database name
+	DBName string `env:"MONGO_DB_NAME,required"`
 }
 
-type staticConf struct {
+// staticConfig holds static file-specific configuration.
+type staticConfig struct {
+	// Path to the static files
 	StaticFilePath string `env:"STATIC_FILE_PATH,required"`
-}
-
-func Init() {
-	err := env.Parse(&Conf)
-	if err != nil {
-		log.Fatalf("Failed to decode environment variables: %s", err)
-	}
 }
