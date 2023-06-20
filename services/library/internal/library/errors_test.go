@@ -1,6 +1,7 @@
 package library_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,9 +22,9 @@ func TestSchemaNotFoundError(t *testing.T) {
 }
 
 func TestDatabaseError(t *testing.T) {
-	err := &library.DatabaseError{Operation: "find"}
+	err := &library.DatabaseError{Err: errors.New("db error")}
 
-	expected := "database error occurred during find operation."
+	expected := "database error occurred: db error"
 	require.Equal(
 		t,
 		expected,

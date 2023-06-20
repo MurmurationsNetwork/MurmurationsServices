@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/library"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
 )
@@ -89,6 +90,7 @@ func (handler *schemaHandler) Get(c *gin.Context) {
 func (handler *schemaHandler) Search(c *gin.Context) {
 	searchRes, err := handler.svc.Search()
 	if err != nil {
+		logger.Error("Error when trying to find schemas", err)
 		errors := jsonapi.NewError(
 			[]string{"Database Error"},
 			[]string{"Error when trying to find schemas."},
