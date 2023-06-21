@@ -118,3 +118,20 @@ func GetJSONStr(source string) (string, error) {
 	}
 	return buffer.String(), nil
 }
+
+func CheckRedirect(url string) (bool, error) {
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+
+	resp, err := client.Get(url)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 && resp.StatusCode <= 399 {
+		return true, nil
+	}
+	return false, nil
+}
