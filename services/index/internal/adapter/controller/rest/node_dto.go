@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
 )
@@ -44,6 +45,28 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 			[]int{http.StatusBadRequest},
 		)
 	}
+
+	// check profile_url has redirect or not (issue-516)
+	hasRedirect, err := httputil.CheckRedirect(dto.ProfileURL)
+	if err != nil {
+		return jsonapi.NewError(
+			[]string{"Invalid Profile URL"},
+			[]string{"The `profile_url` can't be reached."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+	}
+	if hasRedirect {
+		return jsonapi.NewError(
+			[]string{"No Redirects"},
+			[]string{
+				"The profile data must be located at the URL specified. Redirects are not supported by the index.",
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+	}
+
 	return nil
 }
 

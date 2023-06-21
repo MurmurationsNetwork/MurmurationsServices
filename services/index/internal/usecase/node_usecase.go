@@ -165,7 +165,24 @@ func (s *nodeUsecase) Delete(nodeID string) (string, []jsonapi.Error) {
 		isJSON = false
 	}
 
-	if resp.StatusCode == http.StatusNotFound || !isJSON {
+	// check profile_url has redirect or not (issue-516)
+	hasRedirect, err := httputil.CheckRedirect(node.ProfileURL)
+	if err != nil {
+		return node.ProfileURL, jsonapi.NewError(
+			[]string{"Profile URL Cannot Be Checked"},
+			[]string{
+				fmt.Sprintf(
+					"There was an error when trying to reach %s to delete node_id: %s",
+					node.ProfileURL,
+					nodeID,
+				),
+			},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+	}
+
+	if resp.StatusCode == http.StatusNotFound || !isJSON || hasRedirect {
 		if node.Status == constant.NodeStatus.Posted ||
 			node.Status == constant.NodeStatus.Deleted {
 			err := s.nodeRepo.SoftDelete(node)
