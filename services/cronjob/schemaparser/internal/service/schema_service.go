@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
@@ -67,41 +69,43 @@ func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
 func (s *schemaService) UpdateSchemas(branchSha string) error {
 	// Get schema folder list and field folder list
 	schemaListURL, fieldListURL, err := getBranchFolders(branchSha)
-
 	if err != nil {
 		return err
 	}
 
 	// Read field folder list and create a map of field name and field URL
 	fieldListMap, err := getFieldsURLMap(fieldListURL)
-
 	if err != nil {
 		return err
 	}
 
 	// Read schema folder list
 	schemaList, err := getGithubTree(schemaListURL)
-
 	if err != nil {
 		return err
 	}
 
+	g, ctx := errgroup.WithContext(context.Background())
+
 	for _, schemaName := range schemaList {
 		schemaNameMap := schemaName.(map[string]interface{})
-		schema, fullJSON, err := s.getSchema(
-			schemaNameMap["url"].(string),
-			fieldListMap,
-		)
-		if err != nil {
-			return err
-		}
-
-		err = s.updateSchema(schema, fullJSON)
-		if err != nil {
-			return err
-		}
+		url := schemaNameMap["url"].(string)
+		// Create a new goroutine to get and update each schema.
+		g.Go(func() error {
+			select {
+			case <-ctx.Done():
+				return nil
+			default:
+				schema, fullJSON, err := s.getSchema(url, fieldListMap)
+				if err != nil {
+					return err
+				}
+				return s.updateSchema(schema, fullJSON)
+			}
+		})
 	}
-	return nil
+
+	return g.Wait()
 }
 
 func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
