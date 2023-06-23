@@ -128,6 +128,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 	// return error if there is an invalid query
 	// get the fields from query.EsQuery
 	fields := [...]string{
+		"name",
 		"schema",
 		"last_updated",
 		"lat",

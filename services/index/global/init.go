@@ -23,6 +23,7 @@ func esInit() {
 					"dynamic": "false",
 					"_source": {
 						"includes": [
+							"name",
 							"geolocation",
 							"last_updated",
 							"linked_schemas",
@@ -36,6 +37,9 @@ func esInit() {
 						]
 					},
 					"properties": {
+						"name": {
+							"type": "text"
+						},
 						"geolocation": {
 							"type": "geo_point"
 						},
