@@ -4,18 +4,21 @@ import (
 	"encoding/json"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 )
 
+// Respond struct is used to format the API response data.
 type Respond struct {
 	Data interface{} `json:"data,omitempty"`
 }
 
-type AddNodeVO struct {
+// AddNodeResponse struct is used to format response of AddNode operation.
+type AddNodeResponse struct {
 	NodeID string `json:"node_id,omitempty"`
 }
 
-type GetNodeVO struct {
+// GetNodeResponse struct is used to format the GetNode operation response.
+type GetNodeResponse struct {
 	ID             string    `json:"node_id,omitempty"`
 	ProfileURL     string    `json:"profile_url,omitempty"`
 	ProfileHash    *string   `json:"profile_hash,omitempty"`
@@ -24,18 +27,22 @@ type GetNodeVO struct {
 	FailureReasons *[]string `json:"failure_reasons,omitempty"`
 }
 
-type SearchNodeVO struct {
+// SearchNodeResponse struct is used to format the SearchNode operation response.
+type SearchNodeResponse struct {
 	ProfileURL  string `json:"profile_url,omitempty"`
 	LastUpdated *int64 `json:"last_updated,omitempty"`
 }
 
-func (handler *nodeHandler) ToAddNodeVO(node *entity.Node) interface{} {
-	return AddNodeVO{
+// ToAddNodeResponse converts the node model to AddNodeResponse format.
+func ToAddNodeResponse(node *model.Node) interface{} {
+	return AddNodeResponse{
 		NodeID: node.ID,
 	}
 }
 
-func (handler *nodeHandler) ToGetNodeVO(node *entity.Node) interface{} {
+// ToGetNodeResponse converts the node model to GetNodeResponse format.
+func ToGetNodeResponse(node *model.Node) interface{} {
+	// Modify node properties based on its status.
 	if node.Status != constant.NodeStatus.Validated &&
 		node.Status != constant.NodeStatus.Posted &&
 		node.Status != constant.NodeStatus.Deleted &&
@@ -47,17 +54,19 @@ func (handler *nodeHandler) ToGetNodeVO(node *entity.Node) interface{} {
 		node.FailureReasons = nil
 	}
 
+	// Convert the node model to GetNodeResponse.
 	nodeJSON, _ := json.Marshal(toDTO(node))
-	var res GetNodeVO
+	var res GetNodeResponse
 	_ = json.Unmarshal(nodeJSON, &res)
 	return res
 }
 
-func (handler *nodeHandler) ToSearchNodeVO(nodes entity.Nodes) interface{} {
+// ToSearchNodeResponse converts the nodes model to SearchNodeResponse format.
+func ToSearchNodeResponse(nodes model.Nodes) interface{} {
 	data := make([]interface{}, len(nodes))
 	for index, node := range nodes {
 		nodeJSON, _ := json.Marshal(node)
-		var res SearchNodeVO
+		var res SearchNodeResponse
 		_ = json.Unmarshal(nodeJSON, &res)
 		data[index] = res
 	}
