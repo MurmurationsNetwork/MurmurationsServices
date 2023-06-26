@@ -11,6 +11,12 @@ func (q *EsQuery) Build(isMap bool) *elastic.Query {
 
 	subQueries := elastic.NewQueries()
 
+	if q.Name != nil {
+		subQueries = append(
+			subQueries,
+			elastic.NewTextQuery("name", *q.Name),
+		)
+	}
 	if q.Schema != nil {
 		subQueries = append(
 			subQueries,

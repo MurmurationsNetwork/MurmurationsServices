@@ -1,6 +1,7 @@
 package query
 
 type EsQuery struct {
+	Name        *string `form:"name"`
 	Schema      *string `form:"schema"`
 	LastUpdated *int64  `form:"last_updated,default=0"`
 
