@@ -8,13 +8,15 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
+// Init is used to initialize essential services.
 func Init() {
-	config.Init()
 	esInit()
 	natsInit()
 }
 
+// esInit initializes Elasticsearch service and sets up necessary indices.
 func esInit() {
+	// Define indices for Elasticsearch
 	var indices = []elastic.Index{
 		{
 			Name: constant.ESIndex.Node,
@@ -77,27 +79,32 @@ func esInit() {
 		},
 	}
 
-	err := elastic.NewClient(config.Conf.ES.URL)
+	// Initialize a new Elasticsearch client.
+	err := elastic.NewClient(config.Values.ES.URL)
 	if err != nil {
-		logger.Panic("Error when trying to ping Elasticsearch", err)
+		logger.Panic("Failed to create Elasticsearch client", err)
 		return
 	}
+
+	// Create indices in Elasticsearch.
 	err = elastic.Client.CreateMappings(indices)
 	if err != nil {
-		logger.Panic("Error when trying to create index for Elasticsearch", err)
+		logger.Panic("Failed to create index mappings for Elasticsearch", err)
 		return
 	}
 
-	logger.Info("Elasticsearch index created")
+	logger.Info("Elasticsearch index created successfully")
 }
 
+// natsInit initializes Nats service.
 func natsInit() {
+	// Initialize a new Nats client.
 	err := nats.NewClient(
-		config.Conf.Nats.ClusterID,
-		config.Conf.Nats.ClientID,
-		config.Conf.Nats.URL,
+		config.Values.Nats.ClusterID,
+		config.Values.Nats.ClientID,
+		config.Values.Nats.URL,
 	)
 	if err != nil {
-		logger.Panic("Error when trying to connect nats", err)
+		logger.Panic("Failed to create Nats client", err)
 	}
 }

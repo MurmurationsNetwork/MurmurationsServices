@@ -10,8 +10,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
 
 type NodeHandler interface {
@@ -20,17 +21,17 @@ type NodeHandler interface {
 }
 
 type nodeHandler struct {
-	nodeUsecase usecase.NodeUsecase
+	svc service.NodeService
 }
 
-func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
+func NewNodeHandler(nodeService service.NodeService) NodeHandler {
 	return &nodeHandler{
-		nodeUsecase: nodeService,
+		svc: nodeService,
 	}
 }
 
 func (handler *nodeHandler) Validated() error {
-	return event.NewNodeValidatedListener(nats.Client.Client(), QGROUP, func(msg *stan.Msg) {
+	return event.NewNodeValidatedListener(nats.Client.Client(), index.IndexQueueGroup, func(msg *stan.Msg) {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
@@ -54,7 +55,7 @@ func (handler *nodeHandler) Validated() error {
 				return
 			}
 
-			err = handler.nodeUsecase.SetNodeValid(&entity.Node{
+			err = handler.svc.SetNodeValid(&model.Node{
 				ProfileURL:  nodeValidatedData.ProfileURL,
 				ProfileHash: &nodeValidatedData.ProfileHash,
 				ProfileStr:  nodeValidatedData.ProfileStr,
@@ -72,7 +73,7 @@ func (handler *nodeHandler) Validated() error {
 }
 
 func (handler *nodeHandler) ValidationFailed() error {
-	return event.NewNodeValidationFailedListener(nats.Client.Client(), QGROUP, func(msg *stan.Msg) {
+	return event.NewNodeValidationFailedListener(nats.Client.Client(), index.IndexQueueGroup, func(msg *stan.Msg) {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
@@ -96,7 +97,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 				return
 			}
 
-			err = handler.nodeUsecase.SetNodeInvalid(&entity.Node{
+			err = handler.svc.SetNodeInvalid(&model.Node{
 				ProfileURL:     nodeValidationFailedData.ProfileURL,
 				FailureReasons: nodeValidationFailedData.FailureReasons,
 				Version:        &nodeValidationFailedData.Version,

@@ -21,10 +21,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/global"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/controller/event"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/controller/rest"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/adapter/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/event"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/rest"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
 
 func init() {
@@ -57,7 +57,7 @@ func NewService() *Service {
 
 	svc.setupServer()
 	svc.nodeHandler = event.NewNodeHandler(
-		usecase.NewNodeService(db.NewRepository()),
+		service.NewNodeService(db.NewRepository()),
 	)
 	core.InstallShutdownHandler(svc.Shutdown)
 
@@ -76,11 +76,11 @@ func (s *Service) setupServer() {
 	}
 
 	s.server = &http.Server{
-		Addr:         fmt.Sprintf(":%s", config.Conf.Server.Port),
+		Addr:         fmt.Sprintf(":%s", config.Values.Server.Port),
 		Handler:      s.router,
-		ReadTimeout:  config.Conf.Server.TimeoutRead,
-		WriteTimeout: config.Conf.Server.TimeoutWrite,
-		IdleTimeout:  config.Conf.Server.TimeoutIdle,
+		ReadTimeout:  config.Values.Server.TimeoutRead,
+		WriteTimeout: config.Values.Server.TimeoutWrite,
+		IdleTimeout:  config.Values.Server.TimeoutIdle,
 	}
 
 	s.shutdownCtx, s.shutdownCancelCtx = context.WithCancel(
@@ -91,11 +91,11 @@ func (s *Service) setupServer() {
 // connectToMongoDB establishes a connection to MongoDB.
 func (s *Service) connectToMongoDB() error {
 	uri := mongo.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
+		config.Values.Mongo.USERNAME,
+		config.Values.Mongo.PASSWORD,
+		config.Values.Mongo.HOST,
 	)
-	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
+	err := mongo.NewClient(uri, config.Values.Mongo.DBName)
 	if err != nil {
 		return err
 	}
@@ -110,11 +110,11 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		gin.Recovery(),
 		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Conf.Server.PostRateLimitPeriod,
+			Period: config.Values.Server.PostRateLimitPeriod,
 			Method: "POST",
 		}),
 		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Conf.Server.GetRateLimitPeriod,
+			Period: config.Values.Server.GetRateLimitPeriod,
 			Method: "GET",
 		}),
 		midlogger.NewLogger(),
@@ -141,7 +141,7 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 // registerRoutes sets up the routes for the HTTP server.
 func (s *Service) registerRoutes() {
 	nodeHandler := rest.NewNodeHandler(
-		usecase.NewNodeService(db.NewRepository()),
+		service.NewNodeService(db.NewRepository()),
 	)
 
 	v1 := s.router.Group("/v1")
@@ -198,7 +198,7 @@ func (s *Service) WaitUntilUp() <-chan struct{} {
 			resp, err := http.Get(
 				fmt.Sprintf(
 					"http://localhost:%s/v2/ping",
-					config.Conf.Server.Port,
+					config.Values.Server.Port,
 				),
 			)
 			if err == nil && resp.StatusCode == http.StatusOK {

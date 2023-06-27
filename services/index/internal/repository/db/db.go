@@ -3,8 +3,6 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -15,7 +13,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/countries"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
@@ -23,35 +20,33 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/tagsfilter"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validateurl"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model/query"
 )
 
 type NodeRepository interface {
-	Add(node *entity.Node) []jsonapi.Error
-	GetNode(nodeID string) (*entity.Node, []jsonapi.Error)
-	Get(nodeID string) (*entity.Node, []jsonapi.Error)
-	Update(node *entity.Node) error
-	Search(q *query.EsQuery) (*query.Results, []jsonapi.Error)
-	Delete(node *entity.Node) []jsonapi.Error
-	SoftDelete(node *entity.Node) []jsonapi.Error
-	Export(q *query.EsBlockQuery) (*query.BlockQueryResults, []jsonapi.Error)
-	GetNodes(q *query.EsQuery) (*query.MapQueryResults, []jsonapi.Error)
+	Add(node *model.Node) error
+	GetNode(nodeID string) (*model.Node, error)
+	Get(nodeID string) (*model.Node, error)
+	Update(node *model.Node) error
+	Search(q *query.EsQuery) (*query.Results, error)
+	Delete(node *model.Node) error
+	SoftDelete(node *model.Node) error
+	Export(q *query.EsBlockQuery) (*query.BlockQueryResults, error)
+	GetNodes(q *query.EsQuery) (*query.MapQueryResults, error)
 }
 
 func NewRepository() NodeRepository {
-	if os.Getenv("ENV") == "test" {
-		return &mockNodeRepository{}
-	}
 	return &nodeRepository{}
 }
 
 type nodeRepository struct {
 }
 
-func (r *nodeRepository) Add(node *entity.Node) []jsonapi.Error {
+func (r *nodeRepository) Add(node *model.Node) error {
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": r.toDAO(node)}
+	update := bson.M{"$set": node}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
 	result, err := mongo.Client.FindOneAndUpdate(
@@ -61,25 +56,21 @@ func (r *nodeRepository) Add(node *entity.Node) []jsonapi.Error {
 		opt,
 	)
 	if err != nil {
-		logger.Error("Error when trying to create a node", err)
-		return jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to add a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return index.DatabaseError{
+			Message: "Error occurred during node upsert operation",
+			Err:     err,
+		}
 	}
 
-	var updated nodeDAO
+	var updated model.Node
 	err = result.Decode(&updated)
 	if err != nil {
-		return jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to add a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return index.DatabaseError{
+			Message: "Error occurred during decoding of updated node",
+			Err:     err,
+		}
 	}
+
 	node.Version = updated.Version
 
 	return nil
@@ -87,91 +78,69 @@ func (r *nodeRepository) Add(node *entity.Node) []jsonapi.Error {
 
 func (r *nodeRepository) GetNode(
 	nodeID string,
-) (*entity.Node, []jsonapi.Error) {
+) (*model.Node, error) {
 	filter := bson.M{"_id": nodeID}
 
 	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
-	if result.Err() != nil {
-		if result.Err() == mongo.ErrNoDocuments {
-			return nil, nil
+	if err := result.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, index.NotFoundError{
+				Err: err,
+			}
 		}
-		logger.Error("Error when trying to find a node", result.Err())
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to find a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, index.DatabaseError{
+			Message: "Error when trying to find a node",
+			Err:     err,
+		}
 	}
 
-	var node nodeDAO
+	var node model.Node
 	err := result.Decode(&node)
 	if err != nil {
-		logger.Error(
-			"Error when trying to parse database response",
-			result.Err(),
-		)
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to find a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, index.DatabaseError{
+			Message: "Error when trying to find a node",
+			Err:     err,
+		}
 	}
 
-	return node.toEntity(), nil
+	return &node, nil
 }
 
-func (r *nodeRepository) Get(nodeID string) (*entity.Node, []jsonapi.Error) {
+func (r *nodeRepository) Get(nodeID string) (*model.Node, error) {
 	filter := bson.M{"_id": nodeID}
 
 	result := mongo.Client.FindOne(constant.MongoIndex.Node, filter)
-	if result.Err() != nil {
-		if result.Err() == mongo.ErrNoDocuments {
-			return nil, jsonapi.NewError(
-				[]string{"Node Not Found"},
-				[]string{
-					fmt.Sprintf(
-						"Could not locate the following node_id in the Index: %s",
-						nodeID,
-					),
-				},
-				nil,
-				[]int{http.StatusNotFound},
-			)
+	if err := result.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, index.NotFoundError{
+				Err: err,
+			}
 		}
 		logger.Error("Error when trying to find a node", result.Err())
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to find a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, index.DatabaseError{
+			Message: "Error when trying to find a node",
+			Err:     err,
+		}
 	}
 
-	var node nodeDAO
+	var node model.Node
 	err := result.Decode(&node)
 	if err != nil {
-		logger.Error(
-			"Error when trying to parse database response",
-			result.Err(),
-		)
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to find a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		logger.Error("Error when trying to parse database response", err)
+		return nil, index.DatabaseError{
+			Message: "Error when trying to find a node",
+			Err:     err,
+		}
 	}
 
-	return node.toEntity(), nil
+	return &node, nil
 }
 
-func (r *nodeRepository) Update(node *entity.Node) error {
+func (r *nodeRepository) Update(node *model.Node) error {
 	filter := bson.M{"_id": node.ID, "__v": node.Version}
 	// Unset the version to prevent setting it.
 	node.Version = nil
-	update := bson.M{"$set": r.toDAO(node)}
+	update := bson.M{"$set": node}
 
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Node,
@@ -184,8 +153,10 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		if err == mongo.ErrNoDocuments {
 			return nil
 		}
-		logger.Error("Error when trying to update a node", err)
-		return ErrUpdate
+		return index.DatabaseError{
+			Message: "Error when trying to update a node",
+			Err:     err,
+		}
 	}
 
 	// NOTE: Maybe it's better to convert into another event?
@@ -230,7 +201,7 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 				profileJSON["country"] = profileJSON["country_iso_3166"]
 				delete(profileJSON, "country_iso_3166")
 			} else if profileJSON["country"] == nil && profileJSON["country_name"] != nil {
-				countryCode, err := countries.FindAlpha2ByName(config.Conf.Library.InternalURL+"/v2/countries", profileJSON["country_name"])
+				countryCode, err := countries.FindAlpha2ByName(config.Values.Library.InternalURL+"/v2/countries", profileJSON["country_name"])
 				if err != nil {
 					return err
 				}
@@ -250,8 +221,8 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 		profileJSON["status"] = "posted"
 
 		// Deal with tags [#227]
-		arraySize, _ := strconv.Atoi(config.Conf.Server.TagsArraySize)
-		stringLength, _ := strconv.Atoi(config.Conf.Server.TagsStringLength)
+		arraySize, _ := strconv.Atoi(config.Values.Server.TagsArraySize)
+		stringLength, _ := strconv.Atoi(config.Values.Server.TagsStringLength)
 		tags, err := tagsfilter.Filter(arraySize, stringLength, node.ProfileStr)
 		if err != nil {
 			return err
@@ -301,12 +272,12 @@ func (r *nodeRepository) Update(node *entity.Node) error {
 	return nil
 }
 
-func (r *nodeRepository) setPostFailed(node *entity.Node) error {
+func (r *nodeRepository) setPostFailed(node *model.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.PostFailed
 
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": r.toDAO(node)}
+	update := bson.M{"$set": node}
 
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Node,
@@ -321,12 +292,12 @@ func (r *nodeRepository) setPostFailed(node *entity.Node) error {
 	return nil
 }
 
-func (r *nodeRepository) setPosted(node *entity.Node) error {
+func (r *nodeRepository) setPosted(node *model.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.Posted
 
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": r.toDAO(node)}
+	update := bson.M{"$set": node}
 
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Node,
@@ -343,15 +314,12 @@ func (r *nodeRepository) setPosted(node *entity.Node) error {
 
 func (r *nodeRepository) Search(
 	q *query.EsQuery,
-) (*query.Results, []jsonapi.Error) {
+) (*query.Results, error) {
 	result, err := elastic.Client.Search(constant.ESIndex.Node, q.Build(false))
 	if err != nil {
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to search documents."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, index.DatabaseError{
+			Err: err,
+		}
 	}
 
 	queryResults := make([]query.Result, 0)
@@ -359,12 +327,9 @@ func (r *nodeRepository) Search(
 		bytes, _ := hit.Source.MarshalJSON()
 		var result query.Result
 		if err := json.Unmarshal(bytes, &result); err != nil {
-			return nil, jsonapi.NewError(
-				[]string{"Database Error"},
-				[]string{"Error when trying to search documents."},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
+			return nil, index.DatabaseError{
+				Err: err,
+			}
 		}
 		queryResults = append(queryResults, result)
 	}
@@ -379,40 +344,31 @@ func (r *nodeRepository) Search(
 	}, nil
 }
 
-func (r *nodeRepository) Delete(node *entity.Node) []jsonapi.Error {
+func (r *nodeRepository) Delete(node *model.Node) error {
 	filter := bson.M{"_id": node.ID}
 
 	err := mongo.Client.DeleteOne(constant.MongoIndex.Node, filter)
 	if err != nil {
-		return jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to delete a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return index.DatabaseError{
+			Err: err,
+		}
 	}
 	err = elastic.Client.Delete(constant.ESIndex.Node, node.ID)
 	if err != nil {
-		return jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to delete a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return index.DatabaseError{
+			Err: err,
+		}
 	}
 
 	return nil
 }
 
-func (r *nodeRepository) SoftDelete(node *entity.Node) []jsonapi.Error {
+func (r *nodeRepository) SoftDelete(node *model.Node) error {
 	err := r.setDeleted(node)
 	if err != nil {
-		return jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to delete a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return index.DatabaseError{
+			Err: err,
+		}
 	}
 
 	err = elastic.Client.Update(
@@ -424,25 +380,22 @@ func (r *nodeRepository) SoftDelete(node *entity.Node) []jsonapi.Error {
 		},
 	)
 	if err != nil {
-		return jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to delete a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return index.DatabaseError{
+			Err: err,
+		}
 	}
 
 	return nil
 }
 
-func (r *nodeRepository) setDeleted(node *entity.Node) error {
+func (r *nodeRepository) setDeleted(node *model.Node) error {
 	node.Version = nil
 	node.Status = constant.NodeStatus.Deleted
 	currentTime := time.Now().Unix()
 	node.LastUpdated = &currentTime
 
 	filter := bson.M{"_id": node.ID}
-	update := bson.M{"$set": r.toDAO(node)}
+	update := bson.M{"$set": node}
 
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Node,
@@ -459,38 +412,32 @@ func (r *nodeRepository) setDeleted(node *entity.Node) error {
 
 func (r *nodeRepository) Export(
 	q *query.EsBlockQuery,
-) (*query.BlockQueryResults, []jsonapi.Error) {
+) (*query.BlockQueryResults, error) {
 	result, err := elastic.Client.Export(
 		constant.ESIndex.Node,
 		q.BuildBlock(),
 		q.SearchAfter,
 	)
 	if err != nil {
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to search documents."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, index.DatabaseError{
+			Err: err,
+		}
 	}
 
 	queryResults := make([]query.Result, 0)
 	hitLength := len(result.Hits.Hits)
 	var sort []interface{}
-	for index, hit := range result.Hits.Hits {
+	for i, hit := range result.Hits.Hits {
 		bytes, _ := hit.Source.MarshalJSON()
 		var result query.Result
 		if err := json.Unmarshal(bytes, &result); err != nil {
-			return nil, jsonapi.NewError(
-				[]string{"Database Error"},
-				[]string{"Error when trying to search documents."},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
+			return nil, index.DatabaseError{
+				Err: err,
+			}
 		}
 		queryResults = append(queryResults, result)
 		// get sort: only get the last item
-		if index == hitLength-1 {
+		if i == hitLength-1 {
 			sort = hit.Sort
 		}
 	}
@@ -503,15 +450,12 @@ func (r *nodeRepository) Export(
 
 func (r *nodeRepository) GetNodes(
 	q *query.EsQuery,
-) (*query.MapQueryResults, []jsonapi.Error) {
+) (*query.MapQueryResults, error) {
 	result, err := elastic.Client.GetNodes(constant.ESIndex.Node, q.Build(true))
 	if err != nil {
-		return nil, jsonapi.NewError(
-			[]string{"Database Error"},
-			[]string{"Error when trying to search documents."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		return nil, index.DatabaseError{
+			Err: err,
+		}
 	}
 
 	queryResults := make([][]interface{}, 0)
@@ -519,12 +463,9 @@ func (r *nodeRepository) GetNodes(
 		bytes, _ := hit.Source.MarshalJSON()
 		var result map[string]interface{}
 		if err := json.Unmarshal(bytes, &result); err != nil {
-			return nil, jsonapi.NewError(
-				[]string{"Database Error"},
-				[]string{"Error when trying to search documents."},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
+			return nil, index.DatabaseError{
+				Err: err,
+			}
 		}
 		// create specific format for map (issue-405)
 		// [lon, lat, profile_url]
