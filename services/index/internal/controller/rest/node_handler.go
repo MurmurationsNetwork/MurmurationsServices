@@ -207,23 +207,23 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 }
 
 func (handler *nodeHandler) Search(c *gin.Context) {
-	errors := checkInputIsValid(c, validationFields, "GET")
-	if errors != nil {
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+	errs := checkInputIsValid(c, validationFields, "GET")
+	if errs != nil {
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
 	var esQuery query.EsQuery
 	if err := c.ShouldBindQuery(&esQuery); err != nil {
-		errors := jsonapi.NewError(
+		errs = jsonapi.NewError(
 			[]string{"JSON Error"},
 			[]string{"The JSON document submitted could not be parsed."},
 			nil,
 			[]int{http.StatusBadRequest},
 		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
@@ -234,14 +234,14 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 				"Refine your query so it will return less " +
 				"but more relevant results.",
 		}
-		errors := jsonapi.NewError(
+		errs = jsonapi.NewError(
 			errMsgs,
 			detailMsgs,
 			nil,
 			[]int{http.StatusBadRequest},
 		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
@@ -594,24 +594,24 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 	// return error if there is an invalid query
 	// get the fields from query.EsQuery
 	fields := []string{"schema", "page_size", "search_after"}
-	errors := checkInputIsValid(c, fields, "POST")
-	if errors != nil {
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+	errs := checkInputIsValid(c, fields, "POST")
+	if errs != nil {
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
 	var esQuery query.EsBlockQuery
 	if err := c.ShouldBindJSON(&esQuery); err != nil {
 		fmt.Println(err)
-		errors := jsonapi.NewError(
+		errs = jsonapi.NewError(
 			[]string{"JSON Error"},
 			[]string{"The JSON document submitted could not be parsed."},
 			nil,
 			[]int{http.StatusBadRequest},
 		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
@@ -655,23 +655,23 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 }
 
 func (handler *nodeHandler) GetNodes(c *gin.Context) {
-	errors := checkInputIsValid(c, validationFields, "GET")
-	if errors != nil {
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+	errs := checkInputIsValid(c, validationFields, "GET")
+	if errs != nil {
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
 	var esQuery query.EsQuery
 	if err := c.ShouldBindQuery(&esQuery); err != nil {
-		errors := jsonapi.NewError(
+		errs = jsonapi.NewError(
 			[]string{"JSON Error"},
 			[]string{"The JSON document submitted could not be parsed."},
 			nil,
 			[]int{http.StatusBadRequest},
 		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
@@ -679,14 +679,14 @@ func (handler *nodeHandler) GetNodes(c *gin.Context) {
 		msg := "No more than 10,000 results can be returned. " +
 			"Refine your query so it will return less " +
 			"but more relevant results."
-		errors := jsonapi.NewError(
+		errs = jsonapi.NewError(
 			[]string{"Max Results Exceeded"},
 			[]string{msg},
 			nil,
 			[]int{http.StatusBadRequest},
 		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
+		res := jsonapi.Response(nil, errs, nil, nil)
+		c.JSON(errs[0].Status, res)
 		return
 	}
 
