@@ -7,10 +7,11 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 )
 
-type nodeDTO struct {
+// NodeCreateRequest is a structure representing the request to create a new node.
+type NodeCreateRequest struct {
 	ID             string           `json:"node_id"`
 	ProfileURL     string           `json:"profile_url"`
 	ProfileHash    *string          `json:"profile_hash"`
@@ -19,8 +20,10 @@ type nodeDTO struct {
 	FailureReasons *[]jsonapi.Error `json:"failure_reasons"`
 }
 
-func (dto *nodeDTO) Validate() []jsonapi.Error {
-	if dto.ProfileURL == "" {
+// Validate is a method of NodeCreateRequest that validates the request fields.
+func (n *NodeCreateRequest) Validate() []jsonapi.Error {
+	// Check if ProfileURL is provided.
+	if n.ProfileURL == "" {
 		return jsonapi.NewError(
 			[]string{"Missing Required Property"},
 			[]string{"The `profile_url` property is required."},
@@ -28,16 +31,10 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 			[]int{http.StatusBadRequest},
 		)
 	}
-	u, err := url.Parse(dto.ProfileURL)
-	// count '.' in the hostname to filter invalid hostname with zero dot, for example: https://blah is invalid
-	uCount := strings.Count(u.Host, ".")
-	// http://data-proxy-app is a valid url in local (data-proxy seeder) -> uCount can be zero if the scheme is http
-	if u.Scheme == "http" {
-		uCount = 1
-	}
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https") ||
-		u.Host == "" ||
-		uCount == 0 {
+
+	// Check if ProfileURL is a valid URL.
+	u, err := url.Parse(n.ProfileURL)
+	if err != nil || !isValidURL(u) {
 		return jsonapi.NewError(
 			[]string{"Invalid Profile URL"},
 			[]string{"The `profile_url` is not a valid URL."},
@@ -46,8 +43,8 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 		)
 	}
 
-	// check profile_url has redirect or not (issue-516)
-	hasRedirect, err := httputil.CheckRedirect(dto.ProfileURL)
+	// Check if profile_url has redirect or not.
+	hasRedirect, err := httputil.CheckRedirect(n.ProfileURL)
 	if err != nil {
 		return jsonapi.NewError(
 			[]string{"Invalid Profile URL"},
@@ -60,7 +57,8 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 		return jsonapi.NewError(
 			[]string{"No Redirects"},
 			[]string{
-				"The profile data must be located at the URL specified. Redirects are not supported by the index.",
+				"The profile data must be located at the URL specified. " +
+					"Redirects are not supported by the index.",
 			},
 			nil,
 			[]int{http.StatusBadRequest},
@@ -70,19 +68,27 @@ func (dto *nodeDTO) Validate() []jsonapi.Error {
 	return nil
 }
 
-func toDTO(node *entity.Node) *nodeDTO {
-	return &nodeDTO{
+// isValidURL is a helper function that checks whether a URL is valid.
+func isValidURL(u *url.URL) bool {
+	return (u.Scheme == "http" || u.Scheme == "https") && u.Host != "" &&
+		validHostname(u.Host)
+}
+
+// validHostname checks if the hostname of the URL has at least one dot or the
+// URL is data-proxy-app.
+func validHostname(host string) bool {
+	uCount := strings.Count(host, ".")
+	return uCount > 0 || strings.HasPrefix(host, "data-proxy-app")
+}
+
+// toDTO is a function that converts the model entity to a NodeCreateRequest DTO.
+func toDTO(node *model.Node) *NodeCreateRequest {
+	return &NodeCreateRequest{
 		ID:             node.ID,
 		ProfileURL:     node.ProfileURL,
 		ProfileHash:    node.ProfileHash,
 		Status:         node.Status,
 		LastUpdated:    node.LastUpdated,
 		FailureReasons: node.FailureReasons,
-	}
-}
-
-func (dto *nodeDTO) toEntity() *entity.Node {
-	return &entity.Node{
-		ProfileURL: dto.ProfileURL,
 	}
 }

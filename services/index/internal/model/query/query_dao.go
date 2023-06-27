@@ -68,7 +68,7 @@ func (q *EsQuery) Build(isMap bool) *elastic.Query {
 		if q.TagsExact != nil && *q.TagsExact == "true" {
 			subQueries = append(subQueries, tagQuery.Fuzziness("0"))
 		} else {
-			subQueries = append(subQueries, tagQuery.Fuzziness(config.Conf.Server.TagsFuzziness))
+			subQueries = append(subQueries, tagQuery.Fuzziness(config.Values.Server.TagsFuzziness))
 		}
 	}
 

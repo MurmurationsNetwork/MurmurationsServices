@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,8 +16,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/entity/query"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/usecase"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model/query"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
 
 type NodeHandler interface {
@@ -31,12 +34,12 @@ type NodeHandler interface {
 }
 
 type nodeHandler struct {
-	nodeUsecase usecase.NodeUsecase
+	svc service.NodeService
 }
 
-func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
+func NewNodeHandler(nodeService service.NodeService) NodeHandler {
 	return &nodeHandler{
-		nodeUsecase: nodeService,
+		svc: nodeService,
 	}
 }
 
@@ -56,8 +59,8 @@ func (handler *nodeHandler) getNodeID(
 }
 
 func (handler *nodeHandler) Add(c *gin.Context) {
-	var node nodeDTO
-	if err := c.ShouldBindJSON(&node); err != nil {
+	var req NodeCreateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		errors := jsonapi.NewError(
 			[]string{"JSON Error"},
 			[]string{"The JSON document submitted could not be parsed."},
@@ -69,35 +72,93 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 		return
 	}
 
-	if err := node.Validate(); err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+	if err := req.Validate(); err != nil {
+		c.JSON(err[0].Status, jsonapi.Response(nil, err, nil, nil))
 		return
 	}
 
-	result, err := handler.nodeUsecase.AddNode(node.toEntity())
+	result, err := handler.svc.AddNode(&model.Node{
+		ProfileURL: req.ProfileURL,
+	})
 	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+		logger.Error("Failed to add node", err)
+
+		var validationError index.ValidationError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &validationError):
+			jsonErr = jsonapi.NewError(
+				[]string{},
+				[]string{validationError.Reason},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Database Error"},
+				[]string{"Error when trying to add a node."},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := jsonapi.Response(handler.ToAddNodeVO(result), nil, nil, nil)
+	res := jsonapi.Response(ToAddNodeResponse(result), nil, nil, nil)
 	c.JSON(http.StatusOK, res)
 }
 
 func (handler *nodeHandler) Get(c *gin.Context) {
-	nodeID, err := handler.getNodeID(c.Params)
-	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+	nodeID, jsonErr := handler.getNodeID(c.Params)
+	if jsonErr != nil {
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
-	node, err := handler.nodeUsecase.GetNode(nodeID)
+	node, err := handler.svc.GetNode(nodeID)
 	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+		logger.Error("Failed to get a node", err)
+
+		var notFoundError index.NotFoundError
+		var databaseError index.DatabaseError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &notFoundError):
+			jsonErr = jsonapi.NewError(
+				[]string{"Node Not Found"},
+				[]string{
+					fmt.Sprintf(
+						"Could not locate the following node_id in the Index: %s",
+						nodeID,
+					),
+				},
+				nil,
+				[]int{http.StatusNotFound},
+			)
+		case errors.As(err, &databaseError):
+			jsonErr = jsonapi.NewError(
+				[]string{databaseError.Message},
+				[]string{"Error while trying to delete a node."},
+				nil,
+				[]int{http.StatusNotFound},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Unknown Error"},
+				[]string{},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
@@ -107,7 +168,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 			"",
 			"",
 		)
-		res := jsonapi.Response(handler.ToGetNodeVO(node), nil, nil, meta)
+		res := jsonapi.Response(ToGetNodeResponse(node), nil, nil, meta)
 		c.JSON(http.StatusOK, res)
 		return
 	}
@@ -120,7 +181,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 		return
 	}
 
-	res := jsonapi.Response(handler.ToGetNodeVO(node), nil, nil, nil)
+	res := jsonapi.Response(ToGetNodeResponse(node), nil, nil, nil)
 	c.JSON(http.StatusOK, res)
 }
 
@@ -208,11 +269,15 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 	}
 
 	if esQuery.Page*esQuery.PageSize > 10000 {
+		errMsgs := []string{"Max Results Exceeded"}
+		detailMsgs := []string{
+			"No more than 10,000 results can be returned. " +
+				"Refine your query so it will return less " +
+				"but more relevant results.",
+		}
 		errors := jsonapi.NewError(
-			[]string{"Max Results Exceeded"},
-			[]string{
-				"No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results.",
-			},
+			errMsgs,
+			detailMsgs,
 			nil,
 			[]int{http.StatusBadRequest},
 		)
@@ -221,16 +286,40 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		return
 	}
 
-	searchResult, err := handler.nodeUsecase.Search(&esQuery)
+	searchResult, err := handler.svc.Search(&esQuery)
 	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+		logger.Error("Failed to search a node", err)
+
+		var databaseError index.DatabaseError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &databaseError):
+			jsonErr = jsonapi.NewError(
+				[]string{databaseError.Message},
+				[]string{"Error while trying to search a node."},
+				nil,
+				[]int{http.StatusNotFound},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Unknown Error"},
+				[]string{},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
 	// restrict the last page to the page of 10,000 results (ES limitation)
 	totalPage := 10000 / esQuery.PageSize
-	message := "No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results."
+	message := "No more than 10,000 results can be returned. " +
+		"Refine your query so it will return less " +
+		"but more relevant results."
 	if totalPage >= searchResult.TotalPages {
 		totalPage = searchResult.TotalPages
 		message = ""
@@ -264,22 +353,52 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	nodeID, err := handler.getNodeID(c.Params)
-	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+	nodeID, jsonErr := handler.getNodeID(c.Params)
+	if jsonErr != nil {
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
-	profileURL, err := handler.nodeUsecase.Delete(nodeID)
+	profileURL, err := handler.svc.Delete(nodeID)
 	if err != nil {
+		logger.Error("Failed to delete a node", err)
+
+		var deleteNodeError index.DeleteNodeError
+		var databaseError index.DatabaseError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &deleteNodeError):
+			jsonErr = jsonapi.NewError(
+				[]string{deleteNodeError.Message},
+				[]string{deleteNodeError.Detail},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+		case errors.As(err, &databaseError):
+			jsonErr = jsonapi.NewError(
+				[]string{databaseError.Message},
+				[]string{"Error while trying to delete a node."},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Unknown Error"},
+				[]string{},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
 		meta := jsonapi.NewMeta("", nodeID, profileURL)
-		res := jsonapi.Response(nil, err, nil, meta)
-		c.JSON(err[0].Status, res)
+		res := jsonapi.Response(nil, jsonErr, nil, meta)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
-	deleteTTL := dateutil.FormatSeconds(config.Conf.TTL.DeletedTTL)
+	deleteTTL := dateutil.FormatSeconds(config.Values.TTL.DeletedTTL)
 
 	meta := jsonapi.NewMeta(
 		fmt.Sprintf(
@@ -296,8 +415,8 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 }
 
 func (handler *nodeHandler) AddSync(c *gin.Context) {
-	var node nodeDTO
-	if err := c.ShouldBindJSON(&node); err != nil {
+	var req NodeCreateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		errors := jsonapi.NewError(
 			[]string{"JSON Error"},
 			[]string{"The JSON document submitted could not be parsed."},
@@ -309,16 +428,40 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		return
 	}
 
-	if err := node.Validate(); err != nil {
+	if err := req.Validate(); err != nil {
 		res := jsonapi.Response(nil, err, nil, nil)
 		c.JSON(err[0].Status, res)
 		return
 	}
 
-	result, err := handler.nodeUsecase.AddNode(node.toEntity())
+	result, err := handler.svc.AddNode(&model.Node{
+		ProfileURL: req.ProfileURL,
+	})
 	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+		logger.Error("Failed to add node", err)
+
+		var validationError index.ValidationError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &validationError):
+			jsonErr = jsonapi.NewError(
+				[]string{"Missing Required Property"},
+				[]string{validationError.Reason},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Database Error"},
+				[]string{"Error when trying to add a node."},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
@@ -327,10 +470,45 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 	retries := 5
 
 	for retries != 0 {
-		nodeInfo, err := handler.nodeUsecase.GetNode(result.ID)
+		nodeInfo, err := handler.svc.GetNode(result.ID)
 		if err != nil {
-			res := jsonapi.Response(nil, err, nil, nil)
-			c.JSON(err[0].Status, res)
+			logger.Error("Failed to get a node", err)
+
+			var notFoundError index.NotFoundError
+			var databaseError index.DatabaseError
+			var jsonErr []jsonapi.Error
+
+			switch {
+			case errors.As(err, &notFoundError):
+				jsonErr = jsonapi.NewError(
+					[]string{"Node Not Found"},
+					[]string{
+						fmt.Sprintf(
+							"Could not locate the following node_id in the Index: %s",
+							result.ID,
+						),
+					},
+					nil,
+					[]int{http.StatusNotFound},
+				)
+			case errors.As(err, &databaseError):
+				jsonErr = jsonapi.NewError(
+					[]string{databaseError.Message},
+					[]string{"Error while trying to delete a node."},
+					nil,
+					[]int{http.StatusNotFound},
+				)
+			default:
+				jsonErr = jsonapi.NewError(
+					[]string{"Unknown Error"},
+					[]string{},
+					nil,
+					[]int{http.StatusInternalServerError},
+				)
+			}
+
+			res := jsonapi.Response(nil, jsonErr, nil, nil)
+			c.JSON(jsonErr[0].Status, res)
 			return
 		}
 
@@ -340,7 +518,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 				"",
 				"",
 			)
-			res := jsonapi.Response(handler.ToGetNodeVO(result), nil, nil, meta)
+			res := jsonapi.Response(ToGetNodeResponse(result), nil, nil, meta)
 			c.JSON(http.StatusOK, res)
 			return
 		}
@@ -356,7 +534,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		if nodeInfo.Status == constant.NodeStatus.Posted ||
 			nodeInfo.Status == constant.NodeStatus.Deleted {
 			res := jsonapi.Response(
-				handler.ToGetNodeVO(nodeInfo),
+				ToGetNodeResponse(nodeInfo),
 				nil,
 				nil,
 				nil,
@@ -370,8 +548,9 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		retries--
 	}
 
-	// if server can't get the node with posted or failed information, return the node id for user to get the node in the future.
-	res := jsonapi.Response(handler.ToAddNodeVO(result), nil, nil, nil)
+	// If server can't get the node with posted or failed information, return
+	// the node id for user to get the node in the future.
+	res := jsonapi.Response(ToAddNodeResponse(result), nil, nil, nil)
 	c.JSON(http.StatusOK, res)
 }
 
@@ -421,7 +600,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 
 	// Validate against schemes specify inside the profile data.
 	result := validatenode.ValidateAgainstSchemas(
-		config.Conf.Library.InternalURL,
+		config.Values.Library.InternalURL,
 		linkedSchemas,
 		string(jsonString),
 		"string",
@@ -523,10 +702,32 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 		esQuery.PageSize = 100
 	}
 
-	searchResult, err := handler.nodeUsecase.Export(&esQuery)
+	searchResult, err := handler.svc.Export(&esQuery)
 	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+		logger.Error("Failed to export a node", err)
+
+		var databaseError index.DatabaseError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &databaseError):
+			jsonErr = jsonapi.NewError(
+				[]string{databaseError.Message},
+				[]string{"Error while trying to delete a node."},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Unknown Error"},
+				[]string{},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
@@ -618,11 +819,12 @@ func (handler *nodeHandler) GetNodes(c *gin.Context) {
 	}
 
 	if esQuery.Page*esQuery.PageSize > 10000 {
+		msg := "No more than 10,000 results can be returned. " +
+			"Refine your query so it will return less " +
+			"but more relevant results."
 		errors := jsonapi.NewError(
 			[]string{"Max Results Exceeded"},
-			[]string{
-				"No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results.",
-			},
+			[]string{msg},
 			nil,
 			[]int{http.StatusBadRequest},
 		)
@@ -631,16 +833,48 @@ func (handler *nodeHandler) GetNodes(c *gin.Context) {
 		return
 	}
 
-	searchResult, err := handler.nodeUsecase.GetNodes(&esQuery)
+	searchResult, err := handler.svc.GetNodes(&esQuery)
 	if err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
+		logger.Error("Failed to get a node", err)
+
+		var notFoundError index.NotFoundError
+		var databaseError index.DatabaseError
+		var jsonErr []jsonapi.Error
+
+		switch {
+		case errors.As(err, &notFoundError):
+			jsonErr = jsonapi.NewError(
+				[]string{"Node Not Found"},
+				[]string{},
+				nil,
+				[]int{http.StatusNotFound},
+			)
+		case errors.As(err, &databaseError):
+			jsonErr = jsonapi.NewError(
+				[]string{databaseError.Message},
+				[]string{"Error while trying to delete a node."},
+				nil,
+				[]int{http.StatusNotFound},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Unknown Error"},
+				[]string{},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
+
+		res := jsonapi.Response(nil, jsonErr, nil, nil)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
 	// restrict the last page to the page of 10,000 results (ES limitation)
 	totalPage := 10000 / esQuery.PageSize
-	message := "No more than 10,000 results can be returned. Refine your query so it will return less but more relevant results."
+	message := "No more than 10,000 results can be returned. " +
+		"Refine your query so it will return less " +
+		"but more relevant results."
 	if totalPage >= searchResult.TotalPages {
 		totalPage = searchResult.TotalPages
 		message = ""
