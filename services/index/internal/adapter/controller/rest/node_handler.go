@@ -1,8 +1,10 @@
 package rest
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -38,6 +40,25 @@ func NewNodeHandler(nodeService usecase.NodeUsecase) NodeHandler {
 	return &nodeHandler{
 		nodeUsecase: nodeService,
 	}
+}
+
+var validationFields = []string{
+	"name",
+	"schema",
+	"last_updated",
+	"lat",
+	"lon",
+	"range",
+	"locality",
+	"region",
+	"country",
+	"status",
+	"tags",
+	"tags_filter",
+	"tags_exact",
+	"primary_url",
+	"page",
+	"page_size",
 }
 
 func (handler *nodeHandler) getNodeID(
@@ -125,7 +146,12 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 }
 
 func (handler *nodeHandler) Search(c *gin.Context) {
-	checkInputIsValid(c)
+	errors := checkInputIsValid(c, validationFields, "GET")
+	if errors != nil {
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
 
 	var esQuery query.EsQuery
 	if err := c.ShouldBindQuery(&esQuery); err != nil {
@@ -388,51 +414,9 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 func (handler *nodeHandler) Export(c *gin.Context) {
 	// return error if there is an invalid query
 	// get the fields from query.EsQuery
-	fields := [...]string{"schema", "page_size", "search_after"}
-	queryFields := c.Request.URL.Query()
-	var (
-		invalidQueryTitles, invalidQueryDetails []string
-		invalidQuerySources                     [][]string
-		invalidQueryStatus                      []int
-	)
-	for fieldName := range queryFields {
-		found := false
-		for _, validFieldName := range fields {
-			if fieldName == validFieldName {
-				found = true
-				break
-			}
-		}
-		if !found {
-			invalidQueryTitles = append(
-				invalidQueryTitles,
-				"Invalid Query Parameter",
-			)
-			invalidQueryDetails = append(
-				invalidQueryDetails,
-				fmt.Sprintf(
-					"The following query parameter is not valid: %v",
-					fieldName,
-				),
-			)
-			invalidQuerySources = append(
-				invalidQuerySources,
-				[]string{"parameter", fieldName},
-			)
-			invalidQueryStatus = append(
-				invalidQueryStatus,
-				http.StatusBadRequest,
-			)
-		}
-	}
-
-	if len(invalidQueryTitles) != 0 {
-		errors := jsonapi.NewError(
-			invalidQueryTitles,
-			invalidQueryDetails,
-			invalidQuerySources,
-			invalidQueryStatus,
-		)
+	fields := []string{"schema", "page_size", "search_after"}
+	errors := checkInputIsValid(c, fields, "POST")
+	if errors != nil {
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
@@ -440,6 +424,7 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 
 	var esQuery query.EsBlockQuery
 	if err := c.ShouldBindJSON(&esQuery); err != nil {
+		fmt.Println(err)
 		errors := jsonapi.NewError(
 			[]string{"JSON Error"},
 			[]string{"The JSON document submitted could not be parsed."},
@@ -469,7 +454,12 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 }
 
 func (handler *nodeHandler) GetNodes(c *gin.Context) {
-	checkInputIsValid(c)
+	errors := checkInputIsValid(c, validationFields, "GET")
+	if errors != nil {
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
 
 	var esQuery query.EsQuery
 	if err := c.ShouldBindQuery(&esQuery); err != nil {
@@ -556,28 +546,52 @@ func getLinkedSchemas(data interface{}) ([]string, bool) {
 	return linkedSchemas, true
 }
 
-func checkInputIsValid(c *gin.Context) {
+func checkInputIsValid(
+	c *gin.Context,
+	fields []string,
+	requestType string,
+) []jsonapi.Error {
 	// return error if there is an invalid query
 	// get the fields from query.EsQuery
-	fields := [...]string{
-		"name",
-		"schema",
-		"last_updated",
-		"lat",
-		"lon",
-		"range",
-		"locality",
-		"region",
-		"country",
-		"status",
-		"tags",
-		"tags_filter",
-		"tags_exact",
-		"primary_url",
-		"page",
-		"page_size",
+	var queryFields map[string]interface{}
+	if requestType == "POST" {
+		body, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			errors := jsonapi.NewError(
+				[]string{"JSON Error"},
+				[]string{"The JSON document submitted could not be parsed."},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			return errors
+		}
+
+		err = json.Unmarshal(body, &queryFields)
+		if err != nil {
+			errors := jsonapi.NewError(
+				[]string{"JSON Error"},
+				[]string{"The JSON document submitted could not be unmarshal."},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			return errors
+		}
+
+		// restore the io.ReadCloser to its original state
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+	} else {
+		queryMap := c.Request.URL.Query()
+		queryFields = make(map[string]interface{})
+
+		for key, value := range queryMap {
+			if len(value) == 1 {
+				queryFields[key] = value[0]
+			} else {
+				queryFields[key] = value
+			}
+		}
 	}
-	queryFields := c.Request.URL.Query()
+
 	var (
 		invalidQueryTitles, invalidQueryDetails []string
 		invalidQuerySources                     [][]string
@@ -621,8 +635,8 @@ func checkInputIsValid(c *gin.Context) {
 			invalidQuerySources,
 			invalidQueryStatus,
 		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
-		return
+		return errors
 	}
+
+	return nil
 }
