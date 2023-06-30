@@ -1,8 +1,10 @@
 {
   "AW": [
+    "aw",
     "aruba"
   ],
   "AF": [
+    "af",
     "afghanistan",
     "islamic republic of afghanistan",
     "جمهوری اسلامی افغانستان",
@@ -30,6 +32,7 @@
     "아프가니스탄 이슬람 공화국"
   ],
   "AO": [
+    "ao",
     "angola",
     "republic of angola",
     "republica de angola",
@@ -52,12 +55,14 @@
     "جمهوری آنگولا"
   ],
   "AI": [
+    "ai",
     "anguilla",
     "アングィラ",
     "اینگویلا",
     "앵귈라"
   ],
   "AX": [
+    "ax",
     "aland islands",
     "landskapet aland",
     "alandske ostrovy",
@@ -72,6 +77,7 @@
     "جزایر الند"
   ],
   "AL": [
+    "al",
     "albania",
     "republic of albania",
     "shqiperia",
@@ -97,6 +103,7 @@
     "جمهوری آلبانی"
   ],
   "AD": [
+    "ad",
     "andorra",
     "principality of andorra",
     "principat dandorra",
@@ -121,6 +128,7 @@
     "شاهزاده‌نشین آندورا"
   ],
   "AE": [
+    "ae",
     "united arab emirates",
     "دولة الإمارات العربية المتحدة",
     "obuedinyonnye arabskie emiraty",
@@ -134,6 +142,7 @@
     "امارات متحده عربی"
   ],
   "AR": [
+    "ar",
     "argentina",
     "argentine republic",
     "republica argentina",
@@ -157,6 +166,7 @@
     "جمهوری آرژانتین"
   ],
   "AM": [
+    "am",
     "armenia",
     "republic of armenia",
     "հայաստանի հանրապետություն",
@@ -180,6 +190,7 @@
     "جمهوری ارمنستان"
   ],
   "AS": [
+    "as",
     "american somoa",
     "samoa amelika",
     "samoa americaines",
@@ -189,6 +200,7 @@
     "ساموآی آمریکا"
   ],
   "AQ": [
+    "aq",
     "antarctica",
     "yr antarctig",
     "南極大陸",
@@ -198,6 +210,7 @@
     "남극"
   ],
   "TF": [
+    "tf",
     "french southern territories",
     "french southern and antarctic lands",
     "territory of the french southern and antarctic lands",
@@ -223,6 +236,7 @@
     "سرزمین‌های جنوبی و جنوبگانی فرانسه"
   ],
   "AG": [
+    "ag",
     "antigua and barbuda",
     "antigwa a barbiwda",
     "アンチグアバーブーダ",
@@ -230,6 +244,7 @@
     "앤티가 바부다"
   ],
   "AU": [
+    "au",
     "australia",
     "commonwealth of australia",
     "australske spolecenstvi",
@@ -252,6 +267,7 @@
     "قلمرو همسود استرالیا"
   ],
   "AT": [
+    "at",
     "austria",
     "republic of austria",
     "österreich",
@@ -277,6 +293,7 @@
     "جمهوری اتریش"
   ],
   "AZ": [
+    "az",
     "azerbaijan",
     "republic of azerbaijan",
     "azərbaycan respublikasi",
@@ -304,6 +321,7 @@
     "아제르바이잔 공화국"
   ],
   "BI": [
+    "bi",
     "burundi",
     "republic of burundi",
     "republique du burundi",
@@ -327,6 +345,7 @@
     "جمهوری بوروندی"
   ],
   "BE": [
+    "be",
     "belgium",
     "kingdom of belgium",
     "konigreich belgien",
@@ -352,6 +371,7 @@
     "پادشاهی بلژیک"
   ],
   "BJ": [
+    "bj",
     "benin",
     "republic of benin",
     "republique du benin",
@@ -373,12 +393,14 @@
     "جمهوری بنین"
   ],
   "BF": [
+    "bf",
     "burkina faso",
     "republique du burkina",
     "bwrcina ffaso",
     "부르키나파소"
   ],
   "BD": [
+    "bd",
     "bangladesh",
     "peoples republic of bangladesh",
     "বাংলাদেশ গণপ্রজাতন্ত্র",
@@ -403,6 +425,7 @@
     "جمهوری خلق بنگلادش"
   ],
   "BG": [
+    "bg",
     "bulgaria",
     "republic of bulgaria",
     "republika bulgariya",
@@ -427,6 +450,7 @@
     "جمهوری بلغارستان"
   ],
   "BH": [
+    "bh",
     "bahrain",
     "kingdom of bahrain",
     "مملكة البحرين",
@@ -451,6 +475,7 @@
     "پادشاهی بحرین"
   ],
   "BS": [
+    "bs",
     "bahamas",
     "commonwealth of the bahamas",
     "bahamske spolecenstvi",
@@ -474,6 +499,7 @@
     "قلمرو همسود باهاما"
   ],
   "BA": [
+    "ba",
     "bosnia and hercegovina",
     "bosnia a hercegovina",
     "bosnie et herzegovine",
@@ -485,6 +511,7 @@
     "بوسنیا و ہرزیگووینا"
   ],
   "BL": [
+    "bl",
     "saint barthelemy",
     "collectivity of saint barthelemy",
     "collectivite de saint barthelemy",
@@ -505,6 +532,7 @@
     "생바르텔레미"
   ],
   "SH": [
+    "sh",
     "saint helena",
     "saint helena, ascension and tristan da cunha",
     "st helena, ascension und tristan da cunha",
@@ -520,6 +548,7 @@
     "세인트헬레나"
   ],
   "BY": [
+    "by",
     "belarus",
     "republic of belarus",
     "belarúsь",
@@ -546,10 +575,12 @@
     "جمهوری بلاروس"
   ],
   "BZ": [
+    "bz",
     "belize",
     "belis"
   ],
   "BM": [
+    "bm",
     "bermuda",
     "bermudske ostrovy",
     "bermiwda",
@@ -557,6 +588,7 @@
     "جزایر برمودا"
   ],
   "BO": [
+    "bo",
     "bolivia",
     "plurinational state of bolivia",
     "wuliwya",
@@ -586,6 +618,7 @@
     "جمهوری بولیوی"
   ],
   "BQ": [
+    "bq",
     "bonaire",
     "bonaire sint eustatius and saba",
     "caribbean netherlands",
@@ -609,6 +642,7 @@
     "보네르, 신트외스타티위스, 사바"
   ],
   "BR": [
+    "br",
     "brazil",
     "federative republic of brazil",
     "republica federativa do brasil",
@@ -632,9 +666,11 @@
     "جمهوری فدراتیو برزیل"
   ],
   "BB": [
+    "bb",
     "barbados"
   ],
   "BN": [
+    "bn",
     "brunei",
     "brunei darussalam",
     "nation of brunei, abode of peace",
@@ -663,6 +699,7 @@
     "برونئی سرای صلح"
   ],
   "BT": [
+    "bt",
     "bhutan",
     "kingdom of bhutan",
     "འབྲུག་ཡུལ",
@@ -688,6 +725,7 @@
     "پادشاهی بوتان"
   ],
   "BV": [
+    "bv",
     "bouvet island",
     "ブーヴェ島",
     "bouveteiland",
@@ -697,6 +735,7 @@
     "جزیرہ بووہ"
   ],
   "BW": [
+    "bw",
     "botswana",
     "republic of botswana",
     "lefatshe la botswana",
@@ -719,6 +758,7 @@
     "جمهوری بوتسوانا"
   ],
   "CF": [
+    "cf",
     "central african republic",
     "republique centrafricaine",
     "beafrika",
@@ -733,9 +773,11 @@
     "جمهوری آفریقای مرکزی"
   ],
   "CA": [
+    "ca",
     "canada"
   ],
   "CC": [
+    "cc",
     "cocos islands",
     "cocos keeling islands",
     "territory of the cocos keeling islands",
@@ -760,6 +802,7 @@
     "코코스 제도"
   ],
   "CH": [
+    "ch",
     "switzerland",
     "suisse",
     "schweiz",
@@ -787,6 +830,7 @@
     "کنفدراسیون سوئیس"
   ],
   "CL": [
+    "cl",
     "chile",
     "republic of chile",
     "republica de chile",
@@ -810,6 +854,7 @@
     "جمهوری شیلی"
   ],
   "CN": [
+    "cn",
     "china",
     "peoples republic of china",
     "中华人民共和国",
@@ -833,8 +878,9 @@
     "جمهوری خلق چین"
   ],
   "CI": [
+    "ci",
     "ivory coast",
-    "cote d ivoire",
+    "cote d'ivoire",
     "republic of cote divoire",
     "republique de cote divoire",
     "republika pobrezi slonoviny",
@@ -861,6 +907,7 @@
     "جمهوری ساحل عاج"
   ],
   "CM": [
+    "cm",
     "cameroon",
     "republic of cameroon",
     "republique du cameroun",
@@ -886,6 +933,7 @@
     "جمهوری کامِرون"
   ],
   "CD": [
+    "cd",
     "dr congo",
     "democratic republic of the congo",
     "rd congo",
@@ -913,6 +961,7 @@
     "جمهوری دموکراتیک کنگو"
   ],
   "CG": [
+    "cg",
     "congo",
     "republic of the congo",
     "repubilika ya kongo",
@@ -931,6 +980,7 @@
     "جمهوری برازاویل کُنگو"
   ],
   "CK": [
+    "ck",
     "cook islands",
     "kuki airani",
     "ynysoedd cook",
@@ -939,6 +989,7 @@
     "جزائر کک"
   ],
   "CO": [
+    "co",
     "colombia",
     "republic of colombia",
     "republica de colombia",
@@ -961,6 +1012,7 @@
     "جمهوری کلمبیا"
   ],
   "KM": [
+    "km",
     "comoros",
     "union of the comoros",
     "القمر",
@@ -991,6 +1043,7 @@
     "مجمع‌الجزایر قمر"
   ],
   "CV": [
+    "cv",
     "cabo verde",
     "republic of cabo verde",
     "republica de cabo verde",
@@ -1016,6 +1069,7 @@
     "جمهوری کبو ورد"
   ],
   "CR": [
+    "cr",
     "costa rica",
     "republic of costa rica",
     "republica de costa rica",
@@ -1039,6 +1093,7 @@
     "جمهوری کاستاریکا"
   ],
   "CU": [
+    "cu",
     "cuba",
     "republic of cuba",
     "republica de cuba",
@@ -1061,6 +1116,7 @@
     "جمهوری کوبا"
   ],
   "CW": [
+    "cw",
     "curacao",
     "curaçao",
     "country of curacao",
@@ -1078,6 +1134,7 @@
     "퀴라소"
   ],
   "CX": [
+    "cx",
     "christmas island",
     "territory of christmas island",
     "teritorium vanocniho ostrova",
@@ -1102,6 +1159,7 @@
     "ریاستِ جزیرہ کرسمس"
   ],
   "KY": [
+    "ky",
     "cayman islands",
     "ynysoedd cayman",
     "cayman inseln",
@@ -1114,6 +1172,7 @@
     "جزایر کیمن"
   ],
   "CY": [
+    "cy",
     "cyprus",
     "republic of cyprus",
     "dhmokratia ths kypros",
@@ -1140,6 +1199,7 @@
     "جمهوری قبرس"
   ],
   "CZ": [
+    "cz",
     "czechia",
     "y weriniaeth tsiec",
     "tschechien",
@@ -1158,6 +1218,7 @@
     "체코"
   ],
   "DE": [
+    "de",
     "germany",
     "allemagne",
     "deutschland",
@@ -1185,6 +1246,7 @@
     "west germany"
   ],
   "DJ": [
+    "dj",
     "djibouti",
     "republic of djibouti",
     "جمهورية جيبوتي",
@@ -1211,6 +1273,7 @@
     "جمهوری جیبوتی"
   ],
   "DM": [
+    "dm",
     "dominica",
     "commonwealth of dominica",
     "dominikanske spolecenstvi",
@@ -1233,6 +1296,7 @@
     "قلمرو همسود دومینیکا"
   ],
   "DK": [
+    "dk",
     "denmark",
     "dänemark",
     "kingdom of denmark",
@@ -1259,6 +1323,7 @@
     "پادشاهی دانمارک"
   ],
   "DO": [
+    "do",
     "dominican republic",
     "gweriniaeth dominica",
     "多明尼加",
@@ -1268,6 +1333,7 @@
     "جمہوریہ ڈومینیکن"
   ],
   "DZ": [
+    "dz",
     "algeria",
     "peoples democratic republic of algeria",
     "الجمهورية الديمقراطية الشعبية الجزائرية",
@@ -1292,6 +1358,7 @@
     "جمهوری دموکراتیک خلق الجزایر"
   ],
   "EC": [
+    "ec",
     "ecuador",
     "republic of ecuador",
     "republica del ecuador",
@@ -1314,6 +1381,7 @@
     "جمهوری اکوادور"
   ],
   "EG": [
+    "eg",
     "egypt",
     "arab republic of egypt",
     "جمهورية مصر العربية",
@@ -1338,6 +1406,7 @@
     "جمهوری عربی مصر"
   ],
   "ER": [
+    "er",
     "eritrea",
     "state of eritrea",
     "إرتريا",
@@ -1364,6 +1433,7 @@
     "جمهوری اریتره"
   ],
   "EH": [
+    "eh",
     "western sahara",
     "sahrawi arab democratic republic",
     "الجمهورية العربية الصحراوية الديمقراطية",
@@ -1382,6 +1452,7 @@
     "사하라 아랍 민주 공화국"
   ],
   "ES": [
+    "es",
     "spain",
     "kingdom of spain",
     "reino de espana",
@@ -1405,6 +1476,7 @@
     "پادشاهی اسپانیا"
   ],
   "EE": [
+    "ee",
     "estonia",
     "republic of estonia",
     "eesti vabariik",
@@ -1429,6 +1501,7 @@
     "جمهوری استونی"
   ],
   "ET": [
+    "et",
     "ethiopia",
     "federal democratic republic of ethiopia",
     "ኢትዮጵያ",
@@ -1455,6 +1528,7 @@
     "جمهوری فدرال دموکراتیک اتیوپی"
   ],
   "FI": [
+    "fi",
     "finland",
     "republic of finland",
     "suomen tasavalta",
@@ -1477,6 +1551,7 @@
     "جمهوری فنلاند"
   ],
   "FJ": [
+    "fj",
     "fiji",
     "republic of fiji",
     "viti",
@@ -1502,6 +1577,7 @@
     "جمهوری جزایر فیجی"
   ],
   "FK": [
+    "fk",
     "falkland islands",
     "falklandske ostrovy",
     "isole falkland o isole malvine",
@@ -1512,6 +1588,7 @@
     "포클랜드 제도"
   ],
   "FR": [
+    "fr",
     "france",
     "french republic",
     "republique francaise",
@@ -1534,6 +1611,7 @@
     "جمهوری فرانسه"
   ],
   "FO": [
+    "fo",
     "faroe islands",
     "foroyar",
     "faroer inseln",
@@ -1545,6 +1623,7 @@
     "جزایر فاروئه"
   ],
   "FM": [
+    "fm",
     "micronesia",
     "federated states of micronesia",
     "federativni staty mikronesie",
@@ -1565,6 +1644,7 @@
     "ایالات فدرال میکرونزی"
   ],
   "GA": [
+    "ga",
     "gabon",
     "gabonese republic",
     "republique gabonaise",
@@ -1587,12 +1667,13 @@
     "جمهوری گابُن"
   ],
   "GB": [
+    "gb",
     "great britain",
     "united kingdom",
     "england",
     "scotland",
     "wales",
-    "northern island",
+    "northern ireland",
     "uk",
     "united kingdom of great britain and northern ireland",
     "spojene kralovstvi velke britanie a severniho irska",
@@ -1620,12 +1701,14 @@
     "پادشاهی متحد بریتانیای کبیر و ایرلند شمالی"
   ],
   "GE": [
+    "ge",
     "georgia",
     "republique de georgie",
     "グルジア",
     "조지아"
   ],
   "GG": [
+    "gg",
     "guernsey",
     "bailiwick of guernsey",
     "bailliage de guernesey",
@@ -1645,6 +1728,7 @@
     "گرنزی رودبار"
   ],
   "GH": [
+    "gh",
     "ghana",
     "republic of ghana",
     "ghanska republika",
@@ -1666,9 +1750,11 @@
     "جمهوری غنا"
   ],
   "GI": [
+    "gi",
     "gibraltar"
   ],
   "GN": [
+    "gn",
     "guinea",
     "republic of guinea",
     "republique de guinee",
@@ -1690,6 +1776,7 @@
     "مملکت مستقل پاپوآ گینه نو"
   ],
   "GP": [
+    "gp",
     "guadelope",
     "gvadalupa",
     "guadeloupa",
@@ -1699,6 +1786,7 @@
     "瓜德罗普岛"
   ],
   "GM": [
+    "gm",
     "gambia",
     "republic of the gambia",
     "gambijska republika",
@@ -1720,6 +1808,7 @@
     "جمهوری گامبیا"
   ],
   "GW": [
+    "gw",
     "guinea bissau",
     "republic of guinea bissau",
     "republica da guine bissau",
@@ -1745,6 +1834,7 @@
     "جمهوری گینه بیسائو"
   ],
   "GQ": [
+    "gq",
     "equatorial guinea",
     "republic of equatorial guinea",
     "republique de la guinee equatoriale",
@@ -1771,6 +1861,7 @@
     "جمهوری گینه استوایی"
   ],
   "GR": [
+    "gr",
     "greece",
     "hellenic republic",
     "ellhnikh dhmokratia",
@@ -1794,10 +1885,12 @@
     "جمهوری یونان"
   ],
   "GD": [
+    "gd",
     "grenada",
     "grenade"
   ],
   "GL": [
+    "gl",
     "greenland",
     "kalaallit nunaat",
     "gronelandia",
@@ -1805,6 +1898,7 @@
     "گروئنلند"
   ],
   "GT": [
+    "gt",
     "guatemala",
     "republic of guatemala",
     "republica de guatemala",
@@ -1829,6 +1923,7 @@
     "جمهوری گواتِمالا"
   ],
   "GF": [
+    "gf",
     "french guiana",
     "french guyana",
     "guiana",
@@ -1845,6 +1940,7 @@
     "프랑스령 기아나"
   ],
   "GU": [
+    "gu",
     "guam",
     "guahan",
     "guami ala",
@@ -1852,6 +1948,7 @@
     "گوآم"
   ],
   "GY": [
+    "gy",
     "guyana",
     "co operative republic of guyana",
     "kooperativni republika guyana",
@@ -1874,6 +1971,7 @@
     "جمهوری تعاونی گویان"
   ],
   "HK": [
+    "hk",
     "hong kong",
     "hong kong special administrative region of the peoples republic of china",
     "中华人民共和国香港特别行政区",
@@ -1896,6 +1994,7 @@
     "هُنگ کُنگ"
   ],
   "HM": [
+    "hm",
     "heard island",
     "mcdonald islands",
     "heard island and mcdonald islands",
@@ -1916,6 +2015,7 @@
     "جزیره هرد و جزایر مک‌دونالد"
   ],
   "HN": [
+    "hn",
     "honduras",
     "republic of honduras",
     "republica de honduras",
@@ -1938,6 +2038,7 @@
     "جمهوری هندوراس"
   ],
   "HR": [
+    "hr",
     "croatia",
     "republic of croatia",
     "republika hrvatska",
@@ -1962,6 +2063,7 @@
     "جمهوری کرواسی"
   ],
   "HT": [
+    "ht",
     "haiti",
     "republic of haiti",
     "republique dhaiti",
@@ -1983,9 +2085,11 @@
     "جمهوری هائیتی"
   ],
   "HU": [
+    "hu",
     "hungary"
   ],
   "ID": [
+    "id",
     "indonesia",
     "republic of indonesia",
     "republik indonesia",
@@ -2010,6 +2114,7 @@
     "جمهوری اندونزی"
   ],
   "IM": [
+    "im",
     "isle of man",
     "mannin",
     "ellan vannin or mannin",
@@ -2019,6 +2124,7 @@
     "جزیرهٔ مَن"
   ],
   "IN": [
+    "in",
     "india",
     "republic of india",
     "भारत गणराज्य",
@@ -2044,6 +2150,7 @@
     "جمهوری هندوستان"
   ],
   "IO": [
+    "io",
     "british indian ocean territory",
     "tiriogaeth brydeinig cefnfor india",
     "territoire britannique de locean indien",
@@ -2057,6 +2164,7 @@
     "인도 공화국"
   ],
   "IE": [
+    "ie",
     "ireland",
     "republic of ireland",
     "eire",
@@ -2077,6 +2185,7 @@
     "아일랜드 공화국"
   ],
   "IR": [
+    "ir",
     "iran",
     "islamic republic of iran",
     "جمهوری اسلامی ایران",
@@ -2100,6 +2209,7 @@
     "이란 이슬람 공화국"
   ],
   "IQ": [
+    "iq",
     "iraq",
     "republic of iraq",
     "جمهورية العراق",
@@ -2126,6 +2236,7 @@
     "جمهوری عراق"
   ],
   "IS": [
+    "is",
     "iceland",
     "republique dislande",
     "islandska republika",
@@ -2135,6 +2246,7 @@
     "جمهوری ایسلند"
   ],
   "IL": [
+    "il",
     "israel",
     "state of israel",
     "دولة إسرائيل",
@@ -2157,6 +2269,7 @@
     "فلسطين اشغالی"
   ],
   "IT": [
+    "it",
     "italy",
     "italie",
     "italien",
@@ -2181,9 +2294,11 @@
     "جمهوری ایتالیا"
   ],
   "JM": [
+    "jm",
     "jamaica"
   ],
   "JE": [
+    "je",
     "jersey",
     "bailiwick of jersey",
     "bailliage de jersey",
@@ -2205,6 +2320,7 @@
     "저지 섬"
   ],
   "JO": [
+    "jo",
     "jordan",
     "hashemite kingdom of jordan",
     "المملكة الأردنية الهاشمية",
@@ -2228,12 +2344,14 @@
     "پادشاهی اُردُن هاشمی"
   ],
   "JP": [
+    "jp",
     "japan",
     "japon",
     "日本国",
     "일본국"
   ],
   "KZ": [
+    "kz",
     "kazakhstan",
     "republic of kazakhstan",
     "khazakhstan respublikasy",
@@ -2258,6 +2376,7 @@
     "جمهوری قزاقستان"
   ],
   "KE": [
+    "ke",
     "kenya",
     "republic of kenya",
     "kenska republika",
@@ -2280,6 +2399,7 @@
     "جمهوری کنیا"
   ],
   "KG": [
+    "kg",
     "kyrgyzstan",
     "kyrgyz republic",
     "kyrgyz respublikasy",
@@ -2305,6 +2425,7 @@
     "جمهوری قِرقیزستان"
   ],
   "KH": [
+    "kh",
     "cambodia",
     "kingdom of cambodia",
     "kampŭchea",
@@ -2331,6 +2452,7 @@
     "پادشاهی کامبوج"
   ],
   "KI": [
+    "ki",
     "kiribati",
     "independent and sovereign republic of kiribati",
     "ribaberiki kiribati",
@@ -2353,6 +2475,7 @@
     "جمهوری کیریباتی"
   ],
   "KN": [
+    "kn",
     "saint kitts and nevis",
     "federation of saint christopher and nevis",
     "federace sv krystof a nevis",
@@ -2379,6 +2502,7 @@
     "فدراسیون سنت کیتس و نویس"
   ],
   "KR": [
+    "kr",
     "south korea",
     "republic of korea",
     "한국",
@@ -2401,6 +2525,7 @@
     "جمهوری کره"
   ],
   "XK": [
+    "xk",
     "kosovo",
     "republic of kosovo",
     "republika e kosoves",
@@ -2423,6 +2548,7 @@
     "جمهوری کوزوو"
   ],
   "KW": [
+    "kw",
     "kuwait",
     "state of kuwait",
     "دولة الكويت",
@@ -2447,6 +2573,7 @@
     "دولت کویت"
   ],
   "LA": [
+    "la",
     "lao",
     "lao peoples democratic republic",
     "ສປປລາວ",
@@ -2471,6 +2598,7 @@
     "جمهوری دموکراتیک خلق لائوس"
   ],
   "LB": [
+    "lb",
     "lebanon",
     "liban",
     "lebanese republic",
@@ -2492,6 +2620,7 @@
     "جمهوری لبنان"
   ],
   "LR": [
+    "lr",
     "liberia",
     "republic of liberia",
     "liberijska republika",
@@ -2514,6 +2643,7 @@
     "جمهوری لیبریا"
   ],
   "LY": [
+    "ly",
     "libya",
     "state of libya",
     "الدولة ليبيا",
@@ -2535,10 +2665,12 @@
     "دولت لیبی"
   ],
   "LC": [
+    "lc",
     "saint lucia",
     "세인트루시아"
   ],
   "LI": [
+    "li",
     "liechtenstein",
     "principality of liechtenstein",
     "furstentum liechtenstein",
@@ -2562,6 +2694,7 @@
     "شاهزاده‌نشین لیختن‌اشتاین"
   ],
   "LK": [
+    "lk",
     "sri lanka",
     "democratic socialist republic of sri lanka",
     "ශ්‍රී ලංකාව",
@@ -2587,6 +2720,7 @@
     "جمهوری دموکراتیک سوسیالیستی سری‌لانکا"
   ],
   "LS": [
+    "ls",
     "lesotho",
     "kingdom of lesotho",
     "lesothske kralovstvi",
@@ -2609,6 +2743,7 @@
     "پادشاهی لسوتو"
   ],
   "LT": [
+    "lt",
     "lithuania",
     "republic of lithuania",
     "lietuvos respublikos",
@@ -2633,6 +2768,7 @@
     "لیتوانیایی‌ها"
   ],
   "LU": [
+    "lu",
     "luxembourg",
     "grand duchy of luxembourg",
     "grossherzogtum luxemburg",
@@ -2657,6 +2793,7 @@
     "دوک‌نشین لوکزامبورگ"
   ],
   "LV": [
+    "lv",
     "latvia",
     "republic of latvia",
     "latvijas republikas",
@@ -2680,6 +2817,7 @@
     "جمهوری لتونی"
   ],
   "MO": [
+    "mo",
     "macao",
     "macao special administrative region of the peoples republic of china",
     "regiao administrativa especial de macau da republica popular da china",
@@ -2702,6 +2840,7 @@
     "중화인민공화국 마카오 특별행정구"
   ],
   "MF": [
+    "mf",
     "saint martin",
     "svaty martin francie",
     "svaty martin",
@@ -2715,6 +2854,7 @@
     "سن مارتن"
   ],
   "MA": [
+    "ma",
     "morocco",
     "kingdom of morocco",
     "المملكة المغربية",
@@ -2740,6 +2880,7 @@
     "پادشاهی مراکش"
   ],
   "MC": [
+    "mc",
     "monaco",
     "principality of monaco",
     "principaute de monaco",
@@ -2762,6 +2903,7 @@
     "شاهزاده‌نشین موناکو"
   ],
   "MD": [
+    "md",
     "moldova",
     "republic of moldova",
     "moldavska republika",
@@ -2782,6 +2924,7 @@
     "جمهوری مولداوی"
   ],
   "MG": [
+    "mg",
     "madagascar",
     "republic of madagascar",
     "republique de madagascar",
@@ -2804,6 +2947,7 @@
     "جمهوری ماداگاسکار"
   ],
   "MV": [
+    "mv",
     "maldives",
     "republic of the maldives",
     "ދިވެހިރާއްޖޭގ",
@@ -2827,6 +2971,7 @@
     "جمهوری مالدیو"
   ],
   "MX": [
+    "mx",
     "mexico",
     "mexique",
     "united mexican states",
@@ -2849,6 +2994,7 @@
     "ایالات متحد مکزیک"
   ],
   "MH": [
+    "mh",
     "marshall islands",
     "republic of the marshall islands",
     "m̧ajel",
@@ -2874,6 +3020,7 @@
     "جمهوری جزایر مارشال"
   ],
   "MK": [
+    "mk",
     "macedonia",
     "republic of north macedonia",
     "makedonija",
@@ -2899,6 +3046,7 @@
     "جمهوری مقدونیه شمالی"
   ],
   "ML": [
+    "ml",
     "mali",
     "republic of mali",
     "republique du mali",
@@ -2919,6 +3067,7 @@
     "جمهوری مالی"
   ],
   "MT": [
+    "mt",
     "malta",
     "republic of malta",
     "repubblika ta malta",
@@ -2940,6 +3089,7 @@
     "جمهوری مالت"
   ],
   "MM": [
+    "mm",
     "myanmar",
     "republic of the union of myanmar",
     "မြန်မ",
@@ -2966,9 +3116,11 @@
     "اتحادیه جمهوری میانمار"
   ],
   "ME": [
+    "me",
     "montenegro"
   ],
   "MN": [
+    "mn",
     "mongolia",
     "mongol uls",
     "stat mongolsko",
@@ -2977,6 +3129,7 @@
     "몽골"
   ],
   "MP": [
+    "mp",
     "northern mariana islands",
     "commonwealth of the northern mariana islands",
     "na islas marianas",
@@ -3002,6 +3155,7 @@
     "북마리아나 제도"
   ],
   "MZ": [
+    "mz",
     "mozambique",
     "republic of mozambique",
     "republica de mocambique",
@@ -3023,6 +3177,7 @@
     "جمهوری موزامبیک"
   ],
   "MR": [
+    "mr",
     "mauritania",
     "islamic republic of mauritania",
     "الجمهورية الإسلامية الموريتانية",
@@ -3046,17 +3201,20 @@
     "جمهوری اسلامی موریتانی"
   ],
   "MS": [
+    "ms",
     "montserrat",
     "مانٹسریٹ",
     "몬트세랫"
   ],
   "MQ": [
+    "mq",
     "martinique",
     "マルティニーク島",
     "martiniquei departemang",
     "مارٹینیک"
   ],
   "MU": [
+    "mu",
     "mauritius",
     "republic of mauritius",
     "republique de maurice",
@@ -3082,6 +3240,7 @@
     "جمهوری موریس"
   ],
   "MW": [
+    "mw",
     "malawi",
     "republic of malawi",
     "chalo cha malawi, dziko la malawi",
@@ -3105,12 +3264,14 @@
     "جمهوری مالاوی"
   ],
   "MY": [
+    "my",
     "malaysia",
     "مليسيا",
     "federation de malaisie",
     "فدراسیون مالزی"
   ],
   "YT": [
+    "yt",
     "mayotte",
     "department of mayotte",
     "departement de mayotte",
@@ -3127,6 +3288,7 @@
     "مجموعه شهرستانی مایوت"
   ],
   "NA": [
+    "na",
     "namibia",
     "republic of namibia",
     "republiek van namibie",
@@ -3151,11 +3313,13 @@
     "جمهوری نامیبیا"
   ],
   "NC": [
+    "nc",
     "new caledonia",
     "نیو کیلیڈونیا",
     "누벨칼레도니"
   ],
   "NE": [
+    "ne",
     "niger",
     "republic of niger",
     "republique du niger",
@@ -3177,6 +3341,7 @@
     "جمهوری نیجر"
   ],
   "NF": [
+    "nf",
     "norfolk island",
     "territory of norfolk island",
     "norfk ailen",
@@ -3203,6 +3368,7 @@
     "قلمرو جزایر نورفک"
   ],
   "NG": [
+    "ng",
     "nigeria",
     "federal republic of nigeria",
     "nigerijska federativni republika",
@@ -3225,6 +3391,7 @@
     "جمهوری فدرال نیجریه"
   ],
   "NI": [
+    "ni",
     "nicaragua",
     "republic of nicaragua",
     "republica de nicaragua",
@@ -3247,11 +3414,13 @@
     "جمهوری نیکاراگوئه"
   ],
   "NU": [
+    "nu",
     "niue",
     "نیووے",
     "نیووی"
   ],
   "NL": [
+    "nl",
     "netherlands",
     "nederland",
     "holland",
@@ -3267,6 +3436,7 @@
     "네덜란드 왕국"
   ],
   "NO": [
+    "no",
     "norway",
     "kingdom of norway",
     "kongeriket noreg",
@@ -3293,6 +3463,7 @@
     "پادشاهی نروژ"
   ],
   "NP": [
+    "np",
     "nepal",
     "federal democratic republic of nepal",
     "नेपाल संघीय लोकतान्त्रिक गणतन्त्र",
@@ -3316,6 +3487,7 @@
     "جمهوری فدرال دموکراتیک نپال"
   ],
   "NR": [
+    "nr",
     "nauru",
     "republic of nauru",
     "republika nauru",
@@ -3335,10 +3507,12 @@
     "جمهوری نائورو"
   ],
   "NZ": [
+    "nz",
     "new zealand",
     "aotearoa"
   ],
   "OM": [
+    "om",
     "oman",
     "sultanate of oman",
     "سلطنة عمان",
@@ -3359,6 +3533,7 @@
     "سلطان‌نشین عُمان"
   ],
   "PK": [
+    "pk",
     "pakistan",
     "islamic republic of pakistan",
     "پاكستان",
@@ -3381,6 +3556,7 @@
     "جمهوری اسلامی پاکستان"
   ],
   "PA": [
+    "pa",
     "panama",
     "republic of panama",
     "republica de panama",
@@ -3402,6 +3578,7 @@
     "جمهوری پاناما"
   ],
   "PN": [
+    "pn",
     "pitcairn",
     "pitcairn islands",
     "pitcairn group of islands",
@@ -3424,6 +3601,7 @@
     "핏케언 제도"
   ],
   "PE": [
+    "pe",
     "peru",
     "republic of peru",
     "piruw",
@@ -3448,6 +3626,7 @@
     "جمهوری پرو"
   ],
   "PH": [
+    "ph",
     "philippines",
     "republic of the philippines",
     "pilipinas",
@@ -3471,6 +3650,7 @@
     "جمهوری فیلیپین"
   ],
   "PW": [
+    "pw",
     "palau",
     "republic of palau",
     "beluu er a belau",
@@ -3493,6 +3673,7 @@
     "جمهوری پالائو"
   ],
   "PG": [
+    "pg",
     "papua new guinea",
     "independent state of papua new guinea",
     "papua niu gini",
@@ -3518,6 +3699,7 @@
     "مملکت مستقل پاپوآ گینهٔ نو"
   ],
   "PL": [
+    "pl",
     "poland",
     "republic of poland",
     "rzeczpospolita polska",
@@ -3539,6 +3721,7 @@
     "جمهوری لهستان"
   ],
   "PR": [
+    "pr",
     "puerto rico",
     "commonwealth of puerto rico",
     "estado libre asociado de puerto rico",
@@ -3558,6 +3741,7 @@
     "قلمرو همسود پورتوریکو"
   ],
   "KP": [
+    "kp",
     "north korea",
     "democratic peoples republic of korea",
     "조선",
@@ -3584,6 +3768,7 @@
     "جمهوری دموکراتیک خلق کره"
   ],
   "PT": [
+    "pt",
     "portugal",
     "portuguese republic",
     "republica portugues",
@@ -3604,6 +3789,7 @@
     "جمهوری پرتغال"
   ],
   "PY": [
+    "py",
     "paraguay",
     "republic of paraguay",
     "teta paraguai",
@@ -3627,6 +3813,7 @@
     "جمهوری پاراگوئه"
   ],
   "PS": [
+    "ps",
     "palestine",
     "state of palestine",
     "دولة فلسطين",
@@ -3649,12 +3836,14 @@
     "دولت فلسطین"
   ],
   "PF": [
+    "pf",
     "french polynesia",
     "polinesia frances",
     "프랑스령 폴리네시아",
     "پُلی‌نِزی فرانسه"
   ],
   "QA": [
+    "qa",
     "qatar",
     "state of qatar",
     "دولة قطر",
@@ -3678,6 +3867,7 @@
     "دولت قطر"
   ],
   "RE": [
+    "re",
     "reunion",
     "réunion",
     "reunion island",
@@ -3695,10 +3885,12 @@
     "레위니옹"
   ],
   "RO": [
+    "ro",
     "romania",
     "roumanie"
   ],
   "RU": [
+    "ru",
     "russia",
     "Россия",
     "russian federation",
@@ -3719,6 +3911,7 @@
     "فدراسیون روسیه"
   ],
   "RW": [
+    "rw",
     "rwanda",
     "republic of rwanda",
     "republique rwandaise",
@@ -3741,6 +3934,7 @@
     "جمهوری رواندا"
   ],
   "SA": [
+    "sa",
     "saudi arabia",
     "kingdom of saudi arabia",
     "العربية السعودية",
@@ -3767,6 +3961,7 @@
     "پادشاهی عربی سَعودی"
   ],
   "SD": [
+    "sd",
     "sudan",
     "republic of the sudan",
     "جمهورية السودان",
@@ -3789,6 +3984,7 @@
     "جمهوری سودان"
   ],
   "SN": [
+    "sn",
     "senegal",
     "republic of senegal",
     "republique du senegal",
@@ -3809,6 +4005,7 @@
     "جمهوری سنگال"
   ],
   "SG": [
+    "sg",
     "singapore",
     "republic of singapore",
     "新加坡共和国",
@@ -3833,6 +4030,7 @@
     "جمهوری سنگاپور"
   ],
   "GS": [
+    "gs",
     "south georgia",
     "south georgia and south sandwich islands",
     "juzna georgija i otocje juzni sandwich",
@@ -3851,6 +4049,7 @@
     "조지아"
   ],
   "SJ": [
+    "sj",
     "svalbard and jan mayen",
     "spitzbergen und jan mayen",
     "svalbard et jan mayen",
@@ -3868,6 +4067,7 @@
     "سوالبارد و یان ماین"
   ],
   "SB": [
+    "sb",
     "solomon islands",
     "iles salomon",
     "solomonski otoci",
@@ -3876,6 +4076,7 @@
     "جزائر سلیمان"
   ],
   "SL": [
+    "sl",
     "sierra leone",
     "republic of sierra leone",
     "republika sierra leone",
@@ -3899,6 +4100,7 @@
     "جمهوری سیرالئون"
   ],
   "SV": [
+    "sv",
     "el salvador",
     "republic of el salvador",
     "republica de el salvador",
@@ -3922,6 +4124,7 @@
     "جمهوری السالوادور"
   ],
   "SM": [
+    "sm",
     "san marino",
     "most serene republic of san marino",
     "serenissima repubblica di san marino",
@@ -3944,6 +4147,7 @@
     "جمهوری سان مارینو"
   ],
   "SO": [
+    "so",
     "somalia",
     "federal republic of somalia",
     "جمهورية الصومال",
@@ -3969,6 +4173,7 @@
     "جمهوری فدرال سومالی"
   ],
   "PM": [
+    "pm",
     "saint pierre and miquelon",
     "collectivite territoriale de saint pierre et miquelon",
     "st pierre und miquelon",
@@ -3981,6 +4186,7 @@
     "سن پیر ا میکلون"
   ],
   "RS": [
+    "rs",
     "serbia",
     "republic of serbia",
     "republika srbija",
@@ -4002,6 +4208,7 @@
     "جمهوری صربستان"
   ],
   "SS": [
+    "ss",
     "south sudan",
     "republic of south sudan",
     "jihosudanska republika",
@@ -4027,6 +4234,7 @@
     "جمهوری سودان جنوبی"
   ],
   "ST": [
+    "st",
     "sao tome and principe",
     "democratic republic of sao tome and principe",
     "republica democratica do sao tome e principe",
@@ -4054,6 +4262,7 @@
     "جمهوری دموکراتیک سائوتومه و پرنسیپ"
   ],
   "SR": [
+    "sr",
     "suriname",
     "republic of suriname",
     "republiek suriname",
@@ -4076,6 +4285,7 @@
     "جمهوری سورینام"
   ],
   "SK": [
+    "sk",
     "slovakia",
     "slovak republic",
     "slovenska republika",
@@ -4097,6 +4307,7 @@
     "جمهوری اسلواکی"
   ],
   "SI": [
+    "si",
     "slovenia",
     "republic of slovenia",
     "republika slovenija",
@@ -4118,6 +4329,7 @@
     "جمهوری اسلوونی"
   ],
   "SE": [
+    "se",
     "sweden",
     "suède",
     "kingdom of sweden",
@@ -4142,6 +4354,7 @@
     "پادشاهی سوئد"
   ],
   "SZ": [
+    "sz",
     "eswatini",
     "kingdom of eswatini",
     "umbuso weswatini",
@@ -4168,6 +4381,7 @@
     "پادشاهی سوازیلند"
   ],
   "SX": [
+    "sx",
     "saint martin",
     "sint maarten",
     "svaty martin nizozemsko",
@@ -4181,6 +4395,7 @@
     "سن مارتن"
   ],
   "SC": [
+    "sc",
     "seychelles",
     "republic of seychelles",
     "sesel",
@@ -4206,6 +4421,7 @@
     "جمهوری سیشل"
   ],
   "SY": [
+    "sy",
     "syria",
     "syrian arab republic",
     "الجمهورية العربية السورية",
@@ -4227,6 +4443,7 @@
     "جمهوری عربی سوریه"
   ],
   "TC": [
+    "tc",
     "turks and caicos islands",
     "turks und caicos inseln",
     "turks e caicos",
@@ -4239,6 +4456,7 @@
     "터크스 케이커스 제도"
   ],
   "TD": [
+    "td",
     "chad",
     "republic of chad",
     "جمهورية تشاد",
@@ -4263,6 +4481,7 @@
     "جمهوری چاد"
   ],
   "TG": [
+    "tg",
     "togo",
     "togolese republic",
     "republique togolaise",
@@ -4286,6 +4505,7 @@
     "جمهوری توگو"
   ],
   "TH": [
+    "th",
     "thailand",
     "kingdom of thailand",
     "ประเทศไทย",
@@ -4310,6 +4530,7 @@
     "پادشاهی تایلند"
   ],
   "TJ": [
+    "tj",
     "tajikistan",
     "republic of tajikistan",
     "respublika tadzhikistan",
@@ -4334,6 +4555,7 @@
     "جمهوری تاجیکستان"
   ],
   "TK": [
+    "tk",
     "tokelau",
     "iles tokelau",
     "isole tokelau",
@@ -4344,6 +4566,7 @@
     "토켈라우"
   ],
   "TM": [
+    "tm",
     "turkmenistan",
     "turquemenistao",
     "republika turkmenistanu",
@@ -4352,6 +4575,7 @@
     "جمهوری خلق ترکمنستان"
   ],
   "TL": [
+    "tl",
     "timor leste",
     "democratic republic of timor leste",
     "republica democratica de timor leste",
@@ -4378,6 +4602,7 @@
     "جمهوری دموکراتیک تیمور شرقی"
   ],
   "TO": [
+    "to",
     "tonga",
     "kingdom of tonga",
     "kralovstvi tonga",
@@ -4399,6 +4624,7 @@
     "پادشاهی تونگا"
   ],
   "TT": [
+    "tt",
     "trinidad and tobago",
     "republic of trinidad and tobago",
     "republika trinidad a tobago",
@@ -4423,6 +4649,7 @@
     "جمهوری ترینیداد و توباگو"
   ],
   "TN": [
+    "tn",
     "tunisia",
     "tunisian republic",
     "الجمهورية التونسية",
@@ -4445,6 +4672,7 @@
     "جمهوری تونس"
   ],
   "TR": [
+    "tr",
     "turkey",
     "turcquie",
     "republic of turkey",
@@ -4468,9 +4696,11 @@
     "جمهوری ترکیه"
   ],
   "TV": [
+    "tv",
     "tuvalu"
   ],
   "TW": [
+    "tw",
     "taiwan",
     "republic of china taiwan",
     "台灣",
@@ -4493,6 +4723,7 @@
     "جمهوری چین"
   ],
   "TZ": [
+    "tz",
     "tanzania",
     "united republic of tanzania",
     "jamhuri ya muungano wa tanzania",
@@ -4517,6 +4748,7 @@
     "جمهوری متحد تانزانیا"
   ],
   "UG": [
+    "ug",
     "uganda",
     "republic of uganda",
     "ugandska republika",
@@ -4538,9 +4770,11 @@
     "جمهوری اوگاندا"
   ],
   "UA": [
+    "ua",
     "ukraine"
   ],
   "UM": [
+    "um",
     "united states minor outlying islands",
     "mensi odlehle ostrovy spojenych statu americkych",
     "kleinere inselbesitzungen der vereinigten staaten",
@@ -4560,6 +4794,7 @@
     "جزایر کوچک حاشیه‌ای ایالات متحده آمریکا"
   ],
   "UY": [
+    "uy",
     "uruguay",
     "oriental republic of uruguay",
     "republica oriental del uruguay",
@@ -4582,6 +4817,8 @@
     "جمهوری اروگوئه"
   ],
   "US": [
+    "us",
+    "usa",
     "united states",
     "united states of america",
     "vereinigte staaten",
@@ -4603,6 +4840,7 @@
     "ایالات متحده آمریکا"
   ],
   "UZ": [
+    "uz",
     "uzbekistan",
     "republic of uzbekistan",
     "respublika uzbekistan",
@@ -4626,6 +4864,7 @@
     "جمهوری ازبکستان"
   ],
   "VA": [
+    "va",
     "vatican city",
     "holy see",
     "vatican city state",
@@ -4652,6 +4891,7 @@
     "دولت‌شهر واتیکان"
   ],
   "VC": [
+    "vc",
     "saint vincent and the grenadines",
     "sao vincente e granadinas",
     "san vicente y granadinas",
@@ -4661,6 +4901,7 @@
     "سنت وینسنت و گرنادین‌ها"
   ],
   "VE": [
+    "ve",
     "venezuela",
     "bolivarian republic of venezuela",
     "republica bolivariana de venezuela",
@@ -4684,6 +4925,7 @@
     "جمهوری بولیواری ونزوئلا"
   ],
   "VG": [
+    "vg",
     "british virgin islands",
     "virgin islands",
     "jungferninseln",
@@ -4705,6 +4947,7 @@
     "영국령 버진아일랜드"
   ],
   "VI": [
+    "vi",
     "united states virgin islands",
     "virgin islands of the united states",
     "iles vierges des etats unis",
@@ -4724,6 +4967,7 @@
     "جزایر ویرجین ایالات متحده آمریکا"
   ],
   "VN": [
+    "vn",
     "vietnam",
     "socialist republic of vietnam",
     "cong hoa xa hoi chu nghia viet nam",
@@ -4747,6 +4991,7 @@
     "جمهوری سوسیالیستی ویتنام"
   ],
   "VU": [
+    "vu",
     "vanuatu",
     "republic of vanuatu",
     "ripablik blong vanuatu",
@@ -4766,6 +5011,7 @@
     "جمهوری وانواتو"
   ],
   "WF": [
+    "wf",
     "wallis and futuna",
     "territory of the wallis and futuna islands",
     "territoire des iles wallis et futuna",
@@ -4790,6 +5036,7 @@
     "جزایر والیس و فوتونا"
   ],
   "WS": [
+    "ws",
     "samoa",
     "independent state of samoa",
     "malo saʻoloto tutoʻatasi o samoa",
@@ -4813,6 +5060,7 @@
     "ایالت مستقل ساموآ"
   ],
   "YE": [
+    "ye",
     "yemen",
     "republic of yemen",
     "اليَمَن",
@@ -4837,6 +5085,7 @@
     "جمهوری یمن"
   ],
   "ZA": [
+    "za",
     "south africa",
     "afrique du sud",
     "republic of south africa",
@@ -4875,6 +5124,7 @@
     "جمهوری آفریقای جنوبی"
   ],
   "ZM": [
+    "zm",
     "zambia",
     "republic of zambia",
     "zambijska republika",
@@ -4897,6 +5147,7 @@
     "جمهوری زامبیا"
   ],
   "ZW": [
+    "zw",
     "zimbabwe",
     "republic of zimbabwe",
     "zimbabwska republika",
