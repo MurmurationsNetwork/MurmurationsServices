@@ -59,10 +59,3 @@ linters-settings:
     # 2. Third-party packages
     # 3. Packages from the same project
     local-prefixes: github.com/MurmurationsNetwork/MurmurationsServices
-
-issues:
-  exclude-rules:
-    - linters:
-        - staticcheck
-      # text: Ignore using a deprecated function, variable, constant or field.
-      text: "SA1019"
