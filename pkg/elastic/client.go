@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	elastic "github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic/v7"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
@@ -46,7 +46,6 @@ func (c *esClient) Index(
 	ctx := context.Background()
 	result, err := c.client.Index().
 		Index(index).
-		Type(docType).
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
@@ -72,7 +71,6 @@ func (c *esClient) IndexWithID(
 	result, err := c.client.Index().
 		Index(index).
 		Id(id).
-		Type("_doc").
 		BodyJson(doc).
 		Do(ctx)
 	if err != nil {
@@ -129,7 +127,6 @@ func (c *esClient) Update(
 	ctx := context.Background()
 	_, err := c.client.Update().
 		Index(index).
-		Type(docType).
 		Id(id).
 		Doc(update).
 		Do(ctx)
@@ -154,7 +151,6 @@ func (c *esClient) Delete(index string, id string) error {
 	ctx := context.Background()
 	_, err := c.client.Delete().
 		Index(index).
-		Type(docType).
 		Id(id).
 		Do(ctx)
 	if err != nil {

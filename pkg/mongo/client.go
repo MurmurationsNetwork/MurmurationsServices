@@ -36,10 +36,8 @@ func (c *mongoClient) Count(
 
 func (c *mongoClient) InsertOne(collection string, document interface{},
 	opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
-	mergedOpt := options.MergeInsertOneOptions(opts...)
-
 	result, err := c.db.Collection(collection).
-		InsertOne(context.Background(), document, mergedOpt)
+		InsertOne(context.Background(), document, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,13 +55,12 @@ func (c *mongoClient) FindOneAndUpdate(
 		opts,
 		options.FindOneAndUpdate().SetReturnDocument(options.After),
 	)
-	mergedOpt := options.MergeFindOneAndUpdateOptions(opts...)
 
 	// Automatically increment the document version.
 	update["$inc"] = bson.M{"__v": 1}
 
 	result := c.db.Collection(collection).
-		FindOneAndUpdate(context.Background(), filter, update, mergedOpt)
+		FindOneAndUpdate(context.Background(), filter, update, opts...)
 	if result.Err() != nil {
 		return nil, result.Err()
 	}
