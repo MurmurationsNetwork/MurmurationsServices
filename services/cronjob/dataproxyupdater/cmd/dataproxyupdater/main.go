@@ -279,7 +279,7 @@ func getURL(
 func getProfiles(url string) ([]map[string]interface{}, error) {
 	res, err := httputil.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("can't get data from" + url)
+		return nil, fmt.Errorf("can't get data from " + url + "with the error message: " + err.Error())
 	}
 
 	defer res.Body.Close()
