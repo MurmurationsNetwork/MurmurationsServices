@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/usecase"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/service"
 )
 
 type BatchesHandler interface {
@@ -22,12 +22,12 @@ type BatchesHandler interface {
 }
 
 type batchesHandler struct {
-	batchUsecase usecase.BatchUsecase
+	svc service.BatchService
 }
 
-func NewBatchesHandler(batchService usecase.BatchUsecase) BatchesHandler {
+func NewBatchesHandler(batchService service.BatchService) BatchesHandler {
 	return &batchesHandler{
-		batchUsecase: batchService,
+		svc: batchService,
 	}
 }
 
@@ -45,7 +45,7 @@ func (handler *batchesHandler) GetBatchesByUserID(c *gin.Context) {
 		return
 	}
 
-	batches, err := handler.batchUsecase.GetBatchesByUserID(userID)
+	batches, err := handler.svc.GetBatchesByUserID(userID)
 	if err != nil {
 		errors := jsonapi.NewError(
 			[]string{"Get Batches Failed"},
@@ -86,7 +86,7 @@ func (handler *batchesHandler) Validate(c *gin.Context) {
 		return
 	}
 
-	line, validationError, err := handler.batchUsecase.Validate(
+	line, validationError, err := handler.svc.Validate(
 		schemas,
 		records,
 	)
@@ -180,7 +180,7 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaURL := c.PostForm("meta_url")
 
-	batchID, line, validationError, err := handler.batchUsecase.Import(
+	batchID, line, validationError, err := handler.svc.Import(
 		title,
 		schemas,
 		records,
@@ -281,7 +281,7 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	metaName := c.PostForm("meta_name")
 	metaURL := c.PostForm("meta_url")
 
-	line, validationError, err := handler.batchUsecase.Edit(
+	line, validationError, err := handler.svc.Edit(
 		title,
 		records,
 		userID,
@@ -351,7 +351,7 @@ func (handler *batchesHandler) Delete(c *gin.Context) {
 	}
 
 	// Call delete service
-	err := handler.batchUsecase.Delete(userID, batchID)
+	err := handler.svc.Delete(userID, batchID)
 	if err != nil {
 		errors := jsonapi.NewError(
 			[]string{"Delete Batch Failed"},

@@ -15,10 +15,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/global"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/service"
 )
 
@@ -35,7 +35,7 @@ func errCleanUp(schemaName string, svc service.UpdatesService, errStr string) {
 }
 
 func cleanUp() {
-	mongo.Client.Disconnect()
+	mongodb.Client.Disconnect()
 	os.Exit(0)
 }
 
@@ -44,10 +44,10 @@ func main() {
 	apiEntry := "https://api.ofdb.io/v0"
 
 	svc := service.NewUpdateService(
-		db.NewUpdateRepository(mongo.Client.GetClient()),
+		mongo.NewUpdateRepository(mongodb.Client.GetClient()),
 	)
 	profileSvc := service.NewProfileService(
-		db.NewProfileRepository(mongo.Client.GetClient()),
+		mongo.NewProfileRepository(mongodb.Client.GetClient()),
 	)
 
 	update := svc.Get(schemaName)
@@ -279,7 +279,9 @@ func getURL(
 func getProfiles(url string) ([]map[string]interface{}, error) {
 	res, err := httputil.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("can't get data from " + url + "with the error message: " + err.Error())
+		return nil, fmt.Errorf(
+			"can't get data from " + url + "with the error message: " + err.Error(),
+		)
 	}
 
 	defer res.Body.Close()

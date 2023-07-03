@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/mongo"
 )
 
 type UpdatesHandler interface {
@@ -13,10 +13,10 @@ type UpdatesHandler interface {
 }
 
 type updatesHandler struct {
-	updateRepository db.UpdateRepository
+	updateRepository mongo.UpdateRepository
 }
 
-func NewUpdatesHandler(updateRepository db.UpdateRepository) UpdatesHandler {
+func NewUpdatesHandler(updateRepository mongo.UpdateRepository) UpdatesHandler {
 	return &updatesHandler{
 		updateRepository: updateRepository,
 	}

@@ -4,17 +4,17 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/controller/http"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/usecase"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/service"
 )
 
 func mapURLs(router *gin.Engine) {
 	pingHandler := http.NewPingHandler()
-	mappingsHandler := http.NewMappingsHandler(db.NewMappingRepository())
-	profilesHandler := http.NewProfilesHandler(db.NewProfileRepository())
-	updatesHandler := http.NewUpdatesHandler(db.NewUpdateRepository())
+	mappingsHandler := http.NewMappingsHandler(mongo.NewMappingRepository())
+	profilesHandler := http.NewProfilesHandler(mongo.NewProfileRepository())
+	updatesHandler := http.NewUpdatesHandler(mongo.NewUpdateRepository())
 	batchesHandler := http.NewBatchesHandler(
-		usecase.NewBatchService(db.NewBatchRepository()),
+		service.NewBatchService(mongo.NewBatchRepository()),
 	)
 
 	v1 := router.Group("/v1")

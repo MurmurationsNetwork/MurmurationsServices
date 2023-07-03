@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/mongo"
 )
 
 type ProfilesHandler interface {
@@ -13,11 +13,11 @@ type ProfilesHandler interface {
 }
 
 type profilesHandler struct {
-	profileRepository db.ProfileRepository
+	profileRepository mongo.ProfileRepository
 }
 
 func NewProfilesHandler(
-	profileRepository db.ProfileRepository,
+	profileRepository mongo.ProfileRepository,
 ) ProfilesHandler {
 	return &profilesHandler{
 		profileRepository: profileRepository,

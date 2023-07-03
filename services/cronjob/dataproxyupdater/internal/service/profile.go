@@ -1,20 +1,20 @@
 package service
 
 import (
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/model"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/model"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/mongo"
 )
 
 type ProfilesService interface {
 	Count(profileID string) (int64, error)
 	Add(profileJSON map[string]interface{}) error
 	Update(
-		profileID string,
+		schemaName string,
 		profileJSON map[string]interface{},
 	) (map[string]interface{}, error)
 	UpdateNodeID(profileID string, nodeID string) error
-	FindLessThan(schemaName string, timestamp int64) ([]model.Profile, error)
-	UpdateAccessTime(profileID string) error
+	GetNotPosted() ([]model.Profile, error)
+	UpdateIsPosted(nodeID string) error
 	Delete(profileID string) error
 }
 
@@ -22,9 +22,9 @@ type profilesService struct {
 	mongoRepo mongo.ProfileRepository
 }
 
-func NewProfileService(mongoRepo mongo.ProfileRepository) ProfilesService {
+func NewProfileService(profileRepo mongo.ProfileRepository) ProfilesService {
 	return &profilesService{
-		mongoRepo: mongoRepo,
+		mongoRepo: profileRepo,
 	}
 }
 
@@ -50,15 +50,12 @@ func (svc *profilesService) UpdateNodeID(
 	return svc.mongoRepo.UpdateNodeID(profileID, nodeID)
 }
 
-func (svc *profilesService) FindLessThan(
-	schemaName string,
-	timestamp int64,
-) ([]model.Profile, error) {
-	return svc.mongoRepo.FindLessThan(schemaName, timestamp)
+func (svc *profilesService) GetNotPosted() ([]model.Profile, error) {
+	return svc.mongoRepo.GetNotPosted()
 }
 
-func (svc *profilesService) UpdateAccessTime(profileID string) error {
-	return svc.mongoRepo.UpdateAccessTime(profileID)
+func (svc *profilesService) UpdateIsPosted(nodeID string) error {
+	return svc.mongoRepo.UpdateIsPosted(nodeID)
 }
 
 func (svc *profilesService) Delete(profileID string) error {

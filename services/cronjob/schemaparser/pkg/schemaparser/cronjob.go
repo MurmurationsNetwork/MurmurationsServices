@@ -2,17 +2,12 @@ package schemaparser
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/adapter/mongodb"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/adapter/redisadapter"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/service"
 )
-
-func init() {
-	config.Init()
-	mongodb.Init()
-}
 
 // SchemaCron represents a cron job for managing schema updates.
 type SchemaCron struct {
@@ -23,10 +18,17 @@ type SchemaCron struct {
 // NewCronJob creates a new instance of CronJob and initializes the
 // SchemaService.
 func NewCronJob() *SchemaCron {
+	redisClient := redis.NewClient(config.Values.Redis.URL)
+	err := redisClient.Ping()
+	if err != nil {
+		logger.Panic("error when trying to ping Redis", err)
+		return nil
+	}
+
 	return &SchemaCron{
 		svc: service.NewSchemaService(
-			db.NewSchemaRepository(),
-			redisadapter.NewClient(),
+			mongo.NewSchemaRepository(),
+			redisClient,
 		),
 	}
 }
@@ -34,7 +36,12 @@ func NewCronJob() *SchemaCron {
 // Run executes the cron job. It fetches the latest branch info, checks for new
 // commits, updates schemas if a new commit is found, and sets the last commit.
 func (sc *SchemaCron) Run() {
-	url := config.Conf.Github.BranchURL
+	if err := sc.connectToMongoDB(); err != nil {
+		logger.Panic("error when trying to connect to MongoDB", err)
+		return
+	}
+
+	url := config.Values.Github.BranchURL
 
 	// Use the SchemaService to get branch info.
 	branchInfo, err := sc.svc.GetBranchInfo(url)
@@ -75,4 +82,22 @@ func (sc *SchemaCron) Run() {
 	if err != nil {
 		logger.Panic("Error when trying to set schemas:lastCommit", err)
 	}
+}
+
+// connectToMongoDB establishes a connection to MongoDB.
+func (sc *SchemaCron) connectToMongoDB() error {
+	uri := mongodb.GetURI(
+		config.Values.Mongo.USERNAME,
+		config.Values.Mongo.PASSWORD,
+		config.Values.Mongo.HOST,
+	)
+	err := mongodb.NewClient(uri, config.Values.Mongo.DBName)
+	if err != nil {
+		return err
+	}
+	err = mongodb.Client.Ping()
+	if err != nil {
+		return err
+	}
+	return nil
 }

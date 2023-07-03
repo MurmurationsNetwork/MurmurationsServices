@@ -17,19 +17,15 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/global"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/rest"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/es"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
-
-func init() {
-	global.Init()
-}
 
 // Service represents the index service.
 type Service struct {
@@ -57,7 +53,10 @@ func NewService() *Service {
 
 	svc.setupServer()
 	svc.nodeHandler = event.NewNodeHandler(
-		service.NewNodeService(db.NewRepository()),
+		service.NewNodeService(
+			mongo.NewNodeRepository(),
+			es.NewNodeRepository(),
+		),
 	)
 	core.InstallShutdownHandler(svc.Shutdown)
 
@@ -90,16 +89,16 @@ func (s *Service) setupServer() {
 
 // connectToMongoDB establishes a connection to MongoDB.
 func (s *Service) connectToMongoDB() error {
-	uri := mongo.GetURI(
+	uri := mongodb.GetURI(
 		config.Values.Mongo.USERNAME,
 		config.Values.Mongo.PASSWORD,
 		config.Values.Mongo.HOST,
 	)
-	err := mongo.NewClient(uri, config.Values.Mongo.DBName)
+	err := mongodb.NewClient(uri, config.Values.Mongo.DBName)
 	if err != nil {
 		return err
 	}
-	err = mongo.Client.Ping()
+	err = mongodb.Client.Ping()
 	if err != nil {
 		return err
 	}
@@ -141,7 +140,10 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 // registerRoutes sets up the routes for the HTTP server.
 func (s *Service) registerRoutes() {
 	nodeHandler := rest.NewNodeHandler(
-		service.NewNodeService(db.NewRepository()),
+		service.NewNodeService(
+			mongo.NewNodeRepository(),
+			es.NewNodeRepository(),
+		),
 	)
 
 	v1 := s.router.Group("/v1")
@@ -228,7 +230,7 @@ func (s *Service) Shutdown() {
 func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
 		s.shutdownCancelCtx()
-		mongo.Client.Disconnect()
+		mongodb.Client.Disconnect()
 		nats.Client.Disconnect()
 		logger.Info("Index service stopped gracefully")
 	})

@@ -1,12 +1,6 @@
 package config
 
-import (
-	"log"
-
-	env "github.com/caarlos0/env/v6"
-)
-
-var Conf = config{}
+var Values = config{}
 
 type config struct {
 	Library libraryConf
@@ -34,11 +28,4 @@ type githubConf struct {
 	TOKEN     string `env:"GITHUB_TOKEN,required"`
 	BranchURL string `env:"GITHUB_BRANCH_URL,required"`
 	TreeURL   string `env:"GITHUB_TREE_URL,required"`
-}
-
-func Init() {
-	err := env.Parse(&Conf)
-	if err != nil {
-		log.Fatalf("Failed to decode environment variables: %s", err)
-	}
 }

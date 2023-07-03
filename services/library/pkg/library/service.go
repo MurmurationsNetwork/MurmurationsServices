@@ -17,10 +17,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/controller/rest"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/service"
 )
 
@@ -78,16 +78,16 @@ func (s *Service) setupServer() {
 
 // connectToMongoDB establishes a connection to MongoDB.
 func (s *Service) connectToMongoDB() error {
-	uri := mongo.GetURI(
+	uri := mongodb.GetURI(
 		config.Values.Mongo.Username,
 		config.Values.Mongo.Password,
 		config.Values.Mongo.Host,
 	)
-	err := mongo.NewClient(uri, config.Values.Mongo.DBName)
+	err := mongodb.NewClient(uri, config.Values.Mongo.DBName)
 	if err != nil {
 		return err
 	}
-	err = mongo.Client.Ping()
+	err = mongodb.Client.Ping()
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (s *Service) middlewares() []gin.HandlerFunc {
 // registerRoutes sets up the routes for the HTTP server.
 func (s *Service) registerRoutes() {
 	schemaHandler := rest.NewSchemaHandler(
-		service.NewSchemaService(db.NewSchemaRepo()),
+		service.NewSchemaService(mongo.NewSchemaRepo()),
 	)
 	countryHandler := rest.NewCountryHandler()
 
@@ -195,7 +195,7 @@ func (s *Service) Shutdown() {
 func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
 		s.shutdownCancelCtx()
-		mongo.Client.Disconnect()
+		mongodb.Client.Disconnect()
 		logger.Info("Library service stopped gracefully")
 	})
 }
