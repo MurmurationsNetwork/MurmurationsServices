@@ -13,10 +13,10 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/global"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/internal/service"
 )
 
@@ -25,7 +25,7 @@ func init() {
 }
 
 func cleanUp() {
-	mongo.Client.Disconnect()
+	mongodb.Client.Disconnect()
 	os.Exit(0)
 }
 
@@ -34,14 +34,14 @@ func main() {
 	apiEntry := "https://api.ofdb.io/v0/entries/"
 
 	svc := service.NewProfileService(
-		db.NewProfileRepository(mongo.Client.GetClient()),
+		mongo.NewProfileRepository(mongodb.Client.GetClient()),
 	)
 
 	curTime := time.Now().Unix()
 	refreshBefore := curTime - config.Conf.RefreshTTL
 	profiles, err := svc.FindLessThan(schemaName, refreshBefore)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if err == mongodb.ErrNoDocuments {
 			logger.Error("No profile found.", err)
 		} else {
 			logger.Error("Failed to find data from profiles.", err)
@@ -155,7 +155,7 @@ func main() {
 					cleanUp()
 				}
 				profileSvc := service.NewProfileService(
-					db.NewProfileRepository(mongo.Client.GetClient()),
+					mongo.NewProfileRepository(mongodb.Client.GetClient()),
 				)
 				// save to Mongo
 				count, err := profileSvc.Count(profile.Oid)

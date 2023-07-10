@@ -10,7 +10,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/resterr"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/mongo"
 )
 
 type MappingsHandler interface {
@@ -18,11 +18,11 @@ type MappingsHandler interface {
 }
 
 type mappingsHandler struct {
-	mappingRepository db.MappingRepository
+	mappingRepository mongo.MappingRepository
 }
 
 func NewMappingsHandler(
-	mappingRepository db.MappingRepository,
+	mappingRepository mongo.MappingRepository,
 ) MappingsHandler {
 	return &mappingsHandler{
 		mappingRepository: mappingRepository,

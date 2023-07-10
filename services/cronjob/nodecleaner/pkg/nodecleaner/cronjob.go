@@ -8,9 +8,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
+	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/service"
 )
 
@@ -23,18 +23,18 @@ type NodeCleaner struct {
 func NewCronJob() *NodeCleaner {
 	config.Init()
 
-	uri := mongo.GetURI(
+	uri := mongodb.GetURI(
 		config.Conf.Mongo.USERNAME,
 		config.Conf.Mongo.PASSWORD,
 		config.Conf.Mongo.HOST,
 	)
 
-	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
+	err := mongodb.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
 		logger.Panic("Failed to connect to MongoDB", err)
 	}
 
-	err = mongo.Client.Ping()
+	err = mongodb.Client.Ping()
 	if err != nil {
 		logger.Panic("Failed to ping MongoDB", err)
 	}
@@ -51,7 +51,7 @@ func NewCronJob() *NodeCleaner {
 // "validation_failed" status and the deletion of nodes with "deleted" status.
 func (nc *NodeCleaner) Run() {
 	svc := service.NewNodeService(
-		db.NewNodeRepository(mongo.Client.GetClient()),
+		mongo.NewNodeRepository(mongodb.Client.GetClient()),
 	)
 
 	err := svc.RemoveValidationFailed()
@@ -88,6 +88,6 @@ func (nc *NodeCleaner) Run() {
 // cleanup will clean up the resources associated with the cron job.
 func (nc *NodeCleaner) cleanup() {
 	nc.runCleanup.Do(func() {
-		mongo.Client.Disconnect()
+		mongodb.Client.Disconnect()
 	})
 }

@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/model"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/db"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/internal/repository/mongo"
 )
 
 // SchemaService defines mtehods for operations on Schemas.
@@ -12,19 +12,19 @@ type SchemaService interface {
 }
 
 type schemaService struct {
-	repo db.SchemaRepo
+	mongoRepo mongo.SchemaRepo
 }
 
 // NewSchemaService creates a new SchemaService with the given SchemaRepo.
-func NewSchemaService(repo db.SchemaRepo) SchemaService {
+func NewSchemaService(mongoRepo mongo.SchemaRepo) SchemaService {
 	return &schemaService{
-		repo: repo,
+		mongoRepo: mongoRepo,
 	}
 }
 
 // Get fetches a Schema with the given name.
 func (s *schemaService) Get(schemaName string) (interface{}, error) {
-	result, err := s.repo.Get(schemaName)
+	result, err := s.mongoRepo.Get(schemaName)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (s *schemaService) Get(schemaName string) (interface{}, error) {
 
 // Search retrieves all Schemas.
 func (s *schemaService) Search() (*model.Schemas, error) {
-	result, err := s.repo.Search()
+	result, err := s.mongoRepo.Search()
 	if err != nil {
 		return nil, err
 	}

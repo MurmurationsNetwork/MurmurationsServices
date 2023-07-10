@@ -20,7 +20,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model/query"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/es"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
 
@@ -214,7 +214,7 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		return
 	}
 
-	var esQuery query.EsQuery
+	var esQuery es.Query
 	if err := c.ShouldBindQuery(&esQuery); err != nil {
 		errs = jsonapi.NewError(
 			[]string{"JSON Error"},
@@ -601,7 +601,7 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 		return
 	}
 
-	var esQuery query.EsBlockQuery
+	var esQuery es.BlockQuery
 	if err := c.ShouldBindJSON(&esQuery); err != nil {
 		fmt.Println(err)
 		errs = jsonapi.NewError(
@@ -662,7 +662,7 @@ func (handler *nodeHandler) GetNodes(c *gin.Context) {
 		return
 	}
 
-	var esQuery query.EsQuery
+	var esQuery es.Query
 	if err := c.ShouldBindQuery(&esQuery); err != nil {
 		errs = jsonapi.NewError(
 			[]string{"JSON Error"},
