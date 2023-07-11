@@ -9,10 +9,10 @@ data:
   # Delete TTL, notice: need to modify the value in index service as well
   {{- if eq .Values.global.env "production" }}
   VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs
-  DELETED_TTL: "15552000" # 6 months = 180 days * 24 hrs * 60 mins * 60 secs
+  DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs
   {{- else if eq .Values.global.env "staging" }}
   VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs
-  DELETED_TTL: "172800" # 48 hrs
+  DELETED_TTL: "1209600" # 2 weeks
   {{- else }}
   VALIDATION_FAILED_TTL: "1200" # 20 mins
   DELETED_TTL: "120" # 2 mins

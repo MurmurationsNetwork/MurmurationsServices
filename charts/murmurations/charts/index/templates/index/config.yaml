@@ -21,9 +21,9 @@ data:
   POST_RATE_LIMIT_PERIOD: 6000-M
   # Delete TTL, notice: need to modify the value in nodecleaner service as well
   {{- if eq .Values.global.env "production" }}
-  DELETED_TTL: "15552000" # 6 months = 180 days * 24 hrs * 60 mins * 60 secs
+  DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs
   {{- else if eq .Values.global.env "staging" }}
-  DELETED_TTL: "172800" # 48 hrs
+  DELETED_TTL: "1209600" # 2 weeks
   {{- else }}
   DELETED_TTL: "120" # 2 mins
   {{- end }}
