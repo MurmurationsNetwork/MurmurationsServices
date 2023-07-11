@@ -580,7 +580,7 @@ paths:
                 ProfileDeleted:
                   value:
                     meta:
-                      message: "The Index has recorded as deleted the profile that was previously posted at: https://somenode.org/optional-subdirectory/node-profile.json"
+                      message: "The Index has recorded as deleted the profile that was previously posted at: https://somenode.org/optional-subdirectory/node-profile.json -- It will be completely removed from the index in 2 weeks."
         400:
           description: Bad Request
           content:
