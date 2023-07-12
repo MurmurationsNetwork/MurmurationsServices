@@ -1,6 +1,9 @@
 package model
 
-import "github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+import (
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+)
 
 // Node represents a node stored in the index.
 type Node struct {
@@ -35,5 +38,18 @@ type Node struct {
 	ProfileStr string `bson:"-"`
 }
 
-// Nodes represents a slice of Node objects.
-type Nodes []Node
+func (n *Node) SetStatusValidated() {
+	n.Status = constant.NodeStatus.Validated
+}
+
+func (n *Node) SetStatusPostFailed() {
+	n.Status = constant.NodeStatus.PostFailed
+}
+
+func (n *Node) SetStatusPosted() {
+	n.Status = constant.NodeStatus.Posted
+}
+
+func (n *Node) ResetFailureReasons() {
+	n.FailureReasons = &[]jsonapi.Error{}
+}
