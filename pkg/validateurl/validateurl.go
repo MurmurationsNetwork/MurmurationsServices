@@ -17,7 +17,8 @@ func Validate(rawURL string) (string, error) {
 	// url manipulation
 	// if the first four character is "www.", remove it.
 	var host string
-	if u.Host[:4] == "www." {
+
+	if len(u.Host) >= 4 && u.Host[:4] == "www." {
 		host = u.Host[4:]
 	} else {
 		host = u.Host

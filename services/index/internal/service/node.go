@@ -5,21 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/countries"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/tagsfilter"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validateurl"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/es"
@@ -58,103 +50,24 @@ func NewNodeService(
 // SetNodeValid sets a node as valid.
 func (s *nodeService) SetNodeValid(node *model.Node) error {
 	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
-	node.Status = constant.NodeStatus.Validated
-	node.FailureReasons = &[]jsonapi.Error{}
+	node.SetStatusValidated()
+	node.ResetFailureReasons()
 
 	if err := s.mongoRepo.Update(node); err != nil {
 		return err
 	}
 
-	profileJSON := jsonutil.ToJSON(node.ProfileStr)
-	profileJSON["profile_url"] = node.ProfileURL
-	profileJSON["last_updated"] = node.LastUpdated
-
-	var err error
-	// if the geolocation is array type, make it as object type for consistent [#208]
-	// convert geolocation to latitude and logitude.
-	if _, ok := profileJSON["geolocation"].(string); ok {
-		g := strings.Split(profileJSON["geolocation"].(string), ",")
-		profileJSON["latitude"], err = strconv.ParseFloat(g[0], 64)
-		if err != nil {
-			return err
-		}
-		profileJSON["longitude"], err = strconv.ParseFloat(g[1], 64)
-		if err != nil {
-			return err
-		}
-	}
-
-	// if we can find latitude and longitude in the root, move them into geolocation [#208]
-	if profileJSON["latitude"] != nil || profileJSON["longitude"] != nil {
-		geoLocation := make(map[string]interface{})
-		if profileJSON["latitude"] != nil {
-			geoLocation["lat"] = profileJSON["latitude"]
-		} else {
-			geoLocation["lat"] = 0
-		}
-		if profileJSON["longitude"] != nil {
-			geoLocation["lon"] = profileJSON["longitude"]
-		} else {
-			geoLocation["lon"] = 0
-		}
-		profileJSON["geolocation"] = geoLocation
-	}
-
-	if profileJSON["country_iso_3166"] != nil ||
-		profileJSON["country_name"] != nil ||
-		profileJSON["country"] != nil {
-		if profileJSON["country_iso_3166"] != nil {
-			profileJSON["country"] = profileJSON["country_iso_3166"]
-			delete(profileJSON, "country_iso_3166")
-		} else if profileJSON["country"] == nil && profileJSON["country_name"] != nil {
-			countryCode, err := countries.FindAlpha2ByName(config.Values.Library.InternalURL+"/v2/countries", profileJSON["country_name"])
-			if err != nil {
-				return err
-			}
-			countryStr := fmt.Sprintf("%v", profileJSON["country_name"])
-			profileURLStr := fmt.Sprintf("%v", profileJSON["profile_url"])
-			if countryCode != "undefined" {
-				profileJSON["country"] = countryCode
-				fmt.Println("Country code matched: " + countryStr + " = " + countryCode + " --- profile_url: " + profileURLStr)
-			} else {
-				// can't find countryCode, log to server
-				fmt.Println("Country code not found: " + countryStr + " --- profile_url: " + profileURLStr)
-			}
-		}
-	}
-
-	// Default node's status is posted [#217]
-	profileJSON["status"] = "posted"
-
-	// Deal with tags [#227]
-	arraySize, _ := strconv.Atoi(config.Values.Server.TagsArraySize)
-	stringLength, _ := strconv.Atoi(config.Values.Server.TagsStringLength)
-	tags, err := tagsfilter.Filter(arraySize, stringLength, node.ProfileStr)
-	if err != nil {
+	profile := model.NewProfile(node.ProfileStr)
+	if err := profile.Update(node.ProfileURL, node.LastUpdated); err != nil {
 		return err
 	}
 
-	if tags != nil {
-		profileJSON["tags"] = tags
-	}
-
-	// validate primary_url [#238]
-	if profileJSON["primary_url"] != nil {
-		profileJSON["primary_url"], err = validateurl.Validate(
-			profileJSON["primary_url"].(string),
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = s.elasticRepo.IndexByID(node.ID, profileJSON)
-	if err != nil {
-		node.Status = constant.NodeStatus.PostFailed
+	if err := s.elasticRepo.IndexByID(node.ID, profile.GetJSON()); err != nil {
+		node.SetStatusPostFailed()
 		return s.mongoRepo.Update(node)
 	}
 
-	node.Status = constant.NodeStatus.Posted
+	node.SetStatusPosted()
 	return s.mongoRepo.Update(node)
 }
 
