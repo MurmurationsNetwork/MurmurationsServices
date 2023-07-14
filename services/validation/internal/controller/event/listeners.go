@@ -47,6 +47,13 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 							errors.New("panic"),
 						)
 					}
+					// Acknowledge the message regardless of error.
+					if err := msg.Ack(); err != nil {
+						logger.Error(
+							"Error when acknowledging message",
+							err,
+						)
+					}
 				}()
 
 				var nodeCreatedData event.NodeCreatedData
@@ -63,8 +70,6 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 					ProfileURL: nodeCreatedData.ProfileURL,
 					Version:    nodeCreatedData.Version,
 				})
-
-				_ = msg.Ack()
 			}()
 		},
 	).Listen()
