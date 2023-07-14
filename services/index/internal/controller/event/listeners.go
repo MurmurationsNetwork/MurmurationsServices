@@ -50,6 +50,13 @@ func (handler *nodeHandler) Validated() error {
 							errors.New("panic"),
 						)
 					}
+					// Acknowledge the message regardless of error.
+					if err := msg.Ack(); err != nil {
+						logger.Error(
+							"Error when acknowledging message",
+							err,
+						)
+					}
 				}()
 
 				var nodeValidatedData event.NodeValidatedData
@@ -72,8 +79,6 @@ func (handler *nodeHandler) Validated() error {
 				if err != nil {
 					return
 				}
-
-				_ = msg.Ack()
 			}()
 		}).
 		Listen()
@@ -96,6 +101,13 @@ func (handler *nodeHandler) ValidationFailed() error {
 							errors.New("panic"),
 						)
 					}
+					// Acknowledge the message regardless of error.
+					if err := msg.Ack(); err != nil {
+						logger.Error(
+							"Error when acknowledging message",
+							err,
+						)
+					}
 				}()
 
 				var nodeValidationFailedData event.NodeValidationFailedData
@@ -116,8 +128,6 @@ func (handler *nodeHandler) ValidationFailed() error {
 				if err != nil {
 					return
 				}
-
-				_ = msg.Ack()
 			}()
 		}).
 		Listen()
