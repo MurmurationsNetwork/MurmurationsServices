@@ -11,6 +11,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
@@ -33,7 +34,21 @@ func NewValidationService() ValidationService {
 func (svc *validationService) ValidateNode(node *model.Node) {
 	data, err := svc.readFromProfileURL(node.ProfileURL)
 	if err != nil {
-		svc.handleNodeValidationError(node, "Could not read from profile_url")
+		errors := jsonapi.NewError(
+			[]string{"Profile Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not find or read from (invalid JSON) the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
+		)
+		logger.Info(
+			"Failed to read from profile URL: " + fmt.Sprintf("%v", errors),
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
@@ -52,19 +67,24 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 			result.Sources,
 			result.ErrorStatus,
 		)
-		logger.Info(
-			"Failed to validate against schemas: " + fmt.Sprintf("%v", errors),
-		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
 	linkedSchemas, ok := getLinkedSchemas(data)
 	if !ok {
-		svc.handleNodeValidationError(
-			node,
-			"Could not read linked_schemas from profile_url",
+		errors := jsonapi.NewError(
+			[]string{"Profile Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not find or read from (invalid JSON) the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
 		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
@@ -82,27 +102,55 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 			result.Sources,
 			result.ErrorStatus,
 		)
-		logger.Info(
-			"Failed to validate against schemas: " + fmt.Sprintf("%v", errors),
-		)
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
 
 	jsonStr, err := httputil.GetJSONStr(node.ProfileURL)
 	if err != nil {
-		svc.handleNodeValidationError(
-			node,
-			"Could not get JSON string from profile_url",
+		errors := jsonapi.NewError(
+			[]string{"Profile Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not find or read from (invalid JSON) the profile_url: %s",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
 		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
+	}
+
+	// Normalize the primary URL.
+	profileJSON := jsonutil.ToJSON(jsonStr)
+	if profileJSON["primary_url"] != nil {
+		normalizedURL, err := NormalizeURL(profileJSON["primary_url"].(string))
+		if err != nil {
+			errors := jsonapi.NewError(
+				[]string{"Primary URL Validation Failed"},
+				[]string{
+					fmt.Sprintf(
+						"Failed to validate and normalize the primary URL: %s.",
+						profileJSON["primary_url"].(string),
+					),
+				},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			svc.sendNodeValidationFailedEvent(node, &errors)
+			return
+		}
+		profileJSON["primary_url"] = normalizedURL
 	}
 
 	event.NewNodeValidatedPublisher(nats.Client.Client()).
 		Publish(event.NodeValidatedData{
 			ProfileURL:  node.ProfileURL,
 			ProfileHash: cryptoutil.GetSHA256(jsonStr),
-			ProfileStr:  jsonStr,
+			// Provides the updated version of the profile for later use.
+			ProfileStr:  jsonutil.ToString(profileJSON),
 			LastUpdated: dateutil.GetNowUnix(),
 			Version:     node.Version,
 		})
@@ -138,25 +186,6 @@ func (svc *validationService) readFromProfileURL(
 	}
 
 	return data, nil
-}
-
-func (svc *validationService) handleNodeValidationError(
-	node *model.Node,
-	errMsg string,
-) {
-	logger.Info(fmt.Sprintf("%s: %s", errMsg, node.ProfileURL))
-	errors := jsonapi.NewError(
-		[]string{"Profile Not Found"},
-		[]string{
-			fmt.Sprintf(
-				"Could not find or read from (invalid JSON) the profile_url: %s",
-				node.ProfileURL,
-			),
-		},
-		nil,
-		[]int{http.StatusNotFound},
-	)
-	svc.sendNodeValidationFailedEvent(node, &errors)
 }
 
 func (svc *validationService) sendNodeValidationFailedEvent(

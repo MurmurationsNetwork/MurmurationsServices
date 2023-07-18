@@ -12,7 +12,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/tagsfilter"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validateurl"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
@@ -57,10 +56,6 @@ func (p *Profile) Update(
 	}
 
 	if err := p.filterTags(); err != nil {
-		return err
-	}
-
-	if err := p.validatePrimaryURL(); err != nil {
 		return err
 	}
 
@@ -157,20 +152,6 @@ func (p *Profile) filterTags() error {
 	}
 	if len(tags) != 0 {
 		p.json["tags"] = tags
-	}
-	return nil
-}
-
-// validatePrimaryURL validates the primary URL in the profile JSON.
-func (p *Profile) validatePrimaryURL() error {
-	if p.json["primary_url"] != nil {
-		var err error
-		p.json["primary_url"], err = validateurl.Validate(
-			p.json["primary_url"].(string),
-		)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }

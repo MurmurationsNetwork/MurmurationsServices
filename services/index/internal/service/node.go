@@ -53,12 +53,12 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 	node.SetStatusValidated()
 	node.ResetFailureReasons()
 
-	if err := s.mongoRepo.Update(node); err != nil {
+	profile := model.NewProfile(node.ProfileStr)
+	if err := profile.Update(node.ProfileURL, node.LastUpdated); err != nil {
 		return err
 	}
 
-	profile := model.NewProfile(node.ProfileStr)
-	if err := profile.Update(node.ProfileURL, node.LastUpdated); err != nil {
+	if err := s.mongoRepo.Update(node); err != nil {
 		return err
 	}
 

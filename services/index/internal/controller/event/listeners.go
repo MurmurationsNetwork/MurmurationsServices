@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	stan "github.com/nats-io/stan.go"
+	"go.uber.org/zap"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -77,6 +78,11 @@ func (handler *nodeHandler) Validated() error {
 					Version:     &nodeValidatedData.Version,
 				})
 				if err != nil {
+					logger.Error("Failed to set node valid",
+						err,
+						zap.String("ProfileURL", nodeValidatedData.ProfileURL),
+						zap.String("ProfileStr", nodeValidatedData.ProfileStr),
+					)
 					return
 				}
 			}()
