@@ -45,12 +45,13 @@ func ValidateAgainstSchemas(
 			gojsonschema.NewReferenceLoader(schemaURL),
 		)
 		if err != nil {
-			errorMessages = append(errorMessages, "Schema Not Found")
+			errorMessages = append(errorMessages, "Error loading schema")
 			details = append(
 				details,
 				fmt.Sprintf(
-					"Could not locate the following schema in the Library: %s",
+					"Error loading schema (%s): %v",
 					linkedSchema,
+					err,
 				),
 			)
 			sources = append(sources, []string{"pointer", "/linked_schemas"})

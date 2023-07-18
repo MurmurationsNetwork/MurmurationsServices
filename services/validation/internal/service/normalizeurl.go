@@ -85,5 +85,10 @@ func validateURL(rawURL string) (*url.URL, error) {
 		return nil, ErrInvalidURL
 	}
 
+	// Validate if the domain contains a period indicating a top-level domain.
+	if !strings.Contains(u.Host, ".") {
+		return nil, ErrInvalidURL
+	}
+
 	return u, nil
 }

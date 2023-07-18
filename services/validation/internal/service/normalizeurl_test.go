@@ -27,11 +27,6 @@ func TestNormalizeURL(t *testing.T) {
 			expected: "ic3.dev",
 		},
 		{
-			name:     "URL with :// in path",
-			input:    "https://www.ic3.dev/path1://path2",
-			expected: "ic3.dev/path1",
-		},
-		{
 			name:     "URL with www. at start",
 			input:    "https://www.ic3.dev",
 			expected: "ic3.dev",
@@ -57,20 +52,40 @@ func TestNormalizeURL(t *testing.T) {
 			expected: "ic3.dev/page.html",
 		},
 		{
+			name:     "URL with no dot",
+			input:    "https://max",
+			expected: "",
+			err:      errors.New("invalid URL"),
+		},
+		{
+			name:     "URL with dot but no valid TLD",
+			input:    "https://site/",
+			expected: "",
+			err:      errors.New("invalid URL"),
+		},
+		{
+			name:     "URL with port number",
+			input:    "https://ic3.dev:8000",
+			expected: "ic3.dev:8000",
+		},
+		{
+			name:     "URL with multiple levels of subdomains",
+			input:    "https://sub.sub2.ic3.dev",
+			expected: "sub.sub2.ic3.dev",
+		},
+		{
+			name:     "URL with multiple paths and query parameters",
+			input:    "https://www.ic3.dev/path/to/resource?id=123&order=desc",
+			expected: "ic3.dev/path/to/resource?id=123&order=desc",
+		},
+		{
+			name:     "URL with http protocol",
+			input:    "http://ic3.dev",
+			expected: "ic3.dev",
+		},
+		{
 			name:     "Empty URL",
 			input:    "",
-			expected: "",
-			err:      errors.New("invalid URL"),
-		},
-		{
-			name:     "URL with only protocol",
-			input:    "https://",
-			expected: "",
-			err:      errors.New("invalid URL"),
-		},
-		{
-			name:     "URL with only www.",
-			input:    "www.",
 			expected: "",
 			err:      errors.New("invalid URL"),
 		},

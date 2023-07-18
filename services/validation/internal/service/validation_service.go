@@ -132,7 +132,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 				[]string{"Primary URL Validation Failed"},
 				[]string{
 					fmt.Sprintf(
-						"Failed to validate and normalize the primary URL: %s.",
+						"The primary URL is invalid: %s.",
 						profileJSON["primary_url"].(string),
 					),
 				},
