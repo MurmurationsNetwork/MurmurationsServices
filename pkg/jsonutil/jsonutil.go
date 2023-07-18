@@ -10,3 +10,11 @@ func ToJSON(s string) map[string]interface{} {
 	}
 	return raw
 }
+
+func ToString(m map[string]interface{}) string {
+	jsonString, err := json.Marshal(m)
+	if err != nil {
+		return ""
+	}
+	return string(jsonString)
+}

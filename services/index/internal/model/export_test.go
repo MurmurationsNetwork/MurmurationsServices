@@ -37,12 +37,6 @@ func (s *TestProfile) FilterTags() error {
 	return s.filterTags()
 }
 
-// ValidatePrimaryURL is a wrapper around the unexported validatePrimaryURL method
-// in the Profile type.
-func (s *TestProfile) ValidatePrimaryURL() error {
-	return s.validatePrimaryURL()
-}
-
 // SetDefaultStatus is a wrapper around the unexported setDefaultStatus method in
 // the Profile type.
 func (s *TestProfile) SetDefaultStatus() {
