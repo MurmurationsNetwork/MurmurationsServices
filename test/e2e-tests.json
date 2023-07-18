@@ -3,8 +3,8 @@
 		"_postman_id": "c985860d-4b36-44da-9d69-79f8a19af2c8",
 		"name": "Murmurations API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26148428",
-		"_collection_link": "https://ic3network.postman.co/workspace/Murmurations~a621deb5-92bc-4d76-a95a-a01f322954c8/collection/10168004-c985860d-4b36-44da-9d69-79f8a19af2c8?action=share&creator=26148428&source=collection_link"
+		"_exporter_id": "28537014",
+		"_collection_link": "https://ic3network.postman.co/workspace/Murmurations~a621deb5-92bc-4d76-a95a-a01f322954c8/collection/10168004-c985860d-4b36-44da-9d69-79f8a19af2c8?action=share&creator=28537014&source=collection_link"
 	},
 	"item": [
 		{
@@ -2458,11 +2458,11 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure title`, () => {",
-									"    pm.expect(jsonData.errors[0].title).to.contain('Schema Not Found')",
+									"    pm.expect(jsonData.errors[0].title).to.contain('Error loading schema')",
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct failure detail`, () => {",
-									"    pm.expect(jsonData.errors[0].detail).to.contain('Could not locate the following schema in the Library: test_schema-v0.0.1')",
+									"    pm.expect(jsonData.errors[0].detail).to.contain('404 Not Found')",
 									"})",
 									""
 								],
@@ -3384,7 +3384,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./test/organizations_schema-v1.0.0-example-import.csv"
+									"src": "/Users/tinghsuan/Desktop/organizations_schema-v1.0.0-example-import.csv"
 								},
 								{
 									"key": "schemas",
@@ -3440,7 +3440,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./test/organizations_schema-v1.0.0-example-import.csv"
+									"src": "/Users/tinghsuan/Desktop/organizations_schema-v1.0.0-example-import.csv"
 								},
 								{
 									"key": "schemas",
@@ -3552,7 +3552,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./test/organizations_schema-v1.0.0-example-edit.csv"
+									"src": "/Users/tinghsuan/Desktop/organizations_schema-v1.0.0-example-edit.csv"
 								},
 								{
 									"key": "schemas",
