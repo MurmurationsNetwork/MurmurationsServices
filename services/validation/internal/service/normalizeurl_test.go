@@ -52,14 +52,8 @@ func TestNormalizeURL(t *testing.T) {
 			expected: "ic3.dev/page.html",
 		},
 		{
-			name:     "URL with no dot",
+			name:     "URL without a valid top-level domain",
 			input:    "https://max",
-			expected: "",
-			err:      errors.New("invalid URL"),
-		},
-		{
-			name:     "URL with dot but no valid TLD",
-			input:    "https://site/",
 			expected: "",
 			err:      errors.New("invalid URL"),
 		},
