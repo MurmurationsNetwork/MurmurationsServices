@@ -108,8 +108,7 @@ type QueryResults struct {
 }
 
 // BlockQuery defines the parameters that can be used to search for blocks in
-//
-//	Elasticsearch.
+// Elasticsearch.
 type BlockQuery struct {
 	// Schema is used to match blocks linked to a specific schema.
 	Schema *string `json:"schema,omitempty"`
