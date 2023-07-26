@@ -34,7 +34,9 @@ type Query struct {
 
 	// Tags, TagsFilter and TagsExact are used to filter profiles based on
 	// the "tags" field.
-	Tags       *string `form:"tags"`
+	Tags *string `form:"tags"`
+	// TagsFilter, if set to "and", indicates that the "tags" field filter should
+	// perform an "AND" operation (i.e., match all supplied tags).
 	TagsFilter *string `form:"tags_filter"`
 	// TagsExact, if set to true, indicates that the "tags" field filter should perform
 	// an exact match.
