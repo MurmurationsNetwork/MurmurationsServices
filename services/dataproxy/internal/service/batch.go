@@ -12,6 +12,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/model"
@@ -74,7 +75,7 @@ func (s *batchService) Validate(
 	rawProfiles := csvToMap(records)
 
 	// parse schemas to json string schema from library and validate
-	validateJSONSchemas, validateSchemas, err := parseSchemas(schemas)
+	validateJSONSchemas, _, err := parseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}
@@ -85,12 +86,15 @@ func (s *batchService) Validate(
 			return line, nil, err
 		}
 
-		// Validate data and if needed, respond with error
-		result := validatenode.ValidateAgainstSchemasWithoutURL(
-			validateJSONSchemas,
-			validateSchemas,
-			profile,
-		)
+		validator, err := schemavalidator.NewBuilder().
+			WithStrSchemas(validateJSONSchemas).
+			WithMapProfile(profile).
+			Build()
+		if err != nil {
+			return -1, nil, err
+		}
+
+		result := validator.Validate()
 		if !result.Valid {
 			return line, jsonapi.NewError(
 				result.ErrorMessages,

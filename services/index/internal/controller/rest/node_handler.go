@@ -16,7 +16,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
@@ -558,12 +558,28 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
 
 	// Validate against schemes specify inside the profile data.
-	result := validatenode.ValidateAgainstSchemas(
-		config.Values.Library.InternalURL,
-		linkedSchemas,
-		string(jsonString),
-		"string",
-	)
+	validator, err := schemavalidator.NewBuilder().
+		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
+		WithStrProfile(string(jsonString)).
+		Build()
+	if err != nil {
+		// Log the error for internal debugging and auditing.
+		logger.Error("Failed to build schema validator", err)
+
+		errors := jsonapi.NewError(
+			[]string{"Internal Server Error"},
+			[]string{
+				"An error occurred while validating the profile data. Please try again later.",
+			},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	result := validator.Validate()
 	if !result.Valid {
 		message := "Failed to validate against schemas: " + strings.Join(
 			result.ErrorMessages,

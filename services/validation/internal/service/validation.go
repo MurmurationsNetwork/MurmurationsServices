@@ -15,10 +15,12 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
+
+const DefaultSchema = "default-v2.0.0"
 
 type ValidationService interface {
 	ValidateNode(node *model.Node)
@@ -54,12 +56,27 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 
 	// Validate against the default schema. The default schema ensures there is
 	// at least one schema defined for validating the node profile.
-	result := validatenode.ValidateAgainstSchemas(
-		config.Values.Library.InternalURL,
-		[]string{"default-v2.0.0"},
-		node.ProfileURL,
-		"reference",
-	)
+	validator, err := schemavalidator.NewBuilder().
+		WithURLSchemas(config.Values.Library.InternalURL, []string{DefaultSchema}).
+		WithURLProfile(node.ProfileURL).
+		Build()
+	if err != nil {
+		// Log the error for internal debugging and auditing.
+		logger.Error("Failed to build schema validator", err)
+
+		errors := jsonapi.NewError(
+			[]string{"Internal Server Error"},
+			[]string{
+				"An error occurred while validating the profile data. Please try again later.",
+			},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return
+	}
+
+	result := validator.Validate()
 	if !result.Valid {
 		errors := jsonapi.NewError(
 			result.ErrorMessages,
@@ -89,12 +106,27 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	}
 
 	// Validate against the schemas specified in the profile data.
-	result = validatenode.ValidateAgainstSchemas(
-		config.Values.Library.InternalURL,
-		linkedSchemas,
-		node.ProfileURL,
-		"reference",
-	)
+	validator, err = schemavalidator.NewBuilder().
+		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
+		WithURLProfile(node.ProfileURL).
+		Build()
+	if err != nil {
+		// Log the error for internal debugging and auditing.
+		logger.Error("Failed to build schema validator", err)
+
+		errors := jsonapi.NewError(
+			[]string{"Internal Server Error"},
+			[]string{
+				"An error occurred while validating the profile data. Please try again later.",
+			},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return
+	}
+
+	result = validator.Validate()
 	if !result.Valid {
 		errors := jsonapi.NewError(
 			result.ErrorMessages,
