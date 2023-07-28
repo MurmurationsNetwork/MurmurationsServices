@@ -58,7 +58,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	// at least one schema defined for validating the node profile.
 	validator, err := schemavalidator.NewBuilder().
 		WithURLSchemas(config.Values.Library.InternalURL, []string{DefaultSchema}).
-		WithURLProfileLoader(node.ProfileURL).
+		WithURLProfile(node.ProfileURL).
 		Build()
 	if err != nil {
 		// Log the error for internal debugging and auditing.
@@ -108,7 +108,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	// Validate against the schemas specified in the profile data.
 	validator, err = schemavalidator.NewBuilder().
 		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
-		WithURLProfileLoader(node.ProfileURL).
+		WithURLProfile(node.ProfileURL).
 		Build()
 	if err != nil {
 		// Log the error for internal debugging and auditing.

@@ -29,20 +29,20 @@ func (b *Builder) WithStrSchemas(schemas []string) *Builder {
 	return b
 }
 
-// WithURLProfileLoader sets the URL for loading the data to be validated.
-func (b *Builder) WithURLProfileLoader(dataURL string) *Builder {
+// WithURLProfile sets the URL for loading the data to be validated.
+func (b *Builder) WithURLProfile(dataURL string) *Builder {
 	b.schemaValidator.ProfileLoader = &URLProfileLoader{dataURL: dataURL}
 	return b
 }
 
-// WithStrProfileLoader sets the data string to be validated.
-func (b *Builder) WithStrProfileLoader(dataString string) *Builder {
+// WithStrProfile sets the data string to be validated.
+func (b *Builder) WithStrProfile(dataString string) *Builder {
 	b.schemaValidator.ProfileLoader = &StrProfileLoader{dataString: dataString}
 	return b
 }
 
-// WithMapProfileLoader sets the data map to be validated.
-func (b *Builder) WithMapProfileLoader(
+// WithMapProfile sets the data map to be validated.
+func (b *Builder) WithMapProfile(
 	dataMap map[string]interface{},
 ) *Builder {
 	b.schemaValidator.ProfileLoader = &MapProfileLoader{dataMap: dataMap}

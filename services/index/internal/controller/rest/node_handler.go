@@ -560,7 +560,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	// Validate against schemes specify inside the profile data.
 	validator, err := schemavalidator.NewBuilder().
 		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
-		WithStrProfileLoader(string(jsonString)).
+		WithStrProfile(string(jsonString)).
 		Build()
 	if err != nil {
 		// Log the error for internal debugging and auditing.

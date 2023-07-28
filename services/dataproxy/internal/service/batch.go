@@ -88,7 +88,7 @@ func (s *batchService) Validate(
 
 		validator, err := schemavalidator.NewBuilder().
 			WithStrSchemas(validateJSONSchemas).
-			WithMapProfileLoader(profile).
+			WithMapProfile(profile).
 			Build()
 		if err != nil {
 			return -1, nil, err
