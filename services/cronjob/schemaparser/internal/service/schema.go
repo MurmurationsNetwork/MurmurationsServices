@@ -2,15 +2,10 @@ package service
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"path"
 	"time"
 
-	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/sync/errgroup"
 
@@ -19,7 +14,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/repository/mongo"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/schemaparser"
 )
+
+const LastCommitKey = "schemas:lastCommit"
 
 type SchemaService interface {
 	GetBranchInfo(url string) (*model.BranchInfo, error)
@@ -43,35 +41,44 @@ func NewSchemaService(
 	}
 }
 
+// GetBranchInfo retrieves information about a specific GitHub branch given its URL.
 func (s *schemaService) GetBranchInfo(url string) (*model.BranchInfo, error) {
+	// GetByteWithBearerToken sends a GET request to the provided URL, using
+	// the provided bearer token for authentication.
 	bytes, err := httputil.GetByteWithBearerToken(
 		url,
 		config.Values.Github.TOKEN,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get data from %s: %w", url, err)
 	}
 
 	var data model.BranchInfo
+
 	err = json.Unmarshal(bytes, &data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal data: %w", err)
 	}
 
 	return &data, nil
 }
 
+// HasNewCommit checks if there's a new commit in the schema repository.
 func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
-	val, err := s.redis.Get("schemas:lastCommit")
+	val, err := s.redis.Get(LastCommitKey)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf(
+			"failed to retrieve last commit from Redis: %w",
+			err,
+		)
 	}
+
 	return val != lastCommit, nil
 }
 
 func (s *schemaService) UpdateSchemas(branchSha string) error {
 	// Get schema folder list and field folder list
-	schemaListURL, fieldListURL, err := getBranchFolders(branchSha)
+	schemaListURL, fieldListURL, err := getSchemaAndFieldFolderURLs(branchSha)
 	if err != nil {
 		return err
 	}
@@ -99,11 +106,12 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 			case <-ctx.Done():
 				return nil
 			default:
-				schema, fullJSON, err := s.getSchema(url, fieldListMap)
+				parser := schemaparser.NewSchemaParser(fieldListMap)
+				result, err := parser.GetSchema(url)
 				if err != nil {
 					return err
 				}
-				return s.updateSchema(schema, fullJSON)
+				return s.updateSchema(result.Schema, result.FullJSON)
 			}
 		})
 	}
@@ -177,270 +185,97 @@ func (s *schemaService) updateSchema(
 	return nil
 }
 
-func (s *schemaService) getSchema(
-	url string,
-	fieldListMap map[string]string,
-) (*model.SchemaJSON, bson.D, error) {
-	// Get schema json from GitHub API
-	schemaJSON, err := getGithubFile(url)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// Get the schema json and full json
-	var data model.SchemaJSON
-	err = json.Unmarshal(schemaJSON, &data)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	fullData := orderedmap.New()
-	err = json.Unmarshal(schemaJSON, &fullData)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// Parse json $ref
-	parsedFullData := s.parseProperties(*fullData, fieldListMap)
-
-	return &data, parsedFullData, nil
-}
-
-// Direct generate the bson.D type for saving to MongoDB.
-func (s *schemaService) parseProperties(
-	fullData orderedmap.OrderedMap,
-	fieldListMap map[string]string,
-) bson.D {
-	properties, exist := fullData.Get("properties")
-	if !exist {
-		propertiesData := s.generateBsonDObject(fullData, fieldListMap)
-		return propertiesData
-	}
-
-	propertiesMap := properties.(orderedmap.OrderedMap)
-	for _, k := range propertiesMap.Keys() {
-		v, _ := propertiesMap.Get(k)
-		ref := v.(orderedmap.OrderedMap)
-
-		// If $ref exists, parse the ref
-		refPath, ok := ref.Get("$ref")
-		if ok && refPath != nil {
-			subSchema, _ := s.schemaParser(refPath.(string), fieldListMap)
-			parsedSubSchema := s.parseProperties(*subSchema, fieldListMap)
-			propertiesMap.Set(k, parsedSubSchema)
-			continue
-		}
-
-		refType, ok := ref.Get("type")
-		// If type is array, parse the items
-		// Otherwise, directly parse the orderedmap to bson.D
-		if ok && refType == "array" {
-			arrayPropertiesMap := s.generateBsonDArray(ref, fieldListMap)
-			propertiesMap.Set(k, arrayPropertiesMap)
-		} else if ok && refType == "object" {
-			objectPropertiesMap := s.generateBsonDObject(ref, fieldListMap)
-			propertiesMap.Set(k, objectPropertiesMap)
-		} else {
-			refMap := generateBsonD(ref)
-			propertiesMap.Set(k, refMap)
-		}
-	}
-
-	propertiesData := generateBsonD(propertiesMap)
-	fullData.Set("properties", propertiesData)
-
-	returnData := s.generateBsonDObject(fullData, fieldListMap)
-	return returnData
-}
-
-func (s *schemaService) schemaParser(
-	url string,
-	fieldListMap map[string]string,
-) (*orderedmap.OrderedMap, error) {
-	_, fieldName := path.Split(url)
-
-	fieldListURL := fieldListMap[fieldName]
-
-	if fieldListURL == "" {
-		return nil, fmt.Errorf(
-			"get schema failed, url: %s, fieldListURL is empty",
-			url,
-		)
-	}
-
-	// Get field json from GitHub API
-	fieldJSON, err := getGithubFile(fieldListURL)
-	if err != nil {
-		return nil, err
-	}
-
-	subSchema := orderedmap.New()
-	err = json.Unmarshal(fieldJSON, &subSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	return subSchema, nil
-}
-
-func getBranchFolders(branchSha string) (string, string, error) {
+// getBranchFolders retrieves URLs for 'schemas' and 'fields' directories
+// given the branch's SHA.
+func getSchemaAndFieldFolderURLs(branchSha string) (string, string, error) {
+	// Construct the URL to the GitHub tree API endpoint for the branch.
 	rootURL := config.Values.Github.TreeURL + "/" + branchSha
 
+	// Fetch the tree (list of files and directories) from the GitHub API.
 	rootList, err := getGithubTree(rootURL)
-
 	if err != nil {
-		return "", "", err
+		return "", "", fmt.Errorf("failed to fetch tree from %s: %w",
+			rootURL, err)
 	}
 
 	var (
 		schemaListURL string
 		fieldListURL  string
 	)
+
+	// Iterate over each item in the root directory.
 	for _, item := range rootList {
 		itemMap := item.(map[string]interface{})
+		// If the item is the 'schemas' directory, save its URL.
 		if itemMap["path"].(string) == "schemas" {
 			schemaListURL = itemMap["url"].(string)
-		} else if itemMap["path"].(string) == "fields" {
+		}
+		// If the item is the 'fields' directory, save its URL.
+		if itemMap["path"].(string) == "fields" {
 			fieldListURL = itemMap["url"].(string)
 		}
 	}
 
 	if schemaListURL == "" {
-		return "", "", fmt.Errorf("schemas folder not found")
+		return "", "", fmt.Errorf("'schemas' directory not found")
 	}
 	if fieldListURL == "" {
-		return "", "", fmt.Errorf("fields folder not found")
+		return "", "", fmt.Errorf("'fields' directory not found")
 	}
 
 	return schemaListURL, fieldListURL, nil
 }
 
+// getFieldsURLMap fetches the GitHub tree (list of files and directories)
+// from the given URL, and then creates a map that maps field path to field URL.
 func getFieldsURLMap(fieldListURL string) (map[string]string, error) {
 	fieldList, err := getGithubTree(fieldListURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch tree from %s: %w",
+			fieldListURL, err)
 	}
 
+	// Initialize a map to hold the field path to URL mapping.
 	fieldListMap := make(map[string]string)
+
+	// Iterate over each field in the list.
 	for _, field := range fieldList {
 		fieldMap := field.(map[string]interface{})
 		fieldPath := fieldMap["path"].(string)
 		fieldURL := fieldMap["url"].(string)
+
+		// If the field has a non-empty path and URL, add it to the map.
 		if len(fieldPath) > 0 && len(fieldURL) > 0 {
 			fieldListMap[fieldPath] = fieldURL
 		} else {
-			return nil, fmt.Errorf("field path or url is empty" + fieldPath + fieldURL)
+			return nil, fmt.Errorf("field path '%s' or url '%s' is empty",
+				fieldPath, fieldURL)
 		}
 	}
 
+	// Return the map.
 	return fieldListMap, nil
 }
 
+// getGithubTree fetches and returns the GitHub repository's tree (list of
+// files and directories) given a URL to the tree API endpoint.
+//
+// https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28#get-a-tree.
 func getGithubTree(url string) ([]interface{}, error) {
 	resp, err := httputil.GetWithBearerToken(url, config.Values.Github.TOKEN)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch data from %s: %w", url, err)
 	}
+
 	defer resp.Body.Close()
 
 	var data map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode JSON response: %w", err)
 	}
 
 	tree := data["tree"].([]interface{})
+
 	return tree, nil
-}
-
-func getGithubFile(url string) ([]byte, error) {
-	resp, err := httputil.GetWithBearerToken(url, config.Values.Github.TOKEN)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var decodedContent []byte
-	if resp.StatusCode == http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		var data map[string]interface{}
-		if err := json.Unmarshal(body, &data); err != nil {
-			return nil, err
-		}
-		decodedContent, err = base64.StdEncoding.DecodeString(
-			data["content"].(string),
-		)
-		if err != nil {
-			return nil, err
-		}
-		if len(decodedContent) == 0 {
-			return nil, fmt.Errorf(
-				"get file failed, url: %s, content is empty",
-				url,
-			)
-		}
-	} else {
-		return nil, fmt.Errorf("get file failed, url: %s, status code: %d", url, resp.StatusCode)
-	}
-
-	return decodedContent, nil
-}
-
-func generateBsonD(orderedMap orderedmap.OrderedMap) bson.D {
-	bsonData := bson.D{}
-	for _, key := range orderedMap.Keys() {
-		value, _ := orderedMap.Get(key)
-		bsonData = append(bsonData, bson.E{Key: key, Value: value})
-	}
-	return bsonData
-}
-
-func (s *schemaService) generateBsonDArray(
-	orderedMap orderedmap.OrderedMap,
-	fieldListMap map[string]string,
-) bson.D {
-	items, _ := orderedMap.Get("items")
-	itemsMap := items.(orderedmap.OrderedMap)
-	parsedSubSchema := s.parseProperties(itemsMap, fieldListMap)
-
-	// In the array, items need to be parsed recursively
-	bsonData := bson.D{}
-	for _, key := range orderedMap.Keys() {
-		if key == "items" {
-			bsonData = append(
-				bsonData,
-				bson.E{Key: key, Value: parsedSubSchema},
-			)
-		} else {
-			value, _ := orderedMap.Get(key)
-			bsonData = append(bsonData, bson.E{Key: key, Value: value})
-		}
-	}
-
-	return bsonData
-}
-
-func (s *schemaService) generateBsonDObject(
-	orderedMap orderedmap.OrderedMap,
-	fieldListMap map[string]string,
-) bson.D {
-	bsonData := bson.D{}
-	for _, key := range orderedMap.Keys() {
-		value, _ := orderedMap.Get(key)
-
-		// If the value can be parsed into OrderedMap, it means it is a map, we need to parse it recursively
-		vMap, ok := value.(orderedmap.OrderedMap)
-		if !ok {
-			bsonData = append(bsonData, bson.E{Key: key, Value: value})
-		} else {
-			bsonData = append(bsonData, bson.E{
-				Key:   key,
-				Value: s.parseProperties(vMap, fieldListMap),
-			})
-		}
-	}
-	return bsonData
 }
