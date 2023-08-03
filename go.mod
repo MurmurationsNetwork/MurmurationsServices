@@ -19,7 +19,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/xuri/excelize/v2 v2.7.1
 	go.mongodb.org/mongo-driver v1.12.0
-	go.uber.org/zap v1.24.0
+	go.uber.org/zap v1.25.0
 	golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705
 	golang.org/x/net v0.13.0
 	golang.org/x/sync v0.3.0
@@ -73,8 +73,7 @@ require (
 	github.com/xuri/efp v0.0.0-20220603152613-6918739fd470 // indirect
 	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
