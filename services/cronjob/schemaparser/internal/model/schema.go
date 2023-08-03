@@ -22,13 +22,17 @@ type BranchInfo struct {
 }
 
 type SchemaJSON struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Metadata    struct {
-		Schema struct {
-			Name    string `json:"name"`
-			Version int    `json:"version"`
-			URL     string `json:"url"`
-		} `json:"schema"`
-	} `json:"metadata"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Metadata    Metadata `json:"metadata"`
+}
+
+type Metadata struct {
+	Schema InnerSchema `json:"schema"`
+}
+
+type InnerSchema struct {
+	Name    string `json:"name"`
+	Version int    `json:"version"`
+	URL     string `json:"url"`
 }
