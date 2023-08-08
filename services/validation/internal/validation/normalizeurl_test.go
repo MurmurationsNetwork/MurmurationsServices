@@ -1,4 +1,4 @@
-package service_test
+package validation_test
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/validation"
 )
 
 func TestNormalizeURL(t *testing.T) {
@@ -87,7 +87,7 @@ func TestNormalizeURL(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			normalizedURL, err := service.NormalizeURL(tc.input)
+			normalizedURL, err := validation.NormalizeURL(tc.input)
 			require.Equal(t, tc.expected, normalizedURL)
 			if tc.err != nil {
 				require.Error(t, err)

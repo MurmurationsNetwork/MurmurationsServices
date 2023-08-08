@@ -18,6 +18,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/validation"
 )
 
 const DefaultSchema = "default-v2.0.0"
@@ -158,7 +159,9 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	// Normalize the primary URL.
 	profileJSON := jsonutil.ToJSON(jsonStr)
 	if profileJSON["primary_url"] != nil {
-		normalizedURL, err := NormalizeURL(profileJSON["primary_url"].(string))
+		normalizedURL, err := validation.NormalizeURL(
+			profileJSON["primary_url"].(string),
+		)
 		if err != nil {
 			errors := jsonapi.NewError(
 				[]string{"Primary URL Validation Failed"},
