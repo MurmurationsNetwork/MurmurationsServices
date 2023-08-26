@@ -8,8 +8,16 @@ spec:
   {{- else }}
   schedule: "*/2 * * * *"  # every 2 minutes
   {{- end }}
+  # Keep the latest successful job.
+  successfulJobsHistoryLimit: 1
+  # Keep the latest failed job.
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      # Retry the Job 3 times before marking it as failed.
+      backoffLimit: 3
+      # Delete the Job and its pods 24 hours after completion.
+      ttlSecondsAfterFinished: 86400
       template:
         metadata:
           annotations:
