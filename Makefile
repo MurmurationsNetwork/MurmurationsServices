@@ -25,7 +25,7 @@ endif
 #--------------------------
 .PHONY: dev
 dev:
-	export SOURCEPATH=$(PWD) && skaffold dev --port-forward
+	export SOURCEPATH=$(PWD) && skaffold dev --tolerate-failures-until-deadline=true --port-forward
 
 #--------------------------
 # Runs the unit tests.
@@ -139,6 +139,9 @@ docker-push-dataproxyrefresher: docker-tag-dataproxyrefresher
 
 # ---------------------------------------------------------------
 
+deploy-murmurations-core:
+	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=$(DEPLOY_ENV) --install --atomic
+
 deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(DEPLOY_ENV) --install --atomic
 
@@ -180,6 +183,9 @@ deploy-dataproxyrefresher:
 # Please update to the version you want to deploy.
 SPECIFIC_TAG ?= <>
 ENV ?= <>
+
+manually-deploy-murmurations-core:
+	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=$(ENV) --install --atomic
 
 manually-deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(ENV) --install --atomic

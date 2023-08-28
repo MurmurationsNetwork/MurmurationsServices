@@ -45,6 +45,8 @@ build:
       docker:
         dockerfile: build/validation/docker/Dockerfile-dev
 deploy:
+  # Deadline for deployments to stabilize in seconds.
+  statusCheckDeadlineSeconds: 300
   helm:
     releases:
     - name: development
