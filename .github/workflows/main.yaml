@@ -195,6 +195,9 @@ jobs:
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmprod
 
+      - name: Deploy Murmurations Core
+        run: make deploy-murmurations-core DEPLOY_ENV=production
+
       - name: Restart index deployment
         run: make deploy-index DEPLOY_ENV=production
 
