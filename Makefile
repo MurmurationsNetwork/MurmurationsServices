@@ -25,6 +25,8 @@ endif
 #--------------------------
 .PHONY: dev
 dev:
+    # There's no particular deployment order for Helm, so we use --tolerate-failures-until-deadline to
+    # prevent deployment failure if the required object, such as PriorityClass, has not been deployed yet.
 	export SOURCEPATH=$(PWD) && skaffold dev --tolerate-failures-until-deadline=true --port-forward
 
 #--------------------------
