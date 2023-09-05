@@ -50,9 +50,9 @@ func (vr *ValidationResult) AppendErrors(
 }
 
 // Merge combines another ValidationResult into the current one.
-func (vr *ValidationResult) Merge(other *ValidationResult) {
+func (vr *ValidationResult) Merge(other *ValidationResult) *ValidationResult {
 	if other == nil || other.Valid {
-		return
+		return vr
 	}
 	vr.AppendErrors(
 		other.ErrorMessages,
@@ -60,4 +60,5 @@ func (vr *ValidationResult) Merge(other *ValidationResult) {
 		other.Sources,
 		other.ErrorStatus,
 	)
+	return vr
 }

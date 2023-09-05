@@ -40,7 +40,7 @@ func (v *GeolocationValidator) Validate(value interface{}) *ValidationResult {
 			} else {
 				vr.AppendError(
 					"Invalid Latitude Type",
-					"Latitude should be a json.Number",
+					"Latitude should be a number",
 					[]string{"pointer", "/geolocation/lat"},
 					http.StatusBadRequest,
 				)
@@ -67,7 +67,7 @@ func (v *GeolocationValidator) Validate(value interface{}) *ValidationResult {
 			} else {
 				vr.AppendError(
 					"Invalid Longitude Type",
-					"Longitude should be a json.Number",
+					"Longitude should be a number",
 					[]string{"pointer", "/geolocation/lon"},
 					http.StatusBadRequest,
 				)

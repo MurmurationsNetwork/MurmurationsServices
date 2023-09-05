@@ -120,6 +120,7 @@ func TestValidate_CustomValidator(t *testing.T) {
 			validator, err := schemavalidator.NewBuilder().
 				WithStrSchemas([]string{StrSchema}).
 				WithStrProfile(tt.profile).
+				WithCustomValidation().
 				Build()
 
 			require.NoError(t, err)

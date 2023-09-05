@@ -49,6 +49,12 @@ func (b *Builder) WithMapProfile(
 	return b
 }
 
+// WithCustomValidation enables to custom validation.
+func (b *Builder) WithCustomValidation() *Builder {
+	b.schemaValidator.CustomValidation = true
+	return b
+}
+
 // Build validates the builder state and returns the built SchemaValidator.
 func (b *Builder) Build() (*SchemaValidator, error) {
 	// Check that required fields are set.

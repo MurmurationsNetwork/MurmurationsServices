@@ -88,6 +88,8 @@ type SchemaValidator struct {
 	ProfileLoader ProfileLoader
 	// The JSON data.
 	JSON map[string]interface{}
+	// Enable/disable custom validation.
+	CustomValidation bool
 }
 
 // Validate validates the data against the schemas and returns the validation result.
@@ -139,8 +141,11 @@ func (v *SchemaValidator) Validate() *ValidationResult {
 		}
 	}
 
-	finalResult.Merge(v.CustomValidate())
-
+	if !finalResult.Valid {
+		return finalResult
+	} else if v.CustomValidation {
+		return finalResult.Merge(v.CustomValidate())
+	}
 	return finalResult
 }
 
