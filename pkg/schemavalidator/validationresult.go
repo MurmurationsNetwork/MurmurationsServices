@@ -14,6 +14,7 @@ type ValidationResult struct {
 	ErrorStatus []int
 }
 
+// NewValidationResult initializes a new ValidationResult object with default values.
 func NewValidationResult() *ValidationResult {
 	return &ValidationResult{
 		Valid:         true,
@@ -24,6 +25,7 @@ func NewValidationResult() *ValidationResult {
 	}
 }
 
+// AppendError adds a single error to the ValidationResult.
 func (vr *ValidationResult) AppendError(
 	errorMessage, detail string,
 	source []string,
@@ -36,6 +38,7 @@ func (vr *ValidationResult) AppendError(
 	vr.Valid = false
 }
 
+// AppendErrors adds multiple errors to the ValidationResult.
 func (vr *ValidationResult) AppendErrors(
 	errorMessages, details []string,
 	sources [][]string,
@@ -46,6 +49,7 @@ func (vr *ValidationResult) AppendErrors(
 	}
 }
 
+// Merge combines another ValidationResult into the current one.
 func (vr *ValidationResult) Merge(other *ValidationResult) {
 	if other == nil || other.Valid {
 		return

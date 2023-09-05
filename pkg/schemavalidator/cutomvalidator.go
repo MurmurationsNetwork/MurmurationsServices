@@ -6,12 +6,16 @@ import (
 	"net/http"
 )
 
+// CustomValidator defines the interface for custom validation.
 type CustomValidator interface {
+	// Validate performs custom validation.
 	Validate(value interface{}) *ValidationResult
 }
 
+// GeolocationValidator validates geolocation data.
 type GeolocationValidator struct{}
 
+// Validate checks the validity of geolocation data.
 func (v *GeolocationValidator) Validate(value interface{}) *ValidationResult {
 	vr := NewValidationResult()
 	if geoValue, ok := value.(map[string]interface{}); ok {
@@ -80,10 +84,12 @@ func (v *GeolocationValidator) Validate(value interface{}) *ValidationResult {
 	return vr
 }
 
+// StringValidator validates string data with a maximum length constraint.
 type StringValidator struct {
 	MaxLength int
 }
 
+// Validate checks if the given string exceeds the maximum length.
 func (v *StringValidator) Validate(value interface{}) *ValidationResult {
 	vr := NewValidationResult()
 	if strValue, ok := value.(string); ok {
@@ -101,8 +107,10 @@ func (v *StringValidator) Validate(value interface{}) *ValidationResult {
 	return vr
 }
 
+// TagsValidator validates an array of tags.
 type TagsValidator struct{}
 
+// Validate checks the validity of an array of tags.
 func (v *TagsValidator) Validate(value interface{}) *ValidationResult {
 	vr := NewValidationResult()
 	if tags, ok := value.([]interface{}); ok {
