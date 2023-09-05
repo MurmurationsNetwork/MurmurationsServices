@@ -139,7 +139,6 @@ func (v *SchemaValidator) Validate() *ValidationResult {
 		}
 	}
 
-	// Custom validation logic.
 	finalResult.Merge(v.CustomValidate())
 
 	return finalResult
@@ -150,13 +149,14 @@ func (v *SchemaValidator) CustomValidate() *ValidationResult {
 	finalResult := NewValidationResult()
 
 	validators := map[string]CustomValidator{
-		"geolocation": &GeolocationValidator{},
-		"name":        &StringValidator{MaxLength: 200},
-		"locality":    &StringValidator{MaxLength: 100},
-		"region":      &StringValidator{MaxLength: 100},
-		"country":     &StringValidator{MaxLength: 3},
-		"primary_url": &StringValidator{MaxLength: 2000},
-		"tags":        &TagsValidator{},
+		"geolocation":      &GeolocationValidator{},
+		"name":             &StringValidator{MaxLength: 200},
+		"locality":         &StringValidator{MaxLength: 100},
+		"region":           &StringValidator{MaxLength: 100},
+		"country_name":     &StringValidator{MaxLength: 100},
+		"country_iso_3166": &StringValidator{MaxLength: 3},
+		"primary_url":      &StringValidator{MaxLength: 2000},
+		"tags":             &TagsValidator{},
 	}
 
 	for field, validator := range validators {

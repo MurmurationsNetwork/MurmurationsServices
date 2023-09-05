@@ -61,15 +61,26 @@ func TestValidate_CustomValidator(t *testing.T) {
 			reason:  "Locality length exceeds 100 characters",
 		},
 		{
+			name:    "Valid Country Name",
+			profile: `{"country_name": "United States"}`,
+			valid:   true,
+		},
+		{
+			name:    "Invalid Country Name",
+			profile: fmt.Sprintf(`{"country_name": "%s"}`, randomString(101)),
+			valid:   false,
+			reason:  "Country name exceeds 100 characters",
+		},
+		{
 			name:    "Valid Country",
-			profile: `{"country": "USA"}`,
+			profile: `{"country_iso_3166": "USA"}`,
 			valid:   true,
 		},
 		{
 			name:    "Invalid Country",
-			profile: `{"country": "United States"}`,
+			profile: `{"country_iso_3166": "United States"}`,
 			valid:   false,
-			reason:  "Country length exceeds 3 characters",
+			reason:  "Country ISO code exceeds 3 characters",
 		},
 		{
 			name:    "Valid Tags",
