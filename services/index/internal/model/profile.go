@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -75,7 +76,6 @@ func (p *Profile) Update(
 	if err := p.convertGeolocation(); err != nil {
 		return err
 	}
-	p.repackageGeolocation()
 
 	if err := p.normalizeCountryCode(); err != nil {
 		return err
@@ -90,43 +90,45 @@ func (p *Profile) Update(
 	return nil
 }
 
-// convertGeolocation parses a string-formatted geolocation into latitude and
-// longitude values. The geolocation should be in the format "latitude,longitude".
+// convertGeolocation parses a geolocation string into a specific format.
 func (p *Profile) convertGeolocation() error {
-	if geo, ok := p.json["geolocation"].(string); ok {
-		g := strings.Split(geo, ",")
-		var err error
-		p.json["latitude"], err = strconv.ParseFloat(g[0], 64)
-		if err != nil {
-			return err
+	var lat, lon float64
+	var err error
+
+	geoLocation := map[string]interface{}{"lat": 0, "lon": 0}
+
+	if geoStr, ok := p.json["geolocation"].(string); ok {
+		g := strings.Split(geoStr, ",")
+		if len(g) != 2 {
+			return fmt.Errorf("invalid geolocation format")
 		}
-		p.json["longitude"], err = strconv.ParseFloat(g[1], 64)
+
+		lat, err = strconv.ParseFloat(g[0], 64)
 		if err != nil {
-			return err
+			return fmt.Errorf("invalid latitude: %v", err)
+		}
+
+		lon, err = strconv.ParseFloat(g[1], 64)
+		if err != nil {
+			return fmt.Errorf("invalid longitude: %v", err)
+		}
+
+		geoLocation["lat"] = lat
+		geoLocation["lon"] = lon
+	} else if existingGeo, ok := p.json["geolocation"].(map[string]interface{}); ok {
+		geoLocation = existingGeo
+	} else {
+		if existingLat, ok := p.json["latitude"].(float64); ok {
+			geoLocation["lat"] = existingLat
+		}
+		if existingLon, ok := p.json["longitude"].(float64); ok {
+			geoLocation["lon"] = existingLon
 		}
 	}
+
+	p.json["geolocation"] = geoLocation
+
 	return nil
-}
-
-// repackageGeolocation reformats the geolocation field as a map with keys "lat" and "lon".
-func (p *Profile) repackageGeolocation() {
-	if p.json["latitude"] != nil || p.json["longitude"] != nil {
-		geoLocation := make(map[string]interface{})
-
-		if p.json["latitude"] != nil {
-			geoLocation["lat"] = p.json["latitude"]
-		} else {
-			geoLocation["lat"] = 0
-		}
-
-		if p.json["longitude"] != nil {
-			geoLocation["lon"] = p.json["longitude"]
-		} else {
-			geoLocation["lon"] = 0
-		}
-
-		p.json["geolocation"] = geoLocation
-	}
 }
 
 // normalizeCountryCode takes in profile JSON and normalizes the country information present.

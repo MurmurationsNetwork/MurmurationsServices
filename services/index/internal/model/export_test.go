@@ -19,12 +19,6 @@ func (s *TestProfile) ConvertGeolocation() error {
 	return s.convertGeolocation()
 }
 
-// RepackageGeolocation is a wrapper around the unexported repackageGeolocation
-// method in the Profile type.
-func (s *TestProfile) RepackageGeolocation() {
-	s.repackageGeolocation()
-}
-
 // NormalizeCountryCode is a wrapper around the unexported normalizeCountryCode
 // method in the Profile type.
 func (s *TestProfile) NormalizeCountryCode() error {

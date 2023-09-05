@@ -71,22 +71,80 @@ func TestConvertGeolocation(t *testing.T) {
 				"geolocation": "40.748817,-73.985428"
 			}`,
 			expected: map[string]interface{}{
-				"geolocation": "40.748817,-73.985428",
-				"latitude":    40.748817,
-				"longitude":   -73.985428,
+				"geolocation": map[string]interface{}{
+					"lat": 40.748817,
+					"lon": -73.985428,
+				},
 			},
 			expectErr: false,
 		},
 		{
-			name:      "invalid geolocation string",
-			input:     `{"geolocation": "invalid_string"}`,
-			expected:  map[string]interface{}{"geolocation": "invalid_string"},
+			name: "only latitude present",
+			input: `{
+				"latitude": 40.748817
+			}`,
+			expected: map[string]interface{}{
+				"geolocation": map[string]interface{}{
+					"lat": 40.748817,
+					"lon": 0,
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "only longitude present",
+			input: `{
+				"longitude": -73.985428
+			}`,
+			expected: map[string]interface{}{
+				"geolocation": map[string]interface{}{
+					"lat": 0,
+					"lon": -73.985428,
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "both latitude and longitude present",
+			input: `{
+				"latitude": 40.748817,
+				"longitude": -73.985428
+			}`,
+			expected: map[string]interface{}{
+				"geolocation": map[string]interface{}{
+					"lat": 40.748817,
+					"lon": -73.985428,
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "geolocation as object",
+			input: `{
+				"geolocation": {"lat": 40.748817, "lon": -73.985428}
+			}`,
+			expected: map[string]interface{}{
+				"geolocation": map[string]interface{}{
+					"lat": 40.748817,
+					"lon": -73.985428,
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name:  "invalid geolocation string",
+			input: `{"geolocation": "invalid_string"}`,
+			expected: map[string]interface{}{
+				"geolocation": map[string]interface{}{"lat": 0, "lon": 0},
+			},
 			expectErr: true,
 		},
 		{
-			name:      "geolocation not present",
-			input:     `{}`,
-			expected:  map[string]interface{}{},
+			name:  "geolocation not present",
+			input: `{}`,
+			expected: map[string]interface{}{
+				"geolocation": map[string]interface{}{"lat": 0, "lon": 0},
+			},
 			expectErr: false,
 		},
 	}
@@ -101,69 +159,6 @@ func TestConvertGeolocation(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tt.expected, profile.GetJSON())
 			}
-		})
-	}
-}
-
-func TestRepackageGeolocation(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected map[string]interface{}
-	}{
-		{
-			name: "both latitude and longitude are present",
-			input: `{
-				"latitude":  40.748817,
-				"longitude": -73.985428
-			}`,
-			expected: map[string]interface{}{
-				"latitude":  40.748817,
-				"longitude": -73.985428,
-				"geolocation": map[string]interface{}{
-					"lat": 40.748817,
-					"lon": -73.985428,
-				},
-			},
-		},
-		{
-			name: "only latitude is present",
-			input: `{
-				"latitude": 40.748817
-			}`,
-			expected: map[string]interface{}{
-				"latitude": 40.748817,
-				"geolocation": map[string]interface{}{
-					"lat": 40.748817,
-					"lon": 0,
-				},
-			},
-		},
-		{
-			name: "only longitude is present",
-			input: `{
-				"longitude": -73.985428
-			}`,
-			expected: map[string]interface{}{
-				"longitude": -73.985428,
-				"geolocation": map[string]interface{}{
-					"lat": 0,
-					"lon": -73.985428,
-				},
-			},
-		},
-		{
-			name:     "neither latitude nor longitude are present",
-			input:    `{}`,
-			expected: map[string]interface{}{},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			profile := model.NewTestProfile(tt.input)
-			profile.RepackageGeolocation()
-			require.Equal(t, tt.expected, profile.GetJSON())
 		})
 	}
 }
