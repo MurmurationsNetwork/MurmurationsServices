@@ -10,6 +10,54 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 )
 
+func TestGetJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		profile  *model.Profile
+		expected map[string]interface{}
+	}{
+		{
+			name: "Test with allowed fields",
+			profile: model.NewProfile(`{
+				"name": "John",
+				"geolocation": "40.7128,-74.0060",
+				"last_updated": 1630843200,
+				"linked_schemas": "schema1",
+				"country": "USA"
+			}`),
+			expected: map[string]interface{}{
+				"name":           "John",
+				"geolocation":    "40.7128,-74.0060",
+				"last_updated":   float64(1630843200),
+				"linked_schemas": "schema1",
+				"country":        "USA",
+			},
+		},
+		{
+			name: "Test with disallowed fields",
+			profile: model.NewProfile(`{
+				"name": "John",
+				"garbageField": "garbageValue"
+			}`),
+			expected: map[string]interface{}{
+				"name": "John",
+			},
+		},
+		{
+			name:     "Test with empty profile",
+			profile:  model.NewProfile(`{}`),
+			expected: map[string]interface{}{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := tt.profile.GetJSON()
+			require.Equal(t, tt.expected, actual)
+		})
+	}
+}
+
 func TestConvertGeolocation(t *testing.T) {
 	tests := []struct {
 		name      string

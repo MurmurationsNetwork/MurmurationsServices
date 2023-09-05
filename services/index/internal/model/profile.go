@@ -15,6 +15,24 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
+// AllowedFields specifies indexable keys.
+//
+// Elasticsearch stores the original JSON document, and to prevent the index
+// from containing garbage data, we manually filter out unwanted fields.
+var AllowedFields = map[string]bool{
+	"country":        true,
+	"geolocation":    true,
+	"last_updated":   true,
+	"linked_schemas": true,
+	"locality":       true,
+	"name":           true,
+	"primary_url":    true,
+	"profile_url":    true,
+	"region":         true,
+	"status":         true,
+	"tags":           true,
+}
+
 // Profile represents the profile data for a node.
 type Profile struct {
 	// Original profile string.
@@ -33,9 +51,17 @@ func NewProfile(profileStr string) *Profile {
 	}
 }
 
-// GetJSON returns the JSON representation of the profile.
+// GetJSON returns the filtered JSON representation of the profile.
 func (p *Profile) GetJSON() map[string]interface{} {
-	return p.json
+	filteredJSON := make(map[string]interface{})
+
+	for key, value := range p.json {
+		if _, ok := AllowedFields[key]; ok {
+			filteredJSON[key] = value
+		}
+	}
+
+	return filteredJSON
 }
 
 // Update processes and updates the profile data.
