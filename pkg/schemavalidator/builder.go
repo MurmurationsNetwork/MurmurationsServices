@@ -62,5 +62,22 @@ func (b *Builder) Build() (*SchemaValidator, error) {
 		return nil, fmt.Errorf("a data loader must be provided")
 	}
 
+	profileData, err := b.schemaValidator.ProfileLoader.Load().LoadJSON()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"failed to load JSON from the profile URL: %w",
+			err,
+		)
+	}
+
+	jsonMap, ok := profileData.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf(
+			"invalid JSON format: expected a map[string]interface{}",
+		)
+	}
+
+	b.schemaValidator.JSON = jsonMap
+
 	return b.schemaValidator, nil
 }
