@@ -39,6 +39,23 @@ func TestValidate_CustomValidator(t *testing.T) {
 			reason:  "Longitude exceeds 180",
 		},
 		{
+			name:    "Valid Geolocation as String",
+			profile: `{"geolocation": "50.123,-75.123"}`,
+			valid:   true,
+		},
+		{
+			name:    "Invalid Geolocation as String",
+			profile: `{"geolocation": "100.123,-75.123"}`,
+			valid:   false,
+			reason:  "Latitude exceeds 90",
+		},
+		{
+			name:    "Invalid Geolocation Format",
+			profile: `{"geolocation": "50.123"}`,
+			valid:   false,
+			reason:  "Geolocation string should be in 'lat,lon' format",
+		},
+		{
 			name:    "Valid Name",
 			profile: `{"name": "John Doe"}`,
 			valid:   true,
@@ -126,9 +143,6 @@ func TestValidate_CustomValidator(t *testing.T) {
 			require.NoError(t, err)
 			result := validator.Validate()
 			require.Equal(t, tt.valid, result.Valid)
-			if !tt.valid {
-				t.Log("Reason for failure:", tt.reason) // Log the reason here
-			}
 		})
 	}
 }

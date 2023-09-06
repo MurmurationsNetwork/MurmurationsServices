@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 // CustomValidator defines the interface for custom validation.
@@ -18,70 +20,97 @@ type GeolocationValidator struct{}
 // Validate checks the validity of geolocation data.
 func (v *GeolocationValidator) Validate(value interface{}) *ValidationResult {
 	vr := NewValidationResult()
-	if geoValue, ok := value.(map[string]interface{}); ok {
-		if lat, exists := geoValue["lat"]; exists {
-			if latValue, ok := lat.(json.Number); ok {
-				f, err := latValue.Float64()
-				if err != nil {
-					vr.AppendError(
-						"Invalid Latitude Type",
-						"Latitude should be a number",
-						[]string{"pointer", "/geolocation/lat"},
-						http.StatusBadRequest,
-					)
-				} else if f < -90 || f > 90 {
-					vr.AppendError(
-						"Invalid Latitude",
-						"Latitude should be between -90 and 90",
-						[]string{"pointer", "/geolocation/lat"},
-						http.StatusBadRequest,
-					)
-				}
-			} else {
-				vr.AppendError(
-					"Invalid Latitude Type",
-					"Latitude should be a number",
-					[]string{"pointer", "/geolocation/lat"},
-					http.StatusBadRequest,
-				)
-			}
+
+	switch geoValue := value.(type) {
+	case map[string]interface{}:
+		validateLatLon(geoValue, vr)
+	case string:
+		coords := strings.Split(geoValue, ",")
+		if len(coords) != 2 {
+			vr.AppendError(
+				"Invalid Geolocation Format",
+				"Geolocation string should be in 'lat,lon' format",
+				[]string{"pointer", "/geolocation"},
+				http.StatusBadRequest,
+			)
+			return vr
 		}
-		if lon, exists := geoValue["lon"]; exists {
-			if lonValue, ok := lon.(json.Number); ok {
-				f, err := lonValue.Float64()
-				if err != nil {
-					vr.AppendError(
-						"Invalid Longitude Type",
-						"Longitude should be a number",
-						[]string{"pointer", "/geolocation/lon"},
-						http.StatusBadRequest,
-					)
-				} else if f < -180 || f > 180 {
-					vr.AppendError(
-						"Invalid Longitude",
-						"Longitude should be between -180 and 180",
-						[]string{"pointer", "/geolocation/lon"},
-						http.StatusBadRequest,
-					)
-				}
-			} else {
-				vr.AppendError(
-					"Invalid Longitude Type",
-					"Longitude should be a number",
-					[]string{"pointer", "/geolocation/lon"},
-					http.StatusBadRequest,
-				)
-			}
+		lat, err := strconv.ParseFloat(coords[0], 64)
+		if err != nil {
+			vr.AppendError(
+				"Invalid Latitude Type",
+				"Latitude should be a number",
+				[]string{"pointer", "/geolocation/lat"},
+				http.StatusBadRequest,
+			)
 		}
-	} else {
+		lon, err := strconv.ParseFloat(coords[1], 64)
+		if err != nil {
+			vr.AppendError(
+				"Invalid Longitude Type",
+				"Longitude should be a number",
+				[]string{"pointer", "/geolocation/lon"},
+				http.StatusBadRequest,
+			)
+		}
+		validateLatLon(map[string]interface{}{"lat": lat, "lon": lon}, vr)
+	default:
 		vr.AppendError(
 			"Invalid Geolocation Type",
-			"Geolocation should be an object",
+			"Geolocation should be an object or a string",
 			[]string{"pointer", "/geolocation"},
 			http.StatusBadRequest,
 		)
 	}
 	return vr
+}
+
+func validateLatLon(geoValue map[string]interface{}, vr *ValidationResult) {
+	validateCoordinate := func(coord interface{}, name string, min, max float64) {
+		var f float64
+		var err error
+
+		switch v := coord.(type) {
+		case json.Number:
+			f, err = v.Float64()
+		case float64:
+			f = v
+		default:
+			vr.AppendError(
+				"Invalid "+name+" Type",
+				name+" should be a number",
+				[]string{"pointer", "/geolocation/" + name},
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		if err != nil {
+			vr.AppendError(
+				"Invalid "+name+" Type",
+				name+" should be a number",
+				[]string{"pointer", "/geolocation/" + name},
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		if f < min || f > max {
+			vr.AppendError(
+				"Invalid "+name,
+				fmt.Sprintf("%s should be between %f and %f", name, min, max),
+				[]string{"pointer", "/geolocation/" + name},
+				http.StatusBadRequest,
+			)
+		}
+	}
+
+	if lat, exists := geoValue["lat"]; exists {
+		validateCoordinate(lat, "Latitude", -90, 90)
+	}
+	if lon, exists := geoValue["lon"]; exists {
+		validateCoordinate(lon, "Longitude", -180, 180)
+	}
 }
 
 // StringValidator validates string data with a maximum length constraint.
