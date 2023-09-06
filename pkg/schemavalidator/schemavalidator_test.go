@@ -39,6 +39,12 @@ func TestValidate_CustomValidator(t *testing.T) {
 			reason:  "Longitude exceeds 180",
 		},
 		{
+			name:    "Extra Fields in Geolocation",
+			profile: `{"geolocation": {"lat": 50.123, "lon": -75.123, "extraField": "invalid"}}`,
+			valid:   false,
+			reason:  "Extra field 'extraField' found in Geolocation object",
+		},
+		{
 			name:    "Valid Geolocation as String",
 			profile: `{"geolocation": "50.123,-75.123"}`,
 			valid:   true,

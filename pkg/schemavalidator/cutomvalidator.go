@@ -105,11 +105,29 @@ func validateLatLon(geoValue map[string]interface{}, vr *ValidationResult) {
 		}
 	}
 
+	// Validate latitude if exists.
 	if lat, exists := geoValue["lat"]; exists {
 		validateCoordinate(lat, "Latitude", -90, 90)
 	}
+
+	// Validate longitude if exists.
 	if lon, exists := geoValue["lon"]; exists {
 		validateCoordinate(lon, "Longitude", -180, 180)
+	}
+
+	// Check for extra keys
+	for key := range geoValue {
+		if key != "lat" && key != "lon" {
+			vr.AppendError(
+				"Extra Field in Geolocation",
+				fmt.Sprintf(
+					"Extra field '%s' found in Geolocation object",
+					key,
+				),
+				[]string{"pointer", "/geolocation/" + key},
+				http.StatusBadRequest,
+			)
+		}
 	}
 }
 
