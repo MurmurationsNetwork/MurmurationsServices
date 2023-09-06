@@ -86,69 +86,94 @@ type SchemaValidator struct {
 	SchemaLoader Loader
 	// The loader that fetches the profile data.
 	ProfileLoader ProfileLoader
+	// The JSON data.
+	JSON map[string]interface{}
+	// Enable/disable custom validation.
+	CustomValidation bool
 }
 
 // Validate validates the data against the schemas and returns the validation result.
 func (v *SchemaValidator) Validate() *ValidationResult {
-	var (
-		errorMessages []string
-		details       []string
-		sources       [][]string
-		errorStatus   []int
-	)
+	finalResult := NewValidationResult()
 
 	for _, schemaStr := range v.Schemas {
 		schema, err := v.SchemaLoader.Load(schemaStr)
 		if err != nil {
-			errorMessages = append(errorMessages, "Error loading schema")
-			details = append(
-				details,
-				fmt.Sprintf(
-					"Error loading schema (%s): %v",
-					schemaStr,
-					err,
-				),
+			finalResult.AppendError(
+				"Error loading schema",
+				fmt.Sprintf("Error loading schema (%s): %v", schemaStr, err),
+				[]string{"pointer", "/linked_schemas"},
+				http.StatusNotFound,
 			)
-			sources = append(sources, []string{"pointer", "/linked_schemas"})
-			errorStatus = append(errorStatus, http.StatusNotFound)
 			continue
 		}
 
-		result, err := schema.Validate(v.ProfileLoader.Load())
+		validationResult, err := schema.Validate(v.ProfileLoader.Load())
 		if err != nil {
-			errorMessages = append(errorMessages, "Cannot Validate Document")
-			details = append(
-				details,
+			finalResult.AppendError(
+				"Cannot Validate Document",
 				fmt.Sprintf(
 					"Error when trying to validate document: %s",
 					err.Error(),
 				),
+				nil,
+				http.StatusBadRequest,
 			)
-			errorStatus = append(errorStatus, http.StatusBadRequest)
 			continue
 		}
 
-		if !result.Valid() {
+		if !validationResult.Valid() {
 			failedTitles, failedDetails, failedSources := parseValidateError(
 				schemaStr,
-				result.Errors(),
+				validationResult.Errors(),
 			)
-			errorMessages = append(errorMessages, failedTitles...)
-			details = append(details, failedDetails...)
-			sources = append(sources, failedSources...)
-			for i := 0; i < len(failedTitles); i++ {
-				errorStatus = append(errorStatus, http.StatusBadRequest)
+			statusCodes := make([]int, len(failedTitles))
+			for i := range statusCodes {
+				// Populate it with the same status code for each error.
+				statusCodes[i] = http.StatusBadRequest
+			}
+			finalResult.AppendErrors(
+				failedTitles,
+				failedDetails,
+				failedSources,
+				statusCodes,
+			)
+		}
+	}
+
+	if !finalResult.Valid {
+		return finalResult
+	} else if v.CustomValidation {
+		return finalResult.Merge(v.CustomValidate())
+	}
+	return finalResult
+}
+
+// CustomValidate performs custom validation on the JSON data.
+func (v *SchemaValidator) CustomValidate() *ValidationResult {
+	finalResult := NewValidationResult()
+
+	validators := map[string]CustomValidator{
+		"geolocation":      &GeolocationValidator{},
+		"name":             &StringValidator{MaxLength: 200},
+		"locality":         &StringValidator{MaxLength: 100},
+		"region":           &StringValidator{MaxLength: 100},
+		"country_name":     &StringValidator{MaxLength: 100},
+		"country_iso_3166": &StringValidator{MaxLength: 3},
+		"primary_url":      &StringValidator{MaxLength: 2000},
+		"tags":             &TagsValidator{},
+	}
+
+	for field, validator := range validators {
+		if value, exists := v.JSON[field]; exists {
+			result := validator.Validate(value)
+			if !result.Valid {
+				finalResult.Merge(result)
 			}
 		}
 	}
 
-	return &ValidationResult{
-		Valid:         len(errorMessages) == 0,
-		ErrorMessages: errorMessages,
-		Details:       details,
-		Sources:       sources,
-		ErrorStatus:   errorStatus,
-	}
+	return finalResult
 }
 
 // getSchemaURL constructs the full schema URL and returns it.

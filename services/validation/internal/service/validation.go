@@ -109,6 +109,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	validator, err = schemavalidator.NewBuilder().
 		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
 		WithURLProfile(node.ProfileURL).
+		WithCustomValidation().
 		Build()
 	if err != nil {
 		// Log the error for internal debugging and auditing.

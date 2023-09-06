@@ -49,6 +49,12 @@ func (b *Builder) WithMapProfile(
 	return b
 }
 
+// WithCustomValidation enables to custom validation.
+func (b *Builder) WithCustomValidation() *Builder {
+	b.schemaValidator.CustomValidation = true
+	return b
+}
+
 // Build validates the builder state and returns the built SchemaValidator.
 func (b *Builder) Build() (*SchemaValidator, error) {
 	// Check that required fields are set.
@@ -61,6 +67,23 @@ func (b *Builder) Build() (*SchemaValidator, error) {
 	if b.schemaValidator.ProfileLoader == nil {
 		return nil, fmt.Errorf("a data loader must be provided")
 	}
+
+	profileData, err := b.schemaValidator.ProfileLoader.Load().LoadJSON()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"failed to load JSON from the profile URL: %w",
+			err,
+		)
+	}
+
+	jsonMap, ok := profileData.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf(
+			"invalid JSON format: expected a map[string]interface{}",
+		)
+	}
+
+	b.schemaValidator.JSON = jsonMap
 
 	return b.schemaValidator, nil
 }
