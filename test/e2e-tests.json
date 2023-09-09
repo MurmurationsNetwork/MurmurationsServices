@@ -4,7 +4,7 @@
 		"name": "Murmurations API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28537014",
-		"_collection_link": "https://ic3network.postman.co/workspace/Murmurations~a621deb5-92bc-4d76-a95a-a01f322954c8/collection/10168004-c985860d-4b36-44da-9d69-79f8a19af2c8?action=share&creator=28537014&source=collection_link"
+		"_collection_link": "https://ic3network.postman.co/workspace/Murmurations~a621deb5-92bc-4d76-a95a-a01f322954c8/collection/10168004-c985860d-4b36-44da-9d69-79f8a19af2c8?action=share&source=collection_link"
 	},
 	"item": [
 		{
@@ -879,7 +879,7 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return correct profile_hash`, () => {",
-									"    pm.expect(jsonData.data.profile_hash).to.eq(\"6f2e7a7d74538dc393ee090ca72a5c97931c558ab8aadbedd456f35daeed950b\")",
+									"    pm.expect(jsonData.data.profile_hash).to.eq(\"4fb2953fe653771d33e0b3b3317901db781b4aaace9bbde890558e7ca4fa3088\")",
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should not return linked_schemas list`, () => {",

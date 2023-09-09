@@ -1,4 +1,4 @@
-package schemavalidator
+package profilevalidator
 
 import (
 	"encoding/json"

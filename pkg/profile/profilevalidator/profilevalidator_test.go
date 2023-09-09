@@ -1,4 +1,4 @@
-package schemavalidator_test
+package profilevalidator_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 )
 
 var StrSchema = `{}`
@@ -140,7 +140,7 @@ func TestValidate_CustomValidator(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			validator, err := schemavalidator.NewBuilder().
+			validator, err := profilevalidator.NewBuilder().
 				WithStrSchemas([]string{StrSchema}).
 				WithStrProfile(tt.profile).
 				WithCustomValidation().

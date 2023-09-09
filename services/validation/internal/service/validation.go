@@ -6,7 +6,6 @@ import (
 
 	"github.com/xeipuuv/gojsonschema"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
@@ -14,8 +13,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
@@ -56,12 +56,11 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 
 	// Validate against the default schema. The default schema ensures there is
 	// at least one schema defined for validating the node profile.
-	validator, err := schemavalidator.NewBuilder().
-		WithURLSchemas(config.Values.Library.InternalURL, []string{DefaultSchema}).
+	validator, err := profilevalidator.NewBuilder().
 		WithURLProfile(node.ProfileURL).
+		WithURLSchemas(config.Values.Library.InternalURL, []string{DefaultSchema}).
 		Build()
 	if err != nil {
-		// Log the error for internal debugging and auditing.
 		logger.Error("Failed to build schema validator", err)
 
 		errors := jsonapi.NewError(
@@ -106,9 +105,9 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	}
 
 	// Validate against the schemas specified in the profile data.
-	validator, err = schemavalidator.NewBuilder().
-		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
+	validator, err = profilevalidator.NewBuilder().
 		WithURLProfile(node.ProfileURL).
+		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
 		WithCustomValidation().
 		Build()
 	if err != nil {
@@ -178,10 +177,28 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		profileJSON["primary_url"] = normalizedURL
 	}
 
+	profileHash, err := profilehasher.New(node.ProfileURL, config.Values.Library.InternalURL).
+		Hash()
+	if err != nil {
+		logger.Error("Failed to generate a hash for the profile_url: ", err)
+		errors := jsonapi.NewError(
+			[]string{"Profile Hashing Failed"},
+			[]string{
+				fmt.Sprintf(
+					"Failed to generate a hash for the profile_url: %s. Please try again later.",
+					node.ProfileURL,
+				),
+			},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return
+	}
 	event.NewNodeValidatedPublisher(nats.Client.Client()).
 		Publish(event.NodeValidatedData{
 			ProfileURL:  node.ProfileURL,
-			ProfileHash: cryptoutil.GetSHA256(jsonStr),
+			ProfileHash: profileHash,
 			// Provides the updated version of the profile for later use.
 			ProfileStr:  jsonutil.ToString(profileJSON),
 			LastUpdated: dateutil.GetNowUnix(),
