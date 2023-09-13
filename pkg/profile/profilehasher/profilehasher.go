@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 )
 
@@ -52,22 +53,34 @@ func New(profileURL, libraryURL string) *ProfileHash {
 func (p *ProfileHash) Hash() (string, error) {
 	profileData, err := p.fetchData(p.profileURL)
 	if err != nil {
-		return "", err
+		return "", core.ProfileFetchError{Reason: err.Error()}
 	}
 
 	err = p.parseProfile(profileData)
 	if err != nil {
-		return "", err
+		if err != nil {
+			return "", core.ProfileFetchError{Reason: err.Error()}
+		}
 	}
 
 	err = p.populateFieldsForHashing()
 	if err != nil {
-		return "", err
+		if err != nil {
+			return "", core.ProfileFetchError{Reason: err.Error()}
+		}
 	}
 
 	filteredProfile := p.filterProfileFields()
 
-	return jsonutil.Hash(filteredProfile)
+	hashedValue, err := jsonutil.Hash(filteredProfile)
+	if err != nil {
+		return "", fmt.Errorf(
+			"error computing hash for filtered profile: %v",
+			err,
+		)
+	}
+
+	return hashedValue, nil
 }
 
 func (p *ProfileHash) fetchData(url string) ([]byte, error) {

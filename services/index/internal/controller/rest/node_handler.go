@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -26,10 +27,10 @@ import (
 
 type NodeHandler interface {
 	Add(c *gin.Context)
+	AddSync(c *gin.Context)
 	Get(c *gin.Context)
 	Search(c *gin.Context)
 	Delete(c *gin.Context)
-	AddSync(c *gin.Context)
 	Validate(c *gin.Context)
 	Export(c *gin.Context)
 	GetNodes(c *gin.Context)
@@ -105,6 +106,7 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 		logger.Error("Failed to add node", err)
 
 		var validationError index.ValidationError
+		var profileFetchError core.ProfileFetchError
 		var jsonErr []jsonapi.Error
 
 		switch {
@@ -115,17 +117,31 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 				nil,
 				[]int{http.StatusBadRequest},
 			)
+		case errors.As(err, &profileFetchError):
+			jsonErr = jsonapi.NewError(
+				[]string{"Profile Not Found"},
+				[]string{
+					fmt.Sprintf(
+						"Could not find or read from (invalid JSON) the profile_url: %s",
+						req.ProfileURL,
+					),
+				},
+				nil,
+				[]int{http.StatusNotFound},
+			)
 		default:
 			jsonErr = jsonapi.NewError(
-				[]string{"Database Error"},
-				[]string{"Error when trying to add a node."},
+				[]string{"Unknown Error"},
+				[]string{
+					"Error when trying to add a node. Please try again later.",
+				},
 				nil,
 				[]int{http.StatusInternalServerError},
 			)
 		}
 
 		res := jsonapi.Response(nil, jsonErr, nil, nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 
@@ -400,6 +416,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		logger.Error("Failed to add node", err)
 
 		var validationError index.ValidationError
+		var profileFetchError core.ProfileFetchError
 		var jsonErr []jsonapi.Error
 
 		switch {
@@ -410,17 +427,31 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 				nil,
 				[]int{http.StatusBadRequest},
 			)
+		case errors.As(err, &profileFetchError):
+			jsonErr = jsonapi.NewError(
+				[]string{"Profile Not Found"},
+				[]string{
+					fmt.Sprintf(
+						"Could not find or read from (invalid JSON) the profile_url: %s",
+						req.ProfileURL,
+					),
+				},
+				nil,
+				[]int{http.StatusNotFound},
+			)
 		default:
 			jsonErr = jsonapi.NewError(
-				[]string{"Database Error"},
-				[]string{"Error when trying to add a node."},
+				[]string{"Unknown Error"},
+				[]string{
+					"Error when trying to add a node. Please try again later.",
+				},
 				nil,
 				[]int{http.StatusInternalServerError},
 			)
 		}
 
 		res := jsonapi.Response(nil, jsonErr, nil, nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(jsonErr[0].Status, res)
 		return
 	}
 

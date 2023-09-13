@@ -1826,7 +1826,7 @@
 									"})",
 									"",
 									"pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile detail`, () => {",
-									"    pm.expect(jsonData.meta.profile_url).to.contain('https://ic3.dev/murmurations/does-not-exist.json')",
+									"    pm.expect(jsonData.errors[0].detail).to.contain('https://ic3.dev/murmurations/does-not-exist.json')",
 									"})",
 									""
 								],
