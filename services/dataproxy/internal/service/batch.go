@@ -12,7 +12,8 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/model"
@@ -86,9 +87,9 @@ func (s *batchService) Validate(
 			return line, nil, err
 		}
 
-		validator, err := schemavalidator.NewBuilder().
-			WithStrSchemas(validateJSONSchemas).
+		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(profile).
+			WithStrSchemas(validateJSONSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
@@ -159,8 +160,8 @@ func (s *batchService) Import(
 			), nil
 		}
 
-		// Hash profile
-		profileHash, err := importutil.HashProfile(profile)
+		// TODO
+		profileHash, err := jsonutil.Hash(profile)
 		if err != nil {
 			return batchID, line, nil, err
 		}
@@ -288,8 +289,8 @@ func (s *batchService) Edit(
 			), nil
 		}
 
-		// Hash profile
-		profileHash, err := importutil.HashProfile(profile)
+		// TODO
+		profileHash, err := jsonutil.Hash(profile)
 		if err != nil {
 			return line, nil, err
 		}

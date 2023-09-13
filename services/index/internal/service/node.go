@@ -12,6 +12,8 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/es"
@@ -49,7 +51,7 @@ func NewNodeService(
 
 // SetNodeValid sets a node as valid.
 func (s *nodeService) SetNodeValid(node *model.Node) error {
-	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
 	node.SetStatusValidated()
 	node.ResetFailureReasons()
 
@@ -73,7 +75,7 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 
 // SetNodeInvalid sets a node as invali.
 func (s *nodeService) SetNodeInvalid(node *model.Node) error {
-	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
 	node.Status = constant.NodeStatus.ValidationFailed
 	emptystr := ""
 	node.ProfileHash = &emptystr
@@ -98,7 +100,7 @@ func (s *nodeService) AddNode(
 		}
 	}
 
-	node.ID = cryptoutil.GetSHA256(node.ProfileURL)
+	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
 
 	oldNode, err := s.mongoRepo.GetByID(node.ID)
 
@@ -106,6 +108,7 @@ func (s *nodeService) AddNode(
 	if err != nil && !errors.As(err, &index.NotFoundError{}) {
 		return nil, err
 	}
+
 	// Handle the case where oldNode is found and its status is Deleted.
 	if err == nil && oldNode.Status == constant.NodeStatus.Deleted {
 		isValid := httputil.IsValidURL(node.ProfileURL)
@@ -113,14 +116,17 @@ func (s *nodeService) AddNode(
 			return oldNode, nil
 		}
 	}
+
 	// Handle the case where oldNode is found and profile hash is the same.
 	if err == nil {
-		jsonStr, err := httputil.GetJSONStr(node.ProfileURL)
-		if err == nil {
-			newHash := cryptoutil.GetSHA256(jsonStr)
-			if oldNode.ProfileHash != nil && *oldNode.ProfileHash == newHash {
-				return oldNode, nil
-			}
+		newHash, err := profilehasher.
+			New(node.ProfileURL, config.Values.Library.InternalURL).
+			Hash()
+		if err != nil {
+			return nil, err
+		}
+		if oldNode.ProfileHash != nil && *oldNode.ProfileHash == newHash {
+			return oldNode, nil
 		}
 	}
 

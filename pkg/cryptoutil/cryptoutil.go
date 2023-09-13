@@ -5,9 +5,8 @@ import (
 	"encoding/hex"
 )
 
-func GetSHA256(s string) string {
-	h := sha256.New()
-	defer h.Reset()
-	h.Write([]byte(s))
-	return hex.EncodeToString(h.Sum(nil))
+// ComputeSHA256 computes the SHA-256 hash of the given input string.
+func ComputeSHA256(input string) string {
+	hash := sha256.Sum256([]byte(input))
+	return hex.EncodeToString(hash[:])
 }

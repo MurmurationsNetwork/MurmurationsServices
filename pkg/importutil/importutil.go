@@ -2,8 +2,6 @@ package importutil
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 )
@@ -72,21 +71,6 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	return schema, nil
 }
 
-func Hash(doc string) (string, error) {
-	// ref: https://stackoverflow.com/questions/55256365/how-to-obtain-same-hash-from-json
-	var v interface{}
-	err := json.Unmarshal([]byte(doc), &v)
-	if err != nil {
-		return "", err
-	}
-	hashDoc, err := json.Marshal(v)
-	if err != nil {
-		return "", err
-	}
-	sum := sha256.Sum256(hashDoc)
-	return hex.EncodeToString(sum[0:]), nil
-}
-
 func MapFieldsName(
 	profile map[string]interface{},
 	mapping map[string]string,
@@ -125,8 +109,9 @@ func MapProfile(
 	// Convert KVM field names to Org Schema field names
 	profileJSON := MapFieldsName(profile, mapping)
 
-	// Hash the updated data
-	profileHash, err := HashProfile(profileJSON)
+	// Hash the updated data.
+	// TODO
+	profileHash, err := jsonutil.Hash(profileJSON)
 	if err != nil {
 		return nil, err
 	}
@@ -162,18 +147,6 @@ func MapProfile(
 	}
 
 	return profileJSON, nil
-}
-
-func HashProfile(profile map[string]interface{}) (string, error) {
-	doc, err := json.Marshal(profile)
-	if err != nil {
-		return "", err
-	}
-	profileHash, err := Hash(string(doc))
-	if err != nil {
-		return "", err
-	}
-	return profileHash, nil
 }
 
 func Validate(

@@ -1,4 +1,4 @@
-package schemavalidator
+package profilevalidator
 
 import (
 	"fmt"
@@ -77,23 +77,23 @@ func (mv *MapProfileLoader) Load() gojsonschema.JSONLoader {
 	return gojsonschema.NewGoLoader(mv.dataMap)
 }
 
-// SchemaValidator is the main struct of this package, which performs
-// the validation against the JSON schemas.
-type SchemaValidator struct {
+// ProfileValidator is the main struct of this package, which performs
+// the validation against the profile JSON.
+type ProfileValidator struct {
+	// The loader that fetches the profile data.
+	ProfileLoader ProfileLoader
+	// The Profile JSON data.
+	JSON map[string]interface{}
 	// The schemas to be used for validation.
 	Schemas []string
 	// The loader that fetches the schemas.
 	SchemaLoader Loader
-	// The loader that fetches the profile data.
-	ProfileLoader ProfileLoader
-	// The JSON data.
-	JSON map[string]interface{}
 	// Enable/disable custom validation.
 	CustomValidation bool
 }
 
 // Validate validates the data against the schemas and returns the validation result.
-func (v *SchemaValidator) Validate() *ValidationResult {
+func (v *ProfileValidator) Validate() *ValidationResult {
 	finalResult := NewValidationResult()
 
 	for _, schemaStr := range v.Schemas {
@@ -150,7 +150,7 @@ func (v *SchemaValidator) Validate() *ValidationResult {
 }
 
 // CustomValidate performs custom validation on the JSON data.
-func (v *SchemaValidator) CustomValidate() *ValidationResult {
+func (v *ProfileValidator) CustomValidate() *ValidationResult {
 	finalResult := NewValidationResult()
 
 	validators := map[string]CustomValidator{
