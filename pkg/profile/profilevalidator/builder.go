@@ -1,43 +1,43 @@
-package schemavalidator
+package profilevalidator
 
 import "fmt"
 
-// Builder is a builder type for creating SchemaValidator instances.
+// Builder is a builder type for creating ProfileValidator instances.
 type Builder struct {
-	// schemaValidator is the SchemaValidator instance being constructed.
-	schemaValidator *SchemaValidator
+	// profilevalidator is the ProfileValidator instance being constructed.
+	profilevalidator *ProfileValidator
 }
 
 // NewBuilder creates and returns a new Builder.
 func NewBuilder() *Builder {
 	return &Builder{
-		schemaValidator: &SchemaValidator{},
+		profilevalidator: &ProfileValidator{},
 	}
 }
 
-// WithURLSchemas sets the base URL and the schemas for the SchemaValidator to be built.
+// WithURLSchemas sets the base URL and the schemas for the ProfileValidator to be built.
 func (b *Builder) WithURLSchemas(baseURL string, schemas []string) *Builder {
-	b.schemaValidator.Schemas = schemas
-	b.schemaValidator.SchemaLoader = &URLSchemaLoader{BaseURL: baseURL}
+	b.profilevalidator.Schemas = schemas
+	b.profilevalidator.SchemaLoader = &URLSchemaLoader{BaseURL: baseURL}
 	return b
 }
 
-// WithStrSchemas sets the schemas for the SchemaValidator to be built.
+// WithStrSchemas sets the schemas for the ProfileValidator to be built.
 func (b *Builder) WithStrSchemas(schemas []string) *Builder {
-	b.schemaValidator.Schemas = schemas
-	b.schemaValidator.SchemaLoader = &StrSchemaLoader{}
+	b.profilevalidator.Schemas = schemas
+	b.profilevalidator.SchemaLoader = &StrSchemaLoader{}
 	return b
 }
 
 // WithURLProfile sets the URL for loading the data to be validated.
 func (b *Builder) WithURLProfile(dataURL string) *Builder {
-	b.schemaValidator.ProfileLoader = &URLProfileLoader{dataURL: dataURL}
+	b.profilevalidator.ProfileLoader = &URLProfileLoader{dataURL: dataURL}
 	return b
 }
 
 // WithStrProfile sets the data string to be validated.
 func (b *Builder) WithStrProfile(dataString string) *Builder {
-	b.schemaValidator.ProfileLoader = &StrProfileLoader{dataString: dataString}
+	b.profilevalidator.ProfileLoader = &StrProfileLoader{dataString: dataString}
 	return b
 }
 
@@ -45,30 +45,30 @@ func (b *Builder) WithStrProfile(dataString string) *Builder {
 func (b *Builder) WithMapProfile(
 	dataMap map[string]interface{},
 ) *Builder {
-	b.schemaValidator.ProfileLoader = &MapProfileLoader{dataMap: dataMap}
+	b.profilevalidator.ProfileLoader = &MapProfileLoader{dataMap: dataMap}
 	return b
 }
 
 // WithCustomValidation enables to custom validation.
 func (b *Builder) WithCustomValidation() *Builder {
-	b.schemaValidator.CustomValidation = true
+	b.profilevalidator.CustomValidation = true
 	return b
 }
 
-// Build validates the builder state and returns the built SchemaValidator.
-func (b *Builder) Build() (*SchemaValidator, error) {
+// Build validates the builder state and returns the built ProfileValidator.
+func (b *Builder) Build() (*ProfileValidator, error) {
 	// Check that required fields are set.
-	if b.schemaValidator.Schemas == nil {
+	if b.profilevalidator.Schemas == nil {
 		return nil, fmt.Errorf("schemas must be provided")
 	}
-	if b.schemaValidator.SchemaLoader == nil {
+	if b.profilevalidator.SchemaLoader == nil {
 		return nil, fmt.Errorf("a schema loader must be provided")
 	}
-	if b.schemaValidator.ProfileLoader == nil {
+	if b.profilevalidator.ProfileLoader == nil {
 		return nil, fmt.Errorf("a data loader must be provided")
 	}
 
-	profileData, err := b.schemaValidator.ProfileLoader.Load().LoadJSON()
+	profileData, err := b.profilevalidator.ProfileLoader.Load().LoadJSON()
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to load JSON from the profile URL: %w",
@@ -83,7 +83,7 @@ func (b *Builder) Build() (*SchemaValidator, error) {
 		)
 	}
 
-	b.schemaValidator.JSON = jsonMap
+	b.profilevalidator.JSON = jsonMap
 
-	return b.schemaValidator, nil
+	return b.profilevalidator, nil
 }

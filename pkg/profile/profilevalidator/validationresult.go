@@ -1,4 +1,4 @@
-package schemavalidator
+package profilevalidator
 
 // ValidationResult is the results from a schema validation operation.
 type ValidationResult struct {

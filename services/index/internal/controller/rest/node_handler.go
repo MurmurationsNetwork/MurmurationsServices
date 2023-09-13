@@ -16,7 +16,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/schemavalidator"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
@@ -558,7 +558,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
 
 	// Validate against schemes specify inside the profile data.
-	validator, err := schemavalidator.NewBuilder().
+	validator, err := profilevalidator.NewBuilder().
 		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
 		WithStrProfile(string(jsonString)).
 		WithCustomValidation().

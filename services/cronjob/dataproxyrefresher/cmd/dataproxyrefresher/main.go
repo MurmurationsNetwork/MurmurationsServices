@@ -12,6 +12,7 @@ import (
 	"github.com/lucsky/cuid"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/config"
@@ -101,7 +102,9 @@ func main() {
 				)
 				cleanUp()
 			}
-			profileHash, err := importutil.Hash(string(doc))
+
+			// TODO
+			profileHash, err := jsonutil.Hash(string(doc))
 			if err != nil {
 				logger.Error(
 					"Failed to hash data. Profile CUID: "+profile.Cuid,
