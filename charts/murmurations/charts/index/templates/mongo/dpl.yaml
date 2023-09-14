@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: index-mongo
 spec:
+  # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
+  revisionHistoryLimit: 0
   replicas: {{ .Values.mongo.replicas }}
   strategy:
     type: Recreate
