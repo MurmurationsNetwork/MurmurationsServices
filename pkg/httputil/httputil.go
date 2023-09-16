@@ -79,18 +79,18 @@ func GetByteWithBearerToken(url string, token string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return []byte{}, fmt.Errorf(
-			"error the requested URL %s returned %d status code",
-			url,
-			resp.StatusCode,
-		)
-	}
-
-	// Read the response body into a byte array
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return []byte{}, err
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(
+			"the requested URL %s returned status code %d with body: %s",
+			url,
+			resp.StatusCode,
+			string(data),
+		)
 	}
 
 	return data, nil

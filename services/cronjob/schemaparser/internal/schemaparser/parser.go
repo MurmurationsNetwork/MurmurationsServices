@@ -10,8 +10,10 @@ import (
 
 	"github.com/iancoleman/orderedmap"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.uber.org/zap"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/model"
 )
@@ -151,18 +153,47 @@ func (s *SchemaParser) parseProperties(fullData orderedmap.OrderedMap) bson.D {
 		return s.convertToBsonDocument(fullData)
 	}
 
-	propertiesMap := properties.(orderedmap.OrderedMap)
+	propertiesMap, ok := properties.(orderedmap.OrderedMap)
+	if !ok {
+		logger.Warn(
+			"Unexpected type for properties. Expected orderedmap.OrderedMap",
+			zap.String("actualType", fmt.Sprintf("%T", properties)),
+		)
+		return bson.D{}
+	}
 
 	for _, key := range propertiesMap.Keys() {
 		value, _ := propertiesMap.Get(key)
-		valueMap := value.(orderedmap.OrderedMap)
+		valueMap, ok := value.(orderedmap.OrderedMap)
+		if !ok {
+			logger.Warn(
+				"Unexpected type for value. Expected orderedmap.OrderedMap",
+				zap.String("key", key),
+				zap.String("actualType", fmt.Sprintf("%T", value)),
+			)
+			continue
+		}
 
 		var bsonDoc bson.D
 
 		refPath, hasRef := valueMap.Get(ReferenceKey)
 		if hasRef && refPath != nil {
-			subSchema, err := s.fetchReferencedSchema(refPath.(string))
+			path, ok := refPath.(string)
+			if !ok {
+				logger.Warn(
+					"Unexpected type for refPath. Expected string",
+					zap.String("actualType", fmt.Sprintf("%T", refPath)),
+				)
+				continue
+			}
+			subSchema, err := s.fetchReferencedSchema(path)
 			if err != nil {
+				logger.Error(
+					"Failed to fetch referenced schema",
+					err,
+					zap.String("refPath", path),
+					zap.String("key", key),
+				)
 				continue
 			}
 			bsonDoc = s.parseProperties(*subSchema)

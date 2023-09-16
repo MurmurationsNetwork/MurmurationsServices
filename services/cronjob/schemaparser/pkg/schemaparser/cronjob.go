@@ -1,6 +1,8 @@
 package schemaparser
 
 import (
+	"fmt"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
@@ -33,55 +35,52 @@ func NewCronJob() *SchemaCron {
 	}
 }
 
-// Run executes the cron job. It fetches the latest branch info, checks for new
-// commits, updates schemas if a new commit is found, and sets the last commit.
-func (sc *SchemaCron) Run() {
+func (sc *SchemaCron) Run() error {
 	if err := sc.connectToMongoDB(); err != nil {
-		logger.Panic("error when trying to connect to MongoDB", err)
-		return
+		return fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
 
-	url := config.Values.Github.BranchURL
-
-	// Use the SchemaService to get branch info.
-	branchInfo, err := sc.svc.GetBranchInfo(url)
+	branchInfo, err := sc.svc.GetBranchInfo(config.Values.Github.BranchURL)
 	if err != nil {
-		logger.Error(
-			"Error when trying to get last_commit and schema_list from: "+url,
+		return fmt.Errorf(
+			"failed to get last_commit and schema_list from %s: %w",
+			config.Values.Github.BranchURL,
 			err,
 		)
-		return
 	}
 
-	// Check if the latest commit date indicates a new commit.
 	hasNewCommit, err := sc.svc.HasNewCommit(
 		branchInfo.Commit.InnerCommit.Author.Date,
 	)
 	if err != nil {
-		logger.Error("Error when trying to get schemas:lastCommit", err)
-		return
+		return fmt.Errorf(
+			"failed to get schemas:lastCommit: %w",
+			err,
+		)
 	}
 
-	// If there's no new commit, there's nothing to do.
 	if !hasNewCommit {
 		logger.Info(
 			"No new commit found. Latest commit on GitHub: " + branchInfo.Commit.InnerCommit.Author.Date,
 		)
-		return
+		return nil
 	}
 
-	// If there is a new commit, update the schemas.
 	err = sc.svc.UpdateSchemas(branchInfo.Commit.Sha)
 	if err != nil {
-		logger.Error("Error when trying to update schemas", err)
-		return
+		return fmt.Errorf("failed to update schemas: %w", err)
 	}
 
 	// After successfully updating the schemas, update the last commit date.
 	err = sc.svc.SetLastCommit(branchInfo.Commit.InnerCommit.Author.Date)
 	if err != nil {
-		logger.Panic("Error when trying to set schemas:lastCommit", err)
+		return fmt.Errorf(
+			"failed to set schemas:lastCommit: %w",
+			err,
+		)
 	}
+
+	return nil
 }
 
 // connectToMongoDB establishes a connection to MongoDB.

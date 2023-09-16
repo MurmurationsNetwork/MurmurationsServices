@@ -7,7 +7,12 @@ import (
 
 func main() {
 	logger.Info("Start loading schemas...")
+
 	s := schemaparser.NewCronJob()
-	s.Run()
+	if err := s.Run(); err != nil {
+		logger.Error("Error loading schemas", err)
+		return
+	}
+
 	logger.Info("Schemas were loaded successfully")
 }

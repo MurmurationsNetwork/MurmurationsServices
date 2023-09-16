@@ -17,7 +17,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/schemaparser"
 )
 
-const LastCommitKey = "schemas:lastCommit"
+const (
+	LastCommitKey = "schemas:lastCommit"
+	maxGoroutines = 10
+)
 
 type SchemaService interface {
 	GetBranchInfo(url string) (*model.BranchInfo, error)
@@ -95,17 +98,23 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 		return err
 	}
 
+	// Create a semaphore channel to limit goroutines.
+	semaphore := make(chan struct{}, maxGoroutines)
+
 	g, ctx := errgroup.WithContext(context.Background())
 
 	for _, schemaName := range schemaList {
 		schemaNameMap := schemaName.(map[string]interface{})
 		url := schemaNameMap["url"].(string)
-		// Create a new goroutine to get and update each schema.
+
 		g.Go(func() error {
 			select {
 			case <-ctx.Done():
 				return nil
 			default:
+				semaphore <- struct{}{}
+				defer func() { <-semaphore }()
+
 				parser := schemaparser.NewSchemaParser(fieldListMap)
 				result, err := parser.GetSchema(url)
 				if err != nil {
