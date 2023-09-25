@@ -91,8 +91,10 @@ func (p *Profile) Update(
 }
 
 // convertGeolocation standardizes the profile's geolocation format.
-// It parses a "latitude,longitude" string or combines separate "latitude" and "longitude" fields into a map.
-// The function won't create a geolocation object if no valid data is found.
+//
+// It parses a "latitude,longitude" string or combines separate "latitude" and
+// "longitude" fields into a map.
+// It won't create a geolocation object if no valid data is found.
 func (p *Profile) convertGeolocation() error {
 	var lat, lon float64
 	var err error
