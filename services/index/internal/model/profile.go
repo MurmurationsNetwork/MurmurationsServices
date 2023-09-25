@@ -90,12 +90,12 @@ func (p *Profile) Update(
 	return nil
 }
 
-// convertGeolocation parses a geolocation string into a specific format.
+// convertGeolocation standardizes the profile's geolocation format.
+// It parses a "latitude,longitude" string or combines separate "latitude" and "longitude" fields into a map.
+// The function won't create a geolocation object if no valid data is found.
 func (p *Profile) convertGeolocation() error {
 	var lat, lon float64
 	var err error
-
-	geoLocation := map[string]interface{}{"lat": 0, "lon": 0}
 
 	if geoStr, ok := p.json["geolocation"].(string); ok {
 		g := strings.Split(geoStr, ",")
@@ -113,20 +113,21 @@ func (p *Profile) convertGeolocation() error {
 			return fmt.Errorf("invalid longitude: %v", err)
 		}
 
-		geoLocation["lat"] = lat
-		geoLocation["lon"] = lon
+		p.json["geolocation"] = map[string]interface{}{"lat": lat, "lon": lon}
 	} else if existingGeo, ok := p.json["geolocation"].(map[string]interface{}); ok {
-		geoLocation = existingGeo
+		p.json["geolocation"] = existingGeo
 	} else {
+		geoLocation := make(map[string]interface{})
 		if existingLat, ok := p.json["latitude"].(float64); ok {
 			geoLocation["lat"] = existingLat
 		}
 		if existingLon, ok := p.json["longitude"].(float64); ok {
 			geoLocation["lon"] = existingLon
 		}
+		if len(geoLocation) > 0 {
+			p.json["geolocation"] = geoLocation
+		}
 	}
-
-	p.json["geolocation"] = geoLocation
 
 	return nil
 }

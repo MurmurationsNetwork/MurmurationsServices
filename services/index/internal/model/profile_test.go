@@ -86,7 +86,6 @@ func TestConvertGeolocation(t *testing.T) {
 			expected: map[string]interface{}{
 				"geolocation": map[string]interface{}{
 					"lat": 40.748817,
-					"lon": 0,
 				},
 			},
 			expectErr: false,
@@ -98,7 +97,6 @@ func TestConvertGeolocation(t *testing.T) {
 			}`,
 			expected: map[string]interface{}{
 				"geolocation": map[string]interface{}{
-					"lat": 0,
 					"lon": -73.985428,
 				},
 			},
@@ -132,19 +130,15 @@ func TestConvertGeolocation(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name:  "invalid geolocation string",
-			input: `{"geolocation": "invalid_string"}`,
-			expected: map[string]interface{}{
-				"geolocation": map[string]interface{}{"lat": 0, "lon": 0},
-			},
+			name:      "invalid geolocation string",
+			input:     `{"geolocation": "invalid_string"}`,
+			expected:  map[string]interface{}{},
 			expectErr: true,
 		},
 		{
-			name:  "geolocation not present",
-			input: `{}`,
-			expected: map[string]interface{}{
-				"geolocation": map[string]interface{}{"lat": 0, "lon": 0},
-			},
+			name:      "geolocation not present",
+			input:     `{}`,
+			expected:  map[string]interface{}{},
 			expectErr: false,
 		},
 	}
