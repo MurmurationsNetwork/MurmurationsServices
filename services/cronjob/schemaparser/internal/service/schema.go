@@ -80,19 +80,19 @@ func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
 }
 
 func (s *schemaService) UpdateSchemas(branchSha string) error {
-	// Get schema folder list and field folder list
+	// Get schema folder list and field folder list.
 	schemaListURL, fieldListURL, err := getSchemaAndFieldFolderURLs(branchSha)
 	if err != nil {
 		return err
 	}
 
-	// Read field folder list and create a map of field name and field URL
+	// Read field folder list and create a map of field name and field URL.
 	fieldListMap, err := getFieldsURLMap(fieldListURL)
 	if err != nil {
 		return err
 	}
 
-	// Read schema folder list
+	// Read schema folder list.
 	schemaList, err := getGithubTree(schemaListURL)
 	if err != nil {
 		return err
@@ -128,23 +128,31 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 	return g.Wait()
 }
 
+// SetLastCommit updates the last commit time in the Redis store.
 func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
 	oldLastCommitTime, err := s.redis.Get("schemas:lastCommit")
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"failed to retrieve old last commit time from Redis: %w",
+			err,
+		)
 	}
 
 	ok, err := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to compare commit times: %w", err)
 	}
+
 	if !ok {
 		return nil
 	}
 
 	err = s.redis.Set("schemas:lastCommit", newLastCommitTime, 0)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"failed to set new last commit time in Redis: %w",
+			err,
+		)
 	}
 
 	return nil

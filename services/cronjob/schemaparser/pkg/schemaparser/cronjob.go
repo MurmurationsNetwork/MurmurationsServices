@@ -35,6 +35,7 @@ func NewCronJob() *SchemaCron {
 	}
 }
 
+// Run start loading the schema.
 func (sc *SchemaCron) Run() error {
 	if err := sc.connectToMongoDB(); err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %w", err)
@@ -61,7 +62,8 @@ func (sc *SchemaCron) Run() error {
 
 	if !hasNewCommit {
 		logger.Info(
-			"No new commit found. Latest commit on GitHub: " + branchInfo.Commit.InnerCommit.Author.Date,
+			"No new commit found. Latest commit on GitHub: " +
+				branchInfo.Commit.InnerCommit.Author.Date,
 		)
 		return nil
 	}

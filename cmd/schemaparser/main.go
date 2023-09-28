@@ -10,7 +10,7 @@ func main() {
 
 	s := schemaparser.NewCronJob()
 	if err := s.Run(); err != nil {
-		logger.Error("Error loading schemas", err)
+		logger.Panic("Error loading schemas", err)
 		return
 	}
 

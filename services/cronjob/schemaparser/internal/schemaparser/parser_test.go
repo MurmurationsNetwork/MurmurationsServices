@@ -28,6 +28,25 @@ var (
 				"title":       "Full Name",
 				"description": "The full name of the person",
 			},
+			"member_of": map[string]interface{}{
+				"title": "Member of",
+				"type":  "array",
+				"items": map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"name": map[string]interface{}{
+							"title":       "Name",
+							"description": "The name of the entity.",
+							"type":        "string",
+						},
+						"url": map[string]interface{}{
+							"title":   "URL",
+							"type":    "string",
+							"pattern": "^https?://.*",
+						},
+					},
+				},
+			},
 		},
 		"required": []string{
 			"linked_schemas",
@@ -119,6 +138,28 @@ var (
 							"a living being, a legal entity, an object (real or virtual) " +
 							"or even a good or service.",
 					},
+				}},
+			}},
+			{Key: "member_of", Value: bson.D{
+				{Key: "title", Value: "Member of"},
+				{Key: "type", Value: "array"},
+				{Key: "items", Value: bson.D{
+					{Key: "type", Value: "object"},
+					{Key: "properties", Value: bson.D{
+						{Key: "name", Value: bson.D{
+							{Key: "title", Value: "Name"},
+							{
+								Key:   "description",
+								Value: "The name of the entity.",
+							},
+							{Key: "type", Value: "string"},
+						}},
+						{Key: "url", Value: bson.D{
+							{Key: "title", Value: "URL"},
+							{Key: "type", Value: "string"},
+							{Key: "pattern", Value: "^https?://.*"},
+						}},
+					}},
 				}},
 			}},
 		}},

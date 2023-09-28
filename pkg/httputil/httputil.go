@@ -65,30 +65,37 @@ func GetByte(url string) ([]byte, error) {
 	return data, nil
 }
 
-func GetByteWithBearerToken(url string, token string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+// GetByteWithBearerToken sends a GET request to the specified URL with a Bearer
+// token for authorization.
+func GetByteWithBearerToken(url, token string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return []byte{}, err
+		return nil, fmt.Errorf("failed to create a new request: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return []byte{}, err
+		return nil, fmt.Errorf("failed to execute request to %s: %w", url, err)
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+		return nil, fmt.Errorf(
+			"failed to read response body from %s: %w",
+			url,
+			err,
+		)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf(
-			"the requested URL %s returned status code %d with body: %s",
+			"request to %s returned non-OK status code %d: %s",
 			url,
 			resp.StatusCode,
+			// Include the response body in the error message for debugging.
 			string(data),
 		)
 	}
