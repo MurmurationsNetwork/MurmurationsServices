@@ -138,52 +138,108 @@ func (s *SchemaParser) convertToBson(data []byte) (bson.D, error) {
 		return nil, fmt.Errorf("failed to unmarshal schema: %w", err)
 	}
 
-	bsonData := s.parseProperties(*fullData)
+	bsonData, err := s.parseProperties(*fullData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse properties: %w", err)
+	}
 
 	return bsonData, nil
 }
 
-// parseProperties recursively transforms an ordered map representing a schema
-// into its corresponding BSON document.
-func (s *SchemaParser) parseProperties(fullData orderedmap.OrderedMap) bson.D {
+// parseProperties recursively transforms a map representing a schema into a BSON document.
+func (s *SchemaParser) parseProperties(
+	fullData orderedmap.OrderedMap,
+) (bson.D, error) {
 	properties, exist := fullData.Get(PropertyKey)
 	if !exist {
 		return s.convertToBsonDocument(fullData)
 	}
 
-	propertiesMap := properties.(orderedmap.OrderedMap)
+	propertiesMap, ok := properties.(orderedmap.OrderedMap)
+	if !ok {
+		return nil, fmt.Errorf(
+			"unexpected type for properties. Expected map, got: %T",
+			properties,
+		)
+	}
 
 	for _, key := range propertiesMap.Keys() {
 		value, _ := propertiesMap.Get(key)
-		valueMap := value.(orderedmap.OrderedMap)
+		valueMap, ok := value.(orderedmap.OrderedMap)
+		if !ok {
+			return nil, fmt.Errorf(
+				"unexpected type for value with key '%s'. Expected map, got: %T",
+				key,
+				value,
+			)
+		}
 
 		var bsonDoc bson.D
+		var err error
 
 		refPath, hasRef := valueMap.Get(ReferenceKey)
 		if hasRef && refPath != nil {
-			subSchema, err := s.fetchReferencedSchema(refPath.(string))
-			if err != nil {
-				continue
+			path, ok := refPath.(string)
+			if !ok {
+				return nil, fmt.Errorf(
+					"unexpected type for refPath. Expected string, got: %T",
+					refPath,
+				)
 			}
-			bsonDoc = s.parseProperties(*subSchema)
+			subSchema, err := s.fetchReferencedSchema(path)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"failed to fetch referenced schema with refPath '%s' and key '%s': %w",
+					path,
+					key,
+					err,
+				)
+			}
+			bsonDoc, err = s.parseProperties(*subSchema)
+			if err != nil {
+				return nil, err
+			}
 			bsonDoc = s.applyOverrides(bsonDoc, valueMap)
 		} else {
 			refType, hasType := valueMap.Get(TypeKey)
 			if hasType && refType == ArrayType {
-				bsonDoc = s.convertArrayToBsonDocument(valueMap)
+				bsonDoc, err = s.convertArrayPropToBson(valueMap)
+				if err != nil {
+					return nil, fmt.Errorf(
+						"failed to convert array to BSON document with key '%s': %w",
+						key, err,
+					)
+				}
 			} else {
-				bsonDoc = s.convertToBsonDocument(valueMap)
+				bsonDoc, err = s.convertToBsonDocument(valueMap)
+				if err != nil {
+					return nil, fmt.Errorf(
+						"failed to convert to BSON document for key '%s': %w",
+						key, err,
+					)
+				}
 			}
 		}
-
 		propertiesMap.Set(key, bsonDoc)
 	}
 
-	propertiesData := s.convertToBsonDocument(propertiesMap)
-
+	propertiesData, err := s.convertToBsonDocument(propertiesMap)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"failed to convert properties map to BSON document: %w",
+			err,
+		)
+	}
 	fullData.Set(PropertyKey, propertiesData)
 
-	return s.convertToBsonDocument(fullData)
+	result, err := s.convertToBsonDocument(fullData)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"failed to convert full data to BSON document: %w",
+			err,
+		)
+	}
+	return result, nil
 }
 
 func (s *SchemaParser) applyOverrides(
@@ -233,51 +289,72 @@ func (s *SchemaParser) fetchReferencedSchema(
 	return subSchema, nil
 }
 
-// convertArrayToBsonDocument parses an array-like ordered map to a BSON document.
-func (s *SchemaParser) convertArrayToBsonDocument(
+// convertArrayPropsToBson transforms an array-like property into a BSON document.
+func (s *SchemaParser) convertArrayPropToBson(
 	orderedMap orderedmap.OrderedMap,
-) bson.D {
-	items, _ := orderedMap.Get(ItemsKey)
-	itemsMap := items.(orderedmap.OrderedMap)
-	parsedSubSchema := s.parseProperties(itemsMap)
+) (bson.D, error) {
+	// Retrieve the 'items' field from the provided ordered map.
+	items, exists := orderedMap.Get(ItemsKey)
+	if !exists {
+		return nil, fmt.Errorf("missing '%s' key in the ordered map", ItemsKey)
+	}
+
+	// Attempt to type assert the 'items' field to an ordered map.
+	itemsMap, ok := items.(orderedmap.OrderedMap)
+	if !ok {
+		return nil, fmt.Errorf(
+			"unexpected type for '%s'. Expected map",
+			ItemsKey,
+		)
+	}
+
+	// Parse the sub-schema found in the 'items' field.
+	parsedSubSchema, err := s.parseProperties(itemsMap)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse properties: %w", err)
+	}
 
 	bsonDoc := bson.D{}
+	// Iterate over the keys in the orderedMap to construct the BSON document.
 	for _, key := range orderedMap.Keys() {
-		var bsonElement bson.E
+		value, _ := orderedMap.Get(key)
 
+		var bsonElement bson.E
 		if key == ItemsKey {
 			bsonElement = bson.E{Key: key, Value: parsedSubSchema}
 		} else {
-			value, _ := orderedMap.Get(key)
 			bsonElement = bson.E{Key: key, Value: value}
 		}
 
 		bsonDoc = append(bsonDoc, bsonElement)
 	}
 
-	return bsonDoc
+	return bsonDoc, nil
 }
 
 // convertToBsonDocument parses an ordered map into a BSON document.
 func (s *SchemaParser) convertToBsonDocument(
 	orderedMap orderedmap.OrderedMap,
-) bson.D {
+) (bson.D, error) {
 	bsonData := bson.D{}
 
 	for _, key := range orderedMap.Keys() {
 		value, _ := orderedMap.Get(key)
 
-		orderedMap, isOrderedMap := value.(orderedmap.OrderedMap)
+		orderedMapValue, isOrderedMap := value.(orderedmap.OrderedMap)
 		if !isOrderedMap {
 			bsonData = append(bsonData, bson.E{Key: key, Value: value})
 		} else {
-			bsonData = append(bsonData, bson.E{
-				Key: key,
-				// Recursive call to handle nested maps.
-				Value: s.parseProperties(orderedMap),
-			})
+			parsedValue, err := s.parseProperties(orderedMapValue)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"failed to parse properties for key '%s': %w",
+					key, err,
+				)
+			}
+			bsonData = append(bsonData, bson.E{Key: key, Value: parsedValue})
 		}
 	}
 
-	return bsonData
+	return bsonData, nil
 }

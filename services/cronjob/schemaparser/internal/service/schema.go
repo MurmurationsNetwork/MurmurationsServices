@@ -17,7 +17,10 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/internal/schemaparser"
 )
 
-const LastCommitKey = "schemas:lastCommit"
+const (
+	LastCommitKey = "schemas:lastCommit"
+	maxGoroutines = 10
+)
 
 type SchemaService interface {
 	GetBranchInfo(url string) (*model.BranchInfo, error)
@@ -77,35 +80,41 @@ func (s *schemaService) HasNewCommit(lastCommit string) (bool, error) {
 }
 
 func (s *schemaService) UpdateSchemas(branchSha string) error {
-	// Get schema folder list and field folder list
+	// Get schema folder list and field folder list.
 	schemaListURL, fieldListURL, err := getSchemaAndFieldFolderURLs(branchSha)
 	if err != nil {
 		return err
 	}
 
-	// Read field folder list and create a map of field name and field URL
+	// Read field folder list and create a map of field name and field URL.
 	fieldListMap, err := getFieldsURLMap(fieldListURL)
 	if err != nil {
 		return err
 	}
 
-	// Read schema folder list
+	// Read schema folder list.
 	schemaList, err := getGithubTree(schemaListURL)
 	if err != nil {
 		return err
 	}
+
+	// Create a semaphore channel to limit goroutines.
+	semaphore := make(chan struct{}, maxGoroutines)
 
 	g, ctx := errgroup.WithContext(context.Background())
 
 	for _, schemaName := range schemaList {
 		schemaNameMap := schemaName.(map[string]interface{})
 		url := schemaNameMap["url"].(string)
-		// Create a new goroutine to get and update each schema.
+
 		g.Go(func() error {
 			select {
 			case <-ctx.Done():
 				return nil
 			default:
+				semaphore <- struct{}{}
+				defer func() { <-semaphore }()
+
 				parser := schemaparser.NewSchemaParser(fieldListMap)
 				result, err := parser.GetSchema(url)
 				if err != nil {
@@ -119,23 +128,31 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 	return g.Wait()
 }
 
+// SetLastCommit updates the last commit time in the Redis store.
 func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
 	oldLastCommitTime, err := s.redis.Get("schemas:lastCommit")
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"failed to retrieve old last commit time from Redis: %w",
+			err,
+		)
 	}
 
 	ok, err := shouldSetLastCommitTime(oldLastCommitTime, newLastCommitTime)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to compare commit times: %w", err)
 	}
+
 	if !ok {
 		return nil
 	}
 
 	err = s.redis.Set("schemas:lastCommit", newLastCommitTime, 0)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"failed to set new last commit time in Redis: %w",
+			err,
+		)
 	}
 
 	return nil
