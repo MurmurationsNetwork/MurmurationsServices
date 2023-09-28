@@ -17,7 +17,7 @@ For example:
 }
 ```
 
-Upon processing, the Schema Parser not only resolves these references but also accommodates any additional or overidden fields present alongside the `$ref`. After the schemas are parsed and any additions or overrides are incorporated, they are stored in the library service for future use.
+Upon processing, the Schema Parser not only resolves these references but also accommodates any additional or overridden fields present alongside the `$ref`. After the schemas are parsed and any additions or overrides are incorporated, they are stored in the library service for future use.
 
 ## Additional Fields
 
@@ -55,7 +55,7 @@ When processed, it transforms to:
 }
 ```
 
-## Overidden Fields
+## Overridden Fields
 
 Sometimes it may be useful to override the value of certain parameters in a field, in particular the `title` and `description` values so that the context of the field they describe are clearer. For example, the standard title/description for the `tags` field is:
 
@@ -66,7 +66,7 @@ Sometimes it may be useful to override the value of certain parameters in a fiel
 }
 ```
 
-But that title/description may not give enough context when used within a specific schema, so the values can be overidden as in [this example](https://github.com/MurmurationsNetwork/MurmurationsLibrary/blob/ae5d972941b053d52016aac5303fb1af4509fe08/schemas/organizations_schema-v1.0.0.json#L26-L30):
+But that title/description may not give enough context when used within a specific schema, so the values can be overridden as in [this example](https://github.com/MurmurationsNetwork/MurmurationsLibrary/blob/ae5d972941b053d52016aac5303fb1af4509fe08/schemas/organizations_schema-v1.0.0.json#L26-L30):
 
 ```json
 "tags": {
