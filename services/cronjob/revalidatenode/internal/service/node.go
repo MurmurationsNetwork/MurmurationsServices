@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
@@ -10,50 +11,69 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/internal/repository/mongo"
 )
 
+// NodeService outlines methods to interact with node data.
 type NodeService interface {
 	RevalidateNodes() error
 }
 
+// nodeService implements NodeService with a mongo.NodeRepository.
 type nodeService struct {
 	mongoRepo mongo.NodeRepository
 }
 
+// NewNodeService initializes a new nodeService instance.
 func NewNodeService(mongoRepo mongo.NodeRepository) NodeService {
-	return &nodeService{
-		mongoRepo: mongoRepo,
-	}
+	return &nodeService{mongoRepo: mongoRepo}
 }
 
+// RevalidateNodes processes nodes with specific statuses and sends them for re-validation.
 func (svc *nodeService) RevalidateNodes() error {
 	statuses := []string{
 		constant.NodeStatus.Received,
 		constant.NodeStatus.PostFailed,
 	}
 
-	nodes, err := svc.mongoRepo.FindByStatuses(statuses)
-	if err != nil {
-		return err
-	}
+	page := 1
+	pageSize := 100
 
-	if len(nodes) == 0 {
-		return nil
-	}
+	for {
+		nodes, err := svc.mongoRepo.FindByStatuses(
+			context.Background(),
+			statuses,
+			page,
+			pageSize,
+		)
+		if err != nil {
+			return err
+		}
 
-	logger.Info(
-		fmt.Sprintf(
-			"Found %d nodes with status %s or %s, sending them to validation service",
-			len(nodes),
-			statuses[0],
-			statuses[1],
-		),
-	)
+		if len(nodes) == 0 {
+			break
+		}
 
-	for _, node := range nodes {
-		event.NewNodeCreatedPublisher(nats.Client.Client()).
-			Publish(event.NodeCreatedData{
-				ProfileURL: node.ProfileURL,
-				Version:    *node.Version,
-			})
+		logger.Info(
+			fmt.Sprintf(
+				"Found %d nodes with status %s or %s on page %d, sending them to validation service",
+				len(nodes),
+				statuses[0],
+				statuses[1],
+				page,
+			),
+		)
+
+		for _, node := range nodes {
+			event.NewNodeCreatedPublisher(nats.Client.Client()).
+				Publish(event.NodeCreatedData{
+					ProfileURL: node.ProfileURL,
+					Version:    *node.Version,
+				})
+		}
+
+		if len(nodes) < pageSize {
+			break
+		}
+
+		page++
 	}
 
 	return nil

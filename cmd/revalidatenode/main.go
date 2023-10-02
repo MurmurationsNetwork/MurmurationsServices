@@ -6,8 +6,13 @@ import (
 )
 
 func main() {
-	logger.Info("Start revalidating nodes...")
+	logger.Info("Starting node revalidation process...")
+
 	s := revalidatenode.NewCronJob()
-	s.Run()
-	logger.Info("Nodes were revalidated successfully")
+	if err := s.Run(); err != nil {
+		logger.Panic("Failed to revalidate nodes: ", err)
+		return
+	}
+
+	logger.Info("Node revalidation process completed successfully")
 }

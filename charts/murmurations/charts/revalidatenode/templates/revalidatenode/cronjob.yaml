@@ -27,6 +27,12 @@ spec:
             - name: revalidatenode-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
+              # Limit the CPU usage.
+              resources:
+                limits:
+                  cpu: "1"
+                requests:
+                  cpu: "500m"
               env:
                 - name: NATS_CLIENT_ID
                   valueFrom:
