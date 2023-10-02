@@ -1,22 +1,21 @@
 package nodecleaner
 
 import (
+	"context"
 	"sync"
-	"time"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/es"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/service"
 )
 
+// NodeCleaner manages the node cleanup process.
 type NodeCleaner struct {
-	// Ensures cleanup is only run once.
-	runCleanup sync.Once
+	runCleanup sync.Once // Ensures cleanup is only run once.
 }
 
 // NewCronJob creates a new instance of NodeCleaner.
@@ -28,64 +27,41 @@ func NewCronJob() *NodeCleaner {
 		config.Conf.Mongo.PASSWORD,
 		config.Conf.Mongo.HOST,
 	)
-
-	err := mongodb.NewClient(uri, config.Conf.Mongo.DBName)
-	if err != nil {
+	if err := mongodb.NewClient(uri, config.Conf.Mongo.DBName); err != nil {
 		logger.Panic("Failed to connect to MongoDB", err)
 	}
 
-	err = mongodb.Client.Ping()
-	if err != nil {
+	if err := mongodb.Client.Ping(); err != nil {
 		logger.Panic("Failed to ping MongoDB", err)
 	}
 
-	err = elastic.NewClient(config.Conf.ES.URL)
-	if err != nil {
+	if err := elastic.NewClient(config.Conf.ES.URL); err != nil {
 		logger.Panic("Failed to connect to Elasticsearch", err)
 	}
 
 	return &NodeCleaner{}
 }
 
-// Run performs the node cleanup process including the deletion of nodes with
-// "validation_failed" status and the deletion of nodes with "deleted" status.
-func (nc *NodeCleaner) Run() {
+// Run executes the node cleanup process.
+func (nc *NodeCleaner) Run(ctx context.Context) error {
 	svc := service.NewNodeService(
 		mongo.NewNodeRepository(mongodb.Client.GetClient()),
+		es.NewNodeRepository(),
 	)
 
-	err := svc.RemoveValidationFailed()
-	if err != nil {
-		logger.Panic(
-			"Failed to delete nodes with 'validation_failed' status",
-			err,
-		)
+	if err := svc.RemoveValidationFailed(ctx); err != nil {
+		return err
 	}
 
-	deletedTimeout := dateutil.NowSubtract(
-		time.Duration(config.Conf.TTL.DeletedTTL) * time.Second,
-	)
-
-	err = svc.RemoveDeleted(constant.NodeStatus.Deleted, deletedTimeout)
-	if err != nil {
-		logger.Panic(
-			"Failed to delete nodes with 'deleted' status in MongoDB",
-			err,
-		)
-	}
-
-	err = svc.RemoveES(constant.NodeStatus.Deleted, deletedTimeout)
-	if err != nil {
-		logger.Panic(
-			"Failed to delete nodes with 'deleted' status in Elasticsearch",
-			err,
-		)
+	if err := svc.RemoveDeleted(ctx); err != nil {
+		return err
 	}
 
 	nc.cleanup()
+	return nil
 }
 
-// cleanup will clean up the resources associated with the cron job.
+// cleanup releases resources associated with the NodeCleaner.
 func (nc *NodeCleaner) cleanup() {
 	nc.runCleanup.Do(func() {
 		mongodb.Client.Disconnect()
