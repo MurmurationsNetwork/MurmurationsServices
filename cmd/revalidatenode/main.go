@@ -1,13 +1,25 @@
 package main
 
 import (
+	"time"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/pkg/revalidatenode"
 )
 
 func main() {
-	logger.Info("Start revalidating nodes...")
+	logger.Info("Starting node revalidation process...")
+
 	s := revalidatenode.NewCronJob()
-	s.Run()
-	logger.Info("Nodes were revalidated successfully")
+
+	startTime := time.Now()
+
+	if err := s.Run(); err != nil {
+		logger.Panic("Failed to revalidate nodes: ", err)
+		return
+	}
+
+	duration := time.Since(startTime)
+	logger.Info("Node revalidation process completed successfully")
+	logger.Info("Node revalidation run duration: " + duration.String())
 }

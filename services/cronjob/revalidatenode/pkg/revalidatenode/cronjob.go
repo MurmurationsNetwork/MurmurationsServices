@@ -11,32 +11,33 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/internal/service"
 )
 
+// NodeRevalidationCron handles the initialization and running of the node revalidation cron job.
 type NodeRevalidationCron struct {
-	// Ensures cleanup is only run once
+	// Ensures cleanup is run only once.
 	runCleanup sync.Once
 }
 
-// NewCronJob creates a new instance of NodeRevalidationCron.
+// NewCronJob initializes a new NodeRevalidationCron instance with necessary configurations.
 func NewCronJob() *NodeRevalidationCron {
 	config.Init()
 
+	// Initialize MongoDB client.
 	uri := mongodb.GetURI(
 		config.Conf.Mongo.USERNAME,
 		config.Conf.Mongo.PASSWORD,
 		config.Conf.Mongo.HOST,
 	)
-
-	err := mongodb.NewClient(uri, config.Conf.Mongo.DBName)
-	if err != nil {
+	if err := mongodb.NewClient(uri, config.Conf.Mongo.DBName); err != nil {
 		logger.Panic("error when trying to connect to MongoDB", err)
 	}
 
-	err = mongodb.Client.Ping()
-	if err != nil {
+	// Check MongoDB connection.
+	if err := mongodb.Client.Ping(); err != nil {
 		logger.Panic("error when trying to ping the MongoDB", err)
 	}
 
-	err = nats.NewClient(
+	// Initialize NATS client.
+	err := nats.NewClient(
 		config.Conf.Nats.ClusterID,
 		config.Conf.Nats.ClientID,
 		config.Conf.Nats.URL,
@@ -48,21 +49,24 @@ func NewCronJob() *NodeRevalidationCron {
 	return &NodeRevalidationCron{}
 }
 
-// Run revalidates the nodes.
-func (nc *NodeRevalidationCron) Run() {
-	nodeUsecase := service.NewNodeService(
-		(mongo.NewNodeRepository(mongodb.Client.GetClient())),
+// Run executes the node revalidation process.
+func (nc *NodeRevalidationCron) Run() error {
+	// Create and run node service for revalidation.
+	nodeService := service.NewNodeService(
+		mongo.NewNodeRepository(mongodb.Client.GetClient()),
 	)
 
-	err := nodeUsecase.RevalidateNodes()
-	if err != nil {
-		logger.Panic("error when revalidating nodes", err)
+	if err := nodeService.RevalidateNodes(); err != nil {
+		return err
 	}
 
+	// Perform cleanup after running the service.
 	nc.cleanup()
+
+	return nil
 }
 
-// cleanup will clean up the resources associated with the cron job.
+// cleanup disconnects MongoDB and NATS clients.
 func (nc *NodeRevalidationCron) cleanup() {
 	nc.runCleanup.Do(func() {
 		mongodb.Client.Disconnect()
