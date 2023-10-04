@@ -1,6 +1,14 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: velero
+  namespace: velero
 spec:
+  # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      deploy: velero
   template:
     spec:
       containers:
