@@ -33,9 +33,9 @@ func (r *nodeRepository) Remove(
 	status string,
 	timeBefore int64,
 ) error {
-	query := query.EsQuery{Status: &status, TimeBefore: &timeBefore}
+	q := query.EsQuery{Status: &status, TimeBefore: &timeBefore}
 
-	err := elastic.Client.DeleteMany(constant.ESIndex.Node, query.Build())
+	err := elastic.Client.DeleteMany(constant.ESIndex.Node, q.Build())
 	if err != nil {
 		return fmt.Errorf(
 			"error removing nodes with status %s and timeBefore %d from Elasticsearch: %v",
