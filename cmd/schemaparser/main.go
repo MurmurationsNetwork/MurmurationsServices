@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/pkg/schemaparser"
 )
@@ -8,11 +10,16 @@ import (
 func main() {
 	logger.Info("Start loading schemas...")
 
+	startTime := time.Now()
+
 	s := schemaparser.NewCronJob()
 	if err := s.Run(); err != nil {
-		logger.Panic("Error loading schemas", err)
+		logger.Panic("Error running SchemaParser", err)
 		return
 	}
 
+	// Calculate and log the duration
+	duration := time.Since(startTime)
 	logger.Info("Schemas were loaded successfully")
+	logger.Info("SchemaParser run duration: " + duration.String())
 }
