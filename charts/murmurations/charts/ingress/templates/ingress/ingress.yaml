@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   name: ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
     {{- if not (eq .Values.global.env "development") }}
@@ -11,6 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}
 spec:
+  ingressClassName: nginx
   {{- if eq .Values.global.env "production" }}
   tls:
     - hosts:
@@ -36,7 +36,7 @@ spec:
     {{- end }}
       http:
         paths:
-          - pathType: Prefix
+          - pathType: ImplementationSpecific
             path: /(|$)(.*)
             backend:
               service:
@@ -52,7 +52,7 @@ spec:
     {{- end }}
       http:
         paths:
-          - pathType: Prefix
+          - pathType: ImplementationSpecific
             path: /(|$)(.*)
             backend:
               service:
@@ -68,7 +68,7 @@ spec:
     {{- end }}
       http:
         paths:
-          - pathType: Prefix
+          - pathType: ImplementationSpecific
             path: /(|$)(.*)
             backend:
               service:
@@ -106,8 +106,8 @@ spec:
     {{- end }}
       http:
         paths:
-          - pathType: Prefix
-            path: /
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
             backend:
               service:
                 name: kube-prom-stack-grafana
