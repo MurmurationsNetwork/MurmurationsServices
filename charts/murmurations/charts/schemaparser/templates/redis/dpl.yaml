@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
-  revisionHistoryLimit: 0
   name: schemaparser-redis
   labels:
     app: redis
     role: leader
 spec:
+  # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
+  revisionHistoryLimit: 0
   replicas: 1
   selector:
     matchLabels:
