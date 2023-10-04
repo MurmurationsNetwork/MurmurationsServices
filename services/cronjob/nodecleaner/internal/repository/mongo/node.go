@@ -8,93 +8,81 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/internal/model/query"
 )
 
-type NodeRepository interface {
-	RemoveValidationFailed(status string, timeBefore int64) error
-	RemoveDeleted(status string, timeBefore int64) error
-	RemoveES(status string, timeBefore int64) error
-}
+const (
+	StatusField      = "status"
+	CreatedAtField   = "createdAt"
+	LastUpdatedField = "last_updated"
+)
 
-func NewNodeRepository(client *mongo.Client) NodeRepository {
-	return &nodeRepository{
-		client: client,
-	}
+// NodeRepository defines the operations available for manipulating nodes in a MongoDB repository.
+type NodeRepository interface {
+	RemoveByCreatedAt(
+		ctx context.Context,
+		status string,
+		timeBefore int64,
+	) error
+	RemoveByLastUpdated(
+		ctx context.Context,
+		status string,
+		timeBefore int64,
+	) error
 }
 
 type nodeRepository struct {
 	client *mongo.Client
 }
 
-func (r *nodeRepository) RemoveValidationFailed(
+// NewNodeRepository initializes and returns a new NodeRepository with the provided MongoDB client.
+func NewNodeRepository(client *mongo.Client) NodeRepository {
+	return &nodeRepository{client: client}
+}
+
+// RemoveByCreatedAt removes nodes with the specified status created before the given time.
+func (r *nodeRepository) RemoveByCreatedAt(
+	ctx context.Context,
 	status string,
 	timeBefore int64,
 ) error {
+	return r.removeNodes(ctx, status, CreatedAtField, timeBefore)
+}
+
+// RemoveByLastUpdated removes nodes with the specified status that were last updated
+// before the given time.
+func (r *nodeRepository) RemoveByLastUpdated(
+	ctx context.Context,
+	status string,
+	timeBefore int64,
+) error {
+	return r.removeNodes(ctx, status, LastUpdatedField, timeBefore)
+}
+
+// removeNodes is a helper function encapsulating the logic for removing nodes
+// based on a time field, status, and timeBefore.
+func (r *nodeRepository) removeNodes(
+	ctx context.Context,
+	status, timeField string,
+	timeBefore int64,
+) error {
 	filter := bson.M{
-		"status": status,
-		"createdAt": bson.M{
+		StatusField: status,
+		timeField: bson.M{
 			"$lt": timeBefore,
 		},
 	}
 
 	result, err := r.client.Database(config.Conf.Mongo.DBName).
 		Collection(constant.MongoIndex.Node).
-		DeleteMany(context.Background(), filter)
+		DeleteMany(ctx, filter)
 	if err != nil {
-		return err
+		return fmt.Errorf("error removing nodes: %v", err)
 	}
 
-	if result.DeletedCount != 0 {
-		logger.Info(
-			fmt.Sprintf(
-				"Delete %d nodes with %s status",
-				result.DeletedCount,
-				status,
-			),
-		)
-	}
-
-	return nil
-}
-
-func (r *nodeRepository) RemoveDeleted(status string, timeBefore int64) error {
-	filter := bson.M{
-		"status": status,
-		"last_updated": bson.M{
-			"$lte": timeBefore,
-		},
-	}
-
-	result, err := r.client.Database(config.Conf.Mongo.DBName).
-		Collection(constant.MongoIndex.Node).
-		DeleteMany(context.Background(), filter)
-	if err != nil {
-		return err
-	}
-
-	if result.DeletedCount != 0 {
-		logger.Info(
-			fmt.Sprintf(
-				"Delete %d nodes with %s status",
-				result.DeletedCount,
-				status,
-			),
-		)
-	}
-
-	return nil
-}
-
-func (r *nodeRepository) RemoveES(status string, timeBefore int64) error {
-	query := query.EsQuery{Status: &status, TimeBefore: &timeBefore}
-
-	err := elastic.Client.DeleteMany(constant.ESIndex.Node, query.Build())
-	if err != nil {
-		return err
+	if result.DeletedCount > 0 {
+		fmt.Printf("Deleted %d nodes with %s status that were %s before %d\n",
+			result.DeletedCount, status, timeField, timeBefore)
 	}
 
 	return nil
