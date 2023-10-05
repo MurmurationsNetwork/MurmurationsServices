@@ -12,6 +12,8 @@ spec:
   successfulJobsHistoryLimit: 1
   # Keep the latest failed job.
   failedJobsHistoryLimit: 1
+  # Only one instance of the job is running at any given time.
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       # Retry the Job 3 times before marking it as failed.
@@ -27,6 +29,12 @@ spec:
             - name: dataproxyupdater-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
+              # Limit the CPU usage.
+              resources:
+                limits:
+                  cpu: "500m"
+                requests:
+                  cpu: "100m"
               envFrom:
                 - configMapRef:
                     name: dataproxyupdater-app-config
