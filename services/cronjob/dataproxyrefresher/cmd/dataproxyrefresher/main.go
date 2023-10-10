@@ -207,6 +207,19 @@ func (r *DataproxyRefresher) processExistingProfile(
 
 	// Compare hash with profile's existing hash.
 	if hashedData != profile.SourceDataHash {
+		// Reconstruct profileJSON.
+		profileJSON, err = importutil.MapProfile(
+			profileData[0].(map[string]interface{}),
+			mapping,
+			SchemaName,
+		)
+		if err != nil {
+			return fmt.Errorf(
+				"failed to reconstruct profile data for Profile ID %s: %w",
+				profile.Oid,
+				err,
+			)
+		}
 		if err := r.updateProfileIfValid(profile, profileJSON); err != nil {
 			return fmt.Errorf("failed to update profile: %w", err)
 		}
