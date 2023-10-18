@@ -1,11 +1,10 @@
-package main
+package fresher
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -45,24 +44,7 @@ type DataproxyRefresher struct {
 	svc service.ProfilesService
 }
 
-func main() {
-	logger.Info("Start DataproxyRefresher...")
-	startTime := time.Now()
-
-	refresher := NewDataproxyRefresher()
-
-	if err := refresher.Run(); err != nil {
-		logger.Error("Error running DataproxyRefresher", err)
-		os.Exit(1)
-		return
-	}
-
-	duration := time.Since(startTime)
-	logger.Info("DataproxyRefresher has finished")
-	logger.Info("DataproxyRefresher run duration: " + duration.String())
-}
-
-func NewDataproxyRefresher() *DataproxyRefresher {
+func NewRefresher() *DataproxyRefresher {
 	return &DataproxyRefresher{
 		svc: service.NewProfileService(
 			mongo.NewProfileRepository(mongodb.Client.GetClient()),
