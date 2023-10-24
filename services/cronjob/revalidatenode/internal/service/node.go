@@ -62,11 +62,14 @@ func (svc *nodeService) RevalidateNodes() error {
 		)
 
 		for _, node := range nodes {
-			event.NewNodeCreatedPublisher(nats.Client.Client()).
-				Publish(event.NodeCreatedData{
+			err := event.NewNodeCreatedPublisher(nats.Client.Client()).
+				PublishSync(event.NodeCreatedData{
 					ProfileURL: node.ProfileURL,
 					Version:    *node.Version,
 				})
+			if err != nil {
+				logger.Error("Failed to publish node:created event: ", err)
+			}
 		}
 
 		if len(nodes) < pageSize {
