@@ -1,104 +1,139 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/lucsky/cuid"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/global"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyupdater/internal/service"
+)
+
+const (
+	schemaName = "karte_von_morgen-v1.0.0"
+	apiEntry   = "https://api.ofdb.io/v0"
 )
 
 func init() {
 	global.Init()
 }
 
-func errCleanUp(schemaName string, svc service.UpdatesService, errStr string) {
-	err := svc.SaveError(schemaName, errStr)
-	if err != nil {
-		logger.Fatal("save error message failed", err)
-	}
-	cleanUp()
-}
-
-func cleanUp() {
-	mongodb.Client.Disconnect()
-	os.Exit(0)
-}
-
 func main() {
-	schemaName := "karte_von_morgen-v1.0.0"
-	apiEntry := "https://api.ofdb.io/v0"
+	logger.Info("Starting dataproxy updater...")
 
-	svc := service.NewUpdateService(
-		mongo.NewUpdateRepository(mongodb.Client.GetClient()),
-	)
-	profileSvc := service.NewProfileService(
-		mongo.NewProfileRepository(mongodb.Client.GetClient()),
-	)
+	updater := NewUpdater()
 
-	update := svc.Get(schemaName)
+	startTime := time.Now()
 
-	if update == nil {
-		// last_updated: according to recent_changes API, it can't retrieve the data before 100 days ago, so set default as 100 days ago.
-		lastUpdated := time.Now().AddDate(0, 0, -100).Unix()
-		err := svc.Save(schemaName, lastUpdated, apiEntry)
+	if err := updater.Run(context.Background()); err != nil {
+		logger.Panic("Error running dataproxy updater", err)
+		return
+	}
+
+	duration := time.Since(startTime)
+	logger.Info("Dataproxy updater completed successfully")
+	logger.Info("Dataproxy updater run duration: " + duration.String())
+}
+
+type DataproxyUpdater struct {
+	updateSvc  service.UpdatesService
+	profileSvc service.ProfilesService
+	update     *model.Update
+}
+
+func NewUpdater() *DataproxyUpdater {
+	return &DataproxyUpdater{
+		updateSvc: service.NewUpdateService(
+			mongo.NewUpdateRepository(mongodb.Client.GetClient()),
+		),
+		profileSvc: service.NewProfileService(
+			mongo.NewProfileRepository(mongodb.Client.GetClient()),
+		),
+	}
+}
+
+func (u *DataproxyUpdater) Run(ctx context.Context) error {
+	var err error
+
+	defer func() {
 		if err != nil {
-			errStr := "save update status to server failed" + err.Error()
-			logger.Error("save update status to server failed", err)
-			errCleanUp(schemaName, svc, errStr)
+			err = u.updateSvc.SaveError(schemaName, err.Error())
 		}
-		// get newer update again
-		update = svc.Get(schemaName)
+	}()
+	defer cleanup()
+
+	if err = u.initializeUpdateStatus(ctx); err != nil {
+		return fmt.Errorf("initializing update status failed: %w", err)
 	}
 
-	// if the last error didn't solve, don't run
+	if err = u.processRecentChanges(ctx); err != nil {
+		return fmt.Errorf("processing recent changes failed: %w", err)
+	}
+
+	return nil
+}
+
+func (u *DataproxyUpdater) initializeUpdateStatus(_ context.Context) error {
+	update := u.updateSvc.Get(schemaName)
+
+	// If the update status doesn't exist, initialize it.
+	if update == nil {
+		// According to the recent_changes API, it can't retrieve the data before
+		// 100 days ago, so set default as 100 days ago.
+		lastUpdated := time.Now().AddDate(0, 0, -100).Unix()
+
+		err := u.updateSvc.Save(schemaName, lastUpdated, apiEntry)
+		if err != nil {
+			return fmt.Errorf("save update status to server failed: %v", err)
+		}
+		// Fetch the newer update again.
+		update = u.updateSvc.Get(schemaName)
+	}
+
 	if update.HasError {
-		logger.Info("last error didn't solve, can't continue the cronjob")
-		logger.Info("last error: " + update.ErrorMessage)
-		cleanUp()
+		return fmt.Errorf("last error didn't solve: %s", update.ErrorMessage)
 	}
+	return nil
+}
 
+func (u *DataproxyUpdater) processRecentChanges(ctx context.Context) error {
 	mapping, err := importutil.GetMapping(schemaName)
 	if err != nil {
-		errStr := "get mapping failed " + err.Error()
-		logger.Error("get mapping failed", err)
-		errCleanUp(schemaName, svc, errStr)
+		return fmt.Errorf("get mapping failed: %v", err)
 	}
 
 	if len(mapping) == 0 {
-		errStr := "can't find the mapping: " + schemaName
-		logger.Info(errStr)
-		errCleanUp(schemaName, svc, errStr)
+		return fmt.Errorf("can't find the mapping: %s", schemaName)
 	}
 
 	// recent-changes API
-	// only process 100 data in once
-	entry := update.APIEntry + "/entries/recently-changed"
 	limit := 100
 	offset := 0
 	until := time.Now().Unix()
 
-	url := getURL(entry, update.LastUpdated, until, limit, offset)
+	url := buildQueryURL(
+		u.update.APIEntry+"/entries/recently-changed",
+		u.update.LastUpdated,
+		until,
+		limit,
+		offset,
+	)
 	profiles, err := getProfiles(url)
 	if err != nil {
-		errStr := "get profile failed" + err.Error()
-		logger.Error("get profile failed", err)
-		errCleanUp(schemaName, svc, errStr)
+		return fmt.Errorf("get profile failed: %v", err)
 	}
+
 	for len(profiles) > 0 {
 		for _, oldProfile := range profiles {
 			profileJSON, err := importutil.MapProfile(
@@ -107,9 +142,11 @@ func main() {
 				schemaName,
 			)
 			if err != nil {
-				errStr := "map profile failed, profile id is " + oldProfile["id"].(string) + ". error message: " + err.Error()
-				logger.Error("map profile failed", err)
-				errCleanUp(schemaName, svc, errStr)
+				return fmt.Errorf(
+					"map profile failed, profile id is %v. error message: %v",
+					oldProfile["id"],
+					err,
+				)
 			}
 			oid := profileJSON["oid"].(string)
 
@@ -125,173 +162,137 @@ func main() {
 				profileJSON,
 			)
 			if err != nil {
-				errStr := "validate profile failed, profile id is " + oid + ". error message: " + err.Error()
-				logger.Error("validate profile failed", err)
-				errCleanUp(schemaName, svc, errStr)
+				return fmt.Errorf(
+					"validate profile failed, profile id is %s. error message: %v",
+					oid,
+					err,
+				)
 			}
 			if !isValid {
-				errStr := "validate profile failed, profile id is " + oid + ". failure reasons: " + failureReasons
-				logger.Info(errStr)
+				logger.Info(
+					fmt.Sprintf(
+						"validate profile failed, profile id is %s. failure reasons: %s",
+						oid,
+						failureReasons,
+					),
+				)
 				continue
 			}
 
 			// save to Mongo
-			count, err := profileSvc.Count(oid)
-			if err != nil {
-				errStr := "can't count profile, profile id is " + oid
-				logger.Info(errStr)
-				errCleanUp(schemaName, svc, errStr)
-			}
-			if count <= 0 {
-				profileJSON["cuid"] = cuid.New()
-				err := profileSvc.Add(profileJSON)
-				if err != nil {
-					errStr := "can't add a profile, profile id is " + oid
-					logger.Info(errStr)
-					errCleanUp(schemaName, svc, errStr)
-				}
-			} else {
-				result, err := profileSvc.Update(oid, profileJSON)
-				if err != nil {
-					errStr := "can't update a profile, profile id is " + oid
-					logger.Info(errStr)
-					errCleanUp(schemaName, svc, errStr)
-				}
-				profileJSON["cuid"] = result["cuid"]
-			}
-
-			// post update to Index
-			postNodeURL := config.Conf.Index.URL + "/v2/nodes"
-			profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
-			nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
-			if err != nil {
-				errStr := "failed to post profile to Index, profile url is " + profileURL + ". error message: " + err.Error()
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
-			}
-
-			// save node_id to profile
-			err = profileSvc.UpdateNodeID(oid, nodeID)
-			if err != nil {
-				errStr := "update node id failed. profile id is " + oid
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
+			if err := u.saveOrUpdateProfile(ctx, oid, profileJSON); err != nil {
+				return err
 			}
 		}
+
 		offset += limit
-		url = getURL(entry, update.LastUpdated, until, limit, offset)
+		url = buildQueryURL(
+			u.update.APIEntry+"/entries/recently-changed",
+			u.update.LastUpdated,
+			until,
+			limit,
+			offset,
+		)
 		profiles, err = getProfiles(url)
 		if err != nil {
-			errStr := "get profile failed" + err.Error()
-			logger.Error("get profile failed", err)
-			errCleanUp(schemaName, svc, errStr)
+			return fmt.Errorf("get profile failed: %v", err)
 		}
 	}
 
-	// save back to update
-	err = svc.Update(schemaName, until)
-	if err != nil {
-		errStr := "failed to update the updates" + err.Error()
-		logger.Error("failed to update the updates", err)
-		errCleanUp(schemaName, svc, errStr)
+	// Update the last update time.
+	if err = u.updateSvc.Update(schemaName, until); err != nil {
+		return fmt.Errorf("failed to update the updates: %v", err)
 	}
 
-	// get profile with not posted
-	notPostedProfiles, err := profileSvc.GetNotPosted()
-	if err != nil {
-		errStr := "failed to get not posted nodes" + err.Error()
-		logger.Error("failed to get not posted nodes", err)
-		errCleanUp(schemaName, svc, errStr)
-	}
-
-	for _, notPostedProfile := range notPostedProfiles {
-		getNodeURL := config.Conf.Index.URL + "/v2/nodes/" + notPostedProfile.NodeID
-		res, err := http.Get(getNodeURL)
-		if err != nil {
-			errStr := "failed to get not posted nodes, node id is " + notPostedProfile.NodeID + err.Error()
-			logger.Error("failed to get not posted nodes", err)
-			errCleanUp(schemaName, svc, errStr)
-		}
-		bodyBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			errStr := "read post body failed. node id is " + notPostedProfile.NodeID + err.Error()
-			logger.Error(errStr, err)
-			errCleanUp(schemaName, svc, errStr)
-		}
-
-		var nodeData importutil.NodeData
-		err = json.Unmarshal(bodyBytes, &nodeData)
-		if err != nil {
-			errStr := "unmarshal body failed. node id is " + notPostedProfile.NodeID + err.Error()
-			logger.Error(errStr, err)
-			errCleanUp(schemaName, svc, errStr)
-		}
-
-		if res.StatusCode == 404 {
-			err = profileSvc.Delete(notPostedProfile.Cuid)
-			if err != nil {
-				errStr := "delete profile failed. node cuid is " + notPostedProfile.Cuid + err.Error()
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
-			}
-		}
-
-		if nodeData.Data.Status == "posted" {
-			err = profileSvc.UpdateIsPosted(notPostedProfile.NodeID)
-			if err != nil {
-				errStr := "update isPosted failed. node id is " + notPostedProfile.NodeID + err.Error()
-				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
-			}
-		} else {
-			if nodeData.Errors != nil {
-				var errors []string
-				for _, item := range nodeData.Errors {
-					errors = append(errors, fmt.Sprintf("%#v", item))
-				}
-				errorsStr := strings.Join(errors, ",")
-				logger.Info("node id " + notPostedProfile.NodeID + " is not posted. Profile url is " + nodeData.Data.ProfileURL + ". Error messages: " + errorsStr)
-			} else {
-				logger.Info("node id " + notPostedProfile.NodeID + " is not posted. Profile url is " + nodeData.Data.ProfileURL + ".")
-			}
-		}
-	}
-
-	cleanUp()
+	return nil
 }
 
-func getURL(
-	entry string,
-	since int64,
-	until int64,
-	limit int,
-	offset int,
-) string {
-	sinceStr := strconv.FormatInt(since, 10)
-	limitStr := strconv.Itoa(limit)
-	offsetStr := strconv.Itoa(offset)
-	untilStr := strconv.FormatInt(until, 10)
-	apiURL := entry + "/?since=" + sinceStr + "&limit=" + limitStr + "&offset=" + offsetStr + "&until=" + untilStr
-
-	return apiURL
-}
-
-func getProfiles(url string) ([]map[string]interface{}, error) {
-	res, err := httputil.Get(url)
+func (u *DataproxyUpdater) saveOrUpdateProfile(
+	_ context.Context,
+	oid string,
+	profileJSON map[string]interface{},
+) error {
+	// Check if profile exists.
+	count, err := u.profileSvc.Count(oid)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"can't get data from " + url + "with the error message: " + err.Error(),
+		return fmt.Errorf("can't count profile, profile id is %s: %v", oid, err)
+	}
+
+	// If profile doesn't exist, add it.
+	if count <= 0 {
+		profileJSON["cuid"] = cuid.New()
+		if err := u.profileSvc.Add(profileJSON); err != nil {
+			return fmt.Errorf(
+				"can't add a profile, profile id is %s: %v",
+				oid,
+				err,
+			)
+		}
+	} else {
+		// If profile exists, update it.
+		updatedProfile, err := u.profileSvc.Update(oid, profileJSON)
+		if err != nil {
+			return fmt.Errorf("can't update a profile, profile id is %s: %v", oid, err)
+		}
+		profileJSON["cuid"] = updatedProfile["cuid"]
+	}
+
+	// Post profile details to Index.
+	profileURL := fmt.Sprintf(
+		"%s/v1/profiles/%s",
+		config.Conf.DataProxy.URL,
+		profileJSON["cuid"].(string),
+	)
+	nodeID, err := importutil.PostIndex(
+		fmt.Sprintf("%s/v2/nodes", config.Conf.Index.URL),
+		profileURL,
+	)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to post profile to Index, profile url is %s: %v",
+			profileURL,
+			err,
 		)
 	}
 
-	defer res.Body.Close()
-
-	var bodyJSON []map[string]interface{}
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&bodyJSON)
-	if err != nil {
-		return nil, fmt.Errorf("can't parse data from" + url)
+	// Save node_id to profile.
+	if err := u.profileSvc.UpdateNodeID(oid, nodeID); err != nil {
+		return fmt.Errorf(
+			"update node id failed. profile id is %s: %v",
+			oid,
+			err,
+		)
 	}
 
-	return bodyJSON, nil
+	return nil
+}
+
+func buildQueryURL(entry string, since, until int64, limit, offset int) string {
+	apiURL := fmt.Sprintf(
+		"%s/?since=%d&limit=%d&offset=%d&until=%d",
+		entry, since, limit, offset, until,
+	)
+	return apiURL
+}
+
+// getProfiles fetches and decodes JSON data from the provided URL.
+func getProfiles(url string) ([]map[string]interface{}, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch data from %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	// Decode the JSON response.
+	var profiles []map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&profiles); err != nil {
+		return nil, fmt.Errorf("failed to parse data from %s: %w", url, err)
+	}
+
+	return profiles, nil
+}
+
+func cleanup() {
+	mongodb.Client.Disconnect()
+	os.Exit(0)
 }
