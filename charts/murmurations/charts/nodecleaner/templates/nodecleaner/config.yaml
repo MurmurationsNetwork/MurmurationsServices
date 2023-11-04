@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isMurmproto := eq $env "murmproto" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,14 +12,19 @@ data:
   MONGO_HOST: index-mongo:27017
   MONGO_DB_NAME: murmurationsIndex
   ELASTICSEARCH_URL: http://index-es:9200
-  # Delete TTL, notice: need to modify the value in index service as well
-  {{- if eq .Values.global.env "production" }}
-  VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs
-  DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs
-  {{- else if eq .Values.global.env "staging" }}
-  VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs
-  DELETED_TTL: "1209600" # 2 weeks
+  # TTL settings for records depending on the environment
+  # VALIDATION_FAILED_TTL - Time To Live for records that fail validation
+  # DELETED_TTL - Time To Live for deleted records
+  {{- if $isProd }}
+  VALIDATION_FAILED_TTL: "604800" # 1 week
+  DELETED_TTL: "1209600"         # 2 weeks
+  {{- else if $isStaging }}
+  VALIDATION_FAILED_TTL: "604800" # 1 week
+  DELETED_TTL: "1209600"         # 2 weeks
+  {{- else if $isMurmproto }}
+  VALIDATION_FAILED_TTL: "1200"   # 20 minutes
+  DELETED_TTL: "120"              # 2 minutes
   {{- else }}
-  VALIDATION_FAILED_TTL: "1200" # 20 mins
-  DELETED_TTL: "120" # 2 mins
+  VALIDATION_FAILED_TTL: "1200"   # 20 minutes
+  DELETED_TTL: "120"              # 2 minutes
   {{- end }}

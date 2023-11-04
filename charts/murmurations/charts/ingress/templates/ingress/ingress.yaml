@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isMurmproto := eq $env "murmproto" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,35 +11,23 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
-    {{- if not (eq .Values.global.env "development") }}
+    {{- if or $isProd $isStaging $isMurmproto }}
     cert-manager.io/issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}
 spec:
   ingressClassName: nginx
-  {{- if eq .Values.global.env "production" }}
+  {{- if $isMurmproto }}
   tls:
-    - hosts:
-      - index.murmurations.network
-      - library.murmurations.network
-      - data-proxy.murmurations.network
-      secretName: murmurations-network-tls
-  {{- else if eq .Values.global.env "staging" }}
-  tls:
-    - hosts:
-      - test-index.murmurations.network
-      - test-library.murmurations.network
-      - test-data-proxy.murmurations.network
-      secretName: murmurations-tech-tls
+  - hosts:
+    - proto-index.murmurations.network
+    - proto-library.murmurations.network
+    - proto-data-proxy.murmurations.network
+    secretName: letsencrypt-prod-cert
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "production" }}
+    {{- if $isProd }}
     - host: index.murmurations.network
-    {{- else if eq .Values.global.env "staging" }}
-    - host: test-index.murmurations.network
-    {{- else }}
-    - host: index.murmurations.dev
-    {{- end }}
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -43,13 +37,7 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    {{- if eq .Values.global.env "production" }}
     - host: library.murmurations.network
-    {{- else if eq .Values.global.env "staging" }}
-    - host: test-library.murmurations.network
-    {{- else }}
-    - host: library.murmurations.dev
-    {{- end }}
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -59,13 +47,7 @@ spec:
                 name: library-app
                 port:
                   number: 8080
-    {{- if eq .Values.global.env "production" }}
     - host: data-proxy.murmurations.network
-    {{- else if eq .Values.global.env "staging" }}
-    - host: test-data-proxy.murmurations.network
-    {{- else }}
-    - host: data-proxy.murmurations.dev
-    {{- end }}
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -75,8 +57,104 @@ spec:
                 name: data-proxy-app
                 port:
                   number: 8080
+    {{- else if $isStaging }}
+    - host: test-index.murmurations.network
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: index-app
+                port:
+                  number: 8080
+    - host: test-library.murmurations.network
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: library-app
+                port:
+                  number: 8080
+    - host: test-data-proxy.murmurations.network
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: data-proxy-app
+                port:
+                  number: 8080
+    {{- else if $isMurmproto }}
+    - host: proto-index.murmurations.network
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: index-app
+                port:
+                  number: 8080
+    - host: proto-library.murmurations.network
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: library-app
+                port:
+                  number: 8080
+    - host: proto-data-proxy.murmurations.network
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: data-proxy-app
+                port:
+                  number: 8080
+   {{- else if $isDev }}
+    - host: index.murmurations.dev
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: index-app
+                port:
+                  number: 8080
+    - host: library.murmurations.dev
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: library-app
+                port:
+                  number: 8080
+    - host: data-proxy.murmurations.dev
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /(|$)(.*)
+            backend:
+              service:
+                name: data-proxy-app
+                port:
+                  number: 8080
+    {{- end }}
+
 ---
-{{- if not (eq .Values.global.env "development") }}
+
+{{- if or $isProd $isStaging }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -87,21 +165,21 @@ metadata:
     cert-manager.io/issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
-  {{- if eq .Values.global.env "production" }}
+  {{- if $isProd }}
   tls:
     - hosts:
       - monitoring.murmurations.network
       secretName: murmurations-network-tls
-  {{- else if eq .Values.global.env "staging" }}
+  {{- else if $isStaging }}
   tls:
     - hosts:
       - test-monitoring.murmurations.network
       secretName: murmurations-tech-tls
   {{- end }}
   rules:
-    {{- if eq .Values.global.env "production" }}
+    {{- if $isProd }}
     - host: monitoring.murmurations.network
-    {{- else if eq .Values.global.env "staging" }}
+    {{- else if $isStaging }}
     - host: test-monitoring.murmurations.network
     {{- end }}
       http:

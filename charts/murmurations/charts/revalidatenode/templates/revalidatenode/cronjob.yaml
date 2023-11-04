@@ -1,9 +1,15 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isMurmproto := eq $env "murmproto" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: revalidatenode-app
 spec:
-  {{- if or (eq .Values.global.env "production") (eq .Values.global.env "staging") }}
+  {{- if or $isProd $isStaging $isMurmproto }}
   schedule: "*/1 * * * *"  # every minute
   {{- else }}
   schedule: "*/2 * * * *"  # every two minutes
@@ -31,10 +37,10 @@ spec:
               imagePullPolicy: IfNotPresent
               # Limit the CPU usage.
               resources:
-                limits:
-                  cpu: "500m"
                 requests:
                   cpu: "100m"
+                limits:
+                  cpu: "500m"
               env:
                 - name: NATS_CLIENT_ID
                   valueFrom:

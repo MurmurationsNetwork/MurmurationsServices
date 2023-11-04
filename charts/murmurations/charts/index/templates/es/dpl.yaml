@@ -1,3 +1,12 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isMurmproto := eq $env "murmproto" }}
+{{- $isDev := eq $env "development" }}
+
+# StatefulSet manages stateful applications, providing stable persistent storage
+# and unique network identifiers.
+apiVersion: apps/v1
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -19,14 +28,16 @@ spec:
           image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
           # Make sure stateful image can update automatically
           imagePullPolicy: Always
-          # resources:
-          #   requests:
-          #     memory: "1024Mi"
-          #     cpu: "16m"
-          #   limits:
-          #     memory: "2000Mi"
-          #     cpu: "32m"
-          {{- if not (eq .Values.global.env "development") }}
+          {{- if $isMurmproto }}
+          resources:
+            requests:
+              memory: "750Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          {{- end }}
+          {{- if not $isDev }}
           volumeMounts:
             - mountPath: /usr/share/elasticsearch/data
               name: index-es-storage
@@ -63,24 +74,34 @@ spec:
             - ulimit -n 65536
           securityContext:
             privileged: true
-  {{- if not (eq .Values.global.env "development") }}
+        {{- if not $isDev }}
         - name: file-permissions
           image: busybox:1.32
           command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/']
           volumeMounts:
           - mountPath: /usr/share/elasticsearch/data
             name: index-es-storage
+        {{- end }}
+  {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:
       name: index-es-storage
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: ["ReadWriteOnce"]
+      {{- if or $isProd $isStaging }}
       storageClassName: do-block-storage
+      {{- else if $isMurmproto }}
+      storageClassName: longhorn
+      {{- end }}
       resources:
         requests:
-          {{- if eq .Values.global.env "production" }}
+           {{- if $isProd }}
           storage: 10Gi
-          {{- else if eq .Values.global.env "staging" }}
+          {{- else if $isStaging }}
+          storage: 5Gi
+          {{- else if $isMurmproto }}
           storage: 5Gi
           {{- end }}
   {{- end }}
+
+---

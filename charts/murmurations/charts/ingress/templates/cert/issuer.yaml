@@ -1,4 +1,10 @@
-{{- if not (eq .Values.global.env "development") }}
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isMurmproto := eq $env "murmproto" }}
+{{- $isDev := eq $env "development" }}
+
+{{- if or $isProd $isStaging $isMurmproto }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -16,7 +22,9 @@ spec:
     - http01:
         ingress:
           class: nginx
+{{- end }}
 ---
+{{- if or $isProd $isStaging }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:

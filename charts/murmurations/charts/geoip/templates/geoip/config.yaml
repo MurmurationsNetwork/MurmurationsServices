@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isMurmproto := eq $env "murmproto" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,7 +13,7 @@ data:
   SERVER_TIMEOUT_READ: 5s
   SERVER_TIMEOUT_WRITE: 10s
   SERVER_TIMEOUT_IDLE: 15s
-  {{- if eq .Values.global.env "development" }}
+  {{- if $isDev }}
   DATABASE_LOCATION: "./services/geoip/global/GeoLite2-City.mmdb"
   {{- else }}
   DATABASE_LOCATION: "/app/GeoLite2-City.mmdb"
