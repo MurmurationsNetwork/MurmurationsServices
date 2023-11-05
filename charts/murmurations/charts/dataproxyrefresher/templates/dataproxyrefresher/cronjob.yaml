@@ -44,7 +44,7 @@ spec:
                     name: dataproxyrefresher-secret
           {{- if eq .Values.global.env "development" }}
               command: ["go", "run"]
-              args: ["services/cronjob/dataproxyrefresher/cmd/dataproxyrefresher/main.go"]
+              args: ["cmd/dataproxyrefresher/main.go"]
               volumeMounts:
                 - mountPath: /src
                   name: source-path

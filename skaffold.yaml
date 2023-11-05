@@ -11,7 +11,7 @@ build:
     - image: murmurations/dataproxyrefresher
       context: .
       docker:
-        dockerfile: services/cronjob/dataproxyrefresher/docker/Dockerfile-dev
+        dockerfile: build/dataproxyrefresher/docker/Dockerfile-dev
     - image: murmurations/dataproxyupdater
       context: .
       docker:

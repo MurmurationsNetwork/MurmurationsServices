@@ -8,6 +8,7 @@ include ./build/revalidatenode/mk/Makefile
 include ./build/nodecleaner/mk/Makefile
 include ./build/schemaparser/mk/Makefile
 include ./build/validation/mk/Makefile
+include ./build/dataproxyrefresher/mk/Makefile
 
 #--------------------------
 # Set environment variables.
@@ -50,9 +51,6 @@ docker-build-dataproxy:
 
 docker-build-dataproxyupdater:
 	$(MAKE) -C services/cronjob/dataproxyupdater/ docker-build
-
-docker-build-dataproxyrefresher:
-	$(MAKE) -C services/cronjob/dataproxyrefresher/ docker-build
 
 # ---------------------------------------------------------------
 
