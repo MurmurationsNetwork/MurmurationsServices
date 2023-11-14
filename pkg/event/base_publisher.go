@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	stan "github.com/nats-io/stan.go"
@@ -11,6 +12,7 @@ import (
 
 type Publisher interface {
 	Publish(data interface{})
+	PublishSync(data interface{}) error
 	SetAckHandler(ackHandler stan.AckHandler)
 }
 
@@ -53,4 +55,27 @@ func (p *publisher) Publish(data interface{}) {
 	}
 	msg, _ := json.Marshal(data)
 	_, _ = p.client.PublishAsync(string(p.subject), msg, p.ackHandler)
+}
+
+// PublishSync sends a message to the designated subject using a synchronous approach.
+func (p *publisher) PublishSync(data interface{}) error {
+	if os.Getenv("ENV") == "test" {
+		return nil
+	}
+
+	msg, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to serialize data into JSON: %w", err)
+	}
+
+	err = p.client.Publish(string(p.subject), msg)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to publish message to subject %s: %w",
+			p.subject,
+			err,
+		)
+	}
+
+	return nil
 }
