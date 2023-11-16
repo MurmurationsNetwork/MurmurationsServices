@@ -296,14 +296,16 @@ helm install cert-manager jetstack/cert-manager \
 
 ### Deploying Ingress
 
-Navigate to the `charts/murmurations/charts/ingress` directory and update the `certificate` and `ingress` charts as needed:
+Navigate to the `charts/murmurations/charts/ingress` directory and update the `certificate` and `ingress` charts as needed.
+
+Currently, we have 4 environments: `production`, `staging`, `proto` and `development`.
 
 ```shell
 # Replace '<kube_config>' with your Kubernetes configuration file name.
 export KUBECONFIG=~/.kube/<kube_config>.yaml
 
-# Replace '<your_environment>' with your desired environment (e.g., dev, staging, prod).
-make manually-deploy-ingress ENV=<your_environment>
+# Replace '<environment>' with your desired environment.
+make manually-deploy-ingress ENV=<environment>
 ```
 
 ## 6. Deploying Murmurations Services
@@ -325,8 +327,8 @@ With the secrets in place, you can now proceed to deploy Murmurations services.
 # Replace '<kube_config>' with the name of your Kubernetes configuration file.
 export KUBECONFIG=~/.kube/<kube_config>.yaml
 
-# Replace '<your_environment>' with your desired deployment environment (e.g., development, staging, production).
-make deploy-all-services ENV=<your_environment>
+# Replace '<environment>' with your desired deployment environment.
+make deploy-all-services ENV=<environment>
 ```
 
 This step will initiate the deployment process for Murmurations services, ensuring they are correctly configured and deployed in your chosen environment.
