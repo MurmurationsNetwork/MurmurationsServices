@@ -39,7 +39,7 @@ cat ~/.ssh/id_rsa.pub
 After copying the public key, connect to your VPS:
 
 ```bash
-ssh root@<IP_OF_LINUX_NODE>
+ssh root@<ip_address>
 ```
 
 Upon login, ensure the `.ssh` directory exists with the correct permissions, and append your public key to the `authorized_keys` file:
@@ -72,7 +72,8 @@ systemctl restart ssh
 You can now use SSH key-based authentication for server access:
 
 ```bash
-ssh root@<IP_OF_LINUX_NODE>
+# Please open a new terminal to test connection first.
+ssh root@<ip_address>
 ```
 
 ### Uploading and Executing Setup Scripts
@@ -80,15 +81,15 @@ ssh root@<IP_OF_LINUX_NODE>
 Transfer the setup script to your server:
 
 ```bash
-scp scripts/ubuntu_setup.sh root@<IP_OF_LINUX_NODE>:
-ssh root@<IP_OF_LINUX_NODE>
+cd /path/to/MurmurationsServices
+scp scripts/ubuntu_setup.sh root@<ip_address>:
+ssh root@<ip_address>
 ```
 
 Run the setup script:
 
 ```bash
-chmod +x ubuntu_setup.sh
-./ubuntu_setup.sh
+chmod +x ubuntu_setup.sh && ./ubuntu_setup.sh
 ```
 
 ## 2. Installing Rancher on a k3s Cluster
@@ -105,33 +106,67 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=<VERSION> sh -s - server --cl
 
 **Important Note**: Rancher necessitates a compatible Kubernetes version. Refer to the [Rancher Support Matrix](https://rancher.com/support-maintenance-terms/) to verify version compatibility.
 
-**Update (11/07/2023)**: As of this writing, version `v1.26.10+k3s1` is recommended. Consult the [official k3s GitHub releases](https://github.com/k3s-io/k3s/releases) for the latest version updates.
+**Update (2023-11-07)**: As of this writing, version `v1.26.10+k3s1` is recommended. Consult the [official k3s GitHub releases](https://github.com/k3s-io/k3s/tags) for the latest version updates.
 
 ### Transferring the kubeconfig File to Your Workstation
 
 To remotely manage your cluster, transfer the `kubeconfig` file to your local machine:
 
 ```bash
-scp root@<IP_OF_LINUX_MACHINE>:/etc/rancher/k3s/k3s.yaml ~/.kube/<CONFIG_NAME>
+# Open a new tab and execute in your local machine.
+scp root@<ip_address>:/etc/rancher/k3s/k3s.yaml ~/.kube/<config_name>
 ```
 
-Substitute `<IP_OF_LINUX_MACHINE>` with your server's IP and `<CONFIG_NAME>` with a preferred name for your configuration file.
+Substitute `<ip_address>` with your server's IP and `<config_name>` with a preferred name for your configuration file.
+
+The updated section for "Merge config together" with a consistent writing style is as follows:
+
+### Merging Configuration Files
+
+To effectively manage multiple Kubernetes clusters, it's essential to merge the kubeconfig files.
+
+1. **Set the KUBECONFIG environment variable:** This step combines your current kubeconfig file with the new configuration file you've acquired from your k3s cluster. Replace `<config_name>` with the name of your new configuration file.
+
+    ```bash
+    export KUBECONFIG=~/.kube/config:~/.kube/<config_name>.yaml
+    ```
+
+2. **Create a unified kubeconfig file:** This command merges the configurations into a single file while ensuring all data is intact and correctly formatted.
+
+    ```bash
+    kubectl config view --merge --flatten > ~/.kube/merged_kubeconfig
+    ```
+
+3. **Backup the original config file:** It's a good practice to keep a backup of your original kubeconfig file in case you need to revert to the previous settings.
+
+    ```bash
+    mv ~/.kube/config ~/.kube/config_backup
+    ```
+
+4. **Replace the current config with the merged file:** This step finalizes the process by replacing the existing kubeconfig file with the newly merged file.
+
+    ```bash
+    mv ~/.kube/merged_kubeconfig ~/.kube/config
+    ```
 
 ### Updating the Rancher Server URL in kubeconfig
 
 Modify your kubeconfig file to reflect the correct server URL:
 
 ```bash
-vim ~/.kube/<CONFIG_NAME>
+vim ~/.kube/<config_name>
 ```
 
-In the file, update the `server` field to `<IP_OF_LINUX_NODE>:6443`.
+In the file, update the `server` field to `https://<ip_address>:6443`.
 
 ### Deploying Rancher with Helm
 
 Proceed with adding the Rancher Helm chart repository:
 
 ```bash
+# Make sure you have switched to the correct context.
+kubectl config use-context <context_name>
+
 helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
 ```
 
@@ -143,8 +178,12 @@ kubectl create namespace cattle-system
 
 Before installing Rancher, set up Cert-Manager's Custom Resource Definitions (CRDs):
 
+You can find the the latest version by checking their [GitHub tags page](https://github.com/cert-manager/cert-manager/tags).
+
 ```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/<VERSION>/cert-manager.crds.yaml
+VERSION=<version>
+
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/${VERSION}/cert-manager.crds.yaml
 ```
 
 Add the Jetstack Helm repository, which provides Cert-Manager:
@@ -162,12 +201,12 @@ helm install cert-manager jetstack/cert-manager \
   --create-namespace
 ```
 
-Now, deploy Rancher using Helm in the `cattle-system` namespace. Replace `<IP_OF_LINUX_NODE>` with your server's IP and `<PASSWORD_FOR_RANCHER_ADMIN>` with your chosen password:
+Now, deploy Rancher using Helm in the `cattle-system` namespace. Replace `<ip_address>` with your server's IP and `<PASSWORD_FOR_RANCHER_ADMIN>` with your chosen password:
 
 ```bash
 helm install rancher rancher-latest/rancher \
   --namespace cattle-system \
-  --set hostname=<IP_OF_LINUX_NODE>.sslip.io \
+  --set hostname=<ip_address>.sslip.io \
   --set replicas=1 \
   --set bootstrapPassword=<PASSWORD_FOR_RANCHER_ADMIN>
 ```
@@ -180,7 +219,7 @@ Once Rancher is installed, you can access its dashboard and start building your 
 
 ### Accessing the Rancher Dashboard
 
-1. Launch a web browser and navigate to `http://<IP_OF_LINUX_NODE>.sslip.io`. Replace `<IP_OF_LINUX_NODE>` with the IP address of your Linux node where Rancher is hosted.
+1. Launch a web browser and navigate to `http://<ip_address>.sslip.io`. Replace `<ip_address>` with the IP address of your Linux node where Rancher is hosted.
 2. Log in using the credentials set during the Rancher installation.
 
 ### Initiating Cluster Creation
@@ -208,7 +247,7 @@ Once Rancher is installed, you can access its dashboard and start building your 
 2. Connect to your other server intended to be a Kubernetes node:
 
    ```bash
-   ssh root@<ANOTHER_IP_OF_LINUX_NODE>
+   ssh root@<ANOTHER_ip_address>
    ```
 
 3. Paste and execute the copied command in the server's terminal.
@@ -225,13 +264,14 @@ To interact with your cluster using `kubectl` from your local machine, you’ll 
 
 ![](https://github.com/MurmurationsNetwork/MurmurationsServices/assets/11765228/b6a167ee-f750-4de4-b968-fd01cfe95f28)
 
-Store the downloaded file with a `.yaml` extension, such as `kube_config.yaml`, and keep it in a secure location. Use this file with `kubectl` by setting the `KUBECONFIG` environment variable or by specifying the file with the `--kubeconfig` flag in `kubectl` commands.
+Follow [Merging Configuration Files](#merging-configuration-files) to merge configs together.
 
 Here’s an example of how to use the kubeconfig file:
 
 ```bash
-# Replace '<kube_config>' with your Kubernetes configuration file name.
-export KUBECONFIG=~/.kube/<kube_config>.yaml
+# Make sure you have switched to the correct context.
+kubectl config use-context <context_name>
+
 kubectl get nodes
 ```
 
@@ -276,12 +316,12 @@ Configuring HTTPS is crucial for securing your services. This involves deploying
 3. Create A records for your services, pointing them to the external IP address of your Linux node hosting the ingress controller. For example:
 
    ```plaintext
-   index.murmurations.network A <IP_OF_LINUX_NODE>
-   library.murmurations.network A <IP_OF_LINUX_NODE>
-   data-proxy.murmurations.network A <IP_OF_LINUX_NODE>
+   index.murmurations.network A <ip_address>
+   library.murmurations.network A <ip_address>
+   data-proxy.murmurations.network A <ip_address>
    ```
 
-   Replace `<IP_OF_LINUX_NODE>` with your node's IP and adjust domain names according to your setup.
+   Replace `<ip_address>` with your node's IP and adjust domain names according to your setup.
 
 ### Installing cert-manager with Helm
 
@@ -301,8 +341,8 @@ Navigate to the `charts/murmurations/charts/ingress` directory and update the `c
 Currently, we have 4 environments: `production`, `staging`, `proto` and `development`.
 
 ```shell
-# Replace '<kube_config>' with your Kubernetes configuration file name.
-export KUBECONFIG=~/.kube/<kube_config>.yaml
+# Make sure you have switched to the correct context.
+kubectl config use-context <context_name>
 
 # Replace '<environment>' with your desired environment.
 make manually-deploy-ingress ENV=<environment>
@@ -324,8 +364,8 @@ Before deploying the services, you need to set up necessary secrets:
 With the secrets in place, you can now proceed to deploy Murmurations services.
 
 ```shell
-# Replace '<kube_config>' with the name of your Kubernetes configuration file.
-export KUBECONFIG=~/.kube/<kube_config>.yaml
+# Make sure you have switched to the correct context.
+kubectl config use-context <context_name>
 
 # Replace '<environment>' with your desired deployment environment.
 make deploy-all-services ENV=<environment>
