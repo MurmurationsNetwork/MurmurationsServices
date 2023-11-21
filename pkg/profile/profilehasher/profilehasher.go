@@ -33,6 +33,7 @@ type ProfileHash struct {
 	libraryURL       string
 	profile          map[string]interface{}
 	fieldsForHashing map[string]bool
+	profileStr       string
 }
 
 // New initializes a new ProfileHash instance.
@@ -49,18 +50,35 @@ func New(profileURL, libraryURL string) *ProfileHash {
 	}
 }
 
-// Hash computes the hash for the profile.
-func (p *ProfileHash) Hash() (string, error) {
-	profileData, err := p.fetchData(p.profileURL)
-	if err != nil {
-		return "", core.ProfileFetchError{Reason: err.Error()}
+// NewFromString initializes a new ProfileHash instance with a JSON string.
+func NewFromString(profileStr, libraryURL string) *ProfileHash {
+	fieldsForHashing := make(map[string]bool)
+	for key := range defaultFields {
+		fieldsForHashing[key] = true
 	}
 
-	err = p.parseProfile(profileData)
-	if err != nil {
-		if err != nil {
-			return "", core.ProfileFetchError{Reason: err.Error()}
+	return &ProfileHash{
+		libraryURL:       libraryURL,
+		profileStr:       profileStr,
+		fieldsForHashing: fieldsForHashing,
+	}
+}
+
+// Hash computes the hash for the profile.
+func (p *ProfileHash) Hash() (string, error) {
+	var err error
+	if p.profileStr != "" {
+		err = json.Unmarshal([]byte(p.profileStr), &p.profile)
+	} else {
+		var profileData []byte
+		profileData, err = p.fetchData(p.profileURL)
+		if err == nil {
+			err = json.Unmarshal(profileData, &p.profile)
 		}
+	}
+
+	if err != nil {
+		return "", core.ProfileFetchError{Reason: err.Error()}
 	}
 
 	err = p.populateFieldsForHashing()
@@ -86,19 +104,23 @@ func (p *ProfileHash) Hash() (string, error) {
 func (p *ProfileHash) fetchData(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"error while sending request to %s: %v",
+			url,
+			err,
+		)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
+		return nil, fmt.Errorf(
+			"request to %s failed with status code %d",
+			url,
+			resp.StatusCode,
+		)
 	}
 
 	return io.ReadAll(resp.Body)
-}
-
-func (p *ProfileHash) parseProfile(data []byte) error {
-	return json.Unmarshal(data, &p.profile)
 }
 
 func (p *ProfileHash) populateFieldsForHashing() error {

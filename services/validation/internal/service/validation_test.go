@@ -9,70 +9,51 @@ import (
 func TestGetLinkedSchemas(t *testing.T) {
 	tests := []struct {
 		name          string
-		data          interface{}
-		expectedOk    bool
+		data          string
+		expectedError string
 		expectedValue []string
 	}{
 		{
-			name:       "Test with nil data",
-			data:       nil,
-			expectedOk: false,
+			name:          "Test with empty JSON object",
+			data:          "{}",
+			expectedError: "linked schemas not found in profile",
 		},
 		{
-			name:       "Test with empty map",
-			data:       map[string]interface{}{},
-			expectedOk: false,
+			name:          "Test with wrong key",
+			data:          `{"profile_url": "https://ic3.dev/test2.json"}`,
+			expectedError: "linked schemas not found in profile",
 		},
 		{
-			name: "Test with wrong key",
-			data: map[string]interface{}{
-				"profile_url": "https://ic3.dev/test2.json",
-			},
-			expectedOk: false,
+			name:          "Test with wrong type of value",
+			data:          `{"linked_schemas": "https://ic3.dev/test2.json"}`,
+			expectedError: "linked schemas is not an array",
 		},
 		{
-			name: "Test with wrong type of value",
-			data: map[string]interface{}{
-				"linked_schemas": "https://ic3.dev/test2.json",
-			},
-			expectedOk: false,
+			name:          "Test with non-array value",
+			data:          `{"linked_schemas": false}`,
+			expectedError: "linked schemas is not an array",
 		},
 		{
-			name: "Test with false value",
-			data: map[string]interface{}{
-				"linked_schemas": false,
-			},
-			expectedOk: false,
+			name:          "Test with empty array",
+			data:          `{"linked_schemas": []}`,
+			expectedError: "empty linked schemas array",
 		},
 		{
-			name: "Test with empty slice",
-			data: map[string]interface{}{
-				"linked_schemas": []string{},
-			},
-			expectedOk: false,
-		},
-		{
-			name: "Test with string slice",
-			data: map[string]interface{}{
-				"linked_schemas": []string{"https://ic3.dev/test2.json"},
-			},
-			expectedOk: false,
-		},
-		{
-			name: "Test with interface slice",
-			data: map[string]interface{}{
-				"linked_schemas": []interface{}{"https://ic3.dev/test2.json"},
-			},
-			expectedOk:    true,
+			name:          "Test with valid data",
+			data:          `{"linked_schemas": ["https://ic3.dev/test2.json"]}`,
 			expectedValue: []string{"https://ic3.dev/test2.json"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			linkedSchemas, ok := getLinkedSchemas(tt.data)
-			require.Equal(t, tt.expectedOk, ok)
-			if tt.expectedOk {
+			linkedSchemas, err := getLinkedSchemas(tt.data)
+
+			if tt.expectedError != "" {
+				require.Error(t, err)
+				require.Equal(t, tt.expectedError, err.Error())
+			} else {
+				require.NoError(t, err)
 				require.Equal(t, tt.expectedValue, linkedSchemas)
 			}
 		})

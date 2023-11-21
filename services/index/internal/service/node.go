@@ -11,6 +11,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
@@ -65,6 +66,11 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 	}
 
 	if err := s.elasticRepo.IndexByID(node.ID, profile.GetJSON()); err != nil {
+		errMsg := fmt.Sprintf(
+			"Error indexing node ID '%s' in Elastic repository",
+			node.ID,
+		)
+		logger.Error(errMsg, err)
 		node.SetStatusPostFailed()
 		return s.mongoRepo.Update(node)
 	}

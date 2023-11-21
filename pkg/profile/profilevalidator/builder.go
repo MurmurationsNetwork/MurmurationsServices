@@ -29,12 +29,6 @@ func (b *Builder) WithStrSchemas(schemas []string) *Builder {
 	return b
 }
 
-// WithURLProfile sets the URL for loading the data to be validated.
-func (b *Builder) WithURLProfile(dataURL string) *Builder {
-	b.profilevalidator.ProfileLoader = &URLProfileLoader{dataURL: dataURL}
-	return b
-}
-
 // WithStrProfile sets the data string to be validated.
 func (b *Builder) WithStrProfile(dataString string) *Builder {
 	b.profilevalidator.ProfileLoader = &StrProfileLoader{dataString: dataString}
