@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/xeipuuv/gojsonschema"
-
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
@@ -15,7 +13,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
@@ -34,7 +31,7 @@ func NewValidationService() ValidationService {
 }
 
 func (svc *validationService) ValidateNode(node *model.Node) {
-	data, err := svc.readFromProfileURL(node.ProfileURL)
+	profileStr, err := httputil.GetJSONStr(node.ProfileURL)
 	if err != nil {
 		errors := jsonapi.NewError(
 			[]string{"Profile Not Found"},
@@ -54,130 +51,14 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		return
 	}
 
-	// Validate against the default schema. The default schema ensures there is
-	// at least one schema defined for validating the node profile.
-	validator, err := profilevalidator.NewBuilder().
-		WithURLProfile(node.ProfileURL).
-		WithURLSchemas(config.Values.Library.InternalURL, []string{DefaultSchema}).
-		Build()
-	if err != nil {
-		logger.Error("Failed to build schema validator", err)
-
-		errors := jsonapi.NewError(
-			[]string{"Internal Server Error"},
-			[]string{
-				"An error occurred while validating the profile data. Please try again later.",
-			},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
+	if err := svc.validateAgainstDefaultSchema(profileStr, node); err != nil {
+		return
+	}
+	if err := svc.validateAgainstLinkedSchemas(profileStr, node); err != nil {
 		return
 	}
 
-	result := validator.Validate()
-	if !result.Valid {
-		errors := jsonapi.NewError(
-			result.ErrorMessages,
-			result.Details,
-			result.Sources,
-			result.ErrorStatus,
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
-		return
-	}
-
-	linkedSchemas, ok := getLinkedSchemas(data)
-	if !ok {
-		errors := jsonapi.NewError(
-			[]string{"Profile Not Found"},
-			[]string{
-				fmt.Sprintf(
-					"Could not find or read from (invalid JSON) the profile_url: %s",
-					node.ProfileURL,
-				),
-			},
-			nil,
-			[]int{http.StatusNotFound},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
-		return
-	}
-
-	// Validate against the schemas specified in the profile data.
-	validator, err = profilevalidator.NewBuilder().
-		WithURLProfile(node.ProfileURL).
-		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
-		WithCustomValidation().
-		Build()
-	if err != nil {
-		// Log the error for internal debugging and auditing.
-		logger.Error("Failed to build schema validator", err)
-
-		errors := jsonapi.NewError(
-			[]string{"Internal Server Error"},
-			[]string{
-				"An error occurred while validating the profile data. Please try again later.",
-			},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
-		return
-	}
-
-	result = validator.Validate()
-	if !result.Valid {
-		errors := jsonapi.NewError(
-			result.ErrorMessages,
-			result.Details,
-			result.Sources,
-			result.ErrorStatus,
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
-		return
-	}
-
-	jsonStr, err := httputil.GetJSONStr(node.ProfileURL)
-	if err != nil {
-		errors := jsonapi.NewError(
-			[]string{"Profile Not Found"},
-			[]string{
-				fmt.Sprintf(
-					"Could not find or read from (invalid JSON) the profile_url: %s",
-					node.ProfileURL,
-				),
-			},
-			nil,
-			[]int{http.StatusNotFound},
-		)
-		svc.sendNodeValidationFailedEvent(node, &errors)
-		return
-	}
-
-	// Normalize the primary URL.
-	profileJSON := jsonutil.ToJSON(jsonStr)
-	if profileJSON["primary_url"] != nil {
-		normalizedURL, err := NormalizeURL(profileJSON["primary_url"].(string))
-		if err != nil {
-			errors := jsonapi.NewError(
-				[]string{"Primary URL Validation Failed"},
-				[]string{
-					fmt.Sprintf(
-						"The primary URL is invalid: %s.",
-						profileJSON["primary_url"].(string),
-					),
-				},
-				nil,
-				[]int{http.StatusBadRequest},
-			)
-			svc.sendNodeValidationFailedEvent(node, &errors)
-			return
-		}
-		profileJSON["primary_url"] = normalizedURL
-	}
-
-	profileHash, err := profilehasher.New(node.ProfileURL, config.Values.Library.InternalURL).
+	profileHash, err := profilehasher.NewFromString(profileStr, config.Values.Library.InternalURL).
 		Hash()
 	if err != nil {
 		logger.Error("Failed to generate a hash for the profile_url: ", err)
@@ -195,47 +76,39 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		svc.sendNodeValidationFailedEvent(node, &errors)
 		return
 	}
+
+	updatedProfileJSON := jsonutil.ToJSON(profileStr)
+	if updatedProfileJSON["primary_url"] != nil {
+		normalizedURL, err := NormalizeURL(
+			updatedProfileJSON["primary_url"].(string),
+		)
+		if err != nil {
+			errors := jsonapi.NewError(
+				[]string{"Primary URL Validation Failed"},
+				[]string{
+					fmt.Sprintf(
+						"The primary URL is invalid: %s.",
+						updatedProfileJSON["primary_url"].(string),
+					),
+				},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			svc.sendNodeValidationFailedEvent(node, &errors)
+			return
+		}
+		updatedProfileJSON["primary_url"] = normalizedURL
+	}
+
 	event.NewNodeValidatedPublisher(nats.Client.Client()).
 		Publish(event.NodeValidatedData{
 			ProfileURL:  node.ProfileURL,
 			ProfileHash: profileHash,
 			// Provides the updated version of the profile for later use.
-			ProfileStr:  jsonutil.ToString(profileJSON),
+			ProfileStr:  jsonutil.ToString(updatedProfileJSON),
 			LastUpdated: dateutil.GetNowUnix(),
 			Version:     node.Version,
 		})
-}
-
-func (svc *validationService) readFromProfileURL(
-	profileURL string,
-) (interface{}, error) {
-	document := gojsonschema.NewReferenceLoader(profileURL)
-
-	var data interface{}
-
-	// TODO: Need a feature toggle mechanism.
-	if true {
-		var err error
-		data, err = document.LoadJSON()
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		operation := func() error {
-			var err error
-			data, err = document.LoadJSON()
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		err := retry.Do(operation)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return data, nil
 }
 
 func (svc *validationService) sendNodeValidationFailedEvent(
@@ -250,30 +123,120 @@ func (svc *validationService) sendNodeValidationFailedEvent(
 		})
 }
 
-func getLinkedSchemas(data interface{}) ([]string, bool) {
-	jsonData, ok := data.(map[string]interface{})
-	if !ok {
-		return nil, false
+// validateAgainstDefaultSchema handles the validation of the node's profile against the default schema.
+func (svc *validationService) validateAgainstDefaultSchema(
+	profileStr string,
+	node *model.Node,
+) error {
+	validator, err := profilevalidator.NewBuilder().
+		WithStrProfile(profileStr).
+		WithURLSchemas(config.Values.Library.InternalURL, []string{DefaultSchema}).
+		Build()
+	if err != nil {
+		logger.Error("Failed to build schema validator", err)
+		errors := jsonapi.NewError(
+			[]string{"Internal Server Error"},
+			[]string{
+				"An error occurred while validating the profile data. Please try again later.",
+			},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return err
 	}
+
+	result := validator.Validate()
+	if !result.Valid {
+		errors := jsonapi.NewError(
+			result.ErrorMessages,
+			result.Details,
+			result.Sources,
+			result.ErrorStatus,
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return fmt.Errorf("validation failed")
+	}
+
+	return nil
+}
+
+// validateAgainstLinkedSchemas handles the extraction and validation of the node's profile against linked schemas.
+func (svc *validationService) validateAgainstLinkedSchemas(
+	profileStr string,
+	node *model.Node,
+) error {
+	linkedSchemas, err := getLinkedSchemas(profileStr)
+	if err != nil {
+		errors := jsonapi.NewError(
+			[]string{"Profile Validation Error"},
+			[]string{err.Error()},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return err
+	}
+
+	validator, err := profilevalidator.NewBuilder().
+		WithStrProfile(profileStr).
+		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
+		WithCustomValidation().
+		Build()
+	if err != nil {
+		logger.Error("Failed to build schema validator", err)
+		errors := jsonapi.NewError(
+			[]string{"Internal Server Error"},
+			[]string{
+				"An error occurred while validating the profile data. Please try again later.",
+			},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return err
+	}
+
+	result := validator.Validate()
+	if !result.Valid {
+		errors := jsonapi.NewError(
+			result.ErrorMessages,
+			result.Details,
+			result.Sources,
+			result.ErrorStatus,
+		)
+		svc.sendNodeValidationFailedEvent(node, &errors)
+		return fmt.Errorf("validation against linked schemas failed")
+	}
+
+	return nil
+}
+
+func getLinkedSchemas(profileStr string) ([]string, error) {
+	jsonData := jsonutil.ToJSON(profileStr)
 
 	linkedSchemasInterface, ok := jsonData["linked_schemas"]
 	if !ok {
-		return nil, false
+		return nil, fmt.Errorf("linked schemas not found in profile")
 	}
 
 	arrInterface, ok := linkedSchemasInterface.([]interface{})
 	if !ok {
-		return nil, false
+		return nil, fmt.Errorf("linked schemas is not an array")
+	}
+
+	if len(arrInterface) == 0 {
+		return nil, fmt.Errorf("empty linked schemas array")
 	}
 
 	linkedSchemas := make([]string, len(arrInterface))
 	for i, data := range arrInterface {
 		linkedSchema, ok := data.(string)
 		if !ok {
-			return nil, false
+			return nil, fmt.Errorf("invalid schema type in linked schemas")
 		}
 		linkedSchemas[i] = linkedSchema
 	}
 
-	return linkedSchemas, true
+	return linkedSchemas, nil
 }
