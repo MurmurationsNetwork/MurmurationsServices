@@ -140,43 +140,66 @@ docker-push-dataproxyrefresher: docker-tag-dataproxyrefresher
 # ---------------------------------------------------------------
 
 deploy-murmurations-core:
-	helm upgrade murmurations-core ./charts/murmurations/charts/core --set global.env=$(DEPLOY_ENV) --install --atomic
+	helm upgrade murmurations-core ./charts/murmurations/charts/core \
+	--set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-ingress:
-	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress --set global.env=$(DEPLOY_ENV) --install --atomic
+	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress \
+	--set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-mq:
-	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue --set global.env=$(DEPLOY_ENV) --install --atomic
+	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue \
+	--set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-index:
-	helm upgrade murmurations-index ./charts/murmurations/charts/index --set global.env=$(DEPLOY_ENV),image=murmurations/index:$(TAG) --install --atomic
+	helm upgrade murmurations-index ./charts/murmurations/charts/index \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/index:$(TAG) \
+	--install --atomic
 
 deploy-validation:
-	helm upgrade murmurations-validation ./charts/murmurations/charts/validation --set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(TAG) --install --atomic
+	helm upgrade murmurations-validation ./charts/murmurations/charts/validation \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(TAG) \
+	--install --atomic
 
 deploy-library:
-	helm upgrade murmurations-library ./charts/murmurations/charts/library --set global.env=$(DEPLOY_ENV),image=murmurations/library:$(TAG) --install --atomic
+	helm upgrade murmurations-library ./charts/murmurations/charts/library \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/library:$(TAG) \
+	--install --atomic
 
 deploy-nodecleaner:
-	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner --set global.env=$(DEPLOY_ENV),image=murmurations/nodecleaner:$(TAG) --install --atomic
+	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/nodecleaner:$(TAG) \
+	--install --atomic
 
 deploy-schemaparser:
-	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser --set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(TAG) --install --atomic
+	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(TAG) \
+	--install --atomic
 
 deploy-revalidatenode:
-	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode --set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(TAG) --install --atomic
+	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(TAG) \
+	--install --atomic
 
 deploy-geoip:
-	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip --set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) --install --atomic
+	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) \
+	--install --atomic
 
 deploy-dataproxy:
-	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(TAG) --install --atomic
+	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(TAG) \
+	--install --atomic
 
 deploy-dataproxyupdater:
-	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(TAG) --install --atomic
+	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(TAG) \
+	--install --atomic
 
 deploy-dataproxyrefresher:
-	helm upgrade murmurations-dataproxyrefresher ./charts/murmurations/charts/dataproxyrefresher --set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyrefresher:$(TAG) --install --atomic
+	helm upgrade murmurations-dataproxyrefresher ./charts/murmurations/charts/dataproxyrefresher \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyrefresher:$(TAG) \
+	--install --atomic
 
 # ---------------------------------------------------------------
 

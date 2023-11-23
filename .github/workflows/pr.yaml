@@ -1,0 +1,111 @@
+name: PR Workflow
+
+# Trigger the workflow on pull request events targeting the main branch.
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Job to run tests.
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19.5
+
+      - name: Execute Tests
+        run: make test
+
+  # Job to lint the code.
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19.5
+
+      - name: Run Linter
+        uses: golangci/golangci-lint-action@v3
+
+  # Job to build Docker images for various services.
+  # build:
+  #   name: Build Docker Image - ${{ matrix.service }}
+  #   needs: [test, lint]
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       service: [""]
+  #       # service: [index, library, geoip, validation, nodecleaner,
+  #       #           revalidatenode, schemaparser, dataproxy,
+  #       #           dataproxyupdater, dataproxyrefresher]
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
+
+  #     - name: DockerHub Login
+  #       uses: docker/login-action@v3.0.0
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  #     - name: Publish Docker Image
+  #       run: make docker-push-${{ matrix.service }}
+
+  # Job to deploy the application to Kubernetes.
+  deploy:
+    name: Deploy Service - ${{ matrix.service }}
+    needs: [test, lint, build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [murmurations-core]
+        # service: [murmurations-core, index, library, geoip, validation,
+        #           nodecleaner, revalidatenode, schemaparser, dataproxy,
+        #           dataproxyupdater, dataproxyrefresher]
+    env:
+      PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+      PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH for Server Access
+        uses: webfactory/ssh-agent@v0.5.2
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add SSH Key to Known Hosts
+        run: |
+          ssh-keyscan -H ${{ env.PRETEST_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Copy Kubernetes Config from Server
+        run: |
+          scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH }} \
+          ./kubeconfig
+
+      - name: Replace Localhost IP in Kubeconfig
+        run: |
+          sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP }}:6443/' \
+          ./kubeconfig
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: '1.20.0'
+
+      - name: Deploy Service
+        env:
+          KUBECONFIG: ./kubeconfig
+        run: make deploy-${{ matrix.service }} DEPLOY_ENV=pretest
