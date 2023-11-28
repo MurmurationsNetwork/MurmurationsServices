@@ -1,215 +1,152 @@
 name: PR Workflow
-
-# Trigger the workflow on pull request events targeting the main branch.
 on:
   pull_request:
     branches:
       - main
     paths:
-      - 'cmd/**'
-      - 'services/**'
-      - 'pkg/**'
+      - cmd/**
+      - services/**
+      - pkg/**
 
 jobs:
-  # Job to run tests.
   test:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Set Up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19.5
-
       - name: Execute Tests
         run: make test
 
-  # Job to lint the code.
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Set Up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19.5
-
       - name: Run Linter
         uses: golangci/golangci-lint-action@v3
 
-  # Job to build Docker images for various services.
-  build:
-    name: Build Docker Image - ${{ matrix.service }}
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.changed_files.some(file =>
-        matrix.paths.includes(file)
-      )
-    needs: [test, lint]
+  check-exclusions:
+    name: Check Exclusions
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - service: index
-            paths:
-              - 'cmd/index/**'
-              - 'services/index/**'
-              - 'pkg/**'
-          - service: library
-            paths:
-              - 'cmd/library/**'
-              - 'services/library/**'
-              - 'pkg/**'
-          - service: geoip
-            paths:
-              - 'cmd/geoip/**'
-              - 'services/geoip/**'
-              - 'pkg/**'
-          - service: validation
-            paths:
-              - 'cmd/validation/**'
-              - 'services/validation/**'
-              - 'pkg/**'
-          - service: dataproxy
-            paths:
-              - 'services/dataproxy/**'
-              - 'pkg/**'
-          - service: nodecleaner
-            paths:
-              - 'cmd/nodecleaner/**'
-              - 'services/cronjob/nodecleaner/**'
-              - 'pkg/**'
-          - service: revalidatenode
-            paths:
-              - 'cmd/revalidatenode/**'
-              - 'services/cronjob/revalidatenode/**'
-              - 'pkg/**'
-          - service: schemaparser
-            paths:
-              - 'cmd/schemaparser/**'
-              - 'services/cronjob/schemaparser/**'
-              - 'pkg/**'
-          - service: dataproxyupdater
-            paths:
-              - 'services/cronjob/dataproxyupdater/**'
-              - 'pkg/**'
-          - service: dataproxyrefresher
-            paths:
-              - 'cmd/dataproxyrefresher/**'
-              - 'services/cronjob/dataproxyrefresher/**'
-              - 'pkg/**'
+    outputs:
+      exclude_matrix: ${{ steps.determine-exclusions.outputs.exclude_matrix }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Determine Exclusions
+        id: determine-exclusions
+        run: >
+          exclude_matrix=$(bash ./scripts/determine_exclusions.sh "${{
+          github.event.before }}" "${{ github.event.after }}")
 
+          echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
+      - name: Display Excluded Services
+        run: |
+          echo "Services to be excluded:"
+          echo "${{ steps.determine-exclusions.outputs.exclude_matrix }}"
+
+  build:
+    name: Build Docker Image - ${{ matrix.service }}
+    needs:
+      - test
+      - lint
+      - check-exclusions
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - index
+          - library
+          - geoip
+          - validation
+          - dataproxy
+          - nodecleaner
+          - revalidatenode
+          - schemaparser
+          - dataproxyupdater
+          - dataproxyrefresher
+        exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
+    steps:
+      - name: Checkout Code
+        if: matrix.service != ''
+        uses: actions/checkout@v4
       - name: DockerHub Login
+        if: matrix.service != ''
         uses: docker/login-action@v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Publish Docker Image
+        if: matrix.service != ''
         run: make docker-push-${{ matrix.service }}
 
-  # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.changed_files.some(file =>
-        matrix.paths.includes(file)
-      )
-    needs: [test, lint, build]
+    needs:
+      - test
+      - lint
+      - check-exclusions
+      - build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - service: index
-            paths:
-              - 'cmd/index/**'
-              - 'services/index/**'
-              - 'pkg/**'
-          - service: library
-            paths:
-              - 'cmd/library/**'
-              - 'services/library/**'
-              - 'pkg/**'
-          - service: geoip
-            paths:
-              - 'cmd/geoip/**'
-              - 'services/geoip/**'
-              - 'pkg/**'
-          - service: validation
-            paths:
-              - 'cmd/validation/**'
-              - 'services/validation/**'
-              - 'pkg/**'
-          - service: dataproxy
-            paths:
-              - 'services/dataproxy/**'
-              - 'pkg/**'
-          - service: nodecleaner
-            paths:
-              - 'cmd/nodecleaner/**'
-              - 'services/cronjob/nodecleaner/**'
-              - 'pkg/**'
-          - service: revalidatenode
-            paths:
-              - 'cmd/revalidatenode/**'
-              - 'services/cronjob/revalidatenode/**'
-              - 'pkg/**'
-          - service: schemaparser
-            paths:
-              - 'cmd/schemaparser/**'
-              - 'services/cronjob/schemaparser/**'
-              - 'pkg/**'
-          - service: dataproxyupdater
-            paths:
-              - 'services/cronjob/dataproxyupdater/**'
-              - 'pkg/**'
-          - service: dataproxyrefresher
-            paths:
-              - 'cmd/dataproxyrefresher/**'
-              - 'services/cronjob/dataproxyrefresher/**'
-              - 'pkg/**'
+        service:
+          - index
+          - library
+          - geoip
+          - validation
+          - dataproxy
+          - nodecleaner
+          - revalidatenode
+          - schemaparser
+          - dataproxyupdater
+          - dataproxyrefresher
+        exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
     steps:
       - name: Checkout Repository
+        if: matrix.service != ''
         uses: actions/checkout@v2
-
       - name: Setup SSH for Server Access
+        if: matrix.service != ''
         uses: webfactory/ssh-agent@v0.5.2
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Add SSH Key to Known Hosts
+        if: matrix.service != ''
         run: |
           ssh-keyscan -H ${{ env.PRETEST_SERVER_IP }} >> ~/.ssh/known_hosts
-
       - name: Copy Kubernetes Config from Server
-        run: |
-          scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH }} \
-          ./kubeconfig
-
+        if: matrix.service != ''
+        run: >
+          scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH
+          }} ./kubeconfig
       - name: Replace Localhost IP in Kubeconfig
-        run: |
-          sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP }}:6443/' \
-          ./kubeconfig
-
+        if: matrix.service != ''
+        run: >
+          sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP
+          }}:6443/' ./kubeconfig
       - uses: azure/setup-kubectl@v3
+        if: matrix.service != ''
         with:
           version: latest
         id: install
-
       - name: Deploy Service
+        if: matrix.service != ''
         env:
           KUBECONFIG: ./kubeconfig
         run: make deploy-${{ matrix.service }} DEPLOY_ENV=pretest
