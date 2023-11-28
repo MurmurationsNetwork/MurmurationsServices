@@ -5,6 +5,10 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'cmd/**'
+      - 'services/**'
+      - 'pkg/**'
 
 jobs:
   # Job to run tests.
@@ -40,40 +44,140 @@ jobs:
         uses: golangci/golangci-lint-action@v3
 
   # Job to build Docker images for various services.
-  # build:
-  #   name: Build Docker Image - ${{ matrix.service }}
-  #   needs: [test, lint]
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       service: [""]
-  #       # service: [index, library, geoip, validation, nodecleaner,
-  #       #           revalidatenode, schemaparser, dataproxy,
-  #       #           dataproxyupdater, dataproxyrefresher]
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
+  build:
+    name: Build Docker Image - ${{ matrix.service }}
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.changed_files.some(file =>
+        matrix.paths.includes(file)
+      )
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: index
+            paths:
+              - 'cmd/index/**'
+              - 'services/index/**'
+              - 'pkg/**'
+          - service: library
+            paths:
+              - 'cmd/library/**'
+              - 'services/library/**'
+              - 'pkg/**'
+          - service: geoip
+            paths:
+              - 'cmd/geoip/**'
+              - 'services/geoip/**'
+              - 'pkg/**'
+          - service: validation
+            paths:
+              - 'cmd/validation/**'
+              - 'services/validation/**'
+              - 'pkg/**'
+          - service: dataproxy
+            paths:
+              - 'services/dataproxy/**'
+              - 'pkg/**'
+          - service: nodecleaner
+            paths:
+              - 'cmd/nodecleaner/**'
+              - 'services/cronjob/nodecleaner/**'
+              - 'pkg/**'
+          - service: revalidatenode
+            paths:
+              - 'cmd/revalidatenode/**'
+              - 'services/cronjob/revalidatenode/**'
+              - 'pkg/**'
+          - service: schemaparser
+            paths:
+              - 'cmd/schemaparser/**'
+              - 'services/cronjob/schemaparser/**'
+              - 'pkg/**'
+          - service: dataproxyupdater
+            paths:
+              - 'services/cronjob/dataproxyupdater/**'
+              - 'pkg/**'
+          - service: dataproxyrefresher
+            paths:
+              - 'cmd/dataproxyrefresher/**'
+              - 'services/cronjob/dataproxyrefresher/**'
+              - 'pkg/**'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  #     - name: DockerHub Login
-  #       uses: docker/login-action@v3.0.0
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: DockerHub Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  #     - name: Publish Docker Image
-  #       run: make docker-push-${{ matrix.service }}
+      - name: Publish Docker Image
+        run: make docker-push-${{ matrix.service }}
 
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.changed_files.some(file =>
+        matrix.paths.includes(file)
+      )
     needs: [test, lint, build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [murmurations-core]
-        # service: [murmurations-core, index, library, geoip, validation,
-        #           nodecleaner, revalidatenode, schemaparser, dataproxy,
-        #           dataproxyupdater, dataproxyrefresher]
+        include:
+          - service: index
+            paths:
+              - 'cmd/index/**'
+              - 'services/index/**'
+              - 'pkg/**'
+          - service: library
+            paths:
+              - 'cmd/library/**'
+              - 'services/library/**'
+              - 'pkg/**'
+          - service: geoip
+            paths:
+              - 'cmd/geoip/**'
+              - 'services/geoip/**'
+              - 'pkg/**'
+          - service: validation
+            paths:
+              - 'cmd/validation/**'
+              - 'services/validation/**'
+              - 'pkg/**'
+          - service: dataproxy
+            paths:
+              - 'services/dataproxy/**'
+              - 'pkg/**'
+          - service: nodecleaner
+            paths:
+              - 'cmd/nodecleaner/**'
+              - 'services/cronjob/nodecleaner/**'
+              - 'pkg/**'
+          - service: revalidatenode
+            paths:
+              - 'cmd/revalidatenode/**'
+              - 'services/cronjob/revalidatenode/**'
+              - 'pkg/**'
+          - service: schemaparser
+            paths:
+              - 'cmd/schemaparser/**'
+              - 'services/cronjob/schemaparser/**'
+              - 'pkg/**'
+          - service: dataproxyupdater
+            paths:
+              - 'services/cronjob/dataproxyupdater/**'
+              - 'pkg/**'
+          - service: dataproxyrefresher
+            paths:
+              - 'cmd/dataproxyrefresher/**'
+              - 'services/cronjob/dataproxyrefresher/**'
+              - 'pkg/**'
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
@@ -100,10 +204,10 @@ jobs:
           sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP }}:6443/' \
           ./kubeconfig
 
-      - name: Setup Kubectl
-        uses: azure/setup-kubectl@v1
+      - uses: azure/setup-kubectl@v3
         with:
-          version: '1.20.0'
+          version: latest
+        id: install
 
       - name: Deploy Service
         env:
