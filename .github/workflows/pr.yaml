@@ -46,11 +46,7 @@ jobs:
   # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.changed_files.some(file =>
-        matrix.paths.includes(file)
-      )
+    if: $${{ github.event_name == 'pull_request' && github.event.pull_request.changed_files.some(file => matrix.paths.includes(file)) }}
     needs: [test, lint]
     runs-on: ubuntu-latest
     strategy:
@@ -120,11 +116,7 @@ jobs:
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.changed_files.some(file =>
-        matrix.paths.includes(file)
-      )
+    if: $${{ github.event_name == 'pull_request' && github.event.pull_request.changed_files.some(file => matrix.paths.includes(file)) }}
     needs: [test, lint, build]
     runs-on: ubuntu-latest
     strategy:
