@@ -104,47 +104,93 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 	})
 	if err != nil {
 		logger.Error("Failed to add node", err)
-
-		var validationError index.ValidationError
-		var profileFetchError core.ProfileFetchError
-		var jsonErr []jsonapi.Error
-
-		switch {
-		case errors.As(err, &validationError):
-			jsonErr = jsonapi.NewError(
-				[]string{},
-				[]string{validationError.Reason},
-				nil,
-				[]int{http.StatusBadRequest},
-			)
-		case errors.As(err, &profileFetchError):
-			jsonErr = jsonapi.NewError(
-				[]string{"Profile Not Found"},
-				[]string{
-					fmt.Sprintf(
-						"Could not find or read from (invalid JSON) the profile_url: %s",
-						req.ProfileURL,
-					),
-				},
-				nil,
-				[]int{http.StatusNotFound},
-			)
-		default:
-			jsonErr = jsonapi.NewError(
-				[]string{"Unknown Error"},
-				[]string{
-					"Error when trying to add a node. Please try again later.",
-				},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
-		}
-
-		res := jsonapi.Response(nil, jsonErr, nil, nil)
-		c.JSON(jsonErr[0].Status, res)
+		handleAddNodeErrors(err, c)
 		return
 	}
 
+	res := jsonapi.Response(ToAddNodeResponse(result), nil, nil, nil)
+	c.JSON(http.StatusOK, res)
+}
+
+func (handler *nodeHandler) AddSync(c *gin.Context) {
+	var req NodeCreateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors := jsonapi.NewError(
+			[]string{"JSON Error"},
+			[]string{"The JSON document submitted could not be parsed."},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+		res := jsonapi.Response(nil, errors, nil, nil)
+		c.JSON(errors[0].Status, res)
+		return
+	}
+
+	if err := req.Validate(); err != nil {
+		res := jsonapi.Response(nil, err, nil, nil)
+		c.JSON(err[0].Status, res)
+		return
+	}
+
+	result, err := handler.svc.AddNode(&model.Node{
+		ProfileURL: req.ProfileURL,
+	})
+	if err != nil {
+		logger.Error("Failed to add node", err)
+		handleAddNodeErrors(err, c)
+		return
+	}
+
+	// try the 1st time in 1 second, 2nd time in 2 seconds, 3rd in 4, 4th in 8, 5th in 16 seconds.
+	waitInterval := 1 * time.Second
+	retries := 5
+
+	for retries != 0 {
+		nodeInfo, err := handler.svc.GetNode(result.ID)
+		if err != nil {
+			logger.Error("Failed to get a node", err)
+			handleGetNodeErrors(err, result.ID, c)
+			return
+		}
+
+		if nodeInfo.Status == constant.NodeStatus.PostFailed {
+			meta := jsonapi.NewMeta(
+				"The system will automatically re-post the node, please check back in a minute.",
+				"",
+				"",
+			)
+			res := jsonapi.Response(ToGetNodeResponse(result), nil, nil, meta)
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		if nodeInfo.Status == constant.NodeStatus.ValidationFailed {
+			meta := jsonapi.NewMeta("", nodeInfo.ID, nodeInfo.ProfileURL)
+			errors := *nodeInfo.FailureReasons
+			res := jsonapi.Response(nil, errors, nil, meta)
+			c.JSON(errors[0].Status, res)
+			return
+		}
+
+		if nodeInfo.Status == constant.NodeStatus.Posted ||
+			nodeInfo.Status == constant.NodeStatus.Deleted {
+			res := jsonapi.Response(
+				ToGetNodeResponse(nodeInfo),
+				nil,
+				nil,
+				nil,
+			)
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		time.Sleep(waitInterval)
+		waitInterval *= 2
+		retries--
+	}
+
+	// If server can't get the node with posted or failed information, return
+	// the node id for user to get the node in the future.
 	res := jsonapi.Response(ToAddNodeResponse(result), nil, nil, nil)
 	c.JSON(http.StatusOK, res)
 }
@@ -160,42 +206,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 	node, err := handler.svc.GetNode(nodeID)
 	if err != nil {
 		logger.Error("Failed to get a node", err)
-
-		var notFoundError index.NotFoundError
-		var databaseError index.DatabaseError
-		var jsonErr []jsonapi.Error
-
-		switch {
-		case errors.As(err, &notFoundError):
-			jsonErr = jsonapi.NewError(
-				[]string{"Node Not Found"},
-				[]string{
-					fmt.Sprintf(
-						"Could not locate the following node_id in the Index: %s",
-						nodeID,
-					),
-				},
-				nil,
-				[]int{http.StatusNotFound},
-			)
-		case errors.As(err, &databaseError):
-			jsonErr = jsonapi.NewError(
-				[]string{databaseError.Message},
-				[]string{"Error while trying to delete a node."},
-				nil,
-				[]int{http.StatusNotFound},
-			)
-		default:
-			jsonErr = jsonapi.NewError(
-				[]string{"Unknown Error"},
-				[]string{},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
-		}
-
-		res := jsonapi.Response(nil, jsonErr, nil, nil)
-		c.JSON(jsonErr[0].Status, res)
+		handleGetNodeErrors(err, nodeID, c)
 		return
 	}
 
@@ -386,161 +397,6 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 		"",
 	)
 	res := jsonapi.Response(nil, nil, nil, meta)
-	c.JSON(http.StatusOK, res)
-}
-
-func (handler *nodeHandler) AddSync(c *gin.Context) {
-	var req NodeCreateRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		errors := jsonapi.NewError(
-			[]string{"JSON Error"},
-			[]string{"The JSON document submitted could not be parsed."},
-			nil,
-			[]int{http.StatusBadRequest},
-		)
-		res := jsonapi.Response(nil, errors, nil, nil)
-		c.JSON(errors[0].Status, res)
-		return
-	}
-
-	if err := req.Validate(); err != nil {
-		res := jsonapi.Response(nil, err, nil, nil)
-		c.JSON(err[0].Status, res)
-		return
-	}
-
-	result, err := handler.svc.AddNode(&model.Node{
-		ProfileURL: req.ProfileURL,
-	})
-	if err != nil {
-		logger.Error("Failed to add node", err)
-
-		var validationError index.ValidationError
-		var profileFetchError core.ProfileFetchError
-		var jsonErr []jsonapi.Error
-
-		switch {
-		case errors.As(err, &validationError):
-			jsonErr = jsonapi.NewError(
-				[]string{"Missing Required Property"},
-				[]string{validationError.Reason},
-				nil,
-				[]int{http.StatusBadRequest},
-			)
-		case errors.As(err, &profileFetchError):
-			jsonErr = jsonapi.NewError(
-				[]string{"Profile Not Found"},
-				[]string{
-					fmt.Sprintf(
-						"Could not find or read from (invalid JSON) the profile_url: %s",
-						req.ProfileURL,
-					),
-				},
-				nil,
-				[]int{http.StatusNotFound},
-			)
-		default:
-			jsonErr = jsonapi.NewError(
-				[]string{"Unknown Error"},
-				[]string{
-					"Error when trying to add a node. Please try again later.",
-				},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
-		}
-
-		res := jsonapi.Response(nil, jsonErr, nil, nil)
-		c.JSON(jsonErr[0].Status, res)
-		return
-	}
-
-	// try the 1st time in 1 second, 2nd time in 2 seconds, 3rd in 4, 4th in 8, 5th in 16 seconds.
-	waitInterval := 1 * time.Second
-	retries := 5
-
-	for retries != 0 {
-		nodeInfo, err := handler.svc.GetNode(result.ID)
-		if err != nil {
-			logger.Error("Failed to get a node", err)
-
-			var notFoundError index.NotFoundError
-			var databaseError index.DatabaseError
-			var jsonErr []jsonapi.Error
-
-			switch {
-			case errors.As(err, &notFoundError):
-				jsonErr = jsonapi.NewError(
-					[]string{"Node Not Found"},
-					[]string{
-						fmt.Sprintf(
-							"Could not locate the following node_id in the Index: %s",
-							result.ID,
-						),
-					},
-					nil,
-					[]int{http.StatusNotFound},
-				)
-			case errors.As(err, &databaseError):
-				jsonErr = jsonapi.NewError(
-					[]string{databaseError.Message},
-					[]string{"Error while trying to delete a node."},
-					nil,
-					[]int{http.StatusNotFound},
-				)
-			default:
-				jsonErr = jsonapi.NewError(
-					[]string{"Unknown Error"},
-					[]string{},
-					nil,
-					[]int{http.StatusInternalServerError},
-				)
-			}
-
-			res := jsonapi.Response(nil, jsonErr, nil, nil)
-			c.JSON(jsonErr[0].Status, res)
-			return
-		}
-
-		if nodeInfo.Status == constant.NodeStatus.PostFailed {
-			meta := jsonapi.NewMeta(
-				"The system will automatically re-post the node, please check back in a minute.",
-				"",
-				"",
-			)
-			res := jsonapi.Response(ToGetNodeResponse(result), nil, nil, meta)
-			c.JSON(http.StatusOK, res)
-			return
-		}
-
-		if nodeInfo.Status == constant.NodeStatus.ValidationFailed {
-			meta := jsonapi.NewMeta("", nodeInfo.ID, nodeInfo.ProfileURL)
-			errors := *nodeInfo.FailureReasons
-			res := jsonapi.Response(nil, errors, nil, meta)
-			c.JSON(errors[0].Status, res)
-			return
-		}
-
-		if nodeInfo.Status == constant.NodeStatus.Posted ||
-			nodeInfo.Status == constant.NodeStatus.Deleted {
-			res := jsonapi.Response(
-				ToGetNodeResponse(nodeInfo),
-				nil,
-				nil,
-				nil,
-			)
-			c.JSON(http.StatusOK, res)
-			return
-		}
-
-		time.Sleep(waitInterval)
-		waitInterval *= 2
-		retries--
-	}
-
-	// If server can't get the node with posted or failed information, return
-	// the node id for user to get the node in the future.
-	res := jsonapi.Response(ToAddNodeResponse(result), nil, nil, nil)
 	c.JSON(http.StatusOK, res)
 }
 
@@ -921,4 +777,79 @@ func checkInputIsValid(
 	}
 
 	return nil
+}
+
+func handleAddNodeErrors(err error, c *gin.Context) {
+	var validationError index.ValidationError
+	var profileFetchError core.ProfileFetchError
+	var jsonErr []jsonapi.Error
+
+	switch {
+	case errors.As(err, &validationError):
+		jsonErr = jsonapi.NewError(
+			[]string{"Validation Error"},
+			[]string{validationError.Reason},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+
+	case errors.As(err, &profileFetchError):
+		jsonErr = jsonapi.NewError(
+			[]string{"Profile Fetch Error"},
+			[]string{profileFetchError.Reason},
+			nil,
+			[]int{http.StatusNotFound},
+		)
+
+	default:
+		jsonErr = jsonapi.NewError(
+			[]string{"Unknown Error"},
+			[]string{"An unexpected error occurred. Please try again later."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+	}
+
+	res := jsonapi.Response(nil, jsonErr, nil, nil)
+	c.JSON(jsonErr[0].Status, res)
+}
+
+func handleGetNodeErrors(err error, nodeID string, c *gin.Context) {
+	var notFoundError index.NotFoundError
+	var databaseError index.DatabaseError
+	var jsonErr []jsonapi.Error
+
+	switch {
+	case errors.As(err, &notFoundError):
+		jsonErr = jsonapi.NewError(
+			[]string{"Node Not Found"},
+			[]string{
+				fmt.Sprintf(
+					"Could not locate the following node_id in the Index: %s",
+					nodeID,
+				),
+			},
+			nil,
+			[]int{http.StatusNotFound},
+		)
+
+	case errors.As(err, &databaseError):
+		jsonErr = jsonapi.NewError(
+			[]string{databaseError.Message},
+			[]string{"Error while trying to access the database."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+
+	default:
+		jsonErr = jsonapi.NewError(
+			[]string{"Unknown Error"},
+			[]string{"An unexpected error occurred. Please try again later."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+	}
+
+	res := jsonapi.Response(nil, jsonErr, nil, nil)
+	c.JSON(jsonErr[0].Status, res)
 }
