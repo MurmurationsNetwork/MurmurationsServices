@@ -44,21 +44,46 @@ func (vr *ValidationResult) AppendErrors(
 	sources [][]string,
 	status []int,
 ) {
-	for i := 0; i < len(errorMessages); i++ {
-		vr.AppendError(errorMessages[i], details[i], sources[i], status[i])
+	if vr == nil || len(errorMessages) == 0 {
+		return
+	}
+
+	for i, errorMessage := range errorMessages {
+		var detail string
+		var source []string
+		var stat int
+
+		// Use details if available.
+		if i < len(details) {
+			detail = details[i]
+		}
+
+		// Use sources if available.
+		if i < len(sources) {
+			source = sources[i]
+		}
+
+		// Use status if available.
+		if i < len(status) {
+			stat = status[i]
+		}
+
+		vr.AppendError(errorMessage, detail, source, stat)
 	}
 }
 
 // Merge combines another ValidationResult into the current one.
 func (vr *ValidationResult) Merge(other *ValidationResult) *ValidationResult {
-	if other == nil || other.Valid {
+	if vr == nil || other == nil || other.Valid {
 		return vr
 	}
+
 	vr.AppendErrors(
 		other.ErrorMessages,
 		other.Details,
 		other.Sources,
 		other.ErrorStatus,
 	)
+
 	return vr
 }
