@@ -87,15 +87,18 @@ jobs:
         exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     steps:
       - name: Checkout Code
+        if: matrix.service != ''
         uses: actions/checkout@v4
 
       - name: DockerHub Login
+        if: matrix.service != ''
         uses: docker/login-action@v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish Docker Image
+        if: matrix.service != ''
         run: make docker-push-${{ matrix.service }}
 
   # Job to deploy the application to Kubernetes.
@@ -122,33 +125,40 @@ jobs:
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
     steps:
       - name: Checkout Repository
+        if: matrix.service != ''
         uses: actions/checkout@v2
 
       - name: Setup SSH for Server Access
+        if: matrix.service != ''
         uses: webfactory/ssh-agent@v0.5.2
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add SSH Key to Known Hosts
+        if: matrix.service != ''
         run: |
           ssh-keyscan -H ${{ env.PRETEST_SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Copy Kubernetes Config from Server
+        if: matrix.service != ''
         run: |
           scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH }} \
           ./kubeconfig
 
       - name: Replace Localhost IP in Kubeconfig
+        if: matrix.service != ''
         run: |
           sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP }}:6443/' \
           ./kubeconfig
 
       - uses: azure/setup-kubectl@v3
+        if: matrix.service != ''
         with:
           version: latest
         id: install
 
       - name: Deploy Service
+        if: matrix.service != ''
         env:
           KUBECONFIG: ./kubeconfig
         run: make deploy-${{ matrix.service }} DEPLOY_ENV=pretest
