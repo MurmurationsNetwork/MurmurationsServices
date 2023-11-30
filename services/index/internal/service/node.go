@@ -13,8 +13,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/repository/es"
@@ -119,19 +117,6 @@ func (s *nodeService) AddNode(
 	if err == nil && oldNode.Status == constant.NodeStatus.Deleted {
 		isValid := httputil.IsValidURL(node.ProfileURL)
 		if !isValid {
-			return oldNode, nil
-		}
-	}
-
-	// Handle the case where oldNode is found and profile hash is the same.
-	if err == nil {
-		newHash, err := profilehasher.
-			New(node.ProfileURL, config.Values.Library.InternalURL).
-			Hash()
-		if err != nil {
-			return nil, err
-		}
-		if oldNode.ProfileHash != nil && *oldNode.ProfileHash == newHash {
 			return oldNode, nil
 		}
 	}
