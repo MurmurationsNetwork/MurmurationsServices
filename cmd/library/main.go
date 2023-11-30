@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	logger.Info("Library service starting...")
+	logger.Info("Library service starting")
 
 	s := library.NewService()
 
