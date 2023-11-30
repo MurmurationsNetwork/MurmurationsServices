@@ -104,7 +104,6 @@ jobs:
   # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    if: ${{ needs.check-changes.outputs[join(matrix.service, '_changes_detected')] == 'true' }}
     needs: [test, lint, check-changes]
     runs-on: ubuntu-latest
     strategy:
@@ -120,6 +119,7 @@ jobs:
           # - schemaparser
           # - dataproxyupdater
           # - dataproxyrefresher
+    if: ${{ needs.check-changes.outputs[join(matrix.service, '_changes_detected')] == 'true' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -136,7 +136,6 @@ jobs:
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: ${{ needs.check-changes.outputs[join(matrix.service, '_changes_detected')] == 'true' }}
     needs: [test, lint, check-changes, build]
     runs-on: ubuntu-latest
     strategy:
@@ -152,6 +151,7 @@ jobs:
           # - schemaparser
           # - dataproxyupdater
           # - dataproxyrefresher
+    if: ${{ needs.check-changes.outputs[join(matrix.service, '_changes_detected')] == 'true' }}
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
