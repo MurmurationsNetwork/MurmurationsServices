@@ -103,17 +103,7 @@ jobs:
   # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    if: >
-      (matrix.service == 'index' && needs.check-changes.outputs.index_changes_detected == 'true') ||
-      (matrix.service == 'library' && needs.check-changes.outputs.library_changes_detected == 'true') ||
-      (matrix.service == 'geoip' && needs.check-changes.outputs.geoip_changes_detected == 'true') ||
-      (matrix.service == 'validation' && needs.check-changes.outputs.validation_changes_detected == 'true') ||
-      (matrix.service == 'dataproxy' && needs.check-changes.outputs.dataproxy_changes_detected == 'true') ||
-      (matrix.service == 'nodecleaner' && needs.check-changes.outputs.nodecleaner_changes_detected == 'true') ||
-      (matrix.service == 'revalidatenode' && needs.check-changes.outputs.revalidatenode_changes_detected == 'true') ||
-      (matrix.service == 'schemaparser' && needs.check-changes.outputs.schemaparser_changes_detected == 'true') ||
-      (matrix.service == 'dataproxyupdater' && needs.check-changes.outputs.dataproxyupdater_changes_detected == 'true') ||
-      (matrix.service == 'dataproxyrefresher' && needs.check-changes.outputs.dataproxyrefresher_changes_detected == 'true')
+    if: ${{ needs.check-changes.outputs[matrix.service + '_changes_detected'] == 'true' }}
     needs: [test, lint, check-changes]
     runs-on: ubuntu-latest
     strategy:
@@ -145,17 +135,7 @@ jobs:
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: >
-      (matrix.service == 'index' && needs.check-changes.outputs.index_changes_detected == 'true') ||
-      (matrix.service == 'library' && needs.check-changes.outputs.library_changes_detected == 'true') ||
-      (matrix.service == 'geoip' && needs.check-changes.outputs.geoip_changes_detected == 'true') ||
-      (matrix.service == 'validation' && needs.check-changes.outputs.validation_changes_detected == 'true') ||
-      (matrix.service == 'dataproxy' && needs.check-changes.outputs.dataproxy_changes_detected == 'true') ||
-      (matrix.service == 'nodecleaner' && needs.check-changes.outputs.nodecleaner_changes_detected == 'true') ||
-      (matrix.service == 'revalidatenode' && needs.check-changes.outputs.revalidatenode_changes_detected == 'true') ||
-      (matrix.service == 'schemaparser' && needs.check-changes.outputs.schemaparser_changes_detected == 'true') ||
-      (matrix.service == 'dataproxyupdater' && needs.check-changes.outputs.dataproxyupdater_changes_detected == 'true') ||
-      (matrix.service == 'dataproxyrefresher' && needs.check-changes.outputs.dataproxyrefresher_changes_detected == 'true')
+    if: ${{ needs.check-changes.outputs[matrix.service + '_changes_detected'] == 'true' }}
     needs: [test, lint, check-changes, build]
     runs-on: ubuntu-latest
     strategy:
