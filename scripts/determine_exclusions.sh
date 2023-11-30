@@ -1,37 +1,40 @@
 #!/bin/bash
 
 # This script determines which services should be excluded from actions like
-# rebuild images or deployments based on the latest commit changes.
+# rebuilding images or deployments based on the changes in the latest commit.
 
-# These arguments are passed from the workflow.
+# Arguments passed from the workflow: previous and current commit SHAs.
 BEFORE_COMMIT=$1
 AFTER_COMMIT=$2
 
-# Associative array mapping services to their respective path patterns.
-declare -A paths_to_check=(
-    ["index"]="cmd/index/ services/index/ pkg/"
-    ["library"]="cmd/library/ services/library/ pkg/"
-    ["geoip"]="cmd/geoip/ services/geoip/ pkg/"
-    ["validation"]="cmd/validation/ services/validation/ pkg/"
-    ["dataproxy"]="services/dataproxy/ pkg/"
-    ["nodecleaner"]="cmd/nodecleaner/ services/cronjob/nodecleaner/ pkg/"
-    ["revalidatenode"]="cmd/revalidatenode/ services/cronjob/revalidatenode/ pkg/"
-    ["schemaparser"]="cmd/schemaparser/ services/cronjob/schemaparser/ pkg/"
-    ["dataproxyupdater"]="services/cronjob/dataproxyupdater/ pkg/"
-    ["dataproxyrefresher"]="cmd/dataproxyrefresher/ services/cronjob/dataproxyrefresher/ pkg/"
+# Associative array mapping services to their directory patterns.
+# Each service is associated with directories and files it depends on.
+declare -A SERVICE_PATHS=(
+    ["index"]="go.mod pkg/ cmd/index/ services/index/"
+    ["library"]="go.mod pkg/ cmd/library/ services/library/"
+    ["geoip"]="go.mod pkg/ cmd/geoip/ services/geoip/"
+    ["validation"]="go.mod pkg/ cmd/validation/ services/validation/"
+    ["dataproxy"]="go.mod pkg/ services/dataproxy/"
+    ["nodecleaner"]="go.mod pkg/ cmd/nodecleaner/ services/cronjob/nodecleaner/"
+    ["revalidatenode"]="go.mod pkg/ cmd/revalidatenode/ services/cronjob/revalidatenode/"
+    ["schemaparser"]="go.mod pkg/ cmd/schemaparser/ services/cronjob/schemaparser/"
+    ["dataproxyupdater"]="go.mod pkg/ services/cronjob/dataproxyupdater/"
+    ["dataproxyrefresher"]="go.mod pkg/ cmd/dataproxyrefresher/ services/cronjob/dataproxyrefresher/"
 )
 
-# Array to hold services with no changes detected.
-exclude_services=()
-
-# Function to check if changes are detected for a service.
-function check_changes_for_service() {
-    local service_paths=${paths_to_check[$1]}
+# Function to check if any files changed for a service.
+# It iterates over changed files and checks if they match any service path.
+check_changes_for_service() {
+    local service=$1
+    local service_paths=${SERVICE_PATHS[$service]}
     local changes_detected=false
 
-    for file in $(git diff --name-only $BEFORE_COMMIT $AFTER_COMMIT); do
+    # Get the list of changed files between two commits.
+    local changed_files=$(git diff --name-only "$BEFORE_COMMIT" "$AFTER_COMMIT")
+
+    for file in $changed_files; do
         for path in $service_paths; do
-            if echo "$file" | grep -q "^$path"; then
+            if [[ "$file" == $path* ]]; then
                 changes_detected=true
                 break 2
             fi
@@ -41,13 +44,20 @@ function check_changes_for_service() {
     echo $changes_detected
 }
 
-# Check each service and build the exclusion list.
-for service in "${!paths_to_check[@]}"; do
-    if [[ $(check_changes_for_service $service) == "false" ]]; then
-        exclude_services+=("{\"service\": \"$service\"}")
-    fi
-done
+# Main function to determine services to exclude based on changes.
+main() {
+    local exclude_services=()
 
-# Convert the exclusion list to a JSON array and output it.
-printf -v joined '%s,' "${exclude_services[@]}"
-echo "[${joined%,}]"
+    for service in "${!SERVICE_PATHS[@]}"; do
+        if [[ $(check_changes_for_service "$service") == "false" ]]; then
+            exclude_services+=("{\"service\": \"$service\"}")
+        fi
+    done
+
+    # Convert the exclusion list to a JSON array and output it.
+    printf -v joined '%s,' "${exclude_services[@]}"
+    echo "[${joined%,}]"
+}
+
+# Execute the main function.
+main
