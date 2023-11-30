@@ -3,6 +3,10 @@
 # This script determines which services should be excluded from actions like
 # rebuild images or deployments based on the latest commit changes.
 
+# These arguments are passed from the workflow.
+BEFORE_COMMIT=$1
+AFTER_COMMIT=$2
+
 # Associative array mapping services to their respective path patterns.
 declare -A paths_to_check=(
     ["index"]="cmd/index/ services/index/ pkg/"
@@ -25,7 +29,7 @@ function check_changes_for_service() {
     local service_paths=${paths_to_check[$1]}
     local changes_detected=false
 
-    for file in $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }}); do
+    for file in $(git diff --name-only $BEFORE_COMMIT $AFTER_COMMIT); do
         for path in $service_paths; do
             if echo "$file" | grep -q "^$path"; then
                 changes_detected=true

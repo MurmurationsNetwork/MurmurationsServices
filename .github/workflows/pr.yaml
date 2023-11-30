@@ -55,7 +55,7 @@ jobs:
       - name: Determine Exclusions
         id: determine-exclusions
         run: |
-          exclude_matrix=$(bash ./scripts/determine_exclusions.sh)
+          exclude_matrix=$(bash ./scripts/determine_exclusions.sh "${{ github.event.before }}" "${{ github.event.after }}")
           echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
 
       - name: Display Excluded Services
