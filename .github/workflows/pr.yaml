@@ -1,48 +1,39 @@
 name: PR Workflow
-
-# Trigger the workflow on pull request events targeting the main branch.
 on:
   pull_request:
     branches:
       - main
     paths:
-      - "cmd/**"
-      - "services/**"
-      - "pkg/**"
+      - cmd/**
+      - services/**
+      - pkg/**
 
 jobs:
-  # Job to run tests.
   test:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Set Up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19.5
-
       - name: Execute Tests
         run: make test
 
-  # Job to lint the code.
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Set Up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19.5
-
       - name: Run Linter
         uses: golangci/golangci-lint-action@v3
-
   check-exclusions:
     name: Check Exclusions
     runs-on: ubuntu-latest
@@ -52,73 +43,75 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          # fetches all history for all branches and tags.
           fetch-depth: 0
-
       - name: Determine Exclusions
         id: determine-exclusions
-        run: |
-          exclude_matrix=$(bash ./scripts/determine_exclusions.sh "${{ github.event.before }}" "${{ github.event.after }}")
-          echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
+        run: >
+          exclude_matrix=$(bash ./scripts/determine_exclusions.sh "${{
+          github.event.before }}" "${{ github.event.after }}")
 
+          echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
       - name: Display Excluded Services
         run: |
           echo "Services to be excluded:"
           echo "${{ steps.determine-exclusions.outputs.exclude_matrix }}"
 
-  # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    needs: [test, lint, check-exclusions]
+    needs:
+      - test
+      - lint
+      - check-exclusions
     runs-on: ubuntu-latest
     strategy:
       matrix:
         service:
-          # - index
+          - index
           - library
-          # - geoip
-          # - validation
-          # - dataproxy
-          # - nodecleaner
-          # - revalidatenode
-          # - schemaparser
-          # - dataproxyupdater
-          # - dataproxyrefresher
+          - geoip
+          - validation
+          - dataproxy
+          - nodecleaner
+          - revalidatenode
+          - schemaparser
+          - dataproxyupdater
+          - dataproxyrefresher
         exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     steps:
       - name: Checkout Code
         if: matrix.service != ''
         uses: actions/checkout@v4
-
       - name: DockerHub Login
         if: matrix.service != ''
         uses: docker/login-action@v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Publish Docker Image
         if: matrix.service != ''
         run: make docker-push-${{ matrix.service }}
 
-  # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    needs: [test, lint, check-exclusions, build]
+    needs:
+      - test
+      - lint
+      - check-exclusions
+      - build
     runs-on: ubuntu-latest
     strategy:
       matrix:
         service:
-          # - index
+          - index
           - library
-          # - geoip
-          # - validation
-          # - dataproxy
-          # - nodecleaner
-          # - revalidatenode
-          # - schemaparser
-          # - dataproxyupdater
-          # - dataproxyrefresher
+          - geoip
+          - validation
+          - dataproxy
+          - nodecleaner
+          - revalidatenode
+          - schemaparser
+          - dataproxyupdater
+          - dataproxyrefresher
         exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
@@ -127,36 +120,30 @@ jobs:
       - name: Checkout Repository
         if: matrix.service != ''
         uses: actions/checkout@v2
-
       - name: Setup SSH for Server Access
         if: matrix.service != ''
         uses: webfactory/ssh-agent@v0.5.2
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Add SSH Key to Known Hosts
         if: matrix.service != ''
         run: |
           ssh-keyscan -H ${{ env.PRETEST_SERVER_IP }} >> ~/.ssh/known_hosts
-
       - name: Copy Kubernetes Config from Server
         if: matrix.service != ''
-        run: |
-          scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH }} \
-          ./kubeconfig
-
+        run: >
+          scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH
+          }} ./kubeconfig
       - name: Replace Localhost IP in Kubeconfig
         if: matrix.service != ''
-        run: |
-          sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP }}:6443/' \
-          ./kubeconfig
-
+        run: >
+          sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP
+          }}:6443/' ./kubeconfig
       - uses: azure/setup-kubectl@v3
         if: matrix.service != ''
         with:
           version: latest
         id: install
-
       - name: Deploy Service
         if: matrix.service != ''
         env:
