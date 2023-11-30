@@ -6,9 +6,9 @@ on:
     branches:
       - main
     paths:
-      - 'cmd/**'
-      - 'services/**'
-      - 'pkg/**'
+      - "cmd/**"
+      - "services/**"
+      - "pkg/**"
 
 jobs:
   # Job to run tests.
@@ -43,63 +43,92 @@ jobs:
       - name: Run Linter
         uses: golangci/golangci-lint-action@v3
 
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      index_changes_detected: ${{ steps.check_index_changes.outputs.index_changes_detected }}
+      library_changes_detected: ${{ steps.check_library_changes.outputs.library_changes_detected }}
+      geoip_changes_detected: ${{ steps.check_geoip_changes.outputs.geoip_changes_detected }}
+      validation_changes_detected: ${{ steps.check_validation_changes.outputs.validation_changes_detected }}
+      dataproxy_changes_detected: ${{ steps.check_dataproxy_changes.outputs.dataproxy_changes_detected }}
+      nodecleaner_changes_detected: ${{ steps.check_nodecleaner_changes.outputs.nodecleaner_changes_detected }}
+      revalidatenode_changes_detected: ${{ steps.check_revalidatenode_changes.outputs.revalidatenode_changes_detected }}
+      schemaparser_changes_detected: ${{ steps.check_schemaparser_changes.outputs.schemaparser_changes_detected }}
+      dataproxyupdater_changes_detected: ${{ steps.check_dataproxyupdater_changes.outputs.dataproxyupdater_changes_detected }}
+      dataproxyrefresher_changes_detected: ${{ steps.check_dataproxyrefresher_changes.outputs.dataproxyrefresher_changes_detected }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check for Path Changes - Index Service
+        id: check_index_changes
+        run: bash ./scripts/check-path-changes.sh index
+
+      - name: Check for Path Changes - Library Service
+        id: check_library_changes
+        run: bash ./scripts/check-path-changes.sh library
+
+      - name: Check for Path Changes - GeoIP Service
+        id: check_geoip_changes
+        run: bash ./scripts/check-path-changes.sh geoip
+
+      - name: Check for Path Changes - Validation Service
+        id: check_validation_changes
+        run: bash ./scripts/check-path-changes.sh validation
+
+      - name: Check for Path Changes - DataProxy Service
+        id: check_dataproxy_changes
+        run: bash ./scripts/check-path-changes.sh dataproxy
+
+      - name: Check for Path Changes - NodeCleaner Service
+        id: check_nodecleaner_changes
+        run: bash ./scripts/check-path-changes.sh nodecleaner
+
+      - name: Check for Path Changes - RevalidateNode Service
+        id: check_revalidatenode_changes
+        run: bash ./scripts/check-path-changes.sh revalidatenode
+
+      - name: Check for Path Changes - SchemaParser Service
+        id: check_schemaparser_changes
+        run: bash ./scripts/check-path-changes.sh schemaparser
+
+      - name: Check for Path Changes - DataProxyUpdater Service
+        id: check_dataproxyupdater_changes
+        run: bash ./scripts/check-path-changes.sh dataproxyupdater
+
+      - name: Check for Path Changes - DataProxyRefresher Service
+        id: check_dataproxyrefresher_changes
+        run: bash ./scripts/check-path-changes.sh dataproxyrefresher
+
   # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    if: $${{ github.event_name == 'pull_request' && github.event.pull_request.changed_files.some(file => matrix.paths.includes(file)) }}
-    needs: [test, lint]
+    if: >
+      (matrix.service == 'index' && needs.check-changes.outputs.index_changes_detected == 'true') ||
+      (matrix.service == 'library' && needs.check-changes.outputs.library_changes_detected == 'true') ||
+      (matrix.service == 'geoip' && needs.check-changes.outputs.geoip_changes_detected == 'true') ||
+      (matrix.service == 'validation' && needs.check-changes.outputs.validation_changes_detected == 'true') ||
+      (matrix.service == 'dataproxy' && needs.check-changes.outputs.dataproxy_changes_detected == 'true') ||
+      (matrix.service == 'nodecleaner' && needs.check-changes.outputs.nodecleaner_changes_detected == 'true') ||
+      (matrix.service == 'revalidatenode' && needs.check-changes.outputs.revalidatenode_changes_detected == 'true') ||
+      (matrix.service == 'schemaparser' && needs.check-changes.outputs.schemaparser_changes_detected == 'true') ||
+      (matrix.service == 'dataproxyupdater' && needs.check-changes.outputs.dataproxyupdater_changes_detected == 'true') ||
+      (matrix.service == 'dataproxyrefresher' && needs.check-changes.outputs.dataproxyrefresher_changes_detected == 'true')
+    needs: [test, lint, check-changes]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          - service: index
-            paths:
-              - 'cmd/index/**'
-              - 'services/index/**'
-              - 'pkg/**'
+          # - service: index
           - service: library
-            paths:
-              - 'cmd/library/**'
-              - 'services/library/**'
-              - 'pkg/**'
-          - service: geoip
-            paths:
-              - 'cmd/geoip/**'
-              - 'services/geoip/**'
-              - 'pkg/**'
-          - service: validation
-            paths:
-              - 'cmd/validation/**'
-              - 'services/validation/**'
-              - 'pkg/**'
-          - service: dataproxy
-            paths:
-              - 'services/dataproxy/**'
-              - 'pkg/**'
-          - service: nodecleaner
-            paths:
-              - 'cmd/nodecleaner/**'
-              - 'services/cronjob/nodecleaner/**'
-              - 'pkg/**'
-          - service: revalidatenode
-            paths:
-              - 'cmd/revalidatenode/**'
-              - 'services/cronjob/revalidatenode/**'
-              - 'pkg/**'
-          - service: schemaparser
-            paths:
-              - 'cmd/schemaparser/**'
-              - 'services/cronjob/schemaparser/**'
-              - 'pkg/**'
-          - service: dataproxyupdater
-            paths:
-              - 'services/cronjob/dataproxyupdater/**'
-              - 'pkg/**'
-          - service: dataproxyrefresher
-            paths:
-              - 'cmd/dataproxyrefresher/**'
-              - 'services/cronjob/dataproxyrefresher/**'
-              - 'pkg/**'
+          # - service: geoip
+          # - service: validation
+          # - service: dataproxy
+          # - service: nodecleaner
+          # - service: revalidatenode
+          # - service: schemaparser
+          # - service: dataproxyupdater
+          # - service: dataproxyrefresher
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -116,60 +145,32 @@ jobs:
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: $${{ github.event_name == 'pull_request' && github.event.pull_request.changed_files.some(file => matrix.paths.includes(file)) }}
-    needs: [test, lint, build]
+    if: >
+      (matrix.service == 'index' && needs.check-changes.outputs.index_changes_detected == 'true') ||
+      (matrix.service == 'library' && needs.check-changes.outputs.library_changes_detected == 'true') ||
+      (matrix.service == 'geoip' && needs.check-changes.outputs.geoip_changes_detected == 'true') ||
+      (matrix.service == 'validation' && needs.check-changes.outputs.validation_changes_detected == 'true') ||
+      (matrix.service == 'dataproxy' && needs.check-changes.outputs.dataproxy_changes_detected == 'true') ||
+      (matrix.service == 'nodecleaner' && needs.check-changes.outputs.nodecleaner_changes_detected == 'true') ||
+      (matrix.service == 'revalidatenode' && needs.check-changes.outputs.revalidatenode_changes_detected == 'true') ||
+      (matrix.service == 'schemaparser' && needs.check-changes.outputs.schemaparser_changes_detected == 'true') ||
+      (matrix.service == 'dataproxyupdater' && needs.check-changes.outputs.dataproxyupdater_changes_detected == 'true') ||
+      (matrix.service == 'dataproxyrefresher' && needs.check-changes.outputs.dataproxyrefresher_changes_detected == 'true')
+    needs: [test, lint, check-changes, build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          - service: index
-            paths:
-              - 'cmd/index/**'
-              - 'services/index/**'
-              - 'pkg/**'
+          # - service: index
           - service: library
-            paths:
-              - 'cmd/library/**'
-              - 'services/library/**'
-              - 'pkg/**'
-          - service: geoip
-            paths:
-              - 'cmd/geoip/**'
-              - 'services/geoip/**'
-              - 'pkg/**'
-          - service: validation
-            paths:
-              - 'cmd/validation/**'
-              - 'services/validation/**'
-              - 'pkg/**'
-          - service: dataproxy
-            paths:
-              - 'services/dataproxy/**'
-              - 'pkg/**'
-          - service: nodecleaner
-            paths:
-              - 'cmd/nodecleaner/**'
-              - 'services/cronjob/nodecleaner/**'
-              - 'pkg/**'
-          - service: revalidatenode
-            paths:
-              - 'cmd/revalidatenode/**'
-              - 'services/cronjob/revalidatenode/**'
-              - 'pkg/**'
-          - service: schemaparser
-            paths:
-              - 'cmd/schemaparser/**'
-              - 'services/cronjob/schemaparser/**'
-              - 'pkg/**'
-          - service: dataproxyupdater
-            paths:
-              - 'services/cronjob/dataproxyupdater/**'
-              - 'pkg/**'
-          - service: dataproxyrefresher
-            paths:
-              - 'cmd/dataproxyrefresher/**'
-              - 'services/cronjob/dataproxyrefresher/**'
-              - 'pkg/**'
+          # - service: geoip
+          # - service: validation
+          # - service: dataproxy
+          # - service: nodecleaner
+          # - service: revalidatenode
+          # - service: schemaparser
+          # - service: dataproxyupdater
+          # - service: dataproxyrefresher
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
