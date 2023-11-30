@@ -118,17 +118,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          # - service: index
-          - service: library
-          # - service: geoip
-          # - service: validation
-          # - service: dataproxy
-          # - service: nodecleaner
-          # - service: revalidatenode
-          # - service: schemaparser
-          # - service: dataproxyupdater
-          # - service: dataproxyrefresher
+        services:
+          # - index
+          - library
+          # - geoip
+          # - validation
+          # - dataproxy
+          # - nodecleaner
+          # - revalidatenode
+          # - schemaparser
+          # - dataproxyupdater
+          # - dataproxyrefresher
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -160,17 +160,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          # - service: index
-          - service: library
-          # - service: geoip
-          # - service: validation
-          # - service: dataproxy
-          # - service: nodecleaner
-          # - service: revalidatenode
-          # - service: schemaparser
-          # - service: dataproxyupdater
-          # - service: dataproxyrefresher
+        services:
+          # - index
+          - library
+          # - geoip
+          # - validation
+          # - dataproxy
+          # - nodecleaner
+          # - revalidatenode
+          # - schemaparser
+          # - dataproxyupdater
+          # - dataproxyrefresher
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
