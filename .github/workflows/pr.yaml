@@ -103,7 +103,7 @@ jobs:
   # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    if: ${{ needs.check-changes.outputs[matrix.service + '_changes_detected'] == 'true' }}
+    if: needs.check-changes.outputs[matrix.service + '_changes_detected'] == 'true'
     needs: [test, lint, check-changes]
     runs-on: ubuntu-latest
     strategy:
@@ -135,7 +135,7 @@ jobs:
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: ${{ needs.check-changes.outputs[matrix.service + '_changes_detected'] == 'true' }}
+    if: needs.check-changes.outputs[matrix.service + '_changes_detected'] == 'true'
     needs: [test, lint, check-changes, build]
     runs-on: ubuntu-latest
     strategy:
