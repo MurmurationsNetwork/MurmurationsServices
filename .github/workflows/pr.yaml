@@ -51,6 +51,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          # fetches all history for all branches and tags.
+          fetch-depth: 0
 
       - name: Determine Exclusions
         id: determine-exclusions
