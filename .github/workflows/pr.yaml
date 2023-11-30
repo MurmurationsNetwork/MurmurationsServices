@@ -43,78 +43,29 @@ jobs:
       - name: Run Linter
         uses: golangci/golangci-lint-action@v3
 
-  check-changes:
-    name: Check Changes
+  check-exclusions:
+    name: Check Exclusions
     runs-on: ubuntu-latest
     outputs:
-      index_changes_detected: ${{ steps.check_index_changes.outputs.index_changes_detected }}
-      library_changes_detected: ${{ steps.check_library_changes.outputs.library_changes_detected }}
-      geoip_changes_detected: ${{ steps.check_geoip_changes.outputs.geoip_changes_detected }}
-      validation_changes_detected: ${{ steps.check_validation_changes.outputs.validation_changes_detected }}
-      dataproxy_changes_detected: ${{ steps.check_dataproxy_changes.outputs.dataproxy_changes_detected }}
-      nodecleaner_changes_detected: ${{ steps.check_nodecleaner_changes.outputs.nodecleaner_changes_detected }}
-      revalidatenode_changes_detected: ${{ steps.check_revalidatenode_changes.outputs.revalidatenode_changes_detected }}
-      schemaparser_changes_detected: ${{ steps.check_schemaparser_changes.outputs.schemaparser_changes_detected }}
-      dataproxyupdater_changes_detected: ${{ steps.check_dataproxyupdater_changes.outputs.dataproxyupdater_changes_detected }}
-      dataproxyrefresher_changes_detected: ${{ steps.check_dataproxyrefresher_changes.outputs.dataproxyrefresher_changes_detected }}
+      exclude_matrix: ${{ steps.determine-exclusions.outputs.exclude_matrix }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Check for Path Changes - Index Service
-        id: check_index_changes
-        run: bash ./scripts/check-path-changes.sh index
+      - name: Determine Exclusions
+        id: determine-exclusions
+        run: |
+          exclude_matrix=$(bash ./scripts/determine_exclusions.sh)
+          echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
 
-      - name: Check for Path Changes - Library Service
-        id: check_library_changes
-        run: bash ./scripts/check-path-changes.sh library
-
-      - name: Check for Path Changes - GeoIP Service
-        id: check_geoip_changes
-        run: bash ./scripts/check-path-changes.sh geoip
-
-      - name: Check for Path Changes - Validation Service
-        id: check_validation_changes
-        run: bash ./scripts/check-path-changes.sh validation
-
-      - name: Check for Path Changes - DataProxy Service
-        id: check_dataproxy_changes
-        run: bash ./scripts/check-path-changes.sh dataproxy
-
-      - name: Check for Path Changes - NodeCleaner Service
-        id: check_nodecleaner_changes
-        run: bash ./scripts/check-path-changes.sh nodecleaner
-
-      - name: Check for Path Changes - RevalidateNode Service
-        id: check_revalidatenode_changes
-        run: bash ./scripts/check-path-changes.sh revalidatenode
-
-      - name: Check for Path Changes - SchemaParser Service
-        id: check_schemaparser_changes
-        run: bash ./scripts/check-path-changes.sh schemaparser
-
-      - name: Check for Path Changes - DataProxyUpdater Service
-        id: check_dataproxyupdater_changes
-        run: bash ./scripts/check-path-changes.sh dataproxyupdater
-
-      - name: Check for Path Changes - DataProxyRefresher Service
-        id: check_dataproxyrefresher_changes
-        run: bash ./scripts/check-path-changes.sh dataproxyrefresher
+      - name: Display Excluded Services
+        run: |
+          echo "Services to be excluded:"
+          echo "${{ steps.determine-exclusions.outputs.exclude_matrix }}"
 
   # Job to build Docker images for various services.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    if: >
-        ${{ (matrix.service == 'index' && needs.check-changes.outputs.index_changes_detected == 'true') ||
-        (matrix.service == 'library' && needs.check-changes.outputs.library_changes_detected == 'true') ||
-        (matrix.service == 'geoip' && needs.check-changes.outputs.geoip_changes_detected == 'true') ||
-        (matrix.service == 'validation' && needs.check-changes.outputs.validation_changes_detected == 'true') ||
-        (matrix.service == 'dataproxy' && needs.check-changes.outputs.dataproxy_changes_detected == 'true') ||
-        (matrix.service == 'nodecleaner' && needs.check-changes.outputs.nodecleaner_changes_detected == 'true') ||
-        (matrix.service == 'revalidatenode' && needs.check-changes.outputs.revalidatenode_changes_detected == 'true') ||
-        (matrix.service == 'schemaparser' && needs.check-changes.outputs.schemaparser_changes_detected == 'true') ||
-        (matrix.service == 'dataproxyupdater' && needs.check-changes.outputs.dataproxyupdater_changes_detected == 'true') ||
-        (matrix.service == 'dataproxyrefresher' && needs.check-changes.outputs.dataproxyrefresher_changes_detected == 'true') }}
     needs: [test, lint, check-changes]
     runs-on: ubuntu-latest
     strategy:
@@ -130,6 +81,7 @@ jobs:
           # - schemaparser
           # - dataproxyupdater
           # - dataproxyrefresher
+        exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -146,17 +98,6 @@ jobs:
   # Job to deploy the application to Kubernetes.
   deploy:
     name: Deploy Service - ${{ matrix.service }}
-    if: >
-        ${{ (matrix.service == 'index' && needs.check-changes.outputs.index_changes_detected == 'true') ||
-        (matrix.service == 'library' && needs.check-changes.outputs.library_changes_detected == 'true') ||
-        (matrix.service == 'geoip' && needs.check-changes.outputs.geoip_changes_detected == 'true') ||
-        (matrix.service == 'validation' && needs.check-changes.outputs.validation_changes_detected == 'true') ||
-        (matrix.service == 'dataproxy' && needs.check-changes.outputs.dataproxy_changes_detected == 'true') ||
-        (matrix.service == 'nodecleaner' && needs.check-changes.outputs.nodecleaner_changes_detected == 'true') ||
-        (matrix.service == 'revalidatenode' && needs.check-changes.outputs.revalidatenode_changes_detected == 'true') ||
-        (matrix.service == 'schemaparser' && needs.check-changes.outputs.schemaparser_changes_detected == 'true') ||
-        (matrix.service == 'dataproxyupdater' && needs.check-changes.outputs.dataproxyupdater_changes_detected == 'true') ||
-        (matrix.service == 'dataproxyrefresher' && needs.check-changes.outputs.dataproxyrefresher_changes_detected == 'true') }}
     needs: [test, lint, check-changes, build]
     runs-on: ubuntu-latest
     strategy:
@@ -172,6 +113,7 @@ jobs:
           # - schemaparser
           # - dataproxyupdater
           # - dataproxyrefresher
+        exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
