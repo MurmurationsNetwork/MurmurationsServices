@@ -25,13 +25,6 @@ spec:
       containers:
         - name: data-proxy-app
           image: {{ .Values.image }}
-          resources:
-            requests:
-              memory: "32Mi"
-              cpu: "8m"
-            limits:
-              memory: "64Mi"
-              cpu: "16m"
           envFrom:
             - configMapRef:
                 name: data-proxy-app-config

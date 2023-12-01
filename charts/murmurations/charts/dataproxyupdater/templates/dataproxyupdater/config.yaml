@@ -19,8 +19,6 @@ data:
     "https://test-data-proxy.murmurations.network"
     {{- else if $isPretest }}
     "https://pretest1-data-proxy.murmurations.network"
-    {{- else if $isDev }}
-    "http://dev-data-proxy.murmurations.network"
     {{- else }}
     "http://data-proxy-app:8080"
     {{- end }}

@@ -24,11 +24,6 @@ spec:
       containers:
       - name: data-proxy-mongo
         image: mongo:5.0.6
-        resources:
-          requests:
-            cpu: "8m"
-          limits:
-            cpu: "16m"
         # Volume mounts are not required for the development environment
         {{- if not $isDev }}
         volumeMounts:

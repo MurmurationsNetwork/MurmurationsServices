@@ -125,12 +125,9 @@ func (s *nodeService) AddNode(
 
 	// Handle the case where oldNode is found and profile hash is the same.
 	if err == nil {
-		newHash, err := profilehasher.
+		newHash, _ := profilehasher.
 			New(node.ProfileURL, config.Values.Library.InternalURL).
 			Hash()
-		if err != nil {
-			return nil, err
-		}
 		if oldNode.ProfileHash != nil && *oldNode.ProfileHash == newHash {
 			return oldNode, nil
 		}

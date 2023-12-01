@@ -7,7 +7,6 @@
 # StatefulSet manages stateful applications, providing stable persistent storage
 # and unique network identifiers.
 apiVersion: apps/v1
-apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: index-es-cluster
