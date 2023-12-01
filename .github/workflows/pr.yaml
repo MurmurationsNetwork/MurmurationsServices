@@ -125,7 +125,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup SSH for Server Access
         if: matrix.service != ''
-        uses: webfactory/ssh-agent@v0.5.2
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Add SSH Key to Known Hosts
