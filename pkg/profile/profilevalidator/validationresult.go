@@ -44,31 +44,46 @@ func (vr *ValidationResult) AppendErrors(
 	sources [][]string,
 	status []int,
 ) {
-	if vr == nil || len(errorMessages) == 0 {
+	if vr == nil {
 		return
 	}
 
-	for i, errorMessage := range errorMessages {
-		var detail string
+	// Determine the longest array length.
+	longestLength := len(errorMessages)
+	if len(details) > longestLength {
+		longestLength = len(details)
+	}
+	if len(sources) > longestLength {
+		longestLength = len(sources)
+	}
+	if len(status) > longestLength {
+		longestLength = len(status)
+	}
+
+	// Iterate over the longest length.
+	for i := 0; i < longestLength; i++ {
+		var errorMessage, detail string
 		var source []string
 		var stat int
 
-		// Use details if available.
+		// Check if within bounds and assign if so.
+		if i < len(errorMessages) {
+			errorMessage = errorMessages[i]
+		}
 		if i < len(details) {
 			detail = details[i]
 		}
-
-		// Use sources if available.
 		if i < len(sources) {
 			source = sources[i]
 		}
-
-		// Use status if available.
 		if i < len(status) {
 			stat = status[i]
 		}
 
-		vr.AppendError(errorMessage, detail, source, stat)
+		// Append error only if there's at least one non-default value.
+		if errorMessage != "" || detail != "" || len(source) > 0 || stat != 0 {
+			vr.AppendError(errorMessage, detail, source, stat)
+		}
 	}
 }
 

@@ -124,11 +124,11 @@ func TestAppendErrors(t *testing.T) {
 			sources:       [][]string{{"Source1"}, {"Source2"}},
 			statuses:      []int{400, 404},
 			expVR: &profilevalidator.ValidationResult{
-				Valid:         true,
-				ErrorMessages: []string{},
-				Details:       []string{},
-				Sources:       [][]string{},
-				ErrorStatus:   []int{},
+				Valid:         false,
+				ErrorMessages: []string{"", ""},
+				Details:       []string{"Detail 1", "Detail 2"},
+				Sources:       [][]string{{"Source1"}, {"Source2"}},
+				ErrorStatus:   []int{400, 404},
 			},
 		},
 	}
