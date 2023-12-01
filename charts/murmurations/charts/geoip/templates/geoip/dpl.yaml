@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,13 +25,13 @@ spec:
       containers:
         - name: geoip-app
           image: {{ .Values.image }}
-          # resources:
-          #   requests:
-          #     memory: "32Mi"
-          #     cpu: "8m"
-          #   limits:
-          #     memory: "64Mi"
-          #     cpu: "16m"
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "8m"
+            limits:
+              memory: "32Mi"
+              cpu: "16m"
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
@@ -42,7 +48,7 @@ spec:
             periodSeconds: 60
             timeoutSeconds: 30
             failureThreshold: 3
-      {{- if eq .Values.global.env "development" }}
+      {{- if $isDev }}
           volumeMounts:
             - mountPath: /src/geoip
               name: source-path

@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,13 +25,13 @@ spec:
       containers:
         - name: library-app
           image: {{ .Values.image }}
-          # resources:
-          #   requests:
-          #     memory: "32Mi"
-          #     cpu: "8m"
-          #   limits:
-          #     memory: "64Mi"
-          #     cpu: "16m"
+          {{- if $isPretest }}
+          resources:
+            requests:
+              memory: "32Mi"
+            limits:
+              memory: "64Mi"
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: library-app-config
@@ -39,7 +45,7 @@ spec:
             periodSeconds: 60
             timeoutSeconds: 30
             failureThreshold: 3
-      {{- if eq .Values.global.env "development" }}
+      {{- if $isDev }}
           volumeMounts:
             - mountPath: /src/library
               name: source-path
@@ -48,3 +54,19 @@ spec:
           hostPath:
             path: {{ .Values.global.sourcepath }}
       {{- end }}
+
+---
+
+{{- if $isPretest }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: library-mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: longhorn
+{{- end }}

@@ -1,13 +1,18 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: data-proxy-mongo
 spec:
-  # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
-  revisionHistoryLimit: 0
+  revisionHistoryLimit: 0 # Keep only the current ReplicaSet
   replicas: {{ .Values.mongo.replicas }}
   strategy:
-    type: Recreate
+    type: Recreate # Replace all existing pods with new ones during deployment
   selector:
     matchLabels:
       app: data-proxy-mongo
@@ -17,26 +22,42 @@ spec:
         app: data-proxy-mongo
     spec:
       containers:
-        - name: data-proxy-mongo
-          image: mongo:5.0.6
-          # resources:
-          #   requests:
-          #     memory: "100Mi"
-          #     cpu: "10m"
-          #   limits:
-          #     memory: "300Mi"
-          #     cpu: "30m"
-          {{- if not (eq .Values.global.env "development") }}
-          volumeMounts:
-          - mountPath: /data/db
-            name: mongo-storage
-          {{- end }}
-          envFrom:
-            - secretRef:
-                name: data-proxy-mongo-secret
-      {{- if not (eq .Values.global.env "development") }}
+      - name: data-proxy-mongo
+        image: mongo:5.0.6
+        resources:
+          requests:
+            cpu: "8m"
+          limits:
+            cpu: "16m"
+        # Volume mounts are not required for the development environment
+        {{- if not $isDev }}
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongo-storage
+        {{- end }}
+        envFrom:
+        - secretRef:
+            name: data-proxy-mongo-secret
+      # Volumes are not needed in the development environment
+      {{- if not $isDev }}
       volumes:
-        - name: mongo-storage
-          persistentVolumeClaim:
-            claimName: data-proxy-mongo-pvc
+      - name: mongo-storage
+        persistentVolumeClaim:
+          claimName: data-proxy-mongo-pvc
       {{- end }}
+
+# Persistent Volume Claim and Persistent Volume are specific to the "pretest" environment
+{{- if $isPretest }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-proxy-mongo-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
+{{- end }}

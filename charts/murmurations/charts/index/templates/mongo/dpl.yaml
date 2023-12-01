@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,7 +33,7 @@ spec:
           #   limits:
           #     memory: "256Mi"
           #     cpu: "16m"
-          {{- if not (eq .Values.global.env "development") }}
+          {{- if not $isDev }}
           volumeMounts:
           - mountPath: /data/db
             name: mongo-storage
@@ -35,9 +41,25 @@ spec:
           envFrom:
             - secretRef:
                 name: index-mongo-secret
-      {{- if not (eq .Values.global.env "development") }}
+      {{- if not $isDev }}
       volumes:
         - name: mongo-storage
           persistentVolumeClaim:
             claimName: index-mongo-pvc
       {{- end }}
+
+---
+
+{{- if $isPretest }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: index-mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
+{{- end }}
