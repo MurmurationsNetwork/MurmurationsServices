@@ -1,9 +1,15 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: dataproxyupdater-app
 spec:
-  {{- if or (eq .Values.global.env "production")  (eq .Values.global.env "staging") }}
+  {{- if or $isProd $isStaging $isPretest }}
   schedule: "0 */1 * * *" # every 1 hour
   {{- else }}
   schedule: "*/2 * * * *"  # every 2 minutes
@@ -40,7 +46,7 @@ spec:
                     name: dataproxyupdater-app-config
                 - secretRef:
                     name: dataproxyupdater-secret
-          {{- if eq .Values.global.env "development" }}
+          {{- if $isDev }}
               command: ["go", "run"]
               args: ["services/cronjob/dataproxyupdater/cmd/dataproxyupdater/main.go"]
               volumeMounts:

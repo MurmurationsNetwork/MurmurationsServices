@@ -1,26 +1,33 @@
+# Define environment variables to control the deployment configuration.
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: dataproxyrefresher-app
 spec:
-  {{- if eq .Values.global.env "production" }}
-  schedule: "0 1 * * *" # every day at 1 a.m.
-  {{- else if or (eq .Values.global.env "staging") }}
-  schedule: "0 * * * *" # every hour
+  # Conditionally set the schedule based on the environment.
+  {{- if $isProd }}
+  schedule: "0 1 * * *"      # every day at 1 a.m. for production
+  {{- else if or $isStaging $isPretest }}
+  schedule: "0 * * * *"      # every hour for staging and pretest
   {{- else }}
-  schedule: "*/2 * * * *"  # every 2 minutes
+  schedule: "*/2 * * * *"    # every 2 minutes for development
   {{- end }}
-  # Keep the latest successful job.
   successfulJobsHistoryLimit: 1
-  # Keep the latest failed job.
   failedJobsHistoryLimit: 1
-  # Only one instance of the job is running at any given time.
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      # Retry the Job 3 times before marking it as failed.
+      {{ if $isProd }}
       backoffLimit: 3
-      # Delete the Job and its pods 24 hours after completion.
+      {{ else }}
+      backoffLimit: 0
+      {{ end }}
       ttlSecondsAfterFinished: 86400
       template:
         metadata:
@@ -28,29 +35,32 @@ spec:
             checksum/config: {{ include (print $.Template.BasePath "/dataproxyrefresher/config.yaml") . | sha256sum }}
         spec:
           containers:
-            - name: dataproxyrefresher-app
-              image: {{ .Values.image }}
-              imagePullPolicy: IfNotPresent
-              # Limit the CPU usage.
-              resources:
-                limits:
-                  cpu: "500m"
-                requests:
-                  cpu: "100m"
-              envFrom:
-                - configMapRef:
-                    name: dataproxyrefresher-app-config
-                - secretRef:
-                    name: dataproxyrefresher-secret
-          {{- if eq .Values.global.env "development" }}
-              command: ["go", "run"]
-              args: ["cmd/dataproxyrefresher/main.go"]
-              volumeMounts:
-                - mountPath: /src
-                  name: source-path
+          - name: dataproxyrefresher-app
+            image: {{ .Values.image }}
+            imagePullPolicy: IfNotPresent
+            resources:
+              limits:
+                cpu: "500m"
+              requests:
+                cpu: "100m"
+            envFrom:
+            - configMapRef:
+                name: dataproxyrefresher-app-config
+            - secretRef:
+                name: dataproxyrefresher-secret
+            # Development environment specific configurations.
+            {{- if $isDev }}
+            command: ["go", "run"]
+            args: ["cmd/dataproxyrefresher/main.go"]
+            volumeMounts:
+            - mountPath: /src
+              name: source-path
+            {{- end }}
+          # Define volumes only for development environment.
+          {{- if $isDev }}
           volumes:
-            - name: source-path
-              hostPath:
-                path: {{ .Values.global.sourcepath }}
+          - name: source-path
+            hostPath:
+              path: {{ .Values.global.sourcepath }}
           {{- end }}
           restartPolicy: Never

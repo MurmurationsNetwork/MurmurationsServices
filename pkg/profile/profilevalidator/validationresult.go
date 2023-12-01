@@ -44,21 +44,60 @@ func (vr *ValidationResult) AppendErrors(
 	sources [][]string,
 	status []int,
 ) {
-	for i := 0; i < len(errorMessages); i++ {
-		vr.AppendError(errorMessages[i], details[i], sources[i], status[i])
+	if vr == nil {
+		return
+	}
+
+	// Determine the longest array length.
+	longestLength := len(errorMessages)
+	if len(details) > longestLength {
+		longestLength = len(details)
+	}
+	if len(sources) > longestLength {
+		longestLength = len(sources)
+	}
+	if len(status) > longestLength {
+		longestLength = len(status)
+	}
+
+	for i := 0; i < longestLength; i++ {
+		var errorMessage, detail string
+		var source []string
+		var stat int
+
+		// Check if within bounds and assign if so.
+		if i < len(errorMessages) {
+			errorMessage = errorMessages[i]
+		}
+		if i < len(details) {
+			detail = details[i]
+		}
+		if i < len(sources) {
+			source = sources[i]
+		}
+		if i < len(status) {
+			stat = status[i]
+		}
+
+		// Append error only if there's at least one non-default value.
+		if errorMessage != "" || detail != "" || len(source) > 0 || stat != 0 {
+			vr.AppendError(errorMessage, detail, source, stat)
+		}
 	}
 }
 
 // Merge combines another ValidationResult into the current one.
 func (vr *ValidationResult) Merge(other *ValidationResult) *ValidationResult {
-	if other == nil || other.Valid {
+	if vr == nil || other == nil || other.Valid {
 		return vr
 	}
+
 	vr.AppendErrors(
 		other.ErrorMessages,
 		other.Details,
 		other.Sources,
 		other.ErrorStatus,
 	)
+
 	return vr
 }

@@ -160,22 +160,24 @@ type TagsValidator struct{}
 // Validate checks the validity of an array of tags.
 func (v *TagsValidator) Validate(value interface{}) *ValidationResult {
 	vr := NewValidationResult()
+
 	if tags, ok := value.([]interface{}); ok {
 		if len(tags) > 100 {
 			vr.AppendError(
 				"Too Many Tags",
 				"Maximum of 100 tags allowed",
-				nil,
+				[]string{"pointer", "/tags"},
 				http.StatusBadRequest,
 			)
 		}
+
 		for _, tag := range tags {
 			if tagStr, ok := tag.(string); ok {
 				if len(tagStr) > 100 {
 					vr.AppendError(
 						"Tag Too Long",
 						"Each tag should be under 100 characters",
-						nil,
+						[]string{"pointer", "/tags"},
 						http.StatusBadRequest,
 					)
 				}
@@ -183,7 +185,7 @@ func (v *TagsValidator) Validate(value interface{}) *ValidationResult {
 				vr.AppendError(
 					"Invalid Tag Type",
 					"Tags should be strings",
-					nil,
+					[]string{"pointer", "/tags"},
 					http.StatusBadRequest,
 				)
 			}
@@ -192,9 +194,10 @@ func (v *TagsValidator) Validate(value interface{}) *ValidationResult {
 		vr.AppendError(
 			"Invalid Tags Type",
 			"Tags should be an array of strings",
-			nil,
+			[]string{"pointer", "/tags"},
 			http.StatusBadRequest,
 		)
 	}
+
 	return vr
 }

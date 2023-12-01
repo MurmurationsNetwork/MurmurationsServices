@@ -64,29 +64,28 @@ func NewError(
 	status []int,
 ) []Error {
 	var errors []Error
+
 	for i := 0; i < len(titles); i++ {
-		if len(details) != 0 && len(sources) != 0 {
-			errors = append(errors, Error{
-				Status: status[i],
-				Title:  titles[i],
-				Detail: details[i],
-				Source: map[string]string{
-					sources[i][0]: sources[i][1],
-				},
-			})
-		} else if len(details) != 0 {
-			errors = append(errors, Error{
-				Status: status[i],
-				Title:  titles[i],
-				Detail: details[i],
-			})
-		} else {
-			errors = append(errors, Error{
-				Status: status[i],
-				Title:  titles[i],
-			})
+		newError := Error{
+			Status: status[i],
+			Title:  titles[i],
 		}
+
+		if i < len(details) {
+			newError.Detail = details[i]
+		}
+
+		if i < len(sources) && len(sources[i]) > 0 {
+			newError.Source = make(map[string]string)
+			newError.Source[sources[i][0]] = ""
+			if len(sources[i]) > 1 {
+				newError.Source[sources[i][0]] = sources[i][1]
+			}
+		}
+
+		errors = append(errors, newError)
 	}
+
 	return errors
 }
 
