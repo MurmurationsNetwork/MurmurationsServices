@@ -60,7 +60,6 @@ func (vr *ValidationResult) AppendErrors(
 		longestLength = len(status)
 	}
 
-	// Iterate over the longest length.
 	for i := 0; i < longestLength; i++ {
 		var errorMessage, detail string
 		var source []string
