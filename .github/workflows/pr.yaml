@@ -122,7 +122,7 @@ jobs:
     steps:
       - name: Checkout Repository
         if: matrix.service != ''
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup SSH for Server Access
         if: matrix.service != ''
         uses: webfactory/ssh-agent@v0.5.2
