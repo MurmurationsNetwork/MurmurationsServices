@@ -232,6 +232,6 @@ func (s *Service) cleanup() {
 		s.shutdownCancelCtx()
 		mongodb.Client.Disconnect()
 		nats.Client.Disconnect()
-		logger.Info("Index service stopped gracefully")
+		logger.Info("Index service stopped gracefully.")
 	})
 }
