@@ -49,13 +49,13 @@ docker pull kibana:7.17.5
    touch .git/hooks/pre-commit
    chmod +x .git/hooks/pre-commit
    ```
-   
+
 3. Use `vim .git/hooks/pre-commit` to edit the pre-commit file.
    ```
    #!/bin/sh
-   
+
    PASS=true
-   
+
    # Run Newman
    make newman-test
    if [[ $? != 0 ]]; then
@@ -64,14 +64,14 @@ docker pull kibana:7.17.5
    else
        printf "\t\033[32mNewman\033[0m \033[0;30m\033[42mpass\033[0m\n"
    fi
-   
+
    if ! $PASS; then
        printf "\033[0;30m\033[41mCOMMIT FAILED\033[0m\n"
        exit 1
    else
        printf "\033[0;30m\033[42mCOMMIT SUCCEEDED\033[0m\n"
    fi
-   
+
    exit 0
    ```
 
@@ -85,6 +85,11 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 2. Execute the command `make dev` to set up the servers.
 3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
 
+## Running Services on Contabo
+
+For a complete guide on how to deploy and run your services on Contabo VPS, please follow the instructions in our dedicated tutorial:
+
+[Run Murmurations Services in Contabo](docs/contabo/run-in-contabo.md)
 
 ## Run in DigitalOcean
 
