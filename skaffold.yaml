@@ -67,6 +67,7 @@ deploy:
         # SOURCEPATH is provided by the environment variable. It is the location of the MurmurationsServices
         # on your local computer.
         global.sourcepath: "{{.SOURCEPATH}}"
+        global.env: "development"
 portForward:
   - resourceType: service
     resourceName: index-mongo
