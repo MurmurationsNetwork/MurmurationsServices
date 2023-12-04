@@ -110,26 +110,27 @@ func (s *nodeService) AddNode(
 
 	oldNode, err := s.mongoRepo.GetByID(node.ID)
 
-	// If the error is not a NotFoundError, return the error.
+	// Early return on non-NotFoundError cases.
 	if err != nil && !errors.As(err, &index.NotFoundError{}) {
 		return nil, err
 	}
 
-	// Handle the case where oldNode is found and its status is Deleted.
-	if err == nil && oldNode.Status == constant.NodeStatus.Deleted {
-		isValid := httputil.IsValidURL(node.ProfileURL)
-		if !isValid {
-			return oldNode, nil
-		}
-	}
-
-	// Handle the case where oldNode is found and profile hash is the same.
-	if err == nil {
-		newHash, _ := profilehasher.
-			New(node.ProfileURL, config.Values.Library.InternalURL).
-			Hash()
-		if oldNode.ProfileHash != nil && *oldNode.ProfileHash == newHash {
-			return oldNode, nil
+	// If oldNode is not nil, process based on its status.
+	if oldNode != nil {
+		switch oldNode.Status {
+		case constant.NodeStatus.Deleted:
+			// Check if ProfileURL is valid when node is marked as deleted.
+			if !httputil.IsValidURL(node.ProfileURL) {
+				return oldNode, nil
+			}
+		default:
+			// Check profile hash for non-deleted nodes.
+			newHash, _ := profilehasher.New(node.ProfileURL, config.Values.Library.InternalURL).
+				Hash()
+			if newHash != "" && oldNode.ProfileHash != nil &&
+				*oldNode.ProfileHash == newHash {
+				return oldNode, nil
+			}
 		}
 	}
 

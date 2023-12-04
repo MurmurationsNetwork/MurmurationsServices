@@ -49,10 +49,18 @@ jobs:
           fetch-depth: 0
       - name: Determine Exclusions
         id: determine-exclusions
-        run: >
-          exclude_matrix=$(bash ./scripts/determine_exclusions.sh "${{
-          github.event.before }}" "${{ github.event.after }}")
+        run: |
+          if [[ -z "${{ github.event.before }}" || -z "${{ github.event.after }}" ]]; then
+            # Use base and head SHAs for the first PR commit.
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+          else
+            # Use before and after SHAs for subsequent commits.
+            base_sha="${{ github.event.before }}"
+            head_sha="${{ github.event.after }}"
+          fi
 
+          exclude_matrix=$(bash ./scripts/determine_exclusions.sh "$base_sha" "$head_sha")
           echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
       - name: Display Excluded Services
         run: |
