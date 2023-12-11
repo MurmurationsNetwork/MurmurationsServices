@@ -26,14 +26,22 @@ import (
 )
 
 type NodeHandler interface {
+	// Add creates a new node.
 	Add(c *gin.Context)
+	// AddSync creates a new node synchronously.
 	AddSync(c *gin.Context)
+	// Get retrieves a specific node.
 	Get(c *gin.Context)
-	Search(c *gin.Context)
-	Delete(c *gin.Context)
-	Validate(c *gin.Context)
-	Export(c *gin.Context)
+	// GetNodes retrieves multiple nodes.
 	GetNodes(c *gin.Context)
+	// Search finds nodes that match certain criteria.
+	Search(c *gin.Context)
+	// Delete removes a node.
+	Delete(c *gin.Context)
+	// Validate validates a node.
+	Validate(c *gin.Context)
+	// Export exports nodes.
+	Export(c *gin.Context)
 }
 
 type nodeHandler struct {
@@ -104,7 +112,7 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 	})
 	if err != nil {
 		logger.Error("Failed to add node", err)
-		handleAddNodeErrors(err, c)
+		handleAddNodeErrors(c, err)
 		return
 	}
 
@@ -137,7 +145,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 	})
 	if err != nil {
 		logger.Error("Failed to add node", err)
-		handleAddNodeErrors(err, c)
+		handleAddNodeErrors(c, err)
 		return
 	}
 
@@ -149,7 +157,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		nodeInfo, err := handler.svc.GetNode(result.ID)
 		if err != nil {
 			logger.Error("Failed to get a node", err)
-			handleGetNodeErrors(err, result.ID, c)
+			handleGetNodeErrors(c, err, result.ID)
 			return
 		}
 
@@ -206,7 +214,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 	node, err := handler.svc.GetNode(nodeID)
 	if err != nil {
 		logger.Error("Failed to get a node", err)
-		handleGetNodeErrors(err, nodeID, c)
+		handleGetNodeErrors(c, err, nodeID)
 		return
 	}
 
@@ -349,38 +357,7 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 	profileURL, err := handler.svc.Delete(nodeID)
 	if err != nil {
 		logger.Error("Failed to delete a node", err)
-
-		var deleteNodeError index.DeleteNodeError
-		var databaseError index.DatabaseError
-		var jsonErr []jsonapi.Error
-
-		switch {
-		case errors.As(err, &deleteNodeError):
-			jsonErr = jsonapi.NewError(
-				[]string{deleteNodeError.Message},
-				[]string{deleteNodeError.Detail},
-				nil,
-				[]int{http.StatusBadRequest},
-			)
-		case errors.As(err, &databaseError):
-			jsonErr = jsonapi.NewError(
-				[]string{databaseError.Message},
-				[]string{"Error while trying to delete a node."},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
-		default:
-			jsonErr = jsonapi.NewError(
-				[]string{"Unknown Error"},
-				[]string{},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
-		}
-
-		meta := jsonapi.NewMeta("", nodeID, profileURL)
-		res := jsonapi.Response(nil, jsonErr, nil, meta)
-		c.JSON(jsonErr[0].Status, res)
+		handleDeleteNodeErrors(c, err, nodeID, profileURL)
 		return
 	}
 
@@ -526,7 +503,7 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 
 	searchResult, err := handler.svc.Export(&esQuery)
 	if err != nil {
-		logger.Error("Failed to export a node", err)
+		logger.Error("Failed to export nodes", err)
 
 		var databaseError index.DatabaseError
 		var jsonErr []jsonapi.Error
@@ -535,7 +512,7 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 		case errors.As(err, &databaseError):
 			jsonErr = jsonapi.NewError(
 				[]string{databaseError.Message},
-				[]string{"Error while trying to delete a node."},
+				[]string{"Error while trying to export nodes."},
 				nil,
 				[]int{http.StatusInternalServerError},
 			)
@@ -779,7 +756,7 @@ func checkInputIsValid(
 	return nil
 }
 
-func handleAddNodeErrors(err error, c *gin.Context) {
+func handleAddNodeErrors(c *gin.Context, err error) {
 	var validationError index.ValidationError
 	var profileFetchError core.ProfileFetchError
 	var jsonErr []jsonapi.Error
@@ -814,7 +791,7 @@ func handleAddNodeErrors(err error, c *gin.Context) {
 	c.JSON(jsonErr[0].Status, res)
 }
 
-func handleGetNodeErrors(err error, nodeID string, c *gin.Context) {
+func handleGetNodeErrors(c *gin.Context, err error, nodeID string) {
 	var notFoundError index.NotFoundError
 	var databaseError index.DatabaseError
 	var jsonErr []jsonapi.Error
@@ -851,5 +828,52 @@ func handleGetNodeErrors(err error, nodeID string, c *gin.Context) {
 	}
 
 	res := jsonapi.Response(nil, jsonErr, nil, nil)
+	c.JSON(jsonErr[0].Status, res)
+}
+
+func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string) {
+	var (
+		notFoundError   index.NotFoundError
+		databaseError   index.DatabaseError
+		deleteNodeError index.DeleteNodeError
+		jsonErr         []jsonapi.Error
+	)
+
+	switch {
+	case errors.As(err, &notFoundError):
+		jsonErr = jsonapi.NewError(
+			[]string{"Node Not Found"},
+			[]string{},
+			nil,
+			[]int{http.StatusNotFound},
+		)
+
+	case errors.As(err, &deleteNodeError):
+		jsonErr = jsonapi.NewError(
+			[]string{deleteNodeError.Message},
+			[]string{deleteNodeError.Detail},
+			nil,
+			[]int{http.StatusBadRequest},
+		)
+
+	case errors.As(err, &databaseError):
+		jsonErr = jsonapi.NewError(
+			[]string{databaseError.Message},
+			[]string{"Error while trying to delete a node."},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+
+	default:
+		jsonErr = jsonapi.NewError(
+			[]string{"Unknown Error"},
+			[]string{},
+			nil,
+			[]int{http.StatusInternalServerError},
+		)
+	}
+
+	meta := jsonapi.NewMeta("", nodeID, profileURL)
+	res := jsonapi.Response(nil, jsonErr, nil, meta)
 	c.JSON(jsonErr[0].Status, res)
 }
