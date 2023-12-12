@@ -7,7 +7,7 @@ build:
     - image: murmurations/dataproxy
       context: .
       docker:
-        dockerfile: services/dataproxy/docker/Dockerfile-dev
+        dockerfile: build/dataproxy/docker/Dockerfile-dev
     - image: murmurations/dataproxyrefresher
       context: .
       docker:
@@ -15,7 +15,7 @@ build:
     - image: murmurations/dataproxyupdater
       context: .
       docker:
-        dockerfile: services/cronjob/dataproxyupdater/docker/Dockerfile-dev
+        dockerfile: build/dataproxyupdater/docker/Dockerfile-dev
     - image: murmurations/geoip
       context: .
       docker:

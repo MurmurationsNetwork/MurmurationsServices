@@ -1,19 +1,21 @@
 #--------------------------
 # Include other Makefiles.
 #--------------------------
+include ./build/dataproxy/mk/Makefile
+include ./build/dataproxyrefresher/mk/Makefile
+include ./build/dataproxyupdater/mk/Makefile
 include ./build/geoip/mk/Makefile
 include ./build/index/mk/Makefile
 include ./build/library/mk/Makefile
-include ./build/revalidatenode/mk/Makefile
 include ./build/nodecleaner/mk/Makefile
+include ./build/revalidatenode/mk/Makefile
 include ./build/schemaparser/mk/Makefile
 include ./build/validation/mk/Makefile
-include ./build/dataproxyrefresher/mk/Makefile
 
 #--------------------------
 # Set environment variables.
 #--------------------------
-DEPLOY_ENV ?= local
+DEPLOY_ENV ?= development
 
 ifeq ($(DEPLOY_ENV), staging)
 	ENV_FILE = test/e2e-staging-env.json
@@ -58,30 +60,6 @@ check-clean:
 		echo "Uncommitted changes present. Please commit them before running this command."; \
 		exit 1; \
 	fi
-
-# ---------------------------------------------------------------
-
-docker-build-dataproxy:
-	$(MAKE) -C services/dataproxy/ docker-build
-
-docker-tag-dataproxy: check-clean docker-build-dataproxy
-	docker tag murmurations/$(DOCKER_TAG_PREFIX)dataproxy \
-		murmurations/$(DOCKER_TAG_PREFIX)dataproxy:${TAG}
-
-docker-push-dataproxy: docker-tag-dataproxy
-	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxy:latest
-	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(TAG)
-
-docker-build-dataproxyupdater:
-	$(MAKE) -C services/cronjob/dataproxyupdater/ docker-build
-
-docker-tag-dataproxyupdater: check-clean docker-build-dataproxyupdater
-	docker tag murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater \
-		murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:${TAG}
-
-docker-push-dataproxyupdater: docker-tag-dataproxyupdater
-	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:latest
-	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(TAG)
 
 # ---------------------------------------------------------------
 
