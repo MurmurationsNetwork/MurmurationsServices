@@ -1,12 +1,23 @@
 package jsonapi_test
 
 import (
+	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 )
+
+// Mock request to create a gin context.
+func mockRequest(method, path string) *gin.Context {
+	req := httptest.NewRequest(method, path, nil)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+	return c
+}
 
 func TestNewError(t *testing.T) {
 	// Define test cases
@@ -134,6 +145,105 @@ func TestNewError(t *testing.T) {
 				errors,
 				"Errors do not match the expected output",
 			)
+		})
+	}
+}
+
+func TestNewLinks(t *testing.T) {
+	tests := []struct {
+		name        string
+		currentPage int64
+		totalPage   int64
+		requestPath string
+		expected    *jsonapi.Link
+	}{
+		{
+			name:        "TestFirstPage",
+			currentPage: 1,
+			totalPage:   5,
+			requestPath: "/test?page=1",
+			expected: &jsonapi.Link{
+				First: "",
+				Prev:  "",
+				Self:  "http://example.com/test?page=1",
+				Next:  "http://example.com/test?page=2",
+				Last:  "http://example.com/test?page=5",
+			},
+		},
+		{
+			name:        "TestMiddlePage",
+			currentPage: 3,
+			totalPage:   5,
+			requestPath: "/test?page=3",
+			expected: &jsonapi.Link{
+				First: "http://example.com/test?page=1",
+				Prev:  "http://example.com/test?page=2",
+				Self:  "http://example.com/test?page=3",
+				Next:  "http://example.com/test?page=4",
+				Last:  "http://example.com/test?page=5",
+			},
+		},
+		{
+			name:        "TestLastPage",
+			currentPage: 5,
+			totalPage:   5,
+			requestPath: "/test?page=5",
+			expected: &jsonapi.Link{
+				First: "http://example.com/test?page=1",
+				Prev:  "http://example.com/test?page=4",
+				Self:  "http://example.com/test?page=5",
+				Next:  "",
+				Last:  "",
+			},
+		},
+		{
+			name:        "TestSinglePage",
+			currentPage: 1,
+			totalPage:   1,
+			requestPath: "/test?page=1",
+			expected: &jsonapi.Link{
+				First: "",
+				Prev:  "",
+				Self:  "http://example.com/test?page=1",
+				Next:  "",
+				Last:  "",
+			},
+		},
+		{
+			name:        "TestURLWithOtherParams",
+			currentPage: 2,
+			totalPage:   4,
+			requestPath: "/test?param=value&page=2",
+			expected: &jsonapi.Link{
+				First: "http://example.com/test?page=1&param=value",
+				Prev:  "http://example.com/test?page=1&param=value",
+				Self:  "http://example.com/test?page=2&param=value",
+				Next:  "http://example.com/test?page=3&param=value",
+				Last:  "http://example.com/test?page=4&param=value",
+			},
+		},
+		{
+			name:        "TestCurrentPageGreaterThanTotal",
+			currentPage: 6,
+			totalPage:   5,
+			requestPath: "/test?page=6",
+			expected: &jsonapi.Link{
+				First: "http://example.com/test?page=1",
+				Prev:  "http://example.com/test?page=4",
+				Self:  "http://example.com/test?page=5",
+				Next:  "",
+				Last:  "",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			c := mockRequest("GET", tc.requestPath)
+
+			link := jsonapi.NewLinks(c, tc.currentPage, tc.totalPage)
+
+			require.Equal(t, tc.expected, link)
 		})
 	}
 }

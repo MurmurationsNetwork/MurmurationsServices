@@ -100,7 +100,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish Docker Image
         if: matrix.service != ''
-        run: make docker-push-${{ matrix.service }}
+        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
 
   deploy:
     name: Deploy Service - ${{ matrix.service }}
