@@ -23,6 +23,13 @@ else
 	ENV_FILE = test/e2e-local-env.json
 endif
 
+# The TAG value is constructed based on the commit SHA.
+# If running in a GitHub Actions environment, it uses the GITHUB_SHA.
+# In a local environment, it uses the SHA of the HEAD commit.
+TAG ?= $(shell git rev-parse --short $(if $(GITHUB_SHA),$(GITHUB_SHA),HEAD))
+
+DOCKER_TAG_PREFIX := $(if $(filter production,$(DEPLOY_ENV)),,${DEPLOY_ENV}-)
+
 #--------------------------
 # Set up the development servers
 #--------------------------
@@ -56,11 +63,6 @@ docker-build-dataproxyupdater:
 
 # ---------------------------------------------------------------
 
-# The TAG value is constructed based on the commit SHA.
-# If running in a GitHub Actions environment, it uses the GITHUB_SHA.
-# In a local environment, it uses the SHA of the HEAD commit.
-TAG ?= $(shell git rev-parse --short $(if $(GITHUB_SHA),$(GITHUB_SHA),HEAD))
-
 check-clean:
 	@if [ -n "$(shell git status --porcelain)" ]; then \
 		echo "Uncommitted changes present. Please commit them before running this command."; \
@@ -68,76 +70,76 @@ check-clean:
 	fi
 
 docker-tag-index: check-clean docker-build-index
-	docker tag murmurations/index murmurations/index:$(TAG)
+	docker tag murmurations/index murmurations/$(DOCKER_TAG_PREFIX)index:$(TAG)
 
 docker-tag-validation: check-clean docker-build-validation
-	docker tag murmurations/validation murmurations/validation:${TAG}
+	docker tag murmurations/validation murmurations/$(DOCKER_TAG_PREFIX)validation:${TAG}
 
 docker-tag-library: check-clean docker-build-library
-	docker tag murmurations/library murmurations/library:${TAG}
+	docker tag murmurations/library murmurations/$(DOCKER_TAG_PREFIX)library:${TAG}
 
 docker-tag-nodecleaner: check-clean docker-build-nodecleaner
-	docker tag murmurations/nodecleaner murmurations/nodecleaner:${TAG}
+	docker tag murmurations/nodecleaner murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:${TAG}
 
 docker-tag-schemaparser: check-clean docker-build-schemaparser
-	docker tag murmurations/schemaparser murmurations/schemaparser:${TAG}
+	docker tag murmurations/schemaparser murmurations/$(DOCKER_TAG_PREFIX)schemaparser:${TAG}
 
 docker-tag-revalidatenode: check-clean docker-build-revalidatenode
-	docker tag murmurations/revalidatenode murmurations/revalidatenode:${TAG}
+	docker tag murmurations/revalidatenode murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:${TAG}
 
 docker-tag-geoip: check-clean docker-build-geoip
-	docker tag murmurations/geoip murmurations/geoip:${TAG}
+	docker tag murmurations/geoip murmurations/$(DOCKER_TAG_PREFIX)geoip:${TAG}
 
 docker-tag-dataproxy: check-clean docker-build-dataproxy
-	docker tag murmurations/dataproxy murmurations/dataproxy:${TAG}
+	docker tag murmurations/dataproxy murmurations/$(DOCKER_TAG_PREFIX)dataproxy:${TAG}
 
 docker-tag-dataproxyupdater: check-clean docker-build-dataproxyupdater
-	docker tag murmurations/dataproxyupdater murmurations/dataproxyupdater:${TAG}
+	docker tag murmurations/dataproxyupdater murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:${TAG}
 
 docker-tag-dataproxyrefresher: check-clean docker-build-dataproxyrefresher
-	docker tag murmurations/dataproxyrefresher murmurations/dataproxyrefresher:${TAG}
+	docker tag murmurations/dataproxyrefresher murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:${TAG}
 
 # ---------------------------------------------------------------
 
 docker-push-index: docker-tag-index
-	docker push murmurations/index:latest
-	docker push murmurations/index:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)index:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)index:$(TAG)
 
 docker-push-validation: docker-tag-validation
-	docker push murmurations/validation:latest
-	docker push murmurations/validation:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)validation:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)validation:$(TAG)
 
 docker-push-library: docker-tag-library
-	docker push murmurations/library:latest
-	docker push murmurations/library:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)library:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)library:$(TAG)
 
 docker-push-nodecleaner: docker-tag-nodecleaner
-	docker push murmurations/nodecleaner:latest
-	docker push murmurations/nodecleaner:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:$(TAG)
 
 docker-push-schemaparser: docker-tag-schemaparser
-	docker push murmurations/schemaparser:latest
-	docker push murmurations/schemaparser:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)schemaparser:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)schemaparser:$(TAG)
 
 docker-push-revalidatenode: docker-tag-revalidatenode
-	docker push murmurations/revalidatenode:latest
-	docker push murmurations/revalidatenode:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(TAG)
 
 docker-push-geoip: docker-tag-geoip
-	docker push murmurations/geoip:latest
-	docker push murmurations/geoip:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)geoip:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)geoip:$(TAG)
 
 docker-push-dataproxy: docker-tag-dataproxy
-	docker push murmurations/dataproxy:latest
-	docker push murmurations/dataproxy:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxy:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(TAG)
 
 docker-push-dataproxyupdater: docker-tag-dataproxyupdater
-	docker push murmurations/dataproxyupdater:latest
-	docker push murmurations/dataproxyupdater:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(TAG)
 
 docker-push-dataproxyrefresher: docker-tag-dataproxyrefresher
-	docker push murmurations/dataproxyrefresher:latest
-	docker push murmurations/dataproxyrefresher:$(TAG)
+	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:latest
+	docker push murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(TAG)
 
 # ---------------------------------------------------------------
 
@@ -155,52 +157,52 @@ deploy-mq:
 
 deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/index:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)index:$(TAG) \
 	--install --atomic
 
 deploy-validation:
 	helm upgrade murmurations-validation ./charts/murmurations/charts/validation \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)validation:$(TAG) \
 	--install --atomic
 
 deploy-library:
 	helm upgrade murmurations-library ./charts/murmurations/charts/library \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/library:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)library:$(TAG) \
 	--install --atomic
 
 deploy-nodecleaner:
 	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/nodecleaner:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:$(TAG) \
 	--install --atomic
 
 deploy-schemaparser:
 	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)schemaparser:$(TAG) \
 	--install --atomic
 
 deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(TAG) \
 	--install --atomic
 
 deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)geoip:$(TAG) \
 	--install --atomic
 
 deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(TAG) \
 	--install --atomic
 
 deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(TAG) \
 	--install --atomic
 
 deploy-dataproxyrefresher:
 	helm upgrade murmurations-dataproxyrefresher ./charts/murmurations/charts/dataproxyrefresher \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyrefresher:$(TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(TAG) \
 	--install --atomic
 
 # ---------------------------------------------------------------
