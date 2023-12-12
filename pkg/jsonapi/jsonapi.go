@@ -1,9 +1,10 @@
 package jsonapi
 
 import (
+	"net/url"
 	"strconv"
-	"strings"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -89,72 +90,40 @@ func NewError(
 	return errors
 }
 
+// NewLinks creates pagination links (first, previous, current, next, last)
+// based on the current page and total pages.
+// It adjusts the links according to the page position in the context of the
+// total pagination.
 func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
-	// check the request is http or https
-	scheme := "http"
-	if c.Request.TLS != nil {
-		scheme = "https"
-	}
-
-	url := scheme + "://" + c.Request.Host
-
-	query := c.Request.RequestURI
-	if currentPage != 0 {
-		if strings.Contains(
-			query,
-			"?page="+strconv.Itoa(int(currentPage))+"&",
-		) {
-			// if page is the first query and query also has the other parameters
-			query = strings.Replace(
-				query,
-				"page="+strconv.Itoa(int(currentPage))+"&",
-				"",
-				-1,
-			)
-		} else if strings.Contains(query, "?page="+strconv.Itoa(int(currentPage))) {
-			// if query only has page parameter
-			query = strings.Replace(query, "?page="+strconv.Itoa(int(currentPage)), "", -1)
-		} else {
-			query = strings.Replace(query, "&page="+strconv.Itoa(int(currentPage)), "", -1)
+	scheme := getURLScheme(c)
+	base := getBaseURL(c, scheme)
+	u, err := removePageParam(c.Request.RequestURI)
+	if err != nil {
+		logger.Error("Error removing page parameter", err)
+		// Generate a special error link.
+		errorLink := base + "?error=link-generation-failed"
+		return &Link{
+			First: errorLink,
+			Prev:  errorLink,
+			Self:  errorLink,
+			Next:  errorLink,
+			Last:  errorLink,
 		}
 	}
 
-	// if query don't have a question mark, means it didn't have query, we need to add "?" to add the page query.
-	// otherwise, it has query, we need to add "&" for adding page later.
-	if !strings.Contains(query, "?") {
-		query += "?"
-	} else {
-		query += "&"
-	}
-
-	// if page is not set, set to default 1
+	// Ensure currentPage is within the valid range。
 	if currentPage < 1 {
 		currentPage = 1
 	} else if currentPage > totalPage {
 		currentPage = totalPage
 	}
 
-	// define the page
-	first := url + query + "page=1"
-	prev := url + query + "page=" + strconv.Itoa(int(currentPage-1))
-	self := url + query + "page=" + strconv.Itoa(int(currentPage))
-	next := url + query + "page=" + strconv.Itoa(int(currentPage+1))
-	last := url + query + "page=" + strconv.Itoa(int(totalPage))
-
-	if currentPage == 1 {
-		first = ""
-		prev = ""
-	}
-	if currentPage == totalPage {
-		next = ""
-		last = ""
-	}
-	if currentPage == 2 {
-		first = ""
-	}
-	if currentPage+1 == totalPage {
-		last = ""
-	}
+	first, prev, self, next, last := createPaginationLinks(
+		base,
+		u,
+		currentPage,
+		totalPage,
+	)
 
 	return &Link{
 		First: first,
@@ -163,6 +132,68 @@ func NewLinks(c *gin.Context, currentPage int64, totalPage int64) *Link {
 		Next:  next,
 		Last:  last,
 	}
+}
+
+func getURLScheme(c *gin.Context) string {
+	// First, check the X-Forwarded-Proto header.
+	if proto := c.GetHeader("X-Forwarded-Proto"); proto != "" {
+		return proto
+	}
+
+	// Fallback to checking if TLS is not nil.
+	if c.Request.TLS != nil {
+		return "https"
+	}
+
+	// Default to http if none of the above conditions are met.
+	return "http"
+}
+
+func getBaseURL(c *gin.Context, scheme string) string {
+	return scheme + "://" + c.Request.Host
+}
+
+func removePageParam(requestURI string) (*url.URL, error) {
+	// Parse the original request URL.
+	u, err := url.Parse(requestURI)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get query values.
+	queryValues := u.Query()
+
+	// Remove the 'page' parameter.
+	queryValues.Del("page")
+
+	// Rebuild the query string without the 'page' parameter.
+	u.RawQuery = queryValues.Encode()
+
+	// Return the modified url.
+	return u, nil
+}
+
+func createPaginationLinks(
+	base string,
+	u *url.URL,
+	currentPage, totalPage int64,
+) (first, prev, self, next, last string) {
+	if currentPage > 1 {
+		first = buildPageUrl(base, u, 1)
+		prev = buildPageUrl(base, u, currentPage-1)
+	}
+	self = buildPageUrl(base, u, currentPage)
+	if currentPage < totalPage {
+		next = buildPageUrl(base, u, currentPage+1)
+		last = buildPageUrl(base, u, totalPage)
+	}
+	return
+}
+
+func buildPageUrl(base string, u *url.URL, page int64) string {
+	queryValues := u.Query()
+	queryValues.Set("page", strconv.FormatInt(page, 10))
+	return base + u.Path + "?" + queryValues.Encode()
 }
 
 func NewMeta(message string, nodeID string, profileURL string) *Meta {
