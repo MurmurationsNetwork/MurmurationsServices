@@ -15,11 +15,11 @@ declare -A SERVICE_PATHS=(
     ["geoip"]="go.mod pkg/ cmd/geoip/ services/geoip/"
     ["validation"]="go.mod pkg/ cmd/validation/ services/validation/"
     ["dataproxy"]="go.mod pkg/ services/dataproxy/"
-    ["nodecleaner"]="go.mod pkg/ cmd/nodecleaner/ services/cronjob/nodecleaner/"
-    ["revalidatenode"]="go.mod pkg/ cmd/revalidatenode/ services/cronjob/revalidatenode/"
-    ["schemaparser"]="go.mod pkg/ cmd/schemaparser/ services/cronjob/schemaparser/"
-    ["dataproxyupdater"]="go.mod pkg/ services/cronjob/dataproxyupdater/"
-    ["dataproxyrefresher"]="go.mod pkg/ cmd/dataproxyrefresher/ services/cronjob/dataproxyrefresher/"
+    ["nodecleaner"]="go.mod pkg/ cmd/nodecleaner/ services/nodecleaner/"
+    ["revalidatenode"]="go.mod pkg/ cmd/revalidatenode/ services/revalidatenode/"
+    ["schemaparser"]="go.mod pkg/ cmd/schemaparser/ services/schemaparser/"
+    ["dataproxyupdater"]="go.mod pkg/ services/dataproxyupdater/"
+    ["dataproxyrefresher"]="go.mod pkg/ cmd/dataproxyrefresher/ services/dataproxyrefresher/"
 )
 
 # Function to check if any files changed for a service.
