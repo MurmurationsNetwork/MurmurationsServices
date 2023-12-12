@@ -99,11 +99,8 @@ func (s *nodeService) SetNodeInvalid(node *model.Node) error {
 func (s *nodeService) AddNode(
 	node *model.Node,
 ) (*model.Node, error) {
-	if node.ProfileURL == "" {
-		return nil, index.ValidationError{
-			Field:  "ProfileURL",
-			Reason: "The `profile_url` property is required.",
-		}
+	if err := validateProfileURL(node.ProfileURL); err != nil {
+		return nil, err
 	}
 
 	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
@@ -148,6 +145,22 @@ func (s *nodeService) AddNode(
 		})
 
 	return node, nil
+}
+
+func validateProfileURL(url string) error {
+	if url == "" {
+		return index.ValidationError{
+			Field:  "ProfileURL",
+			Reason: "The `profile_url` property is required.",
+		}
+	}
+	if len(url) > 2000 {
+		return index.ValidationError{
+			Field:  "ProfileURL",
+			Reason: "The `profile_url` property cannot exceed 2000 characters.",
+		}
+	}
+	return nil
 }
 
 // GetNode retrieves a node based on its ID.
