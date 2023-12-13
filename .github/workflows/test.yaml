@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish index docker images
-        run: make docker-push-index
+        run: make docker-push-index DEPLOY_ENV=staging
 
   build-library:
     name: Build Library
@@ -50,7 +50,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish library docker images
-        run: make docker-push-library
+        run: make docker-push-library DEPLOY_ENV=staging
 
   build-geoip:
     name: Build Geo IP
@@ -66,7 +66,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish geoip docker images
-        run: make docker-push-geoip
+        run: make docker-push-geoip DEPLOY_ENV=staging
 
   build-validation:
     name: Build Validation
@@ -82,7 +82,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish validation docker images
-        run: make docker-push-validation
+        run: make docker-push-validation DEPLOY_ENV=staging
 
   build-nodecleaner:
     name: Build Node Cleaner
@@ -98,7 +98,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish nodecleaner docker images
-        run: make docker-push-nodecleaner
+        run: make docker-push-nodecleaner DEPLOY_ENV=staging
 
   build-revalidatenode:
     name: Build Revalidate Node
@@ -114,7 +114,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish revalidatenode docker images
-        run: make docker-push-revalidatenode
+        run: make docker-push-revalidatenode DEPLOY_ENV=staging
 
   build-schemaparser:
     name: Build Schema Parser
@@ -130,7 +130,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish schemaparser docker images
-        run: make docker-push-schemaparser
+        run: make docker-push-schemaparser DEPLOY_ENV=staging
 
   build-dataproxy:
     name: Build Data Proxy
@@ -146,7 +146,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish dataproxy docker images
-        run: make docker-push-dataproxy
+        run: make docker-push-dataproxy DEPLOY_ENV=staging
 
   build-dataproxyupdater:
     name: Build Data Proxy Updater
@@ -162,7 +162,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish dataproxyupdater docker images
-        run: make docker-push-dataproxyupdater
+        run: make docker-push-dataproxyupdater DEPLOY_ENV=staging
 
   build-dataproxyrefresher:
     name: Build Data Proxy Refresher
@@ -178,7 +178,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish dataproxyrefresher docker images
-        run: make docker-push-dataproxyrefresher
+        run: make docker-push-dataproxyrefresher DEPLOY_ENV=staging
 
   deploy:
     name: Deploy
