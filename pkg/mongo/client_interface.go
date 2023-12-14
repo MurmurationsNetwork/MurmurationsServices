@@ -40,7 +40,7 @@ type mongoClientInterface interface {
 }
 
 func init() {
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("APP_ENV") == "test" {
 		Client = &mockClient{}
 		return
 	}
@@ -50,7 +50,7 @@ func init() {
 func NewClient(url string, dbName string) error {
 	var client *mongo.Client
 
-	if os.Getenv("ENV") != "test" {
+	if os.Getenv("APP_ENV") != "test" {
 		var err error
 		client, err = mongo.Connect(
 			context.Background(),
