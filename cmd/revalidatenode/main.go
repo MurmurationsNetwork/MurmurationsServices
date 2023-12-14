@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	logger.Info("Starting node revalidation process")
+	logger.Info("Starting node revalidation process...")
 
 	s := revalidatenode.NewCronJob()
 
