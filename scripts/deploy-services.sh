@@ -23,9 +23,12 @@ eval $(ssh-agent -s)
 ssh-add ssh_key
 ssh-keyscan -H "$pretest_server_ip" >> ~/.ssh/known_hosts
 
-# Copy Kubernetes config from the server.
+# Copy Kubernetes config from the server
 echo "Copying Kubernetes configuration..."
 scp "root@$pretest_server_ip:$kubeconfig_path" ./kubeconfig
+
+# Setting KUBECONFIG environment variable
+export KUBECONFIG=./kubeconfig
 
 # Replace localhost IP in Kubeconfig.
 sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/'$pretest_server_ip':6443/' \
