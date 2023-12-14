@@ -4,10 +4,9 @@
 ssh_private_key="$SSH_PRIVATE_KEY"
 pretest_server_ip="$PRETEST_SERVER_IP"
 kubeconfig_path="$PRETEST_KUBECONFIG_PATH"
-exclude_matrix="$EXCLUDE_MATRIX"
-
-# Convert JSON array of objects to a Bash array of service names.
-exclude_services=($(echo $exclude_matrix | jq -r '.[] | .service'))
+# Transform the string into valid JSON and then parse it.
+formatted_json=$(echo $EXCLUDE_MATRIX | sed 's/service: \([^,}]*\)/"service": "\1"/g')
+exclude_services=($(echo $formatted_json | jq -r '.[] | .service'))
 echo "Excluded services: ${exclude_services[*]}"
 
 # Setup SSH.

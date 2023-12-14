@@ -114,7 +114,7 @@ jobs:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      EXCLUDE_MATRIX: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
+      EXCLUDE_MATRIX: ${{ needs.check-exclusions.outputs.exclude_matrix }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
