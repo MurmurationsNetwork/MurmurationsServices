@@ -103,66 +103,82 @@ jobs:
         run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
 
   deploy:
-    name: Deploy Service - ${{ matrix.service }}
+    name: Deploy Services
     needs:
       - test
       - lint
       - check-exclusions
       - build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service:
-          - index
-          - library
-          - geoip
-          - validation
-          - dataproxy
-          - nodecleaner
-          - revalidatenode
-          - schemaparser
-          - dataproxyupdater
-          - dataproxyrefresher
-        exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
-    concurrency:
-      group: deploy-group
-      cancel-in-progress: false
     env:
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      EXCLUDE_MATRIX: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     steps:
       - name: Checkout Repository
-        if: matrix.service != ''
         uses: actions/checkout@v4
-      - name: Setup SSH for Server Access
-        if: matrix.service != ''
-        uses: webfactory/ssh-agent@v0.5.2
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Add SSH Key to Known Hosts
-        if: matrix.service != ''
-        run: |
-          ssh-keyscan -H ${{ env.PRETEST_SERVER_IP }} >> ~/.ssh/known_hosts
-      - name: Copy Kubernetes Config from Server
-        if: matrix.service != ''
-        run: >
-          scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH
-          }} ./kubeconfig
-      - name: Replace Localhost IP in Kubeconfig
-        if: matrix.service != ''
-        run: >
-          sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP
-          }}:6443/' ./kubeconfig
-      - uses: azure/setup-kubectl@v3
-        if: matrix.service != ''
-        with:
-          version: latest
-        id: install
-      - name: Deploy Service
-        if: matrix.service != ''
-        env:
-          KUBECONFIG: ./kubeconfig
-        run: make deploy-${{ matrix.service }} DEPLOY_ENV=pretest
+      - name: Setup SSH and Deploy Services
+        run: ./deploy-services.sh
+
+  # deploy:
+  #   name: Deploy Service - ${{ matrix.service }}
+  #   needs:
+  #     - test
+  #     - lint
+  #     - check-exclusions
+  #     - build
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       service:
+  #         - index
+  #         - library
+  #         - geoip
+  #         - validation
+  #         - dataproxy
+  #         - nodecleaner
+  #         - revalidatenode
+  #         - schemaparser
+  #         - dataproxyupdater
+  #         - dataproxyrefresher
+  #       exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
+  #   env:
+  #     PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+  #     PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+  #   steps:
+  #     - name: Checkout Repository
+  #       if: matrix.service != ''
+  #       uses: actions/checkout@v4
+  #     - name: Setup SSH for Server Access
+  #       if: matrix.service != ''
+  #       uses: webfactory/ssh-agent@v0.5.2
+  #       with:
+  #         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #     - name: Add SSH Key to Known Hosts
+  #       if: matrix.service != ''
+  #       run: |
+  #         ssh-keyscan -H ${{ env.PRETEST_SERVER_IP }} >> ~/.ssh/known_hosts
+  #     - name: Copy Kubernetes Config from Server
+  #       if: matrix.service != ''
+  #       run: >
+  #         scp root@${{ env.PRETEST_SERVER_IP }}:${{ env.PRETEST_KUBECONFIG_PATH
+  #         }} ./kubeconfig
+  #     - name: Replace Localhost IP in Kubeconfig
+  #       if: matrix.service != ''
+  #       run: >
+  #         sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/${{ env.PRETEST_SERVER_IP
+  #         }}:6443/' ./kubeconfig
+  #     - uses: azure/setup-kubectl@v3
+  #       if: matrix.service != ''
+  #       with:
+  #         version: latest
+  #       id: install
+  #     - name: Deploy Service
+  #       if: matrix.service != ''
+  #       env:
+  #         KUBECONFIG: ./kubeconfig
+  #       run: make deploy-${{ matrix.service }} DEPLOY_ENV=pretest
 
   e2e_test:
     name: E2E Test
