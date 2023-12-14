@@ -1,8 +1,23 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: index-app-config
 data:
+  {{ if $isProd }}
+  APP_ENV: "production"
+  {{ else if $isStaging }}
+  APP_ENV: "staging"
+  {{ else if $isPretest }}
+  APP_ENV: "pretest"
+  {{ else }}
+  APP_ENV: "development"
+  {{- end }}
   SERVER_PORT: "8080"
   SERVER_TIMEOUT_READ: 5s
   SERVER_TIMEOUT_WRITE: 10s
@@ -20,9 +35,9 @@ data:
   GET_RATE_LIMIT_PERIOD: 6000-M
   POST_RATE_LIMIT_PERIOD: 6000-M
   # Delete TTL, notice: need to modify the value in nodecleaner service as well
-  {{- if eq .Values.global.env "production" }}
+  {{ if $isProd }}
   DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs
-  {{- else if eq .Values.global.env "staging" }}
+  {{ else if $isStaging }}
   DELETED_TTL: "1209600" # 2 weeks
   {{- else }}
   DELETED_TTL: "120" # 2 mins

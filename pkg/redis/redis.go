@@ -14,7 +14,7 @@ type Redis interface {
 }
 
 func NewClient(url string) Redis {
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("APP_ENV") == "test" {
 		return &redismock{}
 	}
 	return &redisImpl{

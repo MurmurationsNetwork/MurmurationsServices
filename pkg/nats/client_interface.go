@@ -20,7 +20,7 @@ type natsClientInterface interface {
 }
 
 func init() {
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("APP_ENV") == "test" {
 		Client = &mockClient{}
 		return
 	}
@@ -30,7 +30,7 @@ func init() {
 func NewClient(stanClusterID, clientID, natsURL string) error {
 	var client stan.Conn
 
-	if os.Getenv("ENV") != "test" {
+	if os.Getenv("APP_ENV") != "test" {
 		opts := []stan.Option{stan.NatsURL(natsURL)}
 
 		operation := func() error {
