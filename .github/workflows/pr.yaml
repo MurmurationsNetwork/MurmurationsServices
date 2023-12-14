@@ -119,7 +119,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Setup SSH and Deploy Services
-        run: ./deploy-services.sh
+        run: ./scripts/deploy-services.sh
 
   # deploy:
   #   name: Deploy Service - ${{ matrix.service }}
