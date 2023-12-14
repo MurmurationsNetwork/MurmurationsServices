@@ -2,7 +2,7 @@ FROM golang:1.19.5-alpine as build
 
 WORKDIR /src/dataproxyupdater
 ADD . /src/dataproxyupdater
-RUN CGO_ENABLED=0 go build -o /bin/dataproxyupdater ./services/cronjob/dataproxyupdater/cmd/dataproxyupdater
+RUN CGO_ENABLED=0 go build -o /bin/dataproxyupdater ./services/dataproxyupdater/cmd/dataproxyupdater
 
 FROM ubuntu:20.04
 

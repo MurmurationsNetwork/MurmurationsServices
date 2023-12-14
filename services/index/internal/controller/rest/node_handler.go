@@ -831,7 +831,11 @@ func handleGetNodeErrors(c *gin.Context, err error, nodeID string) {
 	c.JSON(jsonErr[0].Status, res)
 }
 
-func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string) {
+func handleDeleteNodeErrors(
+	c *gin.Context,
+	err error,
+	nodeID, profileURL string,
+) {
 	var (
 		notFoundError   index.NotFoundError
 		databaseError   index.DatabaseError

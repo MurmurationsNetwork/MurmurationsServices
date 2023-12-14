@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/nodecleaner/pkg/nodecleaner"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/nodecleaner/pkg/nodecleaner"
 )
 
 func main() {
