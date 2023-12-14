@@ -1,16 +1,22 @@
 #!/bin/bash
 
-# Setup environment variables
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+# Setup environment variables.
 ssh_private_key="$SSH_PRIVATE_KEY"
 pretest_server_ip="$PRETEST_SERVER_IP"
 kubeconfig_path="$PRETEST_KUBECONFIG_PATH"
+
 # Transform the string into valid JSON and then parse it.
-formatted_json=$(echo $EXCLUDE_MATRIX | sed 's/service: \([^,}]*\)/"service": "\1"/g')
+formatted_json=$(echo $EXCLUDE_MATRIX | \
+    sed 's/service: \([^,}]*\)/"service": "\1"/g')
 exclude_services=($(echo $formatted_json | jq -r '.[] | .service'))
 echo "Excluded services: ${exclude_services[*]}"
 
 # Setup SSH.
 echo "Setting up SSH..."
+mkdir -p ~/.ssh
 echo "$ssh_private_key" > ssh_key
 chmod 600 ssh_key
 eval $(ssh-agent -s)
@@ -19,8 +25,7 @@ ssh-keyscan -H "$pretest_server_ip" >> ~/.ssh/known_hosts
 
 # Copy Kubernetes config from the server.
 echo "Copying Kubernetes configuration..."
-scp "root@$pretest_server_ip:$kubeconfig_path" \
-    ./kubeconfig
+scp "root@$pretest_server_ip:$kubeconfig_path" ./kubeconfig
 
 # Replace localhost IP in Kubeconfig.
 sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/'$pretest_server_ip':6443/' \
