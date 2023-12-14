@@ -3,7 +3,9 @@ package index
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -146,27 +148,36 @@ func (s *Service) registerRoutes() {
 		),
 	)
 
+	s.setupV1Routes()
+	s.setupV2Routes(nodeHandler)
+}
+
+// setupV1Routes configures routes for API version 1.
+func (s *Service) setupV1Routes() {
 	v1 := s.router.Group("/v1")
 	v1.Any("/*any", handler.NewDeprecationHandler("Index"))
+}
 
+// setupV2Routes configures routes for API version 2.
+func (s *Service) setupV2Routes(nodeHandler rest.NodeHandler) {
 	v2 := s.router.Group("/v2")
 	v2.GET("/ping", handler.PingHandler)
+	v2.PUT(
+		"/feature-flag/:flagName",
+		AllowInNonProductionMiddleware(),
+		s.ToggleFeatureFlag,
+	)
 
-	// Node related routes
-	{
-		v2.POST("/nodes", nodeHandler.Add)
-		v2.GET("/nodes/:nodeID", nodeHandler.Get)
-		v2.GET("/nodes", nodeHandler.Search)
-		v2.DELETE("/nodes", nodeHandler.Delete)
-		v2.DELETE("/nodes/:nodeID", nodeHandler.Delete)
-		v2.POST("/validate", nodeHandler.Validate)
-		// synchronously response
-		v2.POST("/nodes-sync", nodeHandler.AddSync)
-		// block search
-		v2.POST("/export", nodeHandler.Export)
-		// get nodes for map, response format [lon, lat, profile_url]
-		v2.GET("/get-nodes", nodeHandler.GetNodes)
-	}
+	// Node-related routes
+	v2.POST("/nodes", nodeHandler.Add)
+	v2.GET("/nodes/:nodeID", nodeHandler.Get)
+	v2.GET("/nodes", nodeHandler.Search)
+	v2.DELETE("/nodes", nodeHandler.Delete)
+	v2.DELETE("/nodes/:nodeID", nodeHandler.Delete)
+	v2.POST("/validate", nodeHandler.Validate)
+	v2.POST("/nodes-sync", nodeHandler.AddSync)
+	v2.POST("/export", nodeHandler.Export)
+	v2.GET("/get-nodes", nodeHandler.GetNodes)
 }
 
 // panic performs a cleanup and then emits the supplied message as the panic value.
@@ -234,4 +245,42 @@ func (s *Service) cleanup() {
 		nats.Client.Disconnect()
 		logger.Info("Index service stopped gracefully.")
 	})
+}
+
+// ToggleFeatureFlag updates the state of a given feature flag.
+func (s *Service) ToggleFeatureFlag(c *gin.Context) {
+	flagName := c.Param("flagName")
+	enable := c.Query("enable")
+
+	// Convert newState to boolean.
+	isEnabled, err := strconv.ParseBool(enable)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid state value"})
+		return
+	}
+
+	// Capture the previous state of the feature flag.
+	prevState, flagExists := config.Values.FeatureToggles[flagName]
+
+	// Update the feature flag state.
+	config.Values.FeatureToggles[flagName] = isEnabled
+
+	// Log the change for audit purposes.
+	log.Printf(
+		"Feature flag '%s' changed from '%t' to '%t'",
+		flagName,
+		prevState,
+		isEnabled,
+	)
+
+	// Constructing a detailed response.
+	response := gin.H{
+		"flagName":      flagName,
+		"previousState": prevState,
+		"currentState":  isEnabled,
+		"flagExists":    flagExists,
+		"timestamp":     time.Now().Format(time.RFC3339),
+	}
+
+	c.JSON(http.StatusOK, response)
 }

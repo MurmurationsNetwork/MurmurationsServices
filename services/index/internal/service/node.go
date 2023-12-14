@@ -181,29 +181,45 @@ func (s *nodeService) Search(query *es.Query) (*es.QueryResults, error) {
 	return result, nil
 }
 
-// Delete deletes a node based on its ID.
+// Delete deletes a node based on its ID. It checks a feature toggle to decide
+// whether to bypass the check for the profile URL's existence.
 func (s *nodeService) Delete(nodeID string) (string, error) {
 	node, err := s.mongoRepo.GetByID(nodeID)
 	if err != nil {
 		return "", err
 	}
 
+	if config.Values.FeatureToggles["SkipProfileURLCheckOnDelete"] {
+		return s.proceedWithDeletion(node)
+	}
+
+	if err := s.checkProfileURL(node); err != nil {
+		return "", err
+	}
+
+	return s.proceedWithDeletion(node)
+}
+
+// checkProfileURL checks the profile URL's existence, content type, and
+// redirect status.
+func (s *nodeService) checkProfileURL(node *model.Node) error {
 	resp, err := httputil.Get(node.ProfileURL)
 	if err != nil {
-		return "", index.DeleteNodeError{
-			Message: "Profile URL Not Found",
+		// This error message better reflects that there was an issue with the
+		// HTTP request, not that the URL is non-existent.
+		return index.DeleteNodeError{
+			Message: "HTTP Request Failed",
 			Detail: fmt.Sprintf(
-				"There was an error when trying to reach %s to delete node_id: %s",
+				"Error making HTTP request to %s: %s",
 				node.ProfileURL,
-				nodeID,
+				err,
 			),
 			ProfileURL: node.ProfileURL,
-			NodeID:     node.ID,
 		}
 	}
 	defer resp.Body.Close()
 
-	// check the response is json or not (issue-266)
+	// Check if the response is JSON.
 	var bodyJSON interface{}
 	isJSON := true
 	decoder := json.NewDecoder(resp.Body)
@@ -212,60 +228,53 @@ func (s *nodeService) Delete(nodeID string) (string, error) {
 		isJSON = false
 	}
 
-	// check profile_url has redirect or not (issue-516)
+	// Check for redirects.
 	hasRedirect, err := httputil.CheckRedirect(node.ProfileURL)
 	if err != nil {
-		return "", index.DeleteNodeError{
+		return index.DeleteNodeError{
 			Message: "Profile URL Cannot Be Checked",
 			Detail: fmt.Sprintf(
 				"There was an error when trying to reach %s to delete node_id: %s",
 				node.ProfileURL,
-				nodeID,
+				node.ID,
 			),
 			NodeID: node.ID,
 		}
 	}
 
-	if resp.StatusCode == http.StatusNotFound || !isJSON || hasRedirect {
-		if node.Status == constant.NodeStatus.Posted ||
-			node.Status == constant.NodeStatus.Deleted {
-			if err := s.mongoRepo.SoftDelete(node); err != nil {
-				return node.ProfileURL, err
-			}
-			err = s.elasticRepo.SoftDelete(node)
-			return node.ProfileURL, err
-		}
+	// If the profile URL doesn't return a 200 OK status, or if it redirects,
+	// or if the response is not JSON, then we consider the profile URL invalid
+	// or non-existent for our purposes and return nil, indicating that it's safe
+	// to proceed with deletion.
+	if resp.StatusCode != http.StatusOK || hasRedirect || !isJSON {
+		return nil
+	}
 
-		if err = s.mongoRepo.Delete(node); err != nil {
+	return index.DeleteNodeError{
+		Message:    "Profile Still Exists",
+		Detail:     fmt.Sprintf("Profile URL %s still exists", node.ProfileURL),
+		ProfileURL: node.ProfileURL,
+	}
+}
+
+// proceedWithDeletion contains the logic to delete the node from the database.
+func (s *nodeService) proceedWithDeletion(node *model.Node) (string, error) {
+	var err error
+
+	if node.Status == constant.NodeStatus.Posted ||
+		node.Status == constant.NodeStatus.Deleted {
+		if err := s.mongoRepo.SoftDelete(node); err != nil {
 			return node.ProfileURL, err
 		}
-		err = s.elasticRepo.DeleteByID(node.ID)
+		err = s.elasticRepo.SoftDelete(node)
 		return node.ProfileURL, err
 	}
 
-	if resp.StatusCode == http.StatusOK {
-		return node.ProfileURL, index.DeleteNodeError{
-			Message: "Profile Still Exists",
-			Detail: fmt.Sprintf(
-				"The profile could not be deleted from the Index because "+
-					"it still exists at the profile_url: %s",
-				node.ProfileURL,
-			),
-			ProfileURL: node.ProfileURL,
-			NodeID:     node.ID,
-		}
+	if err = s.mongoRepo.Delete(node); err != nil {
+		return node.ProfileURL, err
 	}
-
-	return node.ProfileURL, index.DeleteNodeError{
-		Message: "Profile Still Exists",
-		Detail: fmt.Sprintf(
-			"The node at %s returned the following status code: %d",
-			node.ProfileURL,
-			resp.StatusCode,
-		),
-		ProfileURL: node.ProfileURL,
-		NodeID:     node.ID,
-	}
+	err = s.elasticRepo.DeleteByID(node.ID)
+	return node.ProfileURL, err
 }
 
 // Export exports nodes based on the provided query.

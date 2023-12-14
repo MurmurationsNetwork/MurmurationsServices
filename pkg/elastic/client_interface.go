@@ -29,7 +29,7 @@ type esClientInterface interface {
 }
 
 func init() {
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("APP_ENV") == "test" {
 		Client = &mockClient{}
 		return
 	}
@@ -39,7 +39,7 @@ func init() {
 func NewClient(url string) error {
 	var client *elastic.Client
 
-	if os.Getenv("ENV") != "test" {
+	if os.Getenv("APP_ENV") != "test" {
 		operation := func() error {
 			log := logger.GetLogger()
 
