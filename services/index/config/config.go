@@ -6,7 +6,9 @@ import (
 )
 
 // Values holds all the application's configurations.
-var Values = config{}
+var Values = config{
+	FeatureToggles: make(map[string]bool),
+}
 
 // config is the central configuration holder.
 type config struct {
@@ -22,6 +24,8 @@ type config struct {
 	Nats natsConf
 	// TTL configuration
 	TTL ttlConf
+	// FeatureToggles
+	FeatureToggles map[string]bool
 }
 
 // serverConf contains server configurations.

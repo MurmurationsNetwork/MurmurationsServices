@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	logger.Info("GeoIP service starting")
+	logger.Info("GeoIP service starting...")
 
 	s := geoip.NewService()
 
