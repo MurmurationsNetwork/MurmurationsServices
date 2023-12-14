@@ -62,10 +62,6 @@ jobs:
 
           exclude_matrix=$(bash ./scripts/determine_exclusions.sh "$base_sha" "$head_sha")
           echo "exclude_matrix=${exclude_matrix}" >> $GITHUB_OUTPUT
-      - name: Display Excluded Services
-        run: |
-          echo "Services to be excluded:"
-          echo "${{ steps.determine-exclusions.outputs.exclude_matrix }}"
 
   build:
     name: Build Docker Image - ${{ matrix.service }}
