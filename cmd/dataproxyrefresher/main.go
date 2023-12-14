@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/dataproxyrefresher/pkg/fresher"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyrefresher/pkg/fresher"
 )
 
 func main() {
