@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/revalidatenode/pkg/revalidatenode"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/revalidatenode/pkg/revalidatenode"
 )
 
 func main() {

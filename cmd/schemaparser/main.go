@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/cronjob/schemaparser/pkg/schemaparser"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/schemaparser/pkg/schemaparser"
 )
 
 func main() {
