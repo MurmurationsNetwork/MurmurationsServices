@@ -46,7 +46,7 @@ dev:
 #--------------------------
 .PHONY: test
 test:
-	export ENV=test && go test ./...
+	export APP_ENV=test && go test ./...
 
 #--------------------------
 # Run the end-to-end (E2E) tests using newman.

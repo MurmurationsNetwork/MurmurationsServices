@@ -50,7 +50,7 @@ func (p *publisher) SetAckHandler(ackHandler stan.AckHandler) {
 
 func (p *publisher) Publish(data interface{}) {
 	// FIXME: Use Abstraction
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("APP_ENV") == "test" {
 		return
 	}
 	msg, _ := json.Marshal(data)
@@ -59,7 +59,7 @@ func (p *publisher) Publish(data interface{}) {
 
 // PublishSync sends a message to the designated subject using a synchronous approach.
 func (p *publisher) PublishSync(data interface{}) error {
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("APP_ENV") == "test" {
 		return nil
 	}
 
