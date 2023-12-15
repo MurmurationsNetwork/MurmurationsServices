@@ -1,0 +1,231 @@
+{
+    "info": {
+        "name": "Murmurations Services API Tests",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Ping Tests",
+            "item": [
+                {
+                    "name": "Index is online",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"pong!\"`, () => {",
+                                    "    pm.response.to.have.body(\"pong!\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/ping",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "ping"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Library is online",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"pong!\"`, () => {",
+                                    "    pm.response.to.have.body(\"pong!\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{libraryBaseUrl}}/ping",
+                            "host": [
+                                "{{libraryBaseUrl}}"
+                            ],
+                            "path": [
+                                "ping"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DataProxy is online",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"pong!\"`, () => {",
+                                    "    pm.response.to.have.body(\"pong!\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/ping",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "ping"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Ping Tests')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Library Tests",
+            "item": [
+                {
+                    "name": "Library returns a list of schemas",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least 1 result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThan(0)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{libraryBaseUrl}}/schemas",
+                            "host": [
+                                "{{libraryBaseUrl}}"
+                            ],
+                            "path": [
+                                "schemas"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Library returns a test schema",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct $id`, () => {",
+                                    "    pm.expect(jsonData.$id).to.contain('test_schema-v2.0.0')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{libraryBaseUrl}}/schemas/test_schema-v2.0.0",
+                            "host": [
+                                "{{libraryBaseUrl}}"
+                            ],
+                            "path": [
+                                "schemas",
+                                "test_schema-v2.0.0"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Library returns a list of countries",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return aruba in AW country code`, () => {",
+                                    "    pm.expect(jsonData[\"AW\"]).contains(\"aruba\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{libraryBaseUrl}}/countries",
+                            "host": [
+                                "{{libraryBaseUrl}}"
+                            ],
+                            "path": [
+                                "countries"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Library Tests')"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

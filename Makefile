@@ -54,6 +54,9 @@ test:
 .PHONY: newman-test
 newman-test:
 	newman run test/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
+# Temporary command to run the updated newman tests
+newman-test-new:
+	newman run test/e2e-tests-new.json -e $(ENV_FILE) --verbose --delay-request 10
 
 check-clean:
 	@if [ -n "$(shell git status --porcelain)" ]; then \
