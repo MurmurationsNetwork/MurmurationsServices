@@ -202,7 +202,6 @@
                     ],
                     "request": {
                         "method": "GET",
-                        "header": [],
                         "url": {
                             "raw": "{{libraryBaseUrl}}/countries",
                             "host": [
@@ -222,6 +221,225 @@
                         "type": "text/javascript",
                         "exec": [
                             "pm.variables.set('folder_name','Library Tests')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "V1 Routes Deprecated",
+            "item": [
+                {
+                    "name": "POST /nodes",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
+                                    "    pm.response.to.have.status(410)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrlV1}}/nodes",
+                            "host": [
+                                "{{indexBaseUrlV1}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /nodes-sync",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
+                                    "    pm.response.to.have.status(410)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrlV1}}/nodes-sync",
+                            "host": [
+                                "{{indexBaseUrlV1}}"
+                            ],
+                            "path": [
+                                "nodes-sync"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /nodes",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
+                                    "    pm.response.to.have.status(410)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrlV1}}/nodes",
+                            "host": [
+                                "{{indexBaseUrlV1}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /nodes/:node_id",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
+                                    "    pm.response.to.have.status(410)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrlV1}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrlV1}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE /nodes/:node_id",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
+                                    "    pm.response.to.have.status(410)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{indexBaseUrlV1}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrlV1}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /schemas",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
+                                    "    pm.response.to.have.status(410)",
+                                    "})",
+                                    "pm.variables.set(\"test_counter\", 0)"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{libraryBaseUrlV1}}/schemas",
+                            "host": [
+                                "{{libraryBaseUrlV1}}"
+                            ],
+                            "path": [
+                                "schemas"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','V1 Routes Deprecated')"
                         ]
                     }
                 }
