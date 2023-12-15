@@ -1,9 +1,13 @@
 apiVersion: skaffold/v4beta5
 kind: Config
+
+# Build configuration settings.
 build:
   local:
+    # Indicates local build without pushing to a remote registry.
     push: false
   artifacts:
+    # List of Docker artifacts to be built.
     - image: murmurations/dataproxy
       context: .
       docker:
@@ -44,30 +48,33 @@ build:
       context: .
       docker:
         dockerfile: build/validation/docker/Dockerfile-dev
+
+# Deployment configuration settings.
 deploy:
   # Deadline for deployments to stabilize in seconds.
   statusCheckDeadlineSeconds: 300
   helm:
     releases:
-    - name: development
-      chartPath: charts/murmurations
-      setValueTemplates:
-        # Using setValueTemplates to set image references dynamically.
-        # https://skaffold-v2-latest.firebaseapp.com/docs/deployers/helm/#fqn-strategy-single-fully-qualified-name-default
-        index.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_index}}"
-        validation.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_validation}}"
-        library.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_library}}"
-        nodecleaner.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_nodecleaner}}"
-        schemaparser.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_schemaparser}}"
-        revalidatenode.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_revalidatenode}}"
-        geoip.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_geoip}}"
-        dataproxy.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxy}}"
-        dataproxyupdater.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyupdater}}"
-        dataproxyrefresher.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyrefresher}}"
-        # SOURCEPATH is provided by the environment variable. It is the location of the MurmurationsServices
-        # on your local computer.
-        global.sourcepath: "{{.SOURCEPATH}}"
-        global.env: "development"
+      - name: development
+        chartPath: charts/murmurations
+        setValueTemplates:
+          # Dynamically setting image references using setValueTemplates.
+          # Reference: https://skaffold-v2-latest.firebaseapp.com/docs/deployers/helm/#fqn-strategy-single-fully-qualified-name-default
+          index.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_index}}"
+          validation.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_validation}}"
+          library.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_library}}"
+          nodecleaner.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_nodecleaner}}"
+          schemaparser.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_schemaparser}}"
+          revalidatenode.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_revalidatenode}}"
+          geoip.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_geoip}}"
+          dataproxy.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxy}}"
+          dataproxyupdater.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyupdater}}"
+          dataproxyrefresher.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyrefresher}}"
+          # Path to MurmurationsServices on local computer
+          global.sourcepath: "{{.SOURCEPATH}}"
+          global.env: "development"
+
+# Port forwarding configuration.
 portForward:
   - resourceType: service
     resourceName: index-mongo
