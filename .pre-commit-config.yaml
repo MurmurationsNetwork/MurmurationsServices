@@ -1,11 +1,12 @@
----
 repos:
+  # golangci-lint hook.
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.52.2
+    rev: v1.55.2
     hooks:
       - id: golangci-lint
         entry: golangci-lint run --out-format=github-actions
 
+  # golines hook.
   - repo: https://github.com/segmentio/golines
     rev: v0.11.0
     hooks:

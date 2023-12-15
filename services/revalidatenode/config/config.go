@@ -3,7 +3,7 @@ package config
 import (
 	"log"
 
-	env "github.com/caarlos0/env/v6"
+	env "github.com/caarlos0/env/v10"
 )
 
 // Conf holds the configuration settings for the application.

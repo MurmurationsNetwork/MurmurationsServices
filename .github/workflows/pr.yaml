@@ -111,6 +111,7 @@ jobs:
       PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       EXCLUDE_MATRIX: ${{ needs.check-exclusions.outputs.exclude_matrix }}
+      DEPLOY_ENV: pretest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

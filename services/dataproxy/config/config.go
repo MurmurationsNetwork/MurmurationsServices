@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	env "github.com/caarlos0/env/v6"
+	env "github.com/caarlos0/env/v10"
 )
 
 var Conf = config{}

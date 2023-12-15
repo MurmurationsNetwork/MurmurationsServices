@@ -1,25 +1,23 @@
-.idea
-.vscode
+# IDE-specific settings.
+.idea          # JetBrains IDE settings
+.vscode        # Visual Studio Code settings
 
-# Skaffold v1.0.0 generates dummy folder
-.kpt-pipeline
+# Skaffold-specific files.
+.kpt-pipeline  # Skaffold v1.0.0 generates dummy folder
 
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+# Compiled binary files.
+*.exe          # Executable files for Windows
+*.exe~         # Backup of executable files
+*.dll          # Dynamic Link Libraries for Windows
+*.so           # Shared Object libraries for Unix/Linux
+*.dylib        # Dynamic libraries for macOS
 
-# Test binary, built with `go test -c`
-*.test
+# Test files.
+*.test         # Test binary, built with `go test -c`
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+# Coverage tool output.
+*.out          # Output of the go coverage tool, specifically with LiteIDE
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# OS generated files #
-.DS_Store
-.DS_Store?
+# OS generated files.
+.DS_Store      # File system metadata for macOS
+.DS_Store?     # Additional macOS file system metadata

@@ -182,7 +182,17 @@ jobs:
 
   deploy:
     name: Deploy
-    needs: [ build-index, build-library, build-geoip, build-validation, build-nodecleaner, build-revalidatenode, build-schemaparser, build-dataproxy, build-dataproxyupdater, build-dataproxyrefresher ]
+    needs:
+      - build-index
+      - build-library
+      - build-geoip
+      - build-validation
+      - build-nodecleaner
+      - build-revalidatenode
+      - build-schemaparser
+      - build-dataproxy
+      - build-dataproxyupdater
+      - build-dataproxyrefresher
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
