@@ -1,0 +1,34 @@
+{
+	"name": "Murmurations Services Pretest",
+	"values": [
+		{
+			"key": "indexBaseUrl",
+			"value": "https://pretest1-index.murmurations.network/v2",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "indexBaseUrlV1",
+			"value": "https://pretest1-index.murmurations.network/v1",
+			"enabled": true
+		},
+		{
+			"key": "libraryBaseUrl",
+			"value": "https://pretest1-library.murmurations.network/v2",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "libraryBaseUrlV1",
+			"value": "https://pretest1-library.murmurations.network/v1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "dataProxyBaseUrl",
+			"value": "https://pretest1-data-proxy.murmurations.network/v1",
+			"type": "default",
+			"enabled": true
+		}
+	]
+}
