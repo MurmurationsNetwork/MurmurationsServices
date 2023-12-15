@@ -3,7 +3,7 @@ package index
 import (
 	"log"
 
-	env "github.com/caarlos0/env/v6"
+	env "github.com/caarlos0/env/v10"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"

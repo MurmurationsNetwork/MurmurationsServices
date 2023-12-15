@@ -8,6 +8,9 @@ ssh_private_key="$SSH_PRIVATE_KEY"
 pretest_server_ip="$PRETEST_SERVER_IP"
 kubeconfig_path="$PRETEST_KUBECONFIG_PATH"
 
+# Define DEPLOY_ENV; use development if not provided.
+DEPLOY_ENV="${DEPLOY_ENV:-development}"
+
 # Transform the string into valid JSON and then parse it.
 formatted_json=$(echo $EXCLUDE_MATRIX | \
     sed 's/service: \([^,}]*\)/"service": "\1"/g')
@@ -51,7 +54,7 @@ for service in "${services[@]}"; do
     if [[ ! " ${exclude_services[@]} " =~ " ${service} " ]]; then
         echo "Deploying $service..."
         # Replace with actual deployment command
-        make deploy-$service DEPLOY_ENV=pretest
+        make deploy-$service DEPLOY_ENV=$DEPLOY_ENV
     else
         echo "Skipping deployment of $service, as it's excluded."
     fi

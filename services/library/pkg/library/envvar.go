@@ -3,7 +3,7 @@ package library
 import (
 	"log"
 
-	env "github.com/caarlos0/env/v6"
+	env "github.com/caarlos0/env/v10"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/library/config"
 )
