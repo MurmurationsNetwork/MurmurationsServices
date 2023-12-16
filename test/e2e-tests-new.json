@@ -444,6 +444,487 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "Handles Missing Nodes",
+            "item": [
+                {
+                    "name": "Does not find non-existent node",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"title\" parameter`, () => {",
+                                    "    pm.expect(jsonData.errors[0]).to.have.property(\"title\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Could not find node_id\" message`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain(\"Could not locate the following node_id\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "999999",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Does not accept blank/missing profile_url",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return missing profile_url error title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.eq(\"Missing Required Property\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return missing profile_url error detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.eq(\"The `profile_url` property is required.\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\": \"\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Accepts non-existent profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"node0\", jsonData.data.node_id)"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\": \"https://ic3.dev/non-existent-profile-url.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Returns failure info about non-existent profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"node_id\" parameter`, () => {",
+                                    "    pm.expect(jsonData.meta).to.have.property(\"node_id\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Profile Not Found\" title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.eq(\"Profile Not Found\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Could not read from profile_url`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain(\"Could not find or read from (invalid JSON) the profile_url\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "setTimeout(function(){}, 100);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node0}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Removes non-existent profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"message\" parameter`, () => {",
+                                    "    pm.expect(jsonData.meta).to.have.property(\"message\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"removed profile\" message`, () => {",
+                                    "    pm.expect(jsonData.meta.message).to.contain(\"has recorded as deleted\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node0}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Does not find deleted record for non-existent profile_url",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 404`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(404)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"title\" parameter`, () => {",
+                                    "    pm.expect(jsonData.errors[0]).to.have.property(\"title\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"could not find node_id\" detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.eq(`Could not locate the following node_id in the Index: ${pm.environment.get(\"node0\")}`)",
+                                    "})",
+                                    "pm.environment.unset(\"node0\")"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "setTimeout(function(){}, 100);",
+                                    ""
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node0}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Handles Missing Nodes')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Handles Invalid Profiles",
+            "item": [
+                {
+                    "name": "Accepts profile with validation errors",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"node00\", jsonData.data.node_id)",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+                                    "    pm.expect(jsonData.data.node_id).to.eq(\"98af871c2ba20bc1a5a3dc4fa39d49a1a0bea14787d698a39d46e0d04cb9269c\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/invalid-geopoints.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Returns details of invalid profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should not have _id property`, () => {",
+                                    "    pm.expect(jsonData.meta).to.not.have.property(\"_id\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should have node_id property`, () => {",
+                                    "    pm.expect(jsonData.meta).to.have.property(\"node_id\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct node_id`, () => {",
+                                    "    pm.expect(jsonData.meta.node_id).to.eq(\"98af871c2ba20bc1a5a3dc4fa39d49a1a0bea14787d698a39d46e0d04cb9269c\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct profile_url`, () => {",
+                                    "    pm.expect(jsonData.meta.profile_url).to.eq(\"https://ic3.dev/murmurations/invalid-geopoints.json\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should not have profile_hash property`, () => {",
+                                    "    pm.expect(jsonData.meta).to.not.have.property(\"profile_hash\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should not return linked_schemas list`, () => {",
+                                    "    pm.expect(jsonData.meta).to.not.have.property(\"linked_schemas\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should not have last_updated property`, () => {",
+                                    "    pm.expect(jsonData.meta).to.not.have.property(\"last_updated\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "setTimeout(function(){}, 100);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node00}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Cannot delete invalid profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"title\" parameter`, () => {",
+                                    "    pm.expect(jsonData.errors[0]).to.have.property(\"title\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"profile still exists\" message`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.contain(\"Profile Still Exists\")",
+                                    "})",
+                                    "pm.environment.unset(\"node00\")"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    ""
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node00}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Handles Invalid Profiles')"
+                        ]
+                    }
+                }
+            ]
         }
     ]
 }
