@@ -1528,6 +1528,201 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "Handles POST /nodes-sync",
+            "item": [
+                {
+                    "name": "Returns posted status for a valid profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return posted status`, () => {",
+                                    "    pm.expect(jsonData.data.status).to.contain('posted')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-1.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes-sync",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes-sync"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Returns profile not found for non-existent profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.eq('Profile Not Found')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('Could not find or read from (invalid JSON) the profile_url')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('https://ic3.dev/murmurations/does-not-exist.json')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/does-not-exist.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes-sync",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes-sync"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Returns profile not found for invalid JSON",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return invalid profile title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.eq('Profile Not Found')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return invalid profile detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('Could not find or read from (invalid JSON) the profile_url')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/invalid-json.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes-sync",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes-sync"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Returns profile not found for failed schema validation",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"title\" parameter`, () => {",
+                                    "    pm.expect(jsonData.errors[0]).to.have.property(\"title\")",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"Missing Required Property\" status`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.eq(\"Missing Required Property\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/invalid-geopoints.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes-sync",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes-sync"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Handles POST /nodes-sync')"
+                        ]
+                    }
+                }
+            ]
         }
     ]
 }
