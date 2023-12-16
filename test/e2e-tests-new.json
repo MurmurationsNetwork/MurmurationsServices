@@ -1107,6 +1107,427 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "Performs Profile Validation",
+            "item": [
+                {
+                    "name": "Profile with invalid property type",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.contain('Invalid Type')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\": \"IC3 Dev\",\"geolocation\":{\"lat\":\"11.111111\",\"lon\":\"12.121212\"}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with missing required property",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.contain('Missing Required Property')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with invalid mix/max amounts",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure reason`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.equal('Invalid Amount')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure reason`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('than or equal to')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\": 91,\"lon\":-181}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with missing schema",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 404`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(404)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.contain('Error loading schema')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('404 Not Found')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\",\"test_schema-v0.0.1\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212 }}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with no linked schemas",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.contain('Missing Required Property')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('The `linked_schemas` property is required.')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with Invalid JSON",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.equal('JSON Error')",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure detail`, () => {",
+                                    "    pm.expect(jsonData.errors[0].detail).to.equal('The JSON document submitted could not be parsed.')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "INVALID",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with invalid pattern",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "    pm.response.to.have.status(404)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[1].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[1].title).to.contain('Pattern Mismatch')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\": 11.111111,\"lon\":12.121212}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile with no schema",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
+                                    "    pm.expect(jsonData.errors[0].status).to.equal(400)",
+                                    "})",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure title`, () => {",
+                                    "    pm.expect(jsonData.errors[0].title).to.contain('Not Enough Items')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Profile that validates",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct message`, () => {",
+                                    "    pm.expect(jsonData.meta.message).to.equal(\"The submitted profile was validated successfully to its linked schemas.\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Performs Profile Validation')"
+                        ]
+                    }
+                }
+            ]
         }
     ]
 }
