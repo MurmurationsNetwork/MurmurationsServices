@@ -53,7 +53,7 @@ test:
 #--------------------------
 .PHONY: newman-test
 newman-test:
-	newman run test/e2e-tests-staging.json -e $(ENV_FILE) --verbose --delay-request 1000
+	newman run test/e2e-tests-staging.json -e $(ENV_FILE) --verbose --delay-request 10
 
 check-clean:
 	@if [ -n "$(shell git status --porcelain)" ]; then \
