@@ -248,7 +248,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/valid-profile.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -285,7 +285,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/valid-profile.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -412,8 +412,7 @@
                                 "exec": [
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 410`, () => {",
                                     "    pm.response.to.have.status(410)",
-                                    "})",
-                                    "pm.variables.set(\"test_counter\", 0)"
+                                    "})"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -520,7 +519,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\": \"\"}",
+                            "raw": "{\"profile_url\":\"\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -559,7 +558,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\": \"https://ic3.dev/non-existent-profile-url.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/non-existent-profile-url.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -772,7 +771,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/invalid-geopoints.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/invalid-geopoints.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -953,7 +952,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/valid-profile.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/valid-profile.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -1067,8 +1066,7 @@
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Profile Still Exists\" message`, () => {",
                                     "    pm.expect(jsonData.errors[0].title).to.contain(\"Profile Still Exists\")",
                                     "})",
-                                    "pm.environment.unset(\"node000\")",
-                                    "pm.variables.set(\"test_counter\", 0)"
+                                    "pm.environment.unset(\"node000\")"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1137,7 +1135,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\": \"IC3 Dev\",\"geolocation\":{\"lat\":\"11.111111\",\"lon\":\"12.121212\"}}",
+                            "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":\"11.111111\",\"lon\":\"12.121212\"}}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -1539,11 +1537,11 @@
                             "listen": "test",
                             "script": {
                                 "exec": [
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
                                     "    pm.response.to.have.status(200)",
                                     "})",
                                     "var jsonData = pm.response.json();",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return posted status`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return posted status`, () => {",
                                     "    pm.expect(jsonData.data.status).to.contain('posted')",
                                     "})"
                                 ],
@@ -1580,17 +1578,17 @@
                             "listen": "test",
                             "script": {
                                 "exec": [
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
                                     "    pm.response.to.have.status(404)",
                                     "})",
                                     "var jsonData = pm.response.json();",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile title`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return non-existent profile title`, () => {",
                                     "    pm.expect(jsonData.errors[0].title).to.eq('Profile Not Found')",
                                     "})",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile detail`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return non-existent profile detail`, () => {",
                                     "    pm.expect(jsonData.errors[0].detail).to.contain('Could not find or read from (invalid JSON) the profile_url')",
                                     "})",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return non-existent profile detail`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return non-existent profile detail`, () => {",
                                     "    pm.expect(jsonData.errors[0].detail).to.contain('https://ic3.dev/murmurations/does-not-exist.json')",
                                     "})"
                                 ],
@@ -1627,14 +1625,14 @@
                             "listen": "test",
                             "script": {
                                 "exec": [
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 404`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 404`, () => {",
                                     "    pm.response.to.have.status(404)",
                                     "})",
                                     "var jsonData = pm.response.json();",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return invalid profile title`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return invalid profile title`, () => {",
                                     "    pm.expect(jsonData.errors[0].title).to.eq('Profile Not Found')",
                                     "})",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return invalid profile detail`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return invalid profile detail`, () => {",
                                     "    pm.expect(jsonData.errors[0].detail).to.contain('Could not find or read from (invalid JSON) the profile_url')",
                                     "})"
                                 ],
@@ -1671,17 +1669,17 @@
                             "listen": "test",
                             "script": {
                                 "exec": [
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
                                     "    pm.response.to.have.status(400)",
                                     "})",
                                     "var jsonData = pm.response.json();",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status 400`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status 400`, () => {",
                                     "    pm.expect(jsonData.errors[0].status).to.equal(400)",
                                     "})",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"title\" parameter`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"title\" parameter`, () => {",
                                     "    pm.expect(jsonData.errors[0]).to.have.property(\"title\")",
                                     "})",
-                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return \"Missing Required Property\" status`, () => {",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Missing Required Property\" status`, () => {",
                                     "    pm.expect(jsonData.errors[0].title).to.eq(\"Missing Required Property\")",
                                     "})"
                                 ],
@@ -1719,6 +1717,1346 @@
                         "type": "text/javascript",
                         "exec": [
                             "pm.variables.set('folder_name','Handles POST /nodes-sync')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Add Test Profiles",
+            "item": [
+                {
+                    "name": "Post node 2",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-2.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 3",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-3.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 4",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-4.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 5",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-5.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 6",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-6.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 7",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-7.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 8",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-8.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 9",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-9.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Post node 10",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/test-profile-10.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Add Test Profiles')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Returns Expected Search Results",
+            "item": [
+                {
+                    "name": "Search by geolocation range 10km",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least one result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "setTimeout(function(){}, 5000);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=10km",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "lat",
+                                    "value": "51.493518"
+                                },
+                                {
+                                    "key": "lon",
+                                    "value": "0.009199"
+                                },
+                                {
+                                    "key": "range",
+                                    "value": "10km"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by geolocation range 100mi",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least two results`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=100mi",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "lat",
+                                    "value": "51.493518"
+                                },
+                                {
+                                    "key": "lon",
+                                    "value": "0.009199"
+                                },
+                                {
+                                    "key": "range",
+                                    "value": "100mi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by locality fuzzy",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least one result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?locality=Londn",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "locality",
+                                    "value": "Londn"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by locality fuzzy case-insensitive",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least one result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?locality=lONDN",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "locality",
+                                    "value": "lONDN"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search with pagination",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return two results`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.eq(2)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?page_size=2",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page_size",
+                                    "value": "2"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by tag with exact match",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should only return results with an exactly matched tag`, () => {",
+                                    "    let notFoundInAll = false",
+                                    "    jsonData.data.forEach(e => {",
+                                    "        let found",
+                                    "        e.tags.find(e => e.toUpperCase() === 'BEER' ? found = true : null )",
+                                    "        if (!found) notFoundInAll = true",
+                                    "    })",
+                                    "    pm.expect(notFoundInAll).to.be.false",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer&tags_exact=true",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "tags",
+                                    "value": "Beer"
+                                },
+                                {
+                                    "key": "tags_exact",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by tag with fuzzy match",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "// the profiles with \"beer\" and \"bees\" should be fuzzy matched to \"beez\"",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least three results`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(3)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?tags=Beez&tags_filter=or",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "tags",
+                                    "value": "Beez"
+                                },
+                                {
+                                    "key": "tags_filter",
+                                    "value": "or"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by tags with AND filter",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "// should only return the one profile with both tags",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return one result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.eq(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,Sausages&tags_filter=and",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "tags",
+                                    "value": "Beer,Sausages"
+                                },
+                                {
+                                    "key": "tags_filter",
+                                    "value": "and"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by tag with spelling error",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "// should fuzzy match the profile with \"friuts\" as a tag",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least one result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?tags=fruit",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "tags",
+                                    "value": "fruit"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by primary_url 1",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least two results`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(2)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?primary_url=ic3.dev",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "primary_url",
+                                    "value": "ic3.dev"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by primary_url 2",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least one result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?primary_url=third.ic3.dev",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "primary_url",
+                                    "value": "third.ic3.dev"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search all schema versions",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least ten results`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(10)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?schema=test_schema-v",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "schema",
+                                    "value": "test_schema-v"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search v2.x.x",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least ten result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(10)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?schema=Test_Schema-v2",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "schema",
+                                    "value": "Test_Schema-v2"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search v2.1.x",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return at least four result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(4)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?schema=test_schema-v2.1",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "schema",
+                                    "value": "test_schema-v2.1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Returns Expected Search Results')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Export Data Test",
+            "item": [
+                {
+                    "name": "Export data",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return sort in meta`, () => {",
+                                    "    pm.expect(jsonData.meta).to.have.property('sort')",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"search_after\":[1660116734000,\"https://test-data-proxy.murmurations.network/v1/profiles/cl6nan2h501vh0k68bmm38sad\"]}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/export",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "export"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Export Data Test')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Map API",
+            "item": [
+                {
+                    "name": "Check Map API",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/get-nodes?page_size=100",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "get-nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page_size",
+                                    "value": "100"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Map API')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test CSV Batch Import",
+            "item": [
+                {
+                    "name": "Validate Batch",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json()"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": "./test/organizations_schema-v1.0.0-example-import.csv"
+                                },
+                                {
+                                    "key": "schemas",
+                                    "value": "[\"organizations_schema-v1.0.0\"]",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/batch/validate",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "batch",
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Import Batch",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json()",
+                                    "pm.environment.set(\"batch_id\", jsonData.meta.batch_id)"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "title",
+                                    "value": "Test",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": "./test/organizations_schema-v1.0.0-example-import.csv"
+                                },
+                                {
+                                    "key": "schemas",
+                                    "value": "[\"organizations_schema-v1.0.0\"]",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "user_id",
+                                    "value": "cl6xpncg5000009l8dbpld1re",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "meta_name",
+                                    "value": "Organization",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "meta_url",
+                                    "value": "https://example.com",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/batch/import",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "batch",
+                                "import"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Batches",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json()",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return at least 1 result`, () => {",
+                                    "    pm.expect(jsonData.data.length).to.be.greaterThanOrEqual(1)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/batch/user?user_id=cl6xpncg5000009l8dbpld1re",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "batch",
+                                "user"
+                            ],
+                            "query": [
+                                {
+                                    "key": "user_id",
+                                    "value": "cl6xpncg5000009l8dbpld1re"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Edit Import Batch",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json()",
+                                    "var batch_id = pm.environment.get(\"batch_id\")",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return same batch_id`, () => {",
+                                    "    pm.expect(jsonData.meta.batch_id).to.equal(batch_id)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": "./test/organizations_schema-v1.0.0-example-import.csv"
+                                },
+                                {
+                                    "key": "schemas",
+                                    "value": "[\"organizations_schema-v1.0.0\"]",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "user_id",
+                                    "value": "cl6xpncg5000009l8dbpld1re",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "batch_id",
+                                    "value": "{{batch_id}}",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "meta_name",
+                                    "value": "Organization",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "meta_url",
+                                    "value": "https://example.com",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "Test",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/batch/import",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "batch",
+                                "import"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Import Batch",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json()",
+                                    "var batch_id = pm.environment.get(\"batch_id\")",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - (${pm.variables.get(\"test_counter\")}) ${pm.info.requestName} - should return same batch_id`, () => {",
+                                    "    pm.expect(jsonData.meta.batch_id).to.equal(batch_id)",
+                                    "})",
+                                    "pm.environment.unset(\"batch_id\")"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "user_id",
+                                    "value": "cl6xpncg5000009l8dbpld1re",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "batch_id",
+                                    "value": "{{batch_id}}",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/batch/import",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "batch",
+                                "import"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Test CSV Batch Import')"
                         ]
                     }
                 }
