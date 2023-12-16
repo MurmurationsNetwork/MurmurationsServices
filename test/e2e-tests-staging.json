@@ -703,7 +703,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 100);",
+                                    "setTimeout(function(){}, 1000);",
                                     ""
                                 ],
                                 "type": "text/javascript"
@@ -1019,7 +1019,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 100);"
+                                    "setTimeout(function(){}, 1000);"
                                 ],
                                 "type": "text/javascript"
                             }
