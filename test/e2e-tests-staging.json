@@ -2403,7 +2403,7 @@
                     "request": {
                         "method": "GET",
                         "url": {
-                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,Sausages&tags_filter=and",
+                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,Sausages&tags_filter=and&status=posted",
                             "host": [
                                 "{{indexBaseUrl}}"
                             ],
@@ -2418,6 +2418,10 @@
                                 {
                                     "key": "tags_filter",
                                     "value": "and"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "posted"
                                 }
                             ]
                         }
