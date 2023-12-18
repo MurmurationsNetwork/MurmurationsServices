@@ -5,6 +5,61 @@
     },
     "item": [
         {
+            "name": "Set Feature Flags",
+            "item": [
+                {
+                    "name": "Ensure skip URL check on delete is not enabled",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct current state`, () => {",
+                                    "    pm.expect(jsonData.currentState).to.eq(false)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/feature-flag/SkipProfileURLCheckOnDelete?enable=false",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "feature-flag",
+                                "SkipProfileURLCheckOnDelete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "enable",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Set Feature Flags')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
             "name": "Ping Tests",
             "item": [
                 {
@@ -1066,7 +1121,8 @@
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Profile Still Exists\" message`, () => {",
                                     "    pm.expect(jsonData.errors[0].title).to.contain(\"Profile Still Exists\")",
                                     "})",
-                                    "pm.environment.unset(\"node000\")"
+                                    "//Leave this variable set for the feature flag to skip URL check on delete",
+                                    "//pm.environment.unset(\"node000\")"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -3061,6 +3117,140 @@
                         "type": "text/javascript",
                         "exec": [
                             "pm.variables.set('folder_name','Test CSV Batch Import')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test Feature Flags",
+            "item": [
+                {
+                    "name": "Enable skip URL check on delete",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct current state`, () => {",
+                                    "    pm.expect(jsonData.currentState).to.eq(true)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/feature-flag/SkipProfileURLCheckOnDelete?enable=true",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "feature-flag",
+                                "SkipProfileURLCheckOnDelete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "enable",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Can delete posted profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Profile Still Exists\" message`, () => {",
+                                    "    pm.expect(jsonData.meta.message).to.contain(\"recorded as deleted the profile\")",
+                                    "})",
+                                    "pm.environment.unset(\"node000\")"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node000}}"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Disable skip URL check on delete",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct current state`, () => {",
+                                    "    pm.expect(jsonData.currentState).to.eq(false)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/feature-flag/SkipProfileURLCheckOnDelete?enable=false",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "feature-flag",
+                                "SkipProfileURLCheckOnDelete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "enable",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Test Feature Flags')"
                         ]
                     }
                 }
