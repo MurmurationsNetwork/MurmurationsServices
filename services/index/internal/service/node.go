@@ -50,33 +50,78 @@ func NewNodeService(
 	}
 }
 
-// SetNodeValid sets a node as valid.
+// SetNodeValid sets a node as valid, updates its status, and indexes it in the
+// repositories.
 func (s *nodeService) SetNodeValid(node *model.Node) error {
+	// Generate and set node ID using SHA256 hash of the ProfileURL.
 	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
+	// Set node status to validated and reset failure reasons.
 	node.SetStatusValidated()
 	node.ResetFailureReasons()
 
+	// Retrieve the old node from the repository.
+	oldNode, err := s.mongoRepo.GetByID(node.ID)
+	if err != nil && !errors.As(err, &index.NotFoundError{}) {
+		return err
+	}
+
+	// Check if the profile hash is unchanged for existing nodes.
+	if s.isProfileHashUnchanged(node, oldNode) {
+		// If we simply return here, the node will remain stuck
+		// in the received status. If we update, then MongoDB's
+		// last_updated and __v will also be updated. What is the
+		// desired behavior in this case? Is it acceptable to update
+		// MongoDB but not update Elasticsearch?
+		return nil
+	}
+
+	// Update the node profile and handle any errors.
 	profile := model.NewProfile(node.ProfileStr)
 	if err := profile.Update(node.ProfileURL, node.LastUpdated); err != nil {
 		return err
 	}
 
+	// Update the node in the Mongo repository.
 	if err := s.mongoRepo.Update(node); err != nil {
 		return err
 	}
 
+	// Index the node in the Elastic repository.
 	if err := s.elasticRepo.IndexByID(node.ID, profile.GetJSON()); err != nil {
 		errMsg := fmt.Sprintf(
-			"Error indexing node ID '%s' in Elastic repository",
-			node.ID,
-		)
+			"Error indexing node ID '%s' in Elastic repository", node.ID)
 		logger.Error(errMsg, err)
+
 		node.SetStatusPostFailed()
-		return s.mongoRepo.Update(node)
+		mongoErr := s.mongoRepo.Update(node)
+		if mongoErr != nil {
+			logger.Error(
+				"Failed to update node in MongoDB after Elastic indexing failure",
+				err,
+			)
+		}
+
+		return err
 	}
 
+	// Set node status to posted and update in Mongo repository.
 	node.SetStatusPosted()
 	return s.mongoRepo.Update(node)
+}
+
+// isProfileHashUnchanged checks if the profile hash of the new node matches
+// the old node. It returns true if the hashes are the same.
+func (s *nodeService) isProfileHashUnchanged(
+	newNode *model.Node,
+	oldNode *model.Node,
+) bool {
+	if oldNode == nil {
+		return false
+	}
+	newHash, _ := profilehasher.New(newNode.ProfileURL,
+		config.Values.Library.InternalURL).Hash()
+	return newHash != "" && oldNode.ProfileHash != nil &&
+		*oldNode.ProfileHash == newHash
 }
 
 // SetNodeInvalid sets a node as invali.
@@ -106,28 +151,15 @@ func (s *nodeService) AddNode(
 	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
 
 	oldNode, err := s.mongoRepo.GetByID(node.ID)
-
-	// Early return on non-NotFoundError cases.
 	if err != nil && !errors.As(err, &index.NotFoundError{}) {
 		return nil, err
 	}
 
-	// If oldNode is not nil, process based on its status.
-	if oldNode != nil {
-		switch oldNode.Status {
-		case constant.NodeStatus.Deleted:
-			// Check if ProfileURL is valid when node is marked as deleted.
-			if !httputil.IsValidURL(node.ProfileURL) {
-				return oldNode, nil
-			}
-		default:
-			// Check profile hash for non-deleted nodes.
-			newHash, _ := profilehasher.New(node.ProfileURL, config.Values.Library.InternalURL).
-				Hash()
-			if newHash != "" && oldNode.ProfileHash != nil &&
-				*oldNode.ProfileHash == newHash {
-				return oldNode, nil
-			}
+	// If oldNode is not nil and its status is 'Deleted', check if ProfileURL is
+	// valid.
+	if oldNode != nil && oldNode.Status == constant.NodeStatus.Deleted {
+		if !httputil.IsValidURL(node.ProfileURL) {
+			return oldNode, nil
 		}
 	}
 
