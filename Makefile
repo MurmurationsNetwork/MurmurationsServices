@@ -18,11 +18,11 @@ include ./build/validation/mk/Makefile
 DEPLOY_ENV ?= development
 
 ifeq ($(DEPLOY_ENV), staging)
-	ENV_FILE = test/e2e-staging-env.json
+	ENV_FILE = test/e2e-env-staging.json
 else ifeq ($(DEPLOY_ENV), pretest)
-	ENV_FILE = test/e2e-pretest-env.json
+	ENV_FILE = test/e2e-env-pretest.json
 else
-	ENV_FILE = test/e2e-local-env.json
+	ENV_FILE = test/e2e-env-development.json
 endif
 
 # The TAG value is constructed based on the commit SHA.
@@ -53,7 +53,7 @@ test:
 #--------------------------
 .PHONY: newman-test
 newman-test:
-	newman run test/e2e-tests.json -e $(ENV_FILE) --verbose --delay-request 1000
+	newman run test/e2e-tests-staging.json -e $(ENV_FILE) --verbose --delay-request 10
 
 check-clean:
 	@if [ -n "$(shell git status --porcelain)" ]; then \
