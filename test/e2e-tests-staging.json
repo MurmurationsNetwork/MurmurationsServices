@@ -1103,7 +1103,8 @@
                                     "})",
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - last_updated property should be a number`, () => {",
                                     "    pm.expect(jsonData.data.last_updated).to.be.a(\"number\")",
-                                    "})"
+                                    "})",
+                                    "pm.environment.set(\"node000-last_updated\", jsonData.data.last_updated)"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1169,6 +1170,100 @@
                     ],
                     "request": {
                         "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node000}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Can repost valid profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+                                    "    pm.expect(jsonData.data.node_id).to.eq(\"c561d41741b67ae991f0653805c64de02d6d9cf153ec3d5f4503992f09008996\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/valid-profile.json\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reposted node with no changes has same last_updated timestamp",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - last_updated property should be unchanged`, () => {",
+                                    "    pm.expect(jsonData.data.last_updated).to.eq(pm.environment.get(\"node000-last_updated\"))",
+                                    "})",
+                                    "pm.environment.unset(\"node000-last_updated\")"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "setTimeout(function(){}, 2000);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
                         "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
