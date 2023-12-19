@@ -2459,7 +2459,7 @@
                     "request": {
                         "method": "GET",
                         "url": {
-                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,Sausages&tags_filter=and&status=posted",
+                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,dd1c588b27b4a2e3f2fd13025557ec0b3663c4fdaffeef2d9f0a9a1353d2224b&tags_filter=and&status=posted",
                             "host": [
                                 "{{indexBaseUrl}}"
                             ],
@@ -2469,7 +2469,7 @@
                             "query": [
                                 {
                                     "key": "tags",
-                                    "value": "Beer,Sausages"
+                                    "value": "Beer,dd1c588b27b4a2e3f2fd13025557ec0b3663c4fdaffeef2d9f0a9a1353d2224b"
                                 },
                                 {
                                     "key": "tags_filter",
