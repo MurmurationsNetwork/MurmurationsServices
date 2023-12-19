@@ -5,6 +5,63 @@
     },
     "item": [
         {
+            "name": "Set Feature Flags",
+            "item": [
+                {
+                    "name": "Ensure skip URL check on delete is not enabled",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct current state`, () => {",
+                                    "    pm.expect(jsonData.currentState).to.eq(false)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/feature-flag/SkipProfileURLCheckOnDelete?enable=false",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "feature-flag",
+                                "SkipProfileURLCheckOnDelete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "enable",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Set Feature Flags')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
             "name": "Ping Tests",
             "item": [
                 {
@@ -27,6 +84,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/ping",
                             "host": [
@@ -36,7 +94,8 @@
                                 "ping"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Library is online",
@@ -58,6 +117,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{libraryBaseUrl}}/ping",
                             "host": [
@@ -67,7 +127,8 @@
                                 "ping"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "DataProxy is online",
@@ -89,6 +150,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{dataProxyBaseUrl}}/ping",
                             "host": [
@@ -98,7 +160,8 @@
                                 "ping"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -137,6 +200,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{libraryBaseUrl}}/schemas",
                             "host": [
@@ -146,7 +210,8 @@
                                 "schemas"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Library returns a test schema",
@@ -169,6 +234,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{libraryBaseUrl}}/schemas/test_schema-v2.0.0",
                             "host": [
@@ -179,7 +245,8 @@
                                 "test_schema-v2.0.0"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Library returns a list of countries",
@@ -202,6 +269,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{libraryBaseUrl}}/countries",
                             "host": [
@@ -211,7 +279,8 @@
                                 "countries"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -246,6 +315,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/valid-profile.json\"}",
@@ -264,7 +334,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "POST /nodes-sync",
@@ -283,6 +354,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/valid-profile.json\"}",
@@ -301,7 +373,8 @@
                                 "nodes-sync"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "GET /nodes",
@@ -320,6 +393,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrlV1}}/nodes",
                             "host": [
@@ -329,7 +403,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "GET /nodes/:node_id",
@@ -348,6 +423,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrlV1}}/nodes/:node_id",
                             "host": [
@@ -360,12 +436,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8",
-                                    "type": "string"
+                                    "value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "DELETE /nodes/:node_id",
@@ -384,6 +460,7 @@
                     ],
                     "request": {
                         "method": "DELETE",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrlV1}}/nodes/:node_id",
                             "host": [
@@ -396,12 +473,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8",
-                                    "type": "string"
+                                    "value": "8c8e0d839e329be11fd8c8e617104d8254502551bc3bdcf9edb96f6dc82155b8"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "GET /schemas",
@@ -420,6 +497,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{libraryBaseUrlV1}}/schemas",
                             "host": [
@@ -429,7 +507,8 @@
                                 "schemas"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -471,6 +550,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -483,12 +563,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "999999",
-                                    "type": "string"
+                                    "value": "999999"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Does not accept blank/missing profile_url",
@@ -517,6 +597,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"\"}",
@@ -535,7 +616,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Accepts non-existent profile",
@@ -556,6 +638,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/non-existent-profile-url.json\"}",
@@ -574,7 +657,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Returns failure info about non-existent profile",
@@ -604,7 +688,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 2000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -612,6 +696,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -624,12 +709,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node0}}",
-                                    "type": "string"
+                                    "value": "{{node0}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Removes non-existent profile",
@@ -655,6 +740,7 @@
                     ],
                     "request": {
                         "method": "DELETE",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -667,12 +753,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node0}}",
-                                    "type": "string"
+                                    "value": "{{node0}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Does not find deleted record for non-existent profile_url",
@@ -712,6 +798,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -724,12 +811,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node0}}",
-                                    "type": "string"
+                                    "value": "{{node0}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -769,6 +856,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/invalid-geopoints.json\"}",
@@ -787,7 +875,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Returns details of invalid profile",
@@ -829,7 +918,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 1000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -837,6 +926,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -849,12 +939,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node00}}",
-                                    "type": "string"
+                                    "value": "{{node00}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Cannot delete invalid profile",
@@ -893,6 +983,7 @@
                     ],
                     "request": {
                         "method": "DELETE",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -905,12 +996,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node00}}",
-                                    "type": "string"
+                                    "value": "{{node00}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -950,6 +1041,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/valid-profile.json\"}",
@@ -968,7 +1060,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Returns details of validated profile",
@@ -1019,7 +1112,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 1000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1027,6 +1120,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -1039,12 +1133,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node000}}",
-                                    "type": "string"
+                                    "value": "{{node000}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Cannot delete posted profile",
@@ -1066,7 +1160,8 @@
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Profile Still Exists\" message`, () => {",
                                     "    pm.expect(jsonData.errors[0].title).to.contain(\"Profile Still Exists\")",
                                     "})",
-                                    "pm.environment.unset(\"node000\")"
+                                    "//Leave this variable set for the feature flag to skip URL check on delete",
+                                    "//pm.environment.unset(\"node000\")"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1074,6 +1169,7 @@
                     ],
                     "request": {
                         "method": "DELETE",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes/:node_id",
                             "host": [
@@ -1086,12 +1182,12 @@
                             "variable": [
                                 {
                                     "key": "node_id",
-                                    "value": "{{node000}}",
-                                    "type": "string"
+                                    "value": "{{node000}}"
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -1133,6 +1229,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":\"11.111111\",\"lon\":\"12.121212\"}}",
@@ -1151,7 +1248,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with missing required property",
@@ -1177,6 +1275,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111}}",
@@ -1195,7 +1294,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with invalid mix/max amounts",
@@ -1224,6 +1324,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\": 91,\"lon\":-181}}",
@@ -1242,7 +1343,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with missing schema",
@@ -1271,6 +1373,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\",\"test_schema-v0.0.1\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212 }}",
@@ -1289,7 +1392,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with no linked schemas",
@@ -1318,6 +1422,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
@@ -1336,7 +1441,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with Invalid JSON",
@@ -1365,6 +1471,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "INVALID",
@@ -1383,7 +1490,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with invalid pattern",
@@ -1409,6 +1517,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\": 11.111111,\"lon\":12.121212}}",
@@ -1427,7 +1536,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile with no schema",
@@ -1453,6 +1563,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
@@ -1471,7 +1582,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Profile that validates",
@@ -1494,6 +1606,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
@@ -1512,7 +1625,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -1551,6 +1665,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-1.json\"}",
@@ -1569,7 +1684,8 @@
                                 "nodes-sync"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Returns profile not found for non-existent profile",
@@ -1598,6 +1714,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/non-existent-profile-url.json\"}",
@@ -1616,7 +1733,8 @@
                                 "nodes-sync"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Returns profile not found for invalid JSON",
@@ -1642,6 +1760,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/invalid-json.json\"}",
@@ -1660,7 +1779,8 @@
                                 "nodes-sync"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Returns profile not found for failed schema validation",
@@ -1689,6 +1809,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/invalid-geopoints.json\"}",
@@ -1707,7 +1828,8 @@
                                 "nodes-sync"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -1742,6 +1864,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-2.json\"}",
@@ -1760,7 +1883,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 3",
@@ -1779,6 +1903,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-3.json\"}",
@@ -1797,7 +1922,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 4",
@@ -1816,6 +1942,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-4.json\"}",
@@ -1834,7 +1961,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 5",
@@ -1853,6 +1981,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-5.json\"}",
@@ -1871,7 +2000,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 6",
@@ -1890,6 +2020,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-6.json\"}",
@@ -1908,7 +2039,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 7",
@@ -1927,6 +2059,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-7.json\"}",
@@ -1945,7 +2078,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 8",
@@ -1964,6 +2098,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-8.json\"}",
@@ -1982,7 +2117,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 9",
@@ -2001,6 +2137,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-9.json\"}",
@@ -2019,7 +2156,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Post node 10",
@@ -2038,6 +2176,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-10.json\"}",
@@ -2056,7 +2195,8 @@
                                 "nodes"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -2104,6 +2244,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=10km",
                             "host": [
@@ -2127,7 +2268,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by geolocation range 100mi",
@@ -2150,6 +2292,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?lat=51.493518&lon=0.009199&range=100mi",
                             "host": [
@@ -2173,7 +2316,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by locality fuzzy",
@@ -2196,6 +2340,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?locality=Londn",
                             "host": [
@@ -2211,7 +2356,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by locality fuzzy case-insensitive",
@@ -2234,6 +2380,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?locality=lONDN",
                             "host": [
@@ -2249,7 +2396,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search with pagination",
@@ -2272,6 +2420,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?page_size=2",
                             "host": [
@@ -2287,7 +2436,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by tag with exact match",
@@ -2316,6 +2466,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?tags=Beer&tags_exact=true",
                             "host": [
@@ -2335,7 +2486,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by tag with fuzzy match",
@@ -2359,6 +2511,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?tags=Beez&tags_filter=or",
                             "host": [
@@ -2378,7 +2531,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by tags with AND filter",
@@ -2402,8 +2556,9 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
-                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,Sausages&tags_filter=and&status=posted",
+                            "raw": "{{indexBaseUrl}}/nodes?tags=Beer,dd1c588b27b4a2e3f2fd13025557ec0b3663c4fdaffeef2d9f0a9a1353d2224b&tags_filter=and&status=posted",
                             "host": [
                                 "{{indexBaseUrl}}"
                             ],
@@ -2413,7 +2568,7 @@
                             "query": [
                                 {
                                     "key": "tags",
-                                    "value": "Beer,Sausages"
+                                    "value": "Beer,dd1c588b27b4a2e3f2fd13025557ec0b3663c4fdaffeef2d9f0a9a1353d2224b"
                                 },
                                 {
                                     "key": "tags_filter",
@@ -2425,7 +2580,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by tag with spelling error",
@@ -2449,6 +2605,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?tags=fruit",
                             "host": [
@@ -2464,7 +2621,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by primary_url 1",
@@ -2487,6 +2645,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?primary_url=ic3.dev",
                             "host": [
@@ -2502,7 +2661,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search by primary_url 2",
@@ -2525,6 +2685,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?primary_url=third.ic3.dev",
                             "host": [
@@ -2540,7 +2701,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search all schema versions",
@@ -2563,6 +2725,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?schema=test_schema-v",
                             "host": [
@@ -2578,7 +2741,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search v2.x.x",
@@ -2601,6 +2765,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?schema=Test_Schema-v2",
                             "host": [
@@ -2616,7 +2781,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Search v2.1.x",
@@ -2639,6 +2805,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/nodes?schema=test_schema-v2.1",
                             "host": [
@@ -2654,7 +2821,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -2693,6 +2861,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "raw",
                             "raw": "{\"search_after\":[1660116734000,\"https://test-data-proxy.murmurations.network/v1/profiles/cl6nan2h501vh0k68bmm38sad\"]}",
@@ -2711,7 +2880,8 @@
                                 "export"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -2746,6 +2916,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{indexBaseUrl}}/get-nodes?page_size=100",
                             "host": [
@@ -2761,7 +2932,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -2797,6 +2969,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "formdata",
                             "formdata": [
@@ -2822,7 +2995,8 @@
                                 "validate"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Import Batch",
@@ -2843,6 +3017,7 @@
                     ],
                     "request": {
                         "method": "POST",
+                        "header": [],
                         "body": {
                             "mode": "formdata",
                             "formdata": [
@@ -2888,7 +3063,8 @@
                                 "import"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Get User Batches",
@@ -2911,6 +3087,7 @@
                     ],
                     "request": {
                         "method": "GET",
+                        "header": [],
                         "url": {
                             "raw": "{{dataProxyBaseUrl}}/batch/user?user_id=cl6xpncg5000009l8dbpld1re",
                             "host": [
@@ -2927,7 +3104,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Edit Import Batch",
@@ -2951,6 +3129,7 @@
                     ],
                     "request": {
                         "method": "PUT",
+                        "header": [],
                         "body": {
                             "mode": "formdata",
                             "formdata": [
@@ -3001,7 +3180,8 @@
                                 "import"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Delete Import Batch",
@@ -3026,6 +3206,7 @@
                     ],
                     "request": {
                         "method": "DELETE",
+                        "header": [],
                         "body": {
                             "mode": "formdata",
                             "formdata": [
@@ -3051,7 +3232,8 @@
                                 "import"
                             ]
                         }
-                    }
+                    },
+                    "response": []
                 }
             ],
             "event": [
@@ -3061,6 +3243,146 @@
                         "type": "text/javascript",
                         "exec": [
                             "pm.variables.set('folder_name','Test CSV Batch Import')"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test Feature Flags",
+            "item": [
+                {
+                    "name": "Enable skip URL check on delete",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct current state`, () => {",
+                                    "    pm.expect(jsonData.currentState).to.eq(true)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/feature-flag/SkipProfileURLCheckOnDelete?enable=true",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "feature-flag",
+                                "SkipProfileURLCheckOnDelete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "enable",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Can delete posted profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return \"Profile Still Exists\" message`, () => {",
+                                    "    pm.expect(jsonData.meta.message).to.contain(\"recorded as deleted the profile\")",
+                                    "})",
+                                    "pm.environment.unset(\"node000\")"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node000}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Disable skip URL check on delete",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct current state`, () => {",
+                                    "    pm.expect(jsonData.currentState).to.eq(false)",
+                                    "})"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/feature-flag/SkipProfileURLCheckOnDelete?enable=false",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "feature-flag",
+                                "SkipProfileURLCheckOnDelete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "enable",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.variables.set('folder_name','Test Feature Flags')"
                         ]
                     }
                 }
