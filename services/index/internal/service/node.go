@@ -67,12 +67,14 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 
 	// Check if the profile hash is unchanged for existing nodes.
 	if s.isProfileHashUnchanged(node, oldNode) {
-		// If we simply return here, the node will remain stuck
-		// in the received status. If we update, then MongoDB's
-		// last_updated and __v will also be updated. What is the
-		// desired behavior in this case? Is it acceptable to update
-		// MongoDB but not update Elasticsearch?
-		return nil
+		logger.Info(
+			fmt.Sprintf(
+				"Node with profile hash '%s' is unchanged.",
+				*node.ProfileHash,
+			),
+		)
+		node.SetStatusPosted()
+		return s.mongoRepo.Update(node)
 	}
 
 	// Update the node profile and handle any errors.
