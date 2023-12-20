@@ -1,4 +1,4 @@
-package main
+package dataproxyupdater
 
 import (
 	"encoding/json"
@@ -39,7 +39,7 @@ func cleanUp() {
 	os.Exit(0)
 }
 
-func main() {
+func Run() {
 	schemaName := "karte_von_morgen-v1.0.0"
 	apiEntry := "https://api.ofdb.io/v0"
 
@@ -53,7 +53,8 @@ func main() {
 	update := svc.Get(schemaName)
 
 	if update == nil {
-		// last_updated: according to recent_changes API, it can't retrieve the data before 100 days ago, so set default as 100 days ago.
+		// last_updated: according to recent_changes API, it can't retrieve the data before 100 days ago,
+		// so set default as 100 days ago.
 		lastUpdated := time.Now().AddDate(0, 0, -100).Unix()
 		err := svc.Save(schemaName, lastUpdated, apiEntry)
 		if err != nil {

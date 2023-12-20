@@ -1,5 +1,5 @@
 docker-build-revalidatenode:
-	docker build -f build/revalidatenode/docker/Dockerfile-prod \
+	docker build -f build/revalidatenode/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)revalidatenode .
 
 docker-tag-revalidatenode: check-clean docker-build-revalidatenode

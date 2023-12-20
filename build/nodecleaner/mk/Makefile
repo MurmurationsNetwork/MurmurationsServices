@@ -1,5 +1,5 @@
 docker-build-nodecleaner:
-	docker build -f build/nodecleaner/docker/Dockerfile-prod \
+	docker build -f build/nodecleaner/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)nodecleaner .
 
 docker-tag-nodecleaner: check-clean docker-build-nodecleaner

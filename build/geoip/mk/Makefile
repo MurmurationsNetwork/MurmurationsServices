@@ -1,5 +1,5 @@
 docker-build-geoip:
-	docker build -f build/geoip/docker/Dockerfile-prod \
+	docker build -f build/geoip/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)geoip .
 
 docker-tag-geoip: check-clean docker-build-geoip

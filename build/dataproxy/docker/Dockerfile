@@ -2,14 +2,14 @@ FROM golang:1.19.5-alpine as build
 
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy
-RUN CGO_ENABLED=0 go build -o /bin/dataproxy ./services/dataproxy/cmd/dataproxy
+RUN CGO_ENABLED=0 go build -o /bin/dataproxy ./cmd/dataproxy/dataproxy
 
 FROM golang:1.19.5-alpine as seeder-build
 
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy
-RUN CGO_ENABLED=0 go build -o /bin/seeder ./services/dataproxy/cmd/seeder
-RUN CGO_ENABLED=0 go build -o /bin/ukseeder ./services/dataproxy/cmd/ukseeder
+RUN CGO_ENABLED=0 go build -o /bin/seeder ./cmd/dataproxy/seeder
+RUN CGO_ENABLED=0 go build -o /bin/ukseeder ./cmd/dataproxy/ukseeder
 
 FROM ubuntu:20.04
 

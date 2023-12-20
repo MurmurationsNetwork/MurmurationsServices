@@ -1,4 +1,4 @@
-package app
+package dataproxy
 
 import (
 	"github.com/gin-gonic/gin"
