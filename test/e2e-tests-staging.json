@@ -688,7 +688,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 3000);"
+                                    "setTimeout(function(){}, 5000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -789,7 +789,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 1000);",
+                                    "setTimeout(function(){}, 5000);",
                                     ""
                                 ],
                                 "type": "text/javascript"
@@ -918,7 +918,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 3000);"
+                                    "setTimeout(function(){}, 5000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1113,7 +1113,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 3000);"
+                                    "setTimeout(function(){}, 5000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1256,7 +1256,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 2000);"
+                                    "setTimeout(function(){}, 5000);"
                                 ],
                                 "type": "text/javascript"
                             }
