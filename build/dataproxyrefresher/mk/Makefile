@@ -1,5 +1,5 @@
 docker-build-dataproxyrefresher:
-	docker build -f build/dataproxyrefresher/docker/Dockerfile-prod \
+	docker build -f build/dataproxyrefresher/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher .
 
 docker-tag-dataproxyrefresher: check-clean docker-build-dataproxyrefresher

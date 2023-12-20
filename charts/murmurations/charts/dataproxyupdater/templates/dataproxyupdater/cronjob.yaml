@@ -48,7 +48,7 @@ spec:
                     name: dataproxyupdater-secret
           {{- if $isDev }}
               command: ["go", "run"]
-              args: ["services/dataproxyupdater/cmd/dataproxyupdater/main.go"]
+              args: ["cmd/dataproxyupdater/main.go"]
               volumeMounts:
                 - mountPath: /src
                   name: source-path

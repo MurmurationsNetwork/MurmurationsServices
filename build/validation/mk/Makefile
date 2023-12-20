@@ -1,5 +1,5 @@
 docker-build-validation:
-	docker build -f build/validation/docker/Dockerfile-prod \
+	docker build -f build/validation/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)validation .
 
 docker-tag-validation: check-clean docker-build-validation

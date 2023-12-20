@@ -1,5 +1,5 @@
 docker-build-index:
-	docker build -f build/index/docker/Dockerfile-prod \
+	docker build -f build/index/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)index .
 
 docker-tag-index: check-clean docker-build-index
