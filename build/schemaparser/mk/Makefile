@@ -1,5 +1,5 @@
 docker-build-schemaparser:
-	docker build -f build/schemaparser/docker/Dockerfile-prod \
+	docker build -f build/schemaparser/docker/Dockerfile \
 		-t murmurations/$(DOCKER_TAG_PREFIX)schemaparser .
 
 docker-tag-schemaparser: check-clean docker-build-schemaparser

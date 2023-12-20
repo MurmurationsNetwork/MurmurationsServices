@@ -48,7 +48,7 @@ this case, it runs `reflex` with the configuration file located at
 `/build/<service_name>/reflex.conf`. This will start the application using
 `reflex` for hot reloading when the Docker container is run.
 
-## `<service_name>/docker/Dockerfile-prod`
+## `<service_name>/docker/Dockerfile`
 
 This is a Dockerfile that defines a production environment for a service. 
 
