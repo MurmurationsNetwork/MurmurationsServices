@@ -73,6 +73,8 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 				*node.ProfileHash,
 			),
 		)
+		// Clear the LastUpdated field since the profile hasn't changed.
+		node.ClearLastUpdated()
 		node.SetStatusPosted()
 		return s.mongoRepo.Update(node)
 	}

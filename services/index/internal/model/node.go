@@ -53,3 +53,8 @@ func (n *Node) SetStatusPosted() {
 func (n *Node) ResetFailureReasons() {
 	n.FailureReasons = &[]jsonapi.Error{}
 }
+
+// ClearLastUpdated sets the LastUpdated field to nil.
+func (n *Node) ClearLastUpdated() {
+	n.LastUpdated = nil
+}

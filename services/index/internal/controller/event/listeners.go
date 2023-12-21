@@ -3,7 +3,6 @@ package event
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	stan "github.com/nats-io/stan.go"
 	"go.uber.org/zap"
@@ -16,125 +15,109 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
 )
 
-// NodeHandler interface represents the methods to handle validated and invalid nodes.
+// NodeHandler defines methods for handling validated and invalid node events.
 type NodeHandler interface {
 	Validated() error
 	ValidationFailed() error
 }
 
-// nodeHandler implements the NodeHandler interface.
+// nodeHandler handles node-related events.
 type nodeHandler struct {
 	svc service.NodeService
 }
 
-// NewNodeHandler returns a new NodeHandler.
+// NewNodeHandler creates a new handler for node-related events.
 func NewNodeHandler(nodeService service.NodeService) NodeHandler {
-	return &nodeHandler{
-		svc: nodeService,
-	}
+	return &nodeHandler{svc: nodeService}
 }
 
-// Validated method listens to validated nodes from a NATS streaming server and handles them.
+// Validated sets up a listener for validated node events and processes them.
 func (handler *nodeHandler) Validated() error {
 	return event.NewNodeValidatedListener(
 		nats.Client.Client(),
 		index.IndexQueueGroup,
 		func(msg *stan.Msg) {
-			go func() {
-				defer func() {
-					if err := recover(); err != nil {
-						logger.Error(
-							fmt.Sprintf(
-								"Panic occurred in nodeValidated handler: %v",
-								err,
-							),
-							errors.New("panic"),
-						)
-					}
-					// Acknowledge the message regardless of error.
-					if err := msg.Ack(); err != nil {
-						logger.Error(
-							"Error when acknowledging message",
-							err,
-						)
-					}
-				}()
-
-				var nodeValidatedData event.NodeValidatedData
-				err := json.Unmarshal(msg.Data, &nodeValidatedData)
-				if err != nil {
-					logger.Error(
-						"Error when trying to parse nodeValidatedData",
-						err,
-					)
-					return
-				}
-
-				err = handler.svc.SetNodeValid(&model.Node{
-					ProfileURL:  nodeValidatedData.ProfileURL,
-					ProfileHash: &nodeValidatedData.ProfileHash,
-					ProfileStr:  nodeValidatedData.ProfileStr,
-					LastUpdated: &nodeValidatedData.LastUpdated,
-					Version:     &nodeValidatedData.Version,
-				})
-				if err != nil {
-					logger.Error("Failed to set node valid",
-						err,
-						zap.String("ProfileURL", nodeValidatedData.ProfileURL),
-						zap.String("ProfileStr", nodeValidatedData.ProfileStr),
-					)
-					return
-				}
-			}()
-		}).
-		Listen()
+			go handler.processValidatedNode(msg)
+		},
+	).Listen()
 }
 
-// ValidationFailed method listens to invalid nodes from a NATS streaming server and handles them.
+// ValidationFailed sets up a listener for validation failed node events and
+// processes them.
 func (handler *nodeHandler) ValidationFailed() error {
 	return event.NewNodeValidationFailedListener(
 		nats.Client.Client(),
 		index.IndexQueueGroup,
 		func(msg *stan.Msg) {
-			go func() {
-				defer func() {
-					if err := recover(); err != nil {
-						logger.Error(
-							fmt.Sprintf(
-								"Panic occurred in nodeValidationFailed handler: %v",
-								err,
-							),
-							errors.New("panic"),
-						)
-					}
-					// Acknowledge the message regardless of error.
-					if err := msg.Ack(); err != nil {
-						logger.Error(
-							"Error when acknowledging message",
-							err,
-						)
-					}
-				}()
+			go handler.processInvalidNode(msg)
+		},
+	).Listen()
+}
 
-				var nodeValidationFailedData event.NodeValidationFailedData
-				err := json.Unmarshal(msg.Data, &nodeValidationFailedData)
-				if err != nil {
-					logger.Error(
-						"Error when trying to parse nodeValidationFailedData",
-						err,
-					)
-					return
-				}
+// processValidatedNode handles the processing of validated nodes.
+func (handler *nodeHandler) processValidatedNode(msg *stan.Msg) {
+	defer safeAcknowledgeMessage(msg)
 
-				err = handler.svc.SetNodeInvalid(&model.Node{
-					ProfileURL:     nodeValidationFailedData.ProfileURL,
-					FailureReasons: nodeValidationFailedData.FailureReasons,
-					Version:        &nodeValidationFailedData.Version,
-				})
-				if err != nil {
-					return
-				}
-			}()
-		}).
-		Listen()
+	var data event.NodeValidatedData
+	err := json.Unmarshal(msg.Data, &data)
+	if err != nil {
+		logger.Error("Failed to unmarshal validated node data", err)
+		return
+	}
+
+	if err = handler.svc.SetNodeValid(&model.Node{
+		ProfileURL:  data.ProfileURL,
+		ProfileHash: &data.ProfileHash,
+		ProfileStr:  data.ProfileStr,
+		LastUpdated: &data.LastUpdated,
+		Version:     &data.Version,
+	}); err != nil {
+		logger.Error(
+			"Failed to set node valid",
+			err,
+			zap.String("ProfileURL", data.ProfileURL),
+			zap.String("ProfileStr", data.ProfileStr),
+		)
+	}
+}
+
+// processInvalidNode handles the processing of invalid nodes.
+func (handler *nodeHandler) processInvalidNode(msg *stan.Msg) {
+	defer safeAcknowledgeMessage(msg)
+
+	var data event.NodeValidationFailedData
+	err := json.Unmarshal(msg.Data, &data)
+	if err != nil {
+		logger.Error("Failed to unmarshal invalid node data", err)
+		return
+	}
+
+	if err = handler.svc.SetNodeInvalid(&model.Node{
+		ProfileURL:     data.ProfileURL,
+		FailureReasons: data.FailureReasons,
+		Version:        &data.Version,
+	}); err != nil {
+		logger.Error(
+			"Failed to set node invalid",
+			err,
+			zap.String("ProfileURL", data.ProfileURL),
+		)
+	}
+}
+
+// safeAcknowledgeMessage safely acknowledges a message and should be called with
+// defer. It recovers from any panics that occurred during message processing and
+// then acknowledges the message.
+func safeAcknowledgeMessage(msg *stan.Msg) {
+	if err := recover(); err != nil {
+		logger.Error(
+			"Panic occurred during message processing",
+			errors.New("panic"),
+			zap.Any("error", err),
+		)
+	}
+
+	if err := msg.Ack(); err != nil {
+		logger.Error("Error acknowledging message", err)
+	}
 }
