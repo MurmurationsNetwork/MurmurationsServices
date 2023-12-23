@@ -5,59 +5,50 @@ import (
 	"fmt"
 	"os"
 
-	stan "github.com/nats-io/stan.go"
-
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/nats-io/nats.go"
 )
 
 type Publisher interface {
-	Publish(data interface{})
+	Publish(data interface{}) error
 	PublishSync(data interface{}) error
-	SetAckHandler(ackHandler stan.AckHandler)
 }
 
 type publisherConfig struct {
-	Client  stan.Conn
-	Subject Subject
+	JetStream nats.JetStreamContext
+	Subject   Subject
+	Stream    string
 }
 
 type publisher struct {
-	client     stan.Conn
-	subject    Subject
-	ackHandler stan.AckHandler
+	js      nats.JetStreamContext
+	subject Subject
 }
 
 func NewPublisher(config *publisherConfig) Publisher {
 	return &publisher{
-		client:  config.Client,
+		js:      config.JetStream,
 		subject: config.Subject,
-		ackHandler: func(guid string, err error) {
-			if err != nil {
-				logger.Error(
-					"error when trying to publish "+string(
-						config.Subject,
-					)+" event.",
-					err,
-				)
-			}
-		},
 	}
 }
 
-func (p *publisher) SetAckHandler(ackHandler stan.AckHandler) {
-	p.ackHandler = ackHandler
-}
-
-func (p *publisher) Publish(data interface{}) {
-	// FIXME: Use Abstraction
+func (p *publisher) Publish(data interface{}) error {
 	if os.Getenv("APP_ENV") == "test" {
-		return
+		return nil
 	}
-	msg, _ := json.Marshal(data)
-	_, _ = p.client.PublishAsync(string(p.subject), msg, p.ackHandler)
+
+	msg, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to serialize data into JSON: %w", err)
+	}
+
+	_, err = p.js.PublishAsync(string(p.subject), msg)
+	if err != nil {
+		return fmt.Errorf("failed to publish message: %w", err)
+	}
+
+	return nil
 }
 
-// PublishSync sends a message to the designated subject using a synchronous approach.
 func (p *publisher) PublishSync(data interface{}) error {
 	if os.Getenv("APP_ENV") == "test" {
 		return nil
@@ -68,13 +59,9 @@ func (p *publisher) PublishSync(data interface{}) error {
 		return fmt.Errorf("failed to serialize data into JSON: %w", err)
 	}
 
-	err = p.client.Publish(string(p.subject), msg)
+	_, err = p.js.Publish(string(p.subject), msg)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to publish message to subject %s: %w",
-			p.subject,
-			err,
-		)
+		return fmt.Errorf("failed to publish message synchronously: %w", err)
 	}
 
 	return nil

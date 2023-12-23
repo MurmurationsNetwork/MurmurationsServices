@@ -37,11 +37,7 @@ func NewCronJob() *NodeRevalidationCron {
 	}
 
 	// Initialize NATS client.
-	err := nats.NewClient(
-		config.Conf.Nats.ClusterID,
-		config.Conf.Nats.ClientID,
-		config.Conf.Nats.URL,
-	)
+	err := nats.NewClient(config.Conf.Nats.URL)
 	if err != nil {
 		logger.Panic("error when trying to connect to NATS", err)
 	}

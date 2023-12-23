@@ -1,26 +1,24 @@
 package event
 
-import (
-	stan "github.com/nats-io/stan.go"
-)
+import "github.com/nats-io/nats.go"
 
-func NewNodeCreatedPublisher(client stan.Conn) Publisher {
+func NewNodeCreatedPublisher(js nats.JetStreamContext) Publisher {
 	return NewPublisher(&publisherConfig{
-		Client:  client,
-		Subject: nodeCreated,
+		JetStream: js,
+		Subject:   NodeCreated,
 	})
 }
 
-func NewNodeValidatedPublisher(client stan.Conn) Publisher {
+func NewNodeValidatedPublisher(js nats.JetStreamContext) Publisher {
 	return NewPublisher(&publisherConfig{
-		Client:  client,
-		Subject: nodeValidated,
+		JetStream: js,
+		Subject:   NodeValidated,
 	})
 }
 
-func NewNodeValidationFailedPublisher(client stan.Conn) Publisher {
+func NewNodeValidationFailedPublisher(js nats.JetStreamContext) Publisher {
 	return NewPublisher(&publisherConfig{
-		Client:  client,
-		Subject: nodeValidationFailed,
+		JetStream: js,
+		Subject:   NodeValidationFailed,
 	})
 }

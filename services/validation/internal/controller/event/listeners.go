@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	stan "github.com/nats-io/stan.go"
+	natsio "github.com/nats-io/nats.go"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -33,9 +33,9 @@ func NewNodeHandler(validationService service.ValidationService) NodeHandler {
 // NewNodeCreatedListener starts a listener for node-created events.
 func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(
-		nats.Client.Client(),
+		nats.Client.JetStream(),
 		qgroup,
-		func(msg *stan.Msg) {
+		func(msg *natsio.Msg) {
 			go func() {
 				defer func() {
 					if err := recover(); err != nil {

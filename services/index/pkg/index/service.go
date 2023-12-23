@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
+	e "github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
@@ -53,6 +54,8 @@ func NewService() *Service {
 		run: abool.New(),
 	}
 
+	svc.setupNATS()
+
 	svc.setupServer()
 	svc.nodeHandler = event.NewNodeHandler(
 		service.NewNodeService(
@@ -63,6 +66,15 @@ func NewService() *Service {
 	core.InstallShutdownHandler(svc.Shutdown)
 
 	return svc
+}
+
+// setupNATS initializes Nats service.
+func (s *Service) setupNATS() {
+	err := nats.NewClient(config.Values.Nats.URL)
+	if err != nil {
+		logger.Panic("Failed to create Nats client", err)
+	}
+	_ = nats.Client.SubscribeToSubjects(e.NodeValidated, e.NodeValidationFailed)
 }
 
 // setupServer configures and initializes the HTTP server.

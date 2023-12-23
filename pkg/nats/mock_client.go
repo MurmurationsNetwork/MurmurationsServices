@@ -1,20 +1,26 @@
 package nats
 
 import (
-	stan "github.com/nats-io/stan.go"
+	"github.com/nats-io/nats.go"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 )
 
-type mockClient struct {
-	client stan.Conn
+// mockClient can be used for testing purposes.
+type mockClient struct{}
+
+func (m *mockClient) JetStream() nats.JetStreamContext {
+	return nil
 }
 
-func (c *mockClient) Client() stan.Conn {
-	return c.client
+func (m *mockClient) Disconnect() {
+	// Mock implementation
 }
 
-func (c *mockClient) Disconnect() {
+func (m *mockClient) setClient(_ *nats.Conn, _ nats.JetStreamContext) {
+	// Mock implementation
 }
 
-func (c *mockClient) setClient(client stan.Conn) {
-	c.client = client
+func (m *mockClient) SubscribeToSubjects(_ ...event.Subject) error {
+	return nil
 }

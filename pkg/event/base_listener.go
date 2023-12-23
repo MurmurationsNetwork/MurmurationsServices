@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	stan "github.com/nats-io/stan.go"
+	"github.com/nats-io/nats.go"
 )
 
 const (
@@ -19,48 +19,58 @@ var (
 
 type Listener interface {
 	Listen() error
-	UpdateOptions(opts ...stan.SubscriptionOption)
+	UpdateOptions(opts ...nats.SubOpt)
 }
 
 type ListenerConfig struct {
-	Client     stan.Conn
+	JetStream  nats.JetStreamContext
 	Subject    Subject
 	Qgroup     string
-	MsgHandler stan.MsgHandler
+	MsgHandler nats.MsgHandler
 }
 
 type listener struct {
-	client     stan.Conn
+	js         nats.JetStreamContext
 	subject    Subject
 	qgroup     string
-	msgHandler stan.MsgHandler
-	opts       []stan.SubscriptionOption
+	msgHandler nats.MsgHandler
+	opts       []nats.SubOpt
 }
 
 func NewListener(config *ListenerConfig) Listener {
 	return &listener{
-		client:     config.Client,
-		subject:    config.Subject,
+		js:      config.JetStream,
+		subject: config.Subject,
+		// A queue group (qgroup) in NATS is a mechanism for load balancing
+		// messages among multiple subscribers by ensuring that each message
+		// is delivered to only one subscriber in the group,
 		qgroup:     config.Qgroup,
 		msgHandler: config.MsgHandler,
-		opts: []stan.SubscriptionOption{
-			stan.SetManualAckMode(),
-			stan.DeliverAllAvailable(),
-			stan.DurableName(config.Qgroup),
-			stan.MaxInflight(DefaultMaxInflight),
-			stan.AckWait(DefaultAckWait),
+		opts: []nats.SubOpt{
+			nats.Durable(string(config.Subject) + "_consumer"),
+			nats.MaxAckPending(DefaultMaxInflight),
+			nats.AckWait(DefaultAckWait),
 		},
 	}
 }
 
 // UpdateOptions overrides the default options.
-func (l *listener) UpdateOptions(opts ...stan.SubscriptionOption) {
+func (l *listener) UpdateOptions(opts ...nats.SubOpt) {
 	l.opts = append(l.opts, opts...)
 }
 
-func DefaultMsgHandler() stan.MsgHandler {
-	return func(msg *stan.Msg) {
-		fmt.Println("receiving message: ", msg.Sequence, string(msg.Data))
+func DefaultMsgHandler() nats.MsgHandler {
+	return func(msg *nats.Msg) {
+		meta, err := msg.Metadata()
+		if err != nil {
+			fmt.Printf("Error getting metadata: %v\n", err)
+			return
+		}
+		fmt.Printf(
+			"receiving message: Sequence=%d, Data=%s\n",
+			meta.Sequence.Stream,
+			string(msg.Data),
+		)
 		_ = msg.Ack()
 	}
 }
@@ -70,13 +80,11 @@ func (l *listener) Listen() error {
 		return ErrNilMsgHandler
 	}
 
-	_, err := l.client.QueueSubscribe(
+	_, err := l.js.QueueSubscribe(
 		string(l.subject),
 		l.qgroup,
 		l.msgHandler,
 		l.opts...)
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }

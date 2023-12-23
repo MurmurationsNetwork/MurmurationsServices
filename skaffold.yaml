@@ -55,7 +55,7 @@ deploy:
   statusCheckDeadlineSeconds: 300
   helm:
     releases:
-      - name: development
+      - name: murmurations
         chartPath: charts/murmurations
         setValueTemplates:
           # Dynamically setting image references using setValueTemplates.
@@ -73,6 +73,11 @@ deploy:
           # Path to MurmurationsServices on local computer
           global.sourcepath: "{{.SOURCEPATH}}"
           global.env: "development"
+      - name: nats
+        remoteChart: nats
+        repo: https://nats-io.github.io/k8s/helm/charts
+        valuesFiles:
+          - charts/nats/values-dev.yaml
 
 # Port forwarding configuration.
 portForward:

@@ -1,26 +1,47 @@
 package nats
 
 import (
-	stan "github.com/nats-io/stan.go"
+	"context"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/nats-io/nats.go"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 )
 
 type natsClient struct {
-	client stan.Conn
+	conn *nats.Conn
+	js   nats.JetStreamContext
 }
 
-func (c *natsClient) Client() stan.Conn {
-	return c.client
+// Client returns the JetStream context.
+func (c *natsClient) JetStream() nats.JetStreamContext {
+	return c.js
 }
 
+// Disconnect closes the NATS connection.
 func (c *natsClient) Disconnect() {
-	err := c.client.Close()
-	if err != nil {
-		logger.Error("Error when trying to disconnect from Nats", err)
+	if c.conn != nil {
+		c.conn.Close()
 	}
 }
 
-func (c *natsClient) setClient(client stan.Conn) {
-	c.client = client
+func (c *natsClient) SubscribeToSubjects(subjects ...event.Subject) error {
+	ctx := context.Background()
+
+	subjectStrings := make([]string, len(subjects))
+	for i, subject := range subjects {
+		subjectStrings[i] = string(subject)
+	}
+
+	if err := createStreamAndConsumers(ctx, c.js, subjectStrings); err != nil {
+		return err
+	}
+	// Additional logic to handle subscriptions can be added here
+	return nil
+}
+
+// setClient sets the NATS connection.
+func (c *natsClient) setClient(conn *nats.Conn, js nats.JetStreamContext) {
+	c.conn = conn
+	c.js = js
 }

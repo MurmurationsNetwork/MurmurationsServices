@@ -62,7 +62,7 @@ func (svc *nodeService) RevalidateNodes() error {
 		)
 
 		for _, node := range nodes {
-			err := event.NewNodeCreatedPublisher(nats.Client.Client()).
+			err := event.NewNodeCreatedPublisher(nats.Client.JetStream()).
 				PublishSync(event.NodeCreatedData{
 					ProfileURL: node.ProfileURL,
 					Version:    *node.Version,

@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/lucsky/cuid v1.2.1
-	github.com/nats-io/stan.go v0.10.4
+	github.com/nats-io/nats.go v1.31.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/oschwald/geoip2-golang v1.9.0
 	github.com/redis/go-redis/v9 v9.3.1
@@ -38,7 +38,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.15.5 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -51,9 +50,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
-	github.com/nats-io/nats-server/v2 v2.10.7 // indirect
-	github.com/nats-io/nats-streaming-server v0.25.6 // indirect
-	github.com/nats-io/nats.go v1.31.0 // indirect
 	github.com/nats-io/nkeys v0.4.6 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/oschwald/maxminddb-golang v1.11.0 // indirect
