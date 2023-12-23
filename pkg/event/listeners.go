@@ -1,43 +1,43 @@
 package event
 
 import (
-	stan "github.com/nats-io/stan.go"
+	"github.com/nats-io/nats.go"
 )
 
 func NewNodeCreatedListener(
-	client stan.Conn,
+	js nats.JetStreamContext,
 	qgroup string,
-	handler stan.MsgHandler,
+	handler nats.MsgHandler,
 ) Listener {
 	return NewListener(&ListenerConfig{
-		Client:     client,
-		Subject:    nodeCreated,
+		JetStream:  js,
+		Subject:    NodeCreated,
 		Qgroup:     qgroup,
 		MsgHandler: handler,
 	})
 }
 
 func NewNodeValidatedListener(
-	client stan.Conn,
+	js nats.JetStreamContext,
 	qgroup string,
-	handler stan.MsgHandler,
+	handler nats.MsgHandler,
 ) Listener {
 	return NewListener(&ListenerConfig{
-		Client:     client,
-		Subject:    nodeValidated,
+		JetStream:  js,
+		Subject:    NodeValidated,
 		Qgroup:     qgroup,
 		MsgHandler: handler,
 	})
 }
 
 func NewNodeValidationFailedListener(
-	client stan.Conn,
+	js nats.JetStreamContext,
 	qgroup string,
-	handler stan.MsgHandler,
+	handler nats.MsgHandler,
 ) Listener {
 	return NewListener(&ListenerConfig{
-		Client:     client,
-		Subject:    nodeValidationFailed,
+		JetStream:  js,
+		Subject:    NodeValidationFailed,
 		Qgroup:     qgroup,
 		MsgHandler: handler,
 	})

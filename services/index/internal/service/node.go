@@ -174,7 +174,7 @@ func (s *nodeService) AddNode(
 		return nil, err
 	}
 
-	event.NewNodeCreatedPublisher(nats.Client.Client()).
+	_ = event.NewNodeCreatedPublisher(nats.Client.JetStream()).
 		Publish(event.NodeCreatedData{
 			ProfileURL: node.ProfileURL,
 			Version:    *node.Version,

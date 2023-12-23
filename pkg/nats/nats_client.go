@@ -1,26 +1,28 @@
 package nats
 
 import (
-	stan "github.com/nats-io/stan.go"
-
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/nats-io/nats.go"
 )
 
 type natsClient struct {
-	client stan.Conn
+	conn *nats.Conn
+	js   nats.JetStreamContext
 }
 
-func (c *natsClient) Client() stan.Conn {
-	return c.client
+// Client returns the JetStream context.
+func (c *natsClient) JetStream() nats.JetStreamContext {
+	return c.js
 }
 
+// Disconnect closes the NATS connection.
 func (c *natsClient) Disconnect() {
-	err := c.client.Close()
-	if err != nil {
-		logger.Error("Error when trying to disconnect from Nats", err)
+	if c.conn != nil {
+		c.conn.Close()
 	}
 }
 
-func (c *natsClient) setClient(client stan.Conn) {
-	c.client = client
+// setClient sets the NATS connection.
+func (c *natsClient) setClient(conn *nats.Conn, js nats.JetStreamContext) {
+	c.conn = conn
+	c.js = js
 }

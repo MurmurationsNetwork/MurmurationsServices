@@ -100,7 +100,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		updatedProfileJSON["primary_url"] = normalizedURL
 	}
 
-	event.NewNodeValidatedPublisher(nats.Client.Client()).
+	if err := event.NewNodeValidatedPublisher(nats.Client.JetStream()).
 		Publish(event.NodeValidatedData{
 			ProfileURL:  node.ProfileURL,
 			ProfileHash: profileHash,
@@ -108,14 +108,16 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 			ProfileStr:  jsonutil.ToString(updatedProfileJSON),
 			LastUpdated: dateutil.GetNowUnix(),
 			Version:     node.Version,
-		})
+		}); err != nil {
+		logger.Error("Failed to publish: ", err)
+	}
 }
 
 func (svc *validationService) sendNodeValidationFailedEvent(
 	node *model.Node,
 	FailureReasons *[]jsonapi.Error,
 ) {
-	event.NewNodeValidationFailedPublisher(nats.Client.Client()).
+	_ = event.NewNodeValidationFailedPublisher(nats.Client.JetStream()).
 		Publish(event.NodeValidationFailedData{
 			ProfileURL:     node.ProfileURL,
 			FailureReasons: FailureReasons,

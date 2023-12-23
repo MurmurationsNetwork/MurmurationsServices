@@ -25,6 +25,12 @@ else
 	ENV_FILE = test/e2e-env-development.json
 endif
 
+ifeq ($(DEPLOY_ENV),pretest)
+	VALUES_FILE=./charts/nats/values-contabo.yaml
+else
+	VALUES_FILE=./charts/nats/values-do.yaml
+endif
+
 # The TAG value is constructed based on the commit SHA.
 # If running in a GitHub Actions environment, it uses the GITHUB_SHA.
 # In a local environment, it uses the SHA of the HEAD commit.
@@ -72,8 +78,10 @@ deploy-ingress:
 	--set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-mq:
-	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue \
-	--set global.env=$(DEPLOY_ENV) --install --atomic
+	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
+	helm repo update && \
+	helm upgrade murmurations-mq nats/nats --version 1.1.6 -f $(VALUES_FILE) \
+	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
 
 deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
@@ -131,7 +139,6 @@ deploy-dataproxyrefresher:
 
 # Set the specific tag and environment for manual deployments
 SPECIFIC_TAG ?= latest
-ENV ?= murmproto
 MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
                         manually-deploy-ingress \
                         manually-deploy-mq \
@@ -150,30 +157,32 @@ deploy-all-services: $(MANUAL_DEPLOY_TARGETS)
 
 manually-deploy-murmurations-core:
 	helm upgrade murmurations-core ./charts/murmurations/charts/core \
-		--set global.env=$(ENV) --install --atomic --debug
+		--set global.env=$(DEPLOY_ENV) --install --atomic --debug
 
 manually-deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress \
-	--set global.env=$(ENV) --install --atomic --debug
+	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
 
 manually-deploy-mq:
-	helm upgrade murmurations-mq ./charts/murmurations/charts/message-queue \
-	--set global.env=$(ENV) --install --atomic --debug
+	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
+	helm repo update && \
+	helm upgrade murmurations-mq nats/nats --version 1.1.6 -f $(VALUES_FILE) \
+	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
 
 manually-deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
-	--set global.env=$(ENV),image=murmurations/index:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/index:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-validation:
 	helm upgrade murmurations-validation \
 	./charts/murmurations/charts/validation \
-	--set global.env=$(ENV),image=murmurations/validation:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-library:
 	helm upgrade murmurations-library ./charts/murmurations/charts/library \
-	--set global.env=$(ENV),image=murmurations/library:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/library:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-nodecleaner:
@@ -185,33 +194,33 @@ manually-deploy-nodecleaner:
 manually-deploy-schemaparser:
 	helm upgrade murmurations-schemaparser \
 	./charts/murmurations/charts/schemaparser \
-	--set global.env=$(ENV),image=murmurations/schemaparser:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode \
 	./charts/murmurations/charts/revalidatenode \
-	--set global.env=$(ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip \
-	--set global.env=$(ENV),image=murmurations/geoip:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
-	--set global.env=$(ENV),image=murmurations/dataproxy:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater \
 	./charts/murmurations/charts/dataproxyupdater \
-	--set global.env=$(ENV),image=murmurations/dataproxyupdater:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxyrefresher:
 	helm upgrade murmurations-dataproxyrefresher \
 	./charts/murmurations/charts/dataproxyrefresher \
-	--set global.env=$(ENV),image=murmurations/dataproxyrefresher:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyrefresher:$(SPECIFIC_TAG) \
 	--install --atomic --debug

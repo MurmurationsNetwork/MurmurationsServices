@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	stan "github.com/nats-io/stan.go"
+	natsio "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
@@ -34,9 +34,9 @@ func NewNodeHandler(nodeService service.NodeService) NodeHandler {
 // Validated sets up a listener for validated node events and processes them.
 func (handler *nodeHandler) Validated() error {
 	return event.NewNodeValidatedListener(
-		nats.Client.Client(),
+		nats.Client.JetStream(),
 		index.IndexQueueGroup,
-		func(msg *stan.Msg) {
+		func(msg *natsio.Msg) {
 			go handler.processValidatedNode(msg)
 		},
 	).Listen()
@@ -46,16 +46,16 @@ func (handler *nodeHandler) Validated() error {
 // processes them.
 func (handler *nodeHandler) ValidationFailed() error {
 	return event.NewNodeValidationFailedListener(
-		nats.Client.Client(),
+		nats.Client.JetStream(),
 		index.IndexQueueGroup,
-		func(msg *stan.Msg) {
+		func(msg *natsio.Msg) {
 			go handler.processInvalidNode(msg)
 		},
 	).Listen()
 }
 
 // processValidatedNode handles the processing of validated nodes.
-func (handler *nodeHandler) processValidatedNode(msg *stan.Msg) {
+func (handler *nodeHandler) processValidatedNode(msg *natsio.Msg) {
 	defer safeAcknowledgeMessage(msg)
 
 	var data event.NodeValidatedData
@@ -82,7 +82,7 @@ func (handler *nodeHandler) processValidatedNode(msg *stan.Msg) {
 }
 
 // processInvalidNode handles the processing of invalid nodes.
-func (handler *nodeHandler) processInvalidNode(msg *stan.Msg) {
+func (handler *nodeHandler) processInvalidNode(msg *natsio.Msg) {
 	defer safeAcknowledgeMessage(msg)
 
 	var data event.NodeValidationFailedData
@@ -108,7 +108,7 @@ func (handler *nodeHandler) processInvalidNode(msg *stan.Msg) {
 // safeAcknowledgeMessage safely acknowledges a message and should be called with
 // defer. It recovers from any panics that occurred during message processing and
 // then acknowledges the message.
-func safeAcknowledgeMessage(msg *stan.Msg) {
+func safeAcknowledgeMessage(msg *natsio.Msg) {
 	if err := recover(); err != nil {
 		logger.Error(
 			"Panic occurred during message processing",

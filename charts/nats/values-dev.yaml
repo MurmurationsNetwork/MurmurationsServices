@@ -1,0 +1,27 @@
+config:
+  cluster:
+    enabled: true
+    port: 6222
+    replicas: 3
+
+  # JetStream configuration for NATS.
+  jetstream:
+    enabled: true
+    fileStore:
+      enabled: true
+      dir: /data
+      pvc:
+        enabled: true
+        size: 32Mi
+        storageClassName:
+
+reloader:
+  enabled: false
+
+# Pod template configuration for Kubernetes.
+podTemplate:
+  # Define topology spread constraints for pod placement.
+  topologySpreadConstraints:
+    kubernetes.io/hostname:
+      maxSkew: 1  # Define the maximum skew between pods.
+      whenUnsatisfiable: DoNotSchedule  # Policy for when skew is unsatisfiable.

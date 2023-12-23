@@ -52,11 +52,7 @@ func NewService() *Service {
 
 // setupServer configures and initializes the HTTP server.
 func (s *Service) setupServer() {
-	err := nats.NewClient(
-		config.Values.NATS.ClusterID,
-		config.Values.NATS.ClientID,
-		config.Values.NATS.URL,
-	)
+	err := nats.NewClient(config.Values.NATS.URL)
 	if err != nil {
 		logger.Panic("failed to connect to NATS", err)
 	}

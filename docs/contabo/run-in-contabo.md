@@ -345,7 +345,7 @@ Currently, we have 4 environments: `production`, `staging`, `proto` and `develop
 kubectl config use-context <context_name>
 
 # Replace '<environment>' with your desired environment.
-make manually-deploy-ingress ENV=<environment>
+make manually-deploy-ingress DEPLOY_ENV=<environment>
 ```
 
 ## 6. Deploying Murmurations Services
@@ -368,7 +368,7 @@ With the secrets in place, you can now proceed to deploy Murmurations services.
 kubectl config use-context <context_name>
 
 # Replace '<environment>' with your desired deployment environment.
-make deploy-all-services ENV=<environment>
+make deploy-all-services DEPLOY_ENV=<environment>
 ```
 
 This step will initiate the deployment process for Murmurations services, ensuring they are correctly configured and deployed in your chosen environment.

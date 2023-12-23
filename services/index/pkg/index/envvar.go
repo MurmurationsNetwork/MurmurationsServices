@@ -104,11 +104,7 @@ func setupElasticsearch() {
 
 // setupNATS initializes Nats service.
 func setupNATS() {
-	err := nats.NewClient(
-		config.Values.Nats.ClusterID,
-		config.Values.Nats.ClientID,
-		config.Values.Nats.URL,
-	)
+	err := nats.NewClient(config.Values.Nats.URL)
 	if err != nil {
 		logger.Panic("Failed to create Nats client", err)
 	}

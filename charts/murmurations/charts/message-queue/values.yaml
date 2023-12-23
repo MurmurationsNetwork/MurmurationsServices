@@ -1,4 +1,0 @@
-image: ""
-
-nats:
-  replicas: 1
