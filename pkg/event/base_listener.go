@@ -2,7 +2,6 @@ package event
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -59,22 +58,6 @@ func (l *listener) UpdateOptions(opts ...nats.SubOpt) {
 	l.opts = append(l.opts, opts...)
 }
 
-func DefaultMsgHandler() nats.MsgHandler {
-	return func(msg *nats.Msg) {
-		meta, err := msg.Metadata()
-		if err != nil {
-			fmt.Printf("Error getting metadata: %v\n", err)
-			return
-		}
-		fmt.Printf(
-			"receiving message: Sequence=%d, Data=%s\n",
-			meta.Sequence.Stream,
-			string(msg.Data),
-		)
-		_ = msg.Ack()
-	}
-}
-
 func (l *listener) Listen() error {
 	if l.msgHandler == nil {
 		return ErrNilMsgHandler
@@ -84,7 +67,8 @@ func (l *listener) Listen() error {
 		string(l.subject),
 		l.qgroup,
 		l.msgHandler,
-		l.opts...)
+		l.opts...,
+	)
 
 	return err
 }

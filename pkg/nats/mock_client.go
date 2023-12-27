@@ -17,10 +17,6 @@ func (m *mockClient) Disconnect() {
 	// Mock implementation
 }
 
-func (m *mockClient) setClient(_ *nats.Conn, _ nats.JetStreamContext) {
-	// Mock implementation
-}
-
 func (m *mockClient) SubscribeToSubjects(_ ...event.Subject) error {
 	return nil
 }
