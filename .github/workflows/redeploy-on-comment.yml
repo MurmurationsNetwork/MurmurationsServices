@@ -1,12 +1,13 @@
-# This workflow is designed to trigger a build and deployment process based
-# on specific review comments made by authorized users in pull request reviews.
-# When a comment containing '!rebuild images' is detected from an authorized user
-# (Owner, Collaborator, or Member), the workflow initiates a build job for
-# multiple Docker images and then proceeds to deploy these services.
+# Workflow Description:
+# This GitHub Actions workflow is initiated by specific review comments from
+# authorized users in pull request reviews. It triggers a build and deployment
+# process when a comment containing '!rebuild images' is made by an Owner,
+# Collaborator, or Member.
 
 name: Redeploy on Specific Review Comment by Authorized User
 
-# Trigger this workflow on comments created in pull request reviews.
+# Triggers:
+# Activated by submitted reviews and comments in pull request reviews.
 on:
   pull_request_review:
     types: [submitted]
@@ -14,6 +15,9 @@ on:
     types: [created]
 
 jobs:
+  # Job: Check Comment and Trigger Build
+  # Checks if the comment contains '!rebuild images' and if the author is
+  # an authorized user. Triggers the build job if conditions are met.
   check-comment-and-trigger-build:
     if: |
       contains(github.event.comment.body, '!rebuild images') &&
@@ -25,6 +29,9 @@ jobs:
       - name: Trigger Build Job
         run: echo "Triggering Build Job"
 
+  # Job: Build Docker Image
+  # Builds Docker images for services listed in the matrix, depending on the
+  # 'check-comment-and-trigger-build' job's outcome.
   build:
     name: Build Docker Image - ${{ matrix.service }}
     needs:
@@ -46,6 +53,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }} # Check out head branch of PR.
 
       - name: DockerHub Login
         uses: docker/login-action@v3.0.0
@@ -56,6 +65,9 @@ jobs:
       - name: Publish Docker Image
         run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
 
+  # Job: Deploy Services
+  # Handles the deployment of services using the built Docker images.
+  # Depends on the successful completion of the 'build' job.
   deploy:
     name: Deploy Services
     needs: build
