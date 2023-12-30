@@ -78,10 +78,6 @@ jobs:
   e2e_test:
     name: E2E Test
     needs:
-      - test
-      - lint
-      - check-exclusions
-      - build
       - deploy
     runs-on: ubuntu-latest
     steps:
