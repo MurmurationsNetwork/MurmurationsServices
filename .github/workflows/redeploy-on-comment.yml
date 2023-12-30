@@ -1,8 +1,7 @@
 # Workflow Description:
 # This GitHub Actions workflow is initiated by specific review comments from
 # authorized users in pull request reviews. It triggers a build and deployment
-# process when a comment containing '!rebuild images' is made by an Owner,
-# Collaborator, or Member.
+# process when a comment containing '!rebuild images'.
 
 name: Redeploy on Specific Review Comment by Authorized User
 
@@ -19,11 +18,7 @@ jobs:
   # Checks if the comment contains '!rebuild images' and if the author is
   # an authorized user. Triggers the build job if conditions are met.
   check-comment-and-trigger-build:
-    if: |
-      contains(github.event.comment.body, '!rebuild images') &&
-      (github.event.comment.author_association == 'OWNER' ||
-       github.event.comment.author_association == 'COLLABORATOR' ||
-       github.event.comment.author_association == 'MEMBER')
+    if: contains(github.event.comment.body, 'rebuild images')
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Build Job
