@@ -1,0 +1,62 @@
+name: Redeploy on Specific Review Comment by Authorized User
+
+# Trigger this workflow on comments created in pull request reviews.
+on:
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  check-comment-and-trigger-build:
+    if: |
+      contains(github.event.comment.body, '!rebuild images') &&
+      (github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'COLLABORATOR' ||
+       github.event.comment.author_association == 'MEMBER')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Build Job
+        run: echo "Triggering Build Job"
+
+  build:
+    name: Build Docker Image - ${{ matrix.service }}
+    needs:
+      - check-comment-and-trigger-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - index
+          - library
+          - geoip
+          - validation
+          - dataproxy
+          - nodecleaner
+          - revalidatenode
+          - schemaparser
+          - dataproxyupdater
+          - dataproxyrefresher
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: DockerHub Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish Docker Image
+        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
+
+  deploy:
+    name: Deploy Services
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Deployment Script
+        run: ./scripts/deploy-services.sh
+        env:
+          PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+          PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_ENV: pretest
