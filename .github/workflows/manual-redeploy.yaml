@@ -1,0 +1,29 @@
+name: Manual Redeployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployEnv:
+        description: 'Deployment Environment'
+        required: true
+        default: 'pretest'
+      deployTag:
+        description: 'Deployment Tag'
+        required: true
+        default: 'latest'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Run Deployment Script
+        run: ./scripts/deploy-services.sh
+        env:
+          DEPLOY_ENV: ${{ github.event.inputs.deployEnv }}
+          TAG: ${{ github.event.inputs.deployTag }}
+          PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+          PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
