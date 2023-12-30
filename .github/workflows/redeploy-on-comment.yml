@@ -1,7 +1,15 @@
+# This workflow is designed to trigger a build and deployment process based
+# on specific review comments made by authorized users in pull request reviews.
+# When a comment containing '!rebuild images' is detected from an authorized user
+# (Owner, Collaborator, or Member), the workflow initiates a build job for
+# multiple Docker images and then proceeds to deploy these services.
+
 name: Redeploy on Specific Review Comment by Authorized User
 
 # Trigger this workflow on comments created in pull request reviews.
 on:
+  pull_request_review:
+    types: [submitted]
   pull_request_review_comment:
     types: [created]
 
@@ -52,11 +60,11 @@ jobs:
     name: Deploy Services
     needs: build
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: pretest
+      PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+      PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - name: Run Deployment Script
         run: ./scripts/deploy-services.sh
-        env:
-          PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
-          PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          DEPLOY_ENV: pretest
