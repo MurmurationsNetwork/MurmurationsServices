@@ -1,7 +1,7 @@
 # Workflow Description:
 # This GitHub Actions workflow is initiated by specific review comments from
 # authorized users in pull request reviews. It triggers a build and deployment
-# process when a comment containing '/rebuild'.
+# process when a comment containing '/rebuild' is made by an authorized user.
 
 name: Redeploy on Specific Review Comment by Authorized User
 
@@ -14,6 +14,8 @@ on:
     types: [created]
 
 jobs:
+  # Debug Job:
+  # Prints the body of the comment to the console for debugging purposes.
   debug:
     runs-on: ubuntu-latest
     steps:
@@ -21,23 +23,25 @@ jobs:
         run: |
           echo "Comment Body: ${{ github.event.comment.body }}"
 
-  # Job: Check Comment and Trigger Build
-  # Checks if the comment contains '/rebuild' and if the author is
-  # an authorized user. Triggers the build job if conditions are met.
+  # Check Comment and Trigger Build Job:
+  # Verifies if the comment contains '/rebuild' and if the author is an
+  # authorized user (OWNER or COLLABORATOR). Triggers the build job if true.
   check-comment-and-trigger-build:
-    if: contains(github.event.comment.body, '/rebuild')
+    if: >-
+      contains(github.event.comment.body, '/rebuild') &&
+      (github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'COLLABORATOR')
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Build Job
         run: echo "Triggering Build Job"
 
-  # Job: Build Docker Image
-  # Builds Docker images for services listed in the matrix, depending on the
-  # 'check-comment-and-trigger-build' job's outcome.
+  # Build Job:
+  # Builds Docker images for the listed services, depending on the outcome of
+  # the 'check-comment-and-trigger-build' job.
   build:
     name: Build Docker Image - ${{ matrix.service }}
-    needs:
-      - check-comment-and-trigger-build
+    needs: check-comment-and-trigger-build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -56,7 +60,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }} # Check out head branch of PR.
+          ref: ${{ github.head_ref }}
 
       - name: DockerHub Login
         uses: docker/login-action@v3.0.0
@@ -67,9 +71,9 @@ jobs:
       - name: Publish Docker Image
         run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
 
-  # Job: Deploy Services
+  # Deploy Job:
   # Handles the deployment of services using the built Docker images.
-  # Depends on the successful completion of the 'build' job.
+  # This job depends on the successful completion of the 'build' job.
   deploy:
     name: Deploy Services
     needs: build
