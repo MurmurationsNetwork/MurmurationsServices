@@ -9,7 +9,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
 )
@@ -33,7 +33,7 @@ func NewNodeHandler(validationService service.ValidationService) NodeHandler {
 // NewNodeCreatedListener starts a listener for node-created events.
 func (handler *nodeHandler) NewNodeCreatedListener() error {
 	return event.NewNodeCreatedListener(
-		nats.Client.JetStream(),
+		natsclient.GetInstance().JsContext,
 		qgroup,
 		func(msg *natsio.Msg) {
 			go func() {

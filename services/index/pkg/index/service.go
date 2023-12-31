@@ -21,7 +21,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/controller/rest"
@@ -70,11 +70,12 @@ func NewService() *Service {
 
 // setupNATS initializes Nats service.
 func (s *Service) setupNATS() {
-	err := nats.NewClient(config.Values.Nats.URL)
+	err := natsclient.Initialize(config.Values.Nats.URL)
 	if err != nil {
 		logger.Panic("Failed to create Nats client", err)
 	}
-	_ = nats.Client.SubscribeToSubjects(e.NodeValidated, e.NodeValidationFailed)
+	nc := natsclient.GetInstance()
+	_ = nc.SubscribeToSubjects(e.NodeValidated, e.NodeValidationFailed)
 }
 
 // setupServer configures and initializes the HTTP server.
@@ -252,10 +253,26 @@ func (s *Service) Shutdown() {
 // cleanup will clean up the non-server resources associated with the service.
 func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
+		var errOccurred bool
+
+		// Shutdown the context.
 		s.shutdownCancelCtx()
+
+		// Disconnect from MongoDB.
 		mongodb.Client.Disconnect()
-		nats.Client.Disconnect()
-		logger.Info("Index service stopped gracefully.")
+
+		// Disconnect from NATS.
+		if err := natsclient.GetInstance().Disconnect(); err != nil {
+			logger.Error("Error disconnecting from NATS: %v", err)
+			errOccurred = true
+		}
+
+		// Log based on whether an error occurred.
+		if errOccurred {
+			logger.Info("Index service stopped with errors.")
+		} else {
+			logger.Info("Index service stopped gracefully.")
+		}
 	})
 }
 

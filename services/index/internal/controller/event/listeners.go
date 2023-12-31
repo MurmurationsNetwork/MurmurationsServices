@@ -9,7 +9,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
@@ -34,7 +34,7 @@ func NewNodeHandler(nodeService service.NodeService) NodeHandler {
 // Validated sets up a listener for validated node events and processes them.
 func (handler *nodeHandler) Validated() error {
 	return event.NewNodeValidatedListener(
-		nats.Client.JetStream(),
+		natsclient.GetInstance().JsContext,
 		index.IndexQueueGroup,
 		func(msg *natsio.Msg) {
 			go handler.processValidatedNode(msg)
@@ -46,7 +46,7 @@ func (handler *nodeHandler) Validated() error {
 // processes them.
 func (handler *nodeHandler) ValidationFailed() error {
 	return event.NewNodeValidationFailedListener(
-		nats.Client.JetStream(),
+		natsclient.GetInstance().JsContext,
 		index.IndexQueueGroup,
 		func(msg *natsio.Msg) {
 			go handler.processInvalidNode(msg)

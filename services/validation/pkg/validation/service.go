@@ -16,7 +16,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
@@ -53,11 +53,7 @@ func NewService() *Service {
 
 // setupServer configures and initializes the HTTP server.
 func (s *Service) setupServer() {
-	err := nats.NewClient(config.Values.NATS.URL)
-	if err != nil {
-		logger.Panic("failed to connect to NATS", err)
-	}
-	_ = nats.Client.SubscribeToSubjects(e.NodeCreated)
+	s.setupNATS()
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
@@ -76,6 +72,16 @@ func (s *Service) setupServer() {
 	s.shutdownCtx, s.shutdownCancelCtx = context.WithCancel(
 		context.Background(),
 	)
+}
+
+// setupNATS initializes Nats service.
+func (s *Service) setupNATS() {
+	err := natsclient.Initialize(config.Values.NATS.URL)
+	if err != nil {
+		logger.Panic("Failed to create Nats client", err)
+	}
+	nc := natsclient.GetInstance()
+	_ = nc.SubscribeToSubjects(e.NodeValidated, e.NodeValidationFailed)
 }
 
 // panic performs a cleanup and then emits the supplied message as the panic value.
@@ -134,8 +140,22 @@ func (s *Service) Shutdown() {
 // cleanup will clean up the non-server resources associated with the service.
 func (s *Service) cleanup() {
 	s.runCleanup.Do(func() {
+		var errOccurred bool
+
+		// Shutdown the context.
 		s.shutdownCancelCtx()
-		nats.Client.Disconnect()
-		logger.Info("Validation service stopped gracefully")
+
+		// Disconnect from NATS.
+		if err := natsclient.GetInstance().Disconnect(); err != nil {
+			logger.Error("Error disconnecting from NATS: %v", err)
+			errOccurred = true
+		}
+
+		// Log based on whether an error occurred.
+		if errOccurred {
+			logger.Info("Validation service stopped with errors.")
+		} else {
+			logger.Info("Validation service stopped gracefully.")
+		}
 	})
 }

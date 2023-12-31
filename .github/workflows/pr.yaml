@@ -115,6 +115,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+      - name: Deploy Message Queue
+        run: make deploy-mq DEPLOY_ENV=pretest
       - name: Setup SSH and Deploy Services
         run: ./scripts/deploy-services.sh
 

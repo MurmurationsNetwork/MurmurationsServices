@@ -12,7 +12,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
@@ -174,7 +174,7 @@ func (s *nodeService) AddNode(
 		return nil, err
 	}
 
-	_ = event.NewNodeCreatedPublisher(nats.Client.JetStream()).
+	_ = event.NewNodeCreatedPublisher(natsclient.GetInstance().JsContext).
 		Publish(event.NodeCreatedData{
 			ProfileURL: node.ProfileURL,
 			Version:    *node.Version,

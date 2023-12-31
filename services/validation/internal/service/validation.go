@@ -10,7 +10,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
@@ -100,7 +100,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		updatedProfileJSON["primary_url"] = normalizedURL
 	}
 
-	if err := event.NewNodeValidatedPublisher(nats.Client.JetStream()).
+	if err := event.NewNodeValidatedPublisher(natsclient.GetInstance().JsContext).
 		Publish(event.NodeValidatedData{
 			ProfileURL:  node.ProfileURL,
 			ProfileHash: profileHash,
@@ -117,7 +117,7 @@ func (svc *validationService) sendNodeValidationFailedEvent(
 	node *model.Node,
 	FailureReasons *[]jsonapi.Error,
 ) {
-	_ = event.NewNodeValidationFailedPublisher(nats.Client.JetStream()).
+	_ = event.NewNodeValidationFailedPublisher(natsclient.GetInstance().JsContext).
 		Publish(event.NodeValidationFailedData{
 			ProfileURL:     node.ProfileURL,
 			FailureReasons: FailureReasons,

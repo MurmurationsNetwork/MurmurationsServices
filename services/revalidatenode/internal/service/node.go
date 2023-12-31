@@ -7,7 +7,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/revalidatenode/internal/repository/mongo"
 )
 
@@ -62,7 +62,7 @@ func (svc *nodeService) RevalidateNodes() error {
 		)
 
 		for _, node := range nodes {
-			err := event.NewNodeCreatedPublisher(nats.Client.JetStream()).
+			err := event.NewNodeCreatedPublisher(natsclient.GetInstance().JsContext).
 				PublishSync(event.NodeCreatedData{
 					ProfileURL: node.ProfileURL,
 					Version:    *node.Version,
