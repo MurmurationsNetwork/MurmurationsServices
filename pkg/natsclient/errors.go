@@ -5,5 +5,5 @@ import (
 )
 
 var (
-	ErrConnectReqTimeout = errors.New("stan: connect request timeout")
+	ErrConnectReqTimeout = errors.New("natsclient: connect request timeout")
 )
