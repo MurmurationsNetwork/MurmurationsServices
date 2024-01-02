@@ -17,7 +17,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/limiter"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
@@ -74,11 +73,6 @@ func (s *Service) setupNATS() {
 	if err != nil {
 		logger.Panic("Failed to create Nats client", err)
 	}
-	nc := natsclient.GetInstance()
-	_ = nc.SubscribeToSubjects(
-		messaging.NodeValidated,
-		messaging.NodeValidationFailed,
-	)
 }
 
 // setupServer configures and initializes the HTTP server.

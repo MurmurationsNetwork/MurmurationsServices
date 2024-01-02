@@ -10,7 +10,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 )
 
-// NatsClient is a singleton that manages NATS connections and subscriptions.
+// NatsClient manages NATS connections and subscriptions.
 type NatsClient struct {
 	conn          *nats.Conn
 	JsContext     nats.JetStreamContext
@@ -24,7 +24,6 @@ var (
 )
 
 // Initialize sets up the NATS client with the provided URL.
-// It should be called once at the start of the application.
 func Initialize(url string) error {
 	var err error
 	once.Do(func() {
@@ -32,6 +31,9 @@ func Initialize(url string) error {
 		instance.conn, err = connectToNATS(url)
 		if err == nil {
 			instance.JsContext, err = instance.conn.JetStream()
+		}
+		if err == nil {
+			err = instance.ensureStreamExists()
 		}
 	})
 	return err
@@ -45,71 +47,8 @@ func GetInstance() *NatsClient {
 	return instance
 }
 
-// connectToNATS establishes a connection to the NATS server at the given URL.
-func connectToNATS(natsURL string) (*nats.Conn, error) {
-	var conn *nats.Conn
-	err := retry.Do(func() error {
-		var err error
-		conn, err = nats.Connect(natsURL)
-		return err
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
-	}
-	return conn, nil
-}
-
-// SubscribeToSubjects sets up subscriptions for the provided subjects.
-func (c *NatsClient) SubscribeToSubjects(subjects ...string) error {
-	if err := c.ensureStreamExists(); err != nil {
-		return err
-	}
-
-	for _, subject := range subjects {
-		if err := c.createConsumer(subject, subject+"_consumer"); err != nil {
-			return fmt.Errorf(
-				"failed to create consumer for subject %s: %w",
-				subject,
-				err,
-			)
-		}
-	}
-	return nil
-}
-
-// ensureStreamExists ensures that the required stream exists in NATS.
-func (c *NatsClient) ensureStreamExists() error {
-	_, err := c.JsContext.StreamInfo(streamName)
-	if err == nil {
-		return nil // Stream exists
-	}
-	if err != nats.ErrStreamNotFound {
-		return fmt.Errorf("error checking stream existence: %v", err)
-	}
-	return c.createStream()
-}
-
-// createStream creates a new stream in NATS JetStream.
-func (c *NatsClient) createStream() error {
-	streamConfig := &nats.StreamConfig{
-		Name:              streamName,
-		Subjects:          []string{"node:*"},
-		Retention:         nats.WorkQueuePolicy,
-		Discard:           nats.DiscardOld,
-		Storage:           nats.FileStorage,
-		MaxMsgsPerSubject: 1000,
-		MaxMsgSize:        1 << 20, // 1 MB
-		NoAck:             false,
-	}
-	_, err := c.JsContext.AddStream(streamConfig)
-	if err != nil {
-		return fmt.Errorf("error creating stream: %v", err)
-	}
-	return nil
-}
-
-// createConsumer creates a NATS consumer for a given subject.
-func (c *NatsClient) createConsumer(subject, durableName string) error {
+// CreateConsumer creates a NATS consumer for a given subject.
+func (c *NatsClient) CreateConsumer(subject, durableName string) error {
 	consumerConfig := &nats.ConsumerConfig{
 		Durable:        durableName,
 		FilterSubject:  subject,
@@ -129,27 +68,7 @@ func (c *NatsClient) AddSubscription(sub *nats.Subscription) {
 	c.subscriptions = append(c.subscriptions, sub)
 }
 
-// drainSubscriptions drains all managed subscriptions.
-func (c *NatsClient) drainSubscriptions() error {
-	var errStrings []string
-	for _, sub := range c.subscriptions {
-		if err := sub.Drain(); err != nil {
-			errStrings = append(
-				errStrings,
-				fmt.Sprintf("error draining subscription: %v", err),
-			)
-		}
-	}
-	if len(errStrings) > 0 {
-		return fmt.Errorf(
-			"issues draining subscriptions: %s",
-			strings.Join(errStrings, ", "),
-		)
-	}
-	return nil
-}
-
-// Disconnect gracefully closes the NATS connection, draining all subscriptions.
+// Disconnect gracefully closes the NATS connection and drains subscriptions.
 func (c *NatsClient) Disconnect() error {
 	var errStrings []string
 
@@ -190,5 +109,70 @@ func (c *NatsClient) Disconnect() error {
 		)
 	}
 
+	return nil
+}
+
+// connectToNATS establishes a connection to the NATS server at the given URL.
+func connectToNATS(natsURL string) (*nats.Conn, error) {
+	var conn *nats.Conn
+	err := retry.Do(func() error {
+		var err error
+		conn, err = nats.Connect(natsURL)
+		return err
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
+	}
+	return conn, nil
+}
+
+// ensureStreamExists ensures the required stream exists in NATS.
+func (c *NatsClient) ensureStreamExists() error {
+	_, err := c.JsContext.StreamInfo(streamName)
+	if err == nil {
+		return nil // Stream exists
+	}
+	if err != nats.ErrStreamNotFound {
+		return fmt.Errorf("error checking stream existence: %v", err)
+	}
+	return c.createStream()
+}
+
+// createStream creates a new stream in NATS JetStream.
+func (c *NatsClient) createStream() error {
+	streamConfig := &nats.StreamConfig{
+		Name:              streamName,
+		Subjects:          []string{"node:*"},
+		Retention:         nats.WorkQueuePolicy,
+		Discard:           nats.DiscardOld,
+		Storage:           nats.FileStorage,
+		MaxMsgsPerSubject: 1000,
+		MaxMsgSize:        1 << 20, // 1 MB
+		NoAck:             false,
+	}
+	_, err := c.JsContext.AddStream(streamConfig)
+	if err != nil {
+		return fmt.Errorf("error creating stream: %v", err)
+	}
+	return nil
+}
+
+// drainSubscriptions drains all managed subscriptions.
+func (c *NatsClient) drainSubscriptions() error {
+	var errStrings []string
+	for _, sub := range c.subscriptions {
+		if err := sub.Drain(); err != nil {
+			errStrings = append(
+				errStrings,
+				fmt.Sprintf("error draining subscription: %v", err),
+			)
+		}
+	}
+	if len(errStrings) > 0 {
+		return fmt.Errorf(
+			"issues draining subscriptions: %s",
+			strings.Join(errStrings, ", "),
+		)
+	}
 	return nil
 }

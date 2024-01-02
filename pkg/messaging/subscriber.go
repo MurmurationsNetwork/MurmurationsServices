@@ -46,23 +46,32 @@ func newSubscriber() (*Subscriber, error) {
 	return &Subscriber{natsClient: natsClient}, nil
 }
 
-// queueSubscribe subscribes to the given subject and queue.
+// queueSubscribe sets up a queue subscription to a NATS subject with a durable consumer.
 func (s *Subscriber) queueSubscribe(
 	subject, queue string,
 	handler MessageHandler,
 ) error {
-	sub, err := s.natsClient.JsContext.QueueSubscribe(
-		subject,
-		queue,
-		func(msg *nats.Msg) {
-			handler(msg)
-		},
-		nats.Durable(subject+"_consumer"),
-	)
+	durableName := subject + "_consumer"
+
+	err := s.natsClient.CreateConsumer(subject, durableName)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create consumer: %w", err)
 	}
 
+	// Subscribe to the subject with a queue and a handler.
+	sub, err := s.natsClient.JsContext.QueueSubscribe(
+		subject, queue, func(msg *nats.Msg) {
+			handler(msg)
+		},
+		nats.Durable(durableName),
+		nats.AckExplicit(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to subscribe to queue: %w", err)
+	}
+
+	// Add the subscription to the client's tracking.
 	s.natsClient.AddSubscription(sub)
+
 	return nil
 }

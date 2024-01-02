@@ -38,17 +38,6 @@ Retrieve the singleton instance of the NATS client:
 client := natsclient.GetInstance()
 ```
 
-#### Subscribing to Subjects
-
-To subscribe to specific subjects:
-
-```go
-err := client.SubscribeToSubjects("subject1", "subject2")
-if err != nil {
-    log.Printf("Failed to subscribe to subjects: %v", err)
-}
-```
-
 #### Disconnecting the Client
 
 Properly disconnect the client when needed:
