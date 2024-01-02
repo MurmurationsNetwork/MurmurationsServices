@@ -46,6 +46,7 @@ chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 
 # Deployment message queue.
+echo "Deploying message queue..."
 make deploy-mq DEPLOY_ENV=$DEPLOY_ENV
 
 # Deployment logic for each service.

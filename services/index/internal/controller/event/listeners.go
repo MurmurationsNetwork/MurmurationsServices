@@ -3,13 +3,13 @@ package event
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	natsio "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/service"
@@ -33,32 +33,45 @@ func NewNodeHandler(nodeService service.NodeService) NodeHandler {
 
 // Validated sets up a listener for validated node events and processes them.
 func (handler *nodeHandler) Validated() error {
-	return event.NewNodeValidatedListener(
-		natsclient.GetInstance().JsContext,
-		index.IndexQueueGroup,
-		func(msg *natsio.Msg) {
-			go handler.processValidatedNode(msg)
-		},
-	).Listen()
+	err := messaging.QueueSubscribe(
+		messaging.NodeValidated,
+		index.QueueGroup,
+		handler.processValidatedNode,
+	)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to subscribe to '%s': %v",
+			messaging.NodeValidated,
+			err,
+		)
+	}
+
+	return nil
 }
 
 // ValidationFailed sets up a listener for validation failed node events and
 // processes them.
 func (handler *nodeHandler) ValidationFailed() error {
-	return event.NewNodeValidationFailedListener(
-		natsclient.GetInstance().JsContext,
-		index.IndexQueueGroup,
-		func(msg *natsio.Msg) {
-			go handler.processInvalidNode(msg)
-		},
-	).Listen()
+	err := messaging.QueueSubscribe(
+		messaging.NodeValidationFailed,
+		index.QueueGroup,
+		handler.processInvalidNode,
+	)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to subscribe to '%s': %v",
+			messaging.NodeValidationFailed,
+			err,
+		)
+	}
+	return nil
 }
 
 // processValidatedNode handles the processing of validated nodes.
 func (handler *nodeHandler) processValidatedNode(msg *natsio.Msg) {
 	defer safeAcknowledgeMessage(msg)
 
-	var data event.NodeValidatedData
+	var data messaging.NodeValidatedData
 	err := json.Unmarshal(msg.Data, &data)
 	if err != nil {
 		logger.Error("Failed to unmarshal validated node data", err)
@@ -85,7 +98,7 @@ func (handler *nodeHandler) processValidatedNode(msg *natsio.Msg) {
 func (handler *nodeHandler) processInvalidNode(msg *natsio.Msg) {
 	defer safeAcknowledgeMessage(msg)
 
-	var data event.NodeValidationFailedData
+	var data messaging.NodeValidationFailedData
 	err := json.Unmarshal(msg.Data, &data)
 	if err != nil {
 		logger.Error("Failed to unmarshal invalid node data", err)

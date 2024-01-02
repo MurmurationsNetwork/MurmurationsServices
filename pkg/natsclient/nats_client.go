@@ -7,15 +7,15 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 )
 
-// NatsClient represents the singleton NATS client.
+// NatsClient is a singleton that manages NATS connections and subscriptions.
 type NatsClient struct {
-	conn      *nats.Conn
-	JsContext nats.JetStreamContext
-	consumers []*nats.ConsumerInfo
+	conn          *nats.Conn
+	JsContext     nats.JetStreamContext
+	consumers     []*nats.ConsumerInfo
+	subscriptions []*nats.Subscription
 }
 
 var (
@@ -23,7 +23,8 @@ var (
 	once     sync.Once
 )
 
-// Initialize must be called at the start of your application.
+// Initialize sets up the NATS client with the provided URL.
+// It should be called once at the start of the application.
 func Initialize(url string) error {
 	var err error
 	once.Do(func() {
@@ -36,16 +37,15 @@ func Initialize(url string) error {
 	return err
 }
 
-// GetInstance returns the singleton instance of the NATS client.
+// GetInstance retrieves the initialized NatsClient instance.
 func GetInstance() *NatsClient {
 	if instance == nil || instance.conn == nil {
-		panic("NATS client is not initialized or connection is nil. " +
-			"Ensure Initialize is called correctly.")
+		panic("NATS client is not initialized. Call Initialize first.")
 	}
 	return instance
 }
 
-// connectToNATS establishes a connection to a NATS server.
+// connectToNATS establishes a connection to the NATS server at the given URL.
 func connectToNATS(natsURL string) (*nats.Conn, error) {
 	var conn *nats.Conn
 	err := retry.Do(func() error {
@@ -54,25 +54,13 @@ func connectToNATS(natsURL string) (*nats.Conn, error) {
 		return err
 	})
 	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to connect to NATS after retries: %w", err,
-		)
+		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
 	}
 	return conn, nil
 }
 
-// SubscribeToSubjects sets up subscriptions to given subjects.
-func (c *NatsClient) SubscribeToSubjects(subjects ...event.Subject) error {
-	subjectStrings := make([]string, len(subjects))
-	for i, subject := range subjects {
-		subjectStrings[i] = string(subject)
-	}
-
-	return c.createStreamAndConsumers(subjectStrings)
-}
-
-// createStreamAndConsumers creates a stream and necessary consumers.
-func (c *NatsClient) createStreamAndConsumers(subjects []string) error {
+// SubscribeToSubjects sets up subscriptions for the provided subjects.
+func (c *NatsClient) SubscribeToSubjects(subjects ...string) error {
 	if err := c.ensureStreamExists(); err != nil {
 		return err
 	}
@@ -89,11 +77,11 @@ func (c *NatsClient) createStreamAndConsumers(subjects []string) error {
 	return nil
 }
 
-// ensureStreamExists checks and creates a stream if it doesn't exist.
+// ensureStreamExists ensures that the required stream exists in NATS.
 func (c *NatsClient) ensureStreamExists() error {
 	_, err := c.JsContext.StreamInfo(streamName)
 	if err == nil {
-		return nil // Stream already exists.
+		return nil // Stream exists
 	}
 	if err != nats.ErrStreamNotFound {
 		return fmt.Errorf("error checking stream existence: %v", err)
@@ -101,7 +89,7 @@ func (c *NatsClient) ensureStreamExists() error {
 	return c.createStream()
 }
 
-// createStream configures and adds a new stream to JetStream.
+// createStream creates a new stream in NATS JetStream.
 func (c *NatsClient) createStream() error {
 	streamConfig := &nats.StreamConfig{
 		Name:              streamName,
@@ -120,36 +108,58 @@ func (c *NatsClient) createStream() error {
 	return nil
 }
 
-// createConsumer adds a new consumer to the JetStream.
+// createConsumer creates a NATS consumer for a given subject.
 func (c *NatsClient) createConsumer(subject, durableName string) error {
 	consumerConfig := &nats.ConsumerConfig{
-		// 'Durable' names the consumer, allowing it to be durable.
-		// This means the state of the consumer (like acked messages) is
-		// maintained across restarts.
-		Durable: durableName,
-		// 'FilterSubject' specifies the subject (or subjects) this consumer
-		// will listen to.
-		FilterSubject: subject,
-		// 'DeliverSubject' is the NATS subject where messages will be delivered
+		Durable:        durableName,
+		FilterSubject:  subject,
 		DeliverSubject: subject,
-		// 'AckExplicitPolicy' requires explicit acknowledgment of each message.
-		AckPolicy: nats.AckExplicitPolicy,
+		AckPolicy:      nats.AckExplicitPolicy,
 	}
 	consumerInfo, err := c.JsContext.AddConsumer(streamName, consumerConfig)
-
 	if err != nil {
 		return fmt.Errorf("error creating consumer: %v", err)
 	}
-
 	c.consumers = append(c.consumers, consumerInfo)
 	return nil
 }
 
-// Disconnect closes the NATS connection and deletes consumers.
+// AddSubscription adds a subscription to the NatsClient for management.
+func (c *NatsClient) AddSubscription(sub *nats.Subscription) {
+	c.subscriptions = append(c.subscriptions, sub)
+}
+
+// drainSubscriptions drains all managed subscriptions.
+func (c *NatsClient) drainSubscriptions() error {
+	var errStrings []string
+	for _, sub := range c.subscriptions {
+		if err := sub.Drain(); err != nil {
+			errStrings = append(
+				errStrings,
+				fmt.Sprintf("error draining subscription: %v", err),
+			)
+		}
+	}
+	if len(errStrings) > 0 {
+		return fmt.Errorf(
+			"issues draining subscriptions: %s",
+			strings.Join(errStrings, ", "),
+		)
+	}
+	return nil
+}
+
+// Disconnect gracefully closes the NATS connection, draining all subscriptions.
 func (c *NatsClient) Disconnect() error {
 	var errStrings []string
 
-	// Delete consumers and collect errors.
+	if err := c.drainSubscriptions(); err != nil {
+		errStrings = append(
+			errStrings,
+			fmt.Sprintf("error draining subscriptions: %v", err),
+		)
+	}
+
 	for _, consumer := range c.consumers {
 		if err := c.JsContext.DeleteConsumer(streamName, consumer.Name); err != nil {
 			errStrings = append(
@@ -163,7 +173,6 @@ func (c *NatsClient) Disconnect() error {
 		}
 	}
 
-	// Attempt to drain and close the connection.
 	if c.conn != nil {
 		if err := c.conn.Drain(); err != nil {
 			errStrings = append(
@@ -174,7 +183,6 @@ func (c *NatsClient) Disconnect() error {
 		c.conn.Close()
 	}
 
-	// If there were any errors, return a combined error.
 	if len(errStrings) > 0 {
 		return fmt.Errorf(
 			"disconnect encountered issues: %s",

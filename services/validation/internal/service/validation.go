@@ -5,12 +5,11 @@ import (
 	"net/http"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
@@ -100,32 +99,53 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		updatedProfileJSON["primary_url"] = normalizedURL
 	}
 
-	if err := event.NewNodeValidatedPublisher(natsclient.GetInstance().JsContext).
-		Publish(event.NodeValidatedData{
+	err = messaging.Publish(
+		messaging.NodeValidated,
+		messaging.NodeValidatedData{
 			ProfileURL:  node.ProfileURL,
 			ProfileHash: profileHash,
 			// Provides the updated version of the profile for later use.
 			ProfileStr:  jsonutil.ToString(updatedProfileJSON),
 			LastUpdated: dateutil.GetNowUnix(),
 			Version:     node.Version,
-		}); err != nil {
+		},
+	)
+	if err != nil {
 		logger.Error("Failed to publish: ", err)
 	}
 }
 
 func (svc *validationService) sendNodeValidationFailedEvent(
 	node *model.Node,
-	FailureReasons *[]jsonapi.Error,
+	failureReasons *[]jsonapi.Error,
 ) {
-	_ = event.NewNodeValidationFailedPublisher(natsclient.GetInstance().JsContext).
-		Publish(event.NodeValidationFailedData{
-			ProfileURL:     node.ProfileURL,
-			FailureReasons: FailureReasons,
-			Version:        node.Version,
-		})
+	eventData := messaging.NodeValidationFailedData{
+		ProfileURL:     node.ProfileURL,
+		FailureReasons: failureReasons,
+		Version:        node.Version,
+	}
+
+	err := messaging.Publish(
+		messaging.NodeValidationFailed,
+		eventData,
+	)
+
+	if err != nil {
+		logger.Error(
+			fmt.Sprintf(
+				"failed to send NodeValidationFailed event"+
+					"for node %s (version: %d). Data: %+v",
+				node.ProfileURL,
+				node.Version,
+				eventData,
+			),
+			err,
+		)
+	}
 }
 
-// validateAgainstDefaultSchema handles the validation of the node's profile against the default schema.
+// validateAgainstDefaultSchema handles the validation of the node's profile
+// against the default schema.
 func (svc *validationService) validateAgainstDefaultSchema(
 	profileStr string,
 	node *model.Node,

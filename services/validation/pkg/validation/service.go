@@ -12,9 +12,9 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"
-	e "github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/handler"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
@@ -81,7 +81,10 @@ func (s *Service) setupNATS() {
 		logger.Panic("Failed to create Nats client", err)
 	}
 	nc := natsclient.GetInstance()
-	_ = nc.SubscribeToSubjects(e.NodeValidated, e.NodeValidationFailed)
+	_ = nc.SubscribeToSubjects(
+		messaging.NodeValidated,
+		messaging.NodeValidationFailed,
+	)
 }
 
 // panic performs a cleanup and then emits the supplied message as the panic value.
