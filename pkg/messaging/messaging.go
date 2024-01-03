@@ -1,4 +1,4 @@
-package event
+package messaging
 
 import "github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 

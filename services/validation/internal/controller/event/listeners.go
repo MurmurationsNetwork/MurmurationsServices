@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	stan "github.com/nats-io/stan.go"
+	"github.com/nats-io/nats.go"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/validation"
 )
 
 // NodeHandler provides an interface for handling node events.
@@ -32,45 +32,36 @@ func NewNodeHandler(validationService service.ValidationService) NodeHandler {
 
 // NewNodeCreatedListener starts a listener for node-created events.
 func (handler *nodeHandler) NewNodeCreatedListener() error {
-	return event.NewNodeCreatedListener(
-		nats.Client.Client(),
-		qgroup,
-		func(msg *stan.Msg) {
-			go func() {
-				defer func() {
-					if err := recover(); err != nil {
-						logger.Error(
-							fmt.Sprintf(
-								"Panic occurred in nodeCreated handler: %v",
-								err,
-							),
-							errors.New("panic"),
-						)
-					}
-					// Acknowledge the message regardless of error.
-					if err := msg.Ack(); err != nil {
-						logger.Error(
-							"Error when acknowledging message",
-							err,
-						)
-					}
-				}()
+	return messaging.QueueSubscribe(
+		messaging.NodeCreated,
+		validation.QueueGroup,
+		handler.newNodeCreatedHandler,
+	)
+}
 
-				var nodeCreatedData event.NodeCreatedData
-				err := json.Unmarshal(msg.Data, &nodeCreatedData)
-				if err != nil {
-					logger.Error(
-						"Error when trying to parse nodeCreatedData",
-						err,
-					)
-					return
-				}
+// newNodeCreatedHandler handles the logic for node-created messages.
+func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error(
+				fmt.Sprintf("Panic occurred in nodeCreated handler: %v", err),
+				errors.New("panic"),
+			)
+		}
+		// Acknowledge the message regardless of error.
+		if err := msg.Ack(); err != nil {
+			logger.Error("Error when acknowledging message", err)
+		}
+	}()
 
-				handler.validationService.ValidateNode(&model.Node{
-					ProfileURL: nodeCreatedData.ProfileURL,
-					Version:    nodeCreatedData.Version,
-				})
-			}()
-		},
-	).Listen()
+	var nodeCreatedData messaging.NodeCreatedData
+	if err := json.Unmarshal(msg.Data, &nodeCreatedData); err != nil {
+		logger.Error("Error when trying to parse nodeCreatedData", err)
+		return
+	}
+
+	handler.validationService.ValidateNode(&model.Node{
+		ProfileURL: nodeCreatedData.ProfileURL,
+		Version:    nodeCreatedData.Version,
+	})
 }

@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/revalidatenode/internal/repository/mongo"
 )
 
@@ -62,11 +61,13 @@ func (svc *nodeService) RevalidateNodes() error {
 		)
 
 		for _, node := range nodes {
-			err := event.NewNodeCreatedPublisher(nats.Client.Client()).
-				PublishSync(event.NodeCreatedData{
+			err := messaging.PublishSync(
+				messaging.NodeCreated,
+				messaging.NodeCreatedData{
 					ProfileURL: node.ProfileURL,
 					Version:    *node.Version,
-				})
+				},
+			)
 			if err != nil {
 				logger.Error("Failed to publish node:created event: ", err)
 			}

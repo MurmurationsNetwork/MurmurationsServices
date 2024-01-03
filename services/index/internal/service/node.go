@@ -9,10 +9,9 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/cryptoutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/dateutil"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/index"
@@ -174,11 +173,13 @@ func (s *nodeService) AddNode(
 		return nil, err
 	}
 
-	event.NewNodeCreatedPublisher(nats.Client.Client()).
-		Publish(event.NodeCreatedData{
-			ProfileURL: node.ProfileURL,
-			Version:    *node.Version,
-		})
+	err = messaging.Publish(messaging.NodeCreated, messaging.NodeCreatedData{
+		ProfileURL: node.ProfileURL,
+		Version:    *node.Version,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return node, nil
 }

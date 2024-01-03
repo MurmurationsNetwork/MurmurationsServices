@@ -5,7 +5,7 @@ import (
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/revalidatenode/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/revalidatenode/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/revalidatenode/internal/service"
@@ -37,16 +37,17 @@ func NewCronJob() *NodeRevalidationCron {
 	}
 
 	// Initialize NATS client.
-	err := nats.NewClient(
-		config.Conf.Nats.ClusterID,
-		config.Conf.Nats.ClientID,
-		config.Conf.Nats.URL,
-	)
-	if err != nil {
-		logger.Panic("error when trying to connect to NATS", err)
-	}
+	setupNATS()
 
 	return &NodeRevalidationCron{}
+}
+
+// setupNATS initializes Nats service.
+func setupNATS() {
+	err := natsclient.Initialize(config.Conf.Nats.URL)
+	if err != nil {
+		logger.Panic("Failed to create Nats client", err)
+	}
 }
 
 // Run executes the node revalidation process.
@@ -69,7 +70,22 @@ func (nc *NodeRevalidationCron) Run() error {
 // cleanup disconnects MongoDB and NATS clients.
 func (nc *NodeRevalidationCron) cleanup() {
 	nc.runCleanup.Do(func() {
+		var errOccurred bool
+
+		// Disconnect from MongoDB.
 		mongodb.Client.Disconnect()
-		nats.Client.Disconnect()
+
+		// Disconnect from NATS.
+		if err := natsclient.GetInstance().Disconnect(); err != nil {
+			logger.Error("Error disconnecting from NATS: %v", err)
+			errOccurred = true
+		}
+
+		// Log based on whether an error occurred.
+		if errOccurred {
+			logger.Info("Revalidate node service stopped with errors.")
+		} else {
+			logger.Info("Revalidate node service stopped gracefully.")
+		}
 	})
 }

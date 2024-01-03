@@ -45,6 +45,10 @@ $(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)\
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 
+# Deployment message queue.
+echo "Deploying message queue..."
+make deploy-mq DEPLOY_ENV=$DEPLOY_ENV
+
 # Deployment logic for each service.
 declare -a services=("index" "library" "geoip" "validation" "dataproxy"
                      "nodecleaner" "revalidatenode" "schemaparser"

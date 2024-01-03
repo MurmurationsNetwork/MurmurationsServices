@@ -8,7 +8,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/nats"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/config"
 )
 
@@ -18,7 +17,6 @@ func init() {
 		log.Fatalf("Failed to decode environment variables: %s", err)
 	}
 	setupElasticsearch()
-	setupNATS()
 }
 
 // setupElasticsearch initializes Elasticsearch service and sets up necessary indices.
@@ -100,16 +98,4 @@ func setupElasticsearch() {
 	}
 
 	logger.Info("Elasticsearch index created successfully")
-}
-
-// setupNATS initializes Nats service.
-func setupNATS() {
-	err := nats.NewClient(
-		config.Values.Nats.ClusterID,
-		config.Values.Nats.ClientID,
-		config.Values.Nats.URL,
-	)
-	if err != nil {
-		logger.Panic("Failed to create Nats client", err)
-	}
 }
