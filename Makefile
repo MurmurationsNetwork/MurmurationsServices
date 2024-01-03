@@ -81,7 +81,7 @@ deploy-mq:
 	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
 	helm repo update && \
 	helm upgrade murmurations-mq nats/nats --version 1.1.6 -f $(VALUES_FILE) \
-	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
+	--set global.env=$(DEPLOY_ENV) --install --atomic
 
 deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \

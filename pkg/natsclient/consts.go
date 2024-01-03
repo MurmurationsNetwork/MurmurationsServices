@@ -1,3 +1,3 @@
 package natsclient
 
-const streamName = "EVENTS"
+const streamName = "NODES"

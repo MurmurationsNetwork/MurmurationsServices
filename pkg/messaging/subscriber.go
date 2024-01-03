@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/nats-io/nats.go"
@@ -51,19 +52,14 @@ func (s *Subscriber) queueSubscribe(
 	subject, queue string,
 	handler MessageHandler,
 ) error {
-	durableName := subject + "_consumer"
-
-	err := s.natsClient.CreateConsumer(subject, durableName)
-	if err != nil {
-		return fmt.Errorf("failed to create consumer: %w", err)
-	}
+	consumerName := strings.Split(subject, ".")[1]
 
 	// Subscribe to the subject with a queue and a handler.
 	sub, err := s.natsClient.JsContext.QueueSubscribe(
 		subject, queue, func(msg *nats.Msg) {
 			handler(msg)
 		},
-		nats.Durable(durableName),
+		nats.Durable(consumerName),
 		nats.AckExplicit(),
 	)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/retry"
 )
 
@@ -14,7 +15,6 @@ import (
 type NatsClient struct {
 	conn          *nats.Conn
 	JsContext     nats.JetStreamContext
-	consumers     []*nats.ConsumerInfo
 	subscriptions []*nats.Subscription
 }
 
@@ -47,22 +47,6 @@ func GetInstance() *NatsClient {
 	return instance
 }
 
-// CreateConsumer creates a NATS consumer for a given subject.
-func (c *NatsClient) CreateConsumer(subject, durableName string) error {
-	consumerConfig := &nats.ConsumerConfig{
-		Durable:        durableName,
-		FilterSubject:  subject,
-		DeliverSubject: subject,
-		AckPolicy:      nats.AckExplicitPolicy,
-	}
-	consumerInfo, err := c.JsContext.AddConsumer(streamName, consumerConfig)
-	if err != nil {
-		return fmt.Errorf("error creating consumer: %v", err)
-	}
-	c.consumers = append(c.consumers, consumerInfo)
-	return nil
-}
-
 // AddSubscription adds a subscription to the NatsClient for management.
 func (c *NatsClient) AddSubscription(sub *nats.Subscription) {
 	c.subscriptions = append(c.subscriptions, sub)
@@ -77,19 +61,6 @@ func (c *NatsClient) Disconnect() error {
 			errStrings,
 			fmt.Sprintf("error draining subscriptions: %v", err),
 		)
-	}
-
-	for _, consumer := range c.consumers {
-		if err := c.JsContext.DeleteConsumer(streamName, consumer.Name); err != nil {
-			errStrings = append(
-				errStrings,
-				fmt.Sprintf(
-					"error deleting consumer %s: %v",
-					consumer.Name,
-					err,
-				),
-			)
-		}
 	}
 
 	if c.conn != nil {
@@ -128,8 +99,9 @@ func connectToNATS(natsURL string) (*nats.Conn, error) {
 
 // ensureStreamExists ensures the required stream exists in NATS.
 func (c *NatsClient) ensureStreamExists() error {
-	_, err := c.JsContext.StreamInfo(streamName)
+	info, err := c.JsContext.StreamInfo(streamName)
 	if err == nil {
+		logger.Info(fmt.Sprintf("Stream exists: %+v\n", info))
 		return nil // Stream exists
 	}
 	if err != nats.ErrStreamNotFound {
@@ -142,7 +114,7 @@ func (c *NatsClient) ensureStreamExists() error {
 func (c *NatsClient) createStream() error {
 	streamConfig := &nats.StreamConfig{
 		Name:              streamName,
-		Subjects:          []string{"node:*"},
+		Subjects:          []string{"NODES.>"},
 		Retention:         nats.WorkQueuePolicy,
 		Discard:           nats.DiscardOld,
 		Storage:           nats.FileStorage,
@@ -150,10 +122,14 @@ func (c *NatsClient) createStream() error {
 		MaxMsgSize:        1 << 20, // 1 MB
 		NoAck:             false,
 	}
-	_, err := c.JsContext.AddStream(streamConfig)
+
+	info, err := c.JsContext.AddStream(streamConfig)
 	if err != nil {
 		return fmt.Errorf("error creating stream: %v", err)
 	}
+
+	logger.Info(fmt.Sprintf("Stream created: %+v\n", info))
+
 	return nil
 }
 

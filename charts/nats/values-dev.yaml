@@ -12,7 +12,7 @@ config:
       dir: /data
       pvc:
         enabled: true
-        size: 32Mi
+        size: 16Mi
         storageClassName:
 
 reloader:
