@@ -11,7 +11,7 @@ import (
 )
 
 // defaultSkipPaths defines paths that should be skipped in logging.
-var defaultSkipPaths = []string{"/ping, /v1/ping, /v2/ping"}
+var defaultSkipPaths = []string{"/ping", "/v1/ping", "/v2/ping"}
 
 // NewLogger creates a Gin middleware logger with default configuration.
 func NewLogger() gin.HandlerFunc {
