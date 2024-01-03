@@ -171,56 +171,56 @@ manually-deploy-mq:
 
 manually-deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/index:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)index:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-validation:
 	helm upgrade murmurations-validation \
 	./charts/murmurations/charts/validation \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/validation:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)validation:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-library:
 	helm upgrade murmurations-library ./charts/murmurations/charts/library \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/library:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)library:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-nodecleaner:
 	helm upgrade murmurations-nodecleaner \
 	./charts/murmurations/charts/nodecleaner \
-	--set global.env=$(ENV),image=murmurations/nodecleaner:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-schemaparser:
 	helm upgrade murmurations-schemaparser \
 	./charts/murmurations/charts/schemaparser \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/schemaparser:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)schemaparser:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode \
 	./charts/murmurations/charts/revalidatenode \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/revalidatenode:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-geoip:
 	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/geoip:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)geoip:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxy:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater \
 	./charts/murmurations/charts/dataproxyupdater \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyupdater:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxyrefresher:
 	helm upgrade murmurations-dataproxyrefresher \
 	./charts/murmurations/charts/dataproxyrefresher \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/dataproxyrefresher:$(SPECIFIC_TAG) \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(SPECIFIC_TAG) \
 	--install --atomic --debug
