@@ -1,4 +1,4 @@
-# Upgrade Rancher Guide
+# Upgrade Rancher
 
 This guide outlines the steps for upgrading Rancher.
 
