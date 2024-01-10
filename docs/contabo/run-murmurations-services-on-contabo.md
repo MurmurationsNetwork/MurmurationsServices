@@ -16,7 +16,7 @@ Before we begin, let's familiarize ourselves with some key terms:
 
 Ensure you have the following prerequisites ready:
 
-- **VPS Instances**: Minimum of two with Ubuntu Server - one for hosting Rancher, and another as a Kubernetes cluster node using rke2. For extended capabilities, additional VPS instances may be used.
+- **VPS Instances**: Require at least two Ubuntu Servers; one hosts Rancher, another runs Murmurations Services with rke2. In production, use a minimum of three nodes for Murmurations Services to ensure high availability in your Kubernetes cluster.
 - **[kubectl](https://kubernetes.io/docs/tasks/tools/)**: Installed on your local machine.
 - **[Helm](https://helm.sh)**: Also installed on your local machine.
 
