@@ -171,7 +171,7 @@ Proceed with adding the Rancher Helm chart repository:
 # Make sure you have switched to the correct context.
 kubectl config use-context <context_name>
 
-helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
 ```
 
 Create the `cattle-system` namespace for Rancher:
@@ -208,7 +208,7 @@ helm install cert-manager jetstack/cert-manager \
 Now, deploy Rancher using Helm in the `cattle-system` namespace. Replace `<ip_address>` with your server's IP and `<PASSWORD_FOR_RANCHER_ADMIN>` with your chosen password:
 
 ```bash
-helm install rancher rancher-latest/rancher \
+helm install rancher rancher-stable/rancher \
   --namespace cattle-system \
   --set hostname=<ip_address>.sslip.io \
   --set replicas=1 \
