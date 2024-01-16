@@ -28,10 +28,10 @@ spec:
           resources:
             requests:
               memory: "16Mi"
-              cpu: "8m"
+              cpu: "16m"
             limits:
               memory: "32Mi"
-              cpu: "16m"
+              cpu: "32m"
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
