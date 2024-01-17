@@ -13,15 +13,15 @@ spec:
   # Conditionally suspend the job for pretest environment.
   {{- if $isPretest }}
   suspend: true
-  {{- else }}
+  {{- end }}
+
   # Conditionally set the schedule based on the environment.
   {{- if $isProd }}
   schedule: "0 1 * * *"      # every day at 1 a.m. for production
-  {{- else if $isStaging }}
-  schedule: "0 * * * *"      # every hour for staging
+  {{- else if or $isStaging $isPretest }}
+  schedule: "0 * * * *"      # every hour for staging and pretest
   {{- else }}
   schedule: "*/2 * * * *"    # every 2 minutes for development
-  {{- end }}
   {{- end }}
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
