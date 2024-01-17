@@ -13,8 +13,10 @@ spec:
   # Conditionally set the schedule based on the environment.
   {{- if $isProd }}
   schedule: "0 1 * * *"      # every day at 1 a.m. for production
-  {{- else if or $isStaging $isPretest }}
-  schedule: "0 * * * *"      # every hour for staging and pretest
+  {{- else if $isStaging }}
+  schedule: "0 * * * *"      # every hour for staging
+  {{- else if $isPretest }}
+  # No schedule for pretest environment
   {{- else }}
   schedule: "*/2 * * * *"    # every 2 minutes for development
   {{- end }}
