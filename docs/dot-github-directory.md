@@ -26,7 +26,7 @@ component and deploys the components to a Kubernetes cluster on DigitalOcean.
 The `test` job executes unit tests for the project and consists of three steps.
 The first step uses the `actions/checkout` action to check out the code for the
 project. The second step uses the `actions/setup-go` action to set up the Go
-environment with version 1.19.5. The third step runs the `make test` command,
+environment with version 1.21. The third step runs the `make test` command,
 which is defined in the project's `Makefile` and runs the tests for the project.
 
 This `build-*` jobs build and publish Docker images for different components of
