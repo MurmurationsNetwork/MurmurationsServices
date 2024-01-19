@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM golang:1.19.5-alpine as build
+FROM golang:1.21-alpine as build
 
 # Set the working directory inside the container for the build stage
 WORKDIR /src/nodecleaner
