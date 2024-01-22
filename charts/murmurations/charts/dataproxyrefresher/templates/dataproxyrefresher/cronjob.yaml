@@ -10,6 +10,11 @@ kind: CronJob
 metadata:
   name: dataproxyrefresher-app
 spec:
+  # Conditionally suspend the job for pretest environment.
+  {{- if $isPretest }}
+  suspend: true
+  {{- end }}
+
   # Conditionally set the schedule based on the environment.
   {{- if $isProd }}
   schedule: "0 1 * * *"      # every day at 1 a.m. for production

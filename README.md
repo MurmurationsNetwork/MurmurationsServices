@@ -89,7 +89,7 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 
 For a complete guide on how to deploy and run your services on Contabo VPS, please follow the instructions in our dedicated tutorial:
 
-[Run Murmurations Services in Contabo](docs/contabo/run-in-contabo.md)
+[Run Murmurations Services in Contabo](docs/rancher/run-murmurations-services-on-contabo.md)
 
 ## Run in DigitalOcean
 

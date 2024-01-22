@@ -16,9 +16,13 @@ Before we begin, let's familiarize ourselves with some key terms:
 
 Ensure you have the following prerequisites ready:
 
-- **VPS Instances**: Minimum of two with Ubuntu Server - one for hosting Rancher, and another as a Kubernetes cluster node using rke2. For extended capabilities, additional VPS instances may be used.
+- **VPS Instances**: Require at least two Ubuntu Servers; one hosts Rancher, another runs Murmurations Services with rke2.
 - **[kubectl](https://kubernetes.io/docs/tasks/tools/)**: Installed on your local machine.
 - **[Helm](https://helm.sh)**: Also installed on your local machine.
+
+**Note**
+
+For a production environment, it's recommended to use at least three nodes for Murmurations Services for high availability. Ideally, in a Kubernetes control plane, three master nodes ensure this. With only three nodes, each should function as both master and worker nodes.
 
 ## 1. Setting Up Your Ubuntu Server
 
@@ -167,7 +171,7 @@ Proceed with adding the Rancher Helm chart repository:
 # Make sure you have switched to the correct context.
 kubectl config use-context <context_name>
 
-helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
 ```
 
 Create the `cattle-system` namespace for Rancher:
@@ -204,7 +208,7 @@ helm install cert-manager jetstack/cert-manager \
 Now, deploy Rancher using Helm in the `cattle-system` namespace. Replace `<ip_address>` with your server's IP and `<PASSWORD_FOR_RANCHER_ADMIN>` with your chosen password:
 
 ```bash
-helm install rancher rancher-latest/rancher \
+helm install rancher rancher-stable/rancher \
   --namespace cattle-system \
   --set hostname=<ip_address>.sslip.io \
   --set replicas=1 \
