@@ -21,8 +21,8 @@ require (
 	go.mongodb.org/mongo-driver v1.13.1
 	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
-	golang.org/x/net v0.16.0
-	golang.org/x/sync v0.1.0
+	golang.org/x/net v0.20.0
+	golang.org/x/sync v0.6.0
 )
 
 require (
