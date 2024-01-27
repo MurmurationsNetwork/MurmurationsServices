@@ -85,11 +85,11 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 2. Execute the command `make dev` to set up the servers.
 3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
 
-## Running Services on Contabo
+## Running Self-Managed Kubernetes
 
-For a complete guide on how to deploy and run your services on Contabo VPS, please follow the instructions in our dedicated tutorial:
+We are now transitioning from host-k8s to managing k8s ourselves. Please follow the below documentation for complete guidance on how to set up one for yourself.
 
-[Run Murmurations Services in Contabo](docs/rancher/run-murmurations-services-on-contabo.md)
+[Rancher-Managed Kubernetes Documentation](docs/rancher/README.md)
 
 ## Run in DigitalOcean
 
