@@ -1,13 +1,13 @@
 # Murmurations Services
 
-_This project is licensed under the terms of the GNU General Public License v3.0_
+> _This project is licensed under the terms of the GNU General Public License v3.0_
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MurmurationsNetwork/MurmurationsServices/main.yaml?branch=main&style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MurmurationsNetwork/MurmurationsServices?style=flat-square)](https://goreportcard.com/report/github.com/MurmurationsNetwork/MurmurationsServices)
 
 ## Run locally
 
-*Setup*
+### Setup
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop) and enable Kubernetes
 
@@ -19,22 +19,22 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 
 5. Download large docker files
 
-```
-docker pull elasticsearch:7.17.5
-docker pull kibana:7.17.5
-```
+    ```sh
+    docker pull elasticsearch:7.17.5
+    docker pull kibana:7.17.5
+    ```
 
 6. [Create secrets](docs/secrets.md) for each service
 
 7. Add the following to your host file `sudo vim /etc/hosts`
 
-```
-127.0.0.1   index.murmurations.dev
-127.0.0.1   library.murmurations.dev
-127.0.0.1   data-proxy.murmurations.dev
-```
+    ```sh
+    127.0.0.1   index.murmurations.dev
+    127.0.0.1   library.murmurations.dev
+    127.0.0.1   data-proxy.murmurations.dev
+    ```
 
-*After completing the setup*
+### After completing the setup
 
 1. Run `make dev` to start services
 
@@ -46,14 +46,14 @@ docker pull kibana:7.17.5
 
 2. Add pre-commit file and change permission.
 
-   ```
-   touch .git/hooks/pre-commit
-   chmod +x .git/hooks/pre-commit
-   ```
+    ```sh
+    touch .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+    ```
 
 3. Use `vim .git/hooks/pre-commit` to edit the pre-commit file.
 
-   ```
+   ```sh
    #!/bin/sh
 
    PASS=true
@@ -111,7 +111,7 @@ We are now transitioning from hosted k8s to managing k8s ourselves. Please follo
 
 8. Try `index.murmurations.network/v2/ping` or `library.murmurations.network/v1/ping`
 
-**Optional**
+## Optional
 
 - [Logging, Monitoring and Alerting](docs/logging-monitoring-alerting/README.md)
 

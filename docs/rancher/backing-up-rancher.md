@@ -2,7 +2,7 @@
 
 Source: [Backing up Rancher | Rancher](https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/backup-restore-and-disaster-recovery/back-up-rancher)
 
-## 1\. Create a Contabo Bucket
+## 1. Create a Contabo Bucket
 
 1. Visit <https://new.contabo.com/storage/object-storage/buckets>
 
@@ -14,19 +14,19 @@ Source: [Backing up Rancher | Rancher](https://ranchermanager.docs.rancher.com/h
 
 4. You will see your bucket along with its access key and secret key.
 
-## 2\. Create Secrets in k3s
+## 2. Create Secrets in k3s
 
 1. From the previous step, you have the access key and secret key.
 
 2. Update the access key and secret key, and create a secret in the cluster running Rancher:
 
-```java
+```sh
 kubectl create secret generic contabo-s3-creds \
   --from-literal=accessKey=<access key> \
   --from-literal=secretKey=<secret key>
 ```
 
-## 3\. Install the Rancher Backup Operator
+## 3. Install the Rancher Backup Operator
 
 1. In the upper left corner, click **☰ > Cluster Management**.
 
@@ -58,7 +58,7 @@ kubectl create secret generic contabo-s3-creds \
 
 11. Click **Install**.
 
-## 4\. Perform a Backup
+## 4. Perform a Backup
 
 To perform a backup, create a custom resource of type Backup.
 
