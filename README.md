@@ -45,12 +45,14 @@ docker pull kibana:7.17.5
 1. Install pre-commit on your Mac by running `brew install pre-commit`.
 
 2. Add pre-commit file and change permission.
+
    ```
    touch .git/hooks/pre-commit
    chmod +x .git/hooks/pre-commit
    ```
 
 3. Use `vim .git/hooks/pre-commit` to edit the pre-commit file.
+
    ```
    #!/bin/sh
 
@@ -87,7 +89,7 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 
 ## Running Self-Managed Kubernetes
 
-We are now transitioning from host-k8s to managing k8s ourselves. Please follow the below documentation for complete guidance on how to set up one for yourself.
+We are now transitioning from hosted k8s to managing k8s ourselves. Please follow the below documentation for complete guidance on how to set up one for yourself.
 
 [Rancher-Managed Kubernetes Documentation](docs/rancher/README.md)
 
