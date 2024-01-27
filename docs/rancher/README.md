@@ -17,3 +17,7 @@ Welcome to the Rancher-Managed Kubernetes Documentation. This resource is dedica
 
 - [Upgrading Kubernetes in Rancher](upgrade-kubernetes.md): Step-by-step guide to upgrading Kubernetes versions in your Rancher-managed environments.
 - [Upgrading Rancher for Kubernetes Management](upgrade-rancher.md): Comprehensive process for updating Rancher to ensure smooth management of your Kubernetes clusters.
+
+### Backup and Disaster Recovery
+
+- [Backing up Rancher](backing-up-rancher.md): Essential strategies and steps for backing up your Rancher environment, ensuring data safety and quick recovery in case of a disaster.
