@@ -113,6 +113,4 @@ We are now transitioning from hosted k8s to managing k8s ourselves. Please follo
 
 ## Optional
 
-- [Logging, Monitoring and Alerting](docs/logging-monitoring-alerting/README.md)
-
 - [Seed the data](docs/seed.md)

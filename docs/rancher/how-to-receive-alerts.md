@@ -1,4 +1,4 @@
-# How to Send an Alert to Telegram
+# How to receive alerts
 
 ## Steps to Configure Alerts
 
