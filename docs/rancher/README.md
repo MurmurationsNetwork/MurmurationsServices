@@ -10,9 +10,10 @@ Welcome to the Rancher-Managed Kubernetes Documentation. This resource is dedica
 
 ### Monitoring and Alerting
 
-- [Monitoring Guide](monitoring-guide.md): Learn how to set up and manage monitoring for your Kubernetes clusters within the Rancher platform.
-- [How to Receive Alerts](how-to-receive-alerts.md): A guide on configuring and receiving alerts from your Rancher-managed Kubernetes cluster, ensuring you stay informed of critical events and changes.
-- [How to Create a Telegram Bot](how-to-create-a-telegram-bot.md): This guide outlines the steps to create a Telegram bot, retrieve its token and chat ID, which are required if you want to receive alerts in Telegram.
+- [Monitoring Guide](monitoring-guide.md): Learn how to set up and manage monitoring for your Kubernetes clusters.
+- [How to Create Alerts](how-to-create-alerts.md): Learn how to create alerts.
+- [How to Receive Alerts](how-to-receive-alerts.md): Learn how to configure and receive alerts.
+- [How to Create a Telegram Bot](how-to-create-a-telegram-bot.md): Learn how to create a Telegram bot, including how to retrieve its token and chat ID, which are essential for receiving alerts via Telegram.
 
 ### Keeping Your Environment Up-to-Date
 
