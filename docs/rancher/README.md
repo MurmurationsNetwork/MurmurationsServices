@@ -8,6 +8,11 @@ Welcome to the Rancher-Managed Kubernetes Documentation. This resource is dedica
 
 - [Running Murmurations Services on Contabo](run-murmurations-services-on-contabo.md): Detailed instructions for deploying and managing Murmurations services on Kubernetes clusters managed by Rancher, specifically on Contabo infrastructure.
 
+### Persistent Storage Management
+
+- [Install Longhorn](./install-longhorn.md): Learn how to install Longhorn on your Kubernetes cluster.
+- [Backing Up Longhorn Volumes to Contabo](./backup-longhorn-volumes-to-contabo): Learn how to securely back up your Longhorn volumes to Contabo's S3-compatible storage.
+
 ### Monitoring and Alerting
 
 - [Monitoring Guide](monitoring-guide.md): Learn how to set up and manage monitoring for your Kubernetes clusters within the Rancher platform.
