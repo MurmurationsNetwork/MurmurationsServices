@@ -21,4 +21,5 @@ Welcome to the Rancher-Managed Kubernetes Documentation. This resource is dedica
 
 ### Backup and Disaster Recovery
 
-- [Backing up Rancher](backing-up-rancher.md): Essential strategies and steps for backing up your Rancher environment, ensuring data safety and quick recovery in case of a disaster.
+- [Backing up Rancher](backing-up-rancher.md): A guide on how to back up your Rancher.
+- [Restoring Rancher](restoring-rancher.md): A guide on how to perform a restore with Rancher.
