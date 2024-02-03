@@ -106,3 +106,5 @@ curl -sSL https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServ
 ## Conclusion
 
 Your Ubuntu server is now set up with enhanced security measures and ready for development. You've implemented SSH key access, updated SSH configurations for improved security, and installed important packages.
+
+Go to Section 2 - [Setting up K3s](../02-setup-k3s/README.md).

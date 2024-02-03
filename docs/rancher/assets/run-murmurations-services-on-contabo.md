@@ -102,15 +102,27 @@ This section guides you through installing k3s on an Ubuntu server and then depl
 
 ### Installing k3s on Ubuntu
 
-To install k3s on your Ubuntu server, execute the following command. Make sure to replace `<VERSION>` with the desired version of k3s, such as `v1.26.10+k3s1`.
-
 ```bash
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=<VERSION> sh -s - server --cluster-init
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.14+k3s1 sh -s - server --cluster-init
 ```
 
-**Important Note**: Rancher necessitates a compatible Kubernetes version. Refer to the [Rancher Support Matrix](https://rancher.com/support-maintenance-terms/) to verify version compatibility.
+確定 k3s 裝好。k3s kubectl get nodes, k3s kubectl get pods --all-namespaces 然後要現實 reday 跟 running 與 complete
 
-**Update (2023-11-07)**: As of this writing, version `v1.26.10+k3s1` is recommended. Consult the [official k3s GitHub releases](https://github.com/k3s-io/k3s/tags) for the latest version updates.
+```
+k3s kubectl get nodes
+NAME                           STATUS   ROLES                       AGE   VERSION
+vmi1637692.contaboserver.net   Ready    control-plane,etcd,master   66s   v1.24.14+k3s1
+
+k3s kubectl get pods --all-namespaces
+NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+kube-system   coredns-74448699cf-hddk2                  1/1     Running     0          54s
+kube-system   helm-install-traefik-c7lzp                0/1     Completed   2          54s
+kube-system   helm-install-traefik-crd-pcgnl            0/1     Completed   0          54s
+kube-system   local-path-provisioner-597bc7dccd-b5nxk   1/1     Running     0          54s
+kube-system   metrics-server-667586758d-kcq9j           1/1     Running     0          54s
+kube-system   svclb-traefik-236a79d7-5mbdx              2/2     Running     0          23s
+kube-system   traefik-7467b667d9-f4zmv                  1/1     Running     0          23s
+```
 
 ### Transferring the kubeconfig File to Your Workstation
 
@@ -118,7 +130,7 @@ To remotely manage your cluster, transfer the `kubeconfig` file to your local ma
 
 ```bash
 # Open a new tab and execute in your local machine.
-scp root@<ip_address>:/etc/rancher/k3s/k3s.yaml ~/.kube/<config_name>
+scp root@<ip_address>:/etc/rancher/k3s/k3s.yaml ~/.kube/k3s-murm-rancher.yaml
 ```
 
 Substitute `<ip_address>` with your server's IP and `<config_name>` with a preferred name for your configuration file.
@@ -130,19 +142,18 @@ The updated section for "Merge config together" with a consistent writing style 
 Modify your kubeconfig file to reflect the correct server URL:
 
 ```bash
-vim ~/.kube/<config_name>
+sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/'<ip_address>':6443/' \
+    ./k3s-murm-rancher.yaml
 ```
-
-In the file, update the `server` field to `https://<ip_address>:6443`.
 
 ### Merging Configuration Files
 
 To effectively manage multiple Kubernetes clusters, it's essential to merge the kubeconfig files.
 
-1. **Set the KUBECONFIG environment variable:** This step combines your current kubeconfig file with the new configuration file you've acquired from your k3s cluster. Replace `<config_name>` with the name of your new configuration file.
+1. **Set the KUBECONFIG environment variable:** This step combines your current kubeconfig file with the new configuration file you've acquired from your k3s cluster. 
 
     ```bash
-    export KUBECONFIG=~/.kube/config:~/.kube/<config_name>.yaml
+    export KUBECONFIG=~/.kube/config:~/.kube/k3s-murm-rancher.yaml.yaml
     ```
 
 2. **Create a unified kubeconfig file:** This command merges the configurations into a single file while ensuring all data is intact and correctly formatted.
@@ -162,6 +173,8 @@ To effectively manage multiple Kubernetes clusters, it's essential to merge the 
     ```bash
     mv ~/.kube/merged_kubeconfig ~/.kube/config
     ```
+
+5. Deltet the k3s-murm-rancher.yaml
 
 ### Deploying Rancher with Helm
 
