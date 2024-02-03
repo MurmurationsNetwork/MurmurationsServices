@@ -140,3 +140,5 @@ rm ~/.kube/k3s-murm-rancher.yaml
 ## Conclusion
 
 Your Ubuntu server is now equipped with k3s, creating a solid foundation for deploying Rancher.
+
+Go to Section 3 - [Setting up Rancher](../03-setup-rancher/README.md).

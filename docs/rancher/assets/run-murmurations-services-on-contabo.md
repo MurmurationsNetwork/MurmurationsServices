@@ -106,8 +106,6 @@ This section guides you through installing k3s on an Ubuntu server and then depl
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.14+k3s1 sh -s - server --cluster-init
 ```
 
-確定 k3s 裝好。k3s kubectl get nodes, k3s kubectl get pods --all-namespaces 然後要現實 reday 跟 running 與 complete
-
 ```
 k3s kubectl get nodes
 NAME                           STATUS   ROLES                       AGE   VERSION
