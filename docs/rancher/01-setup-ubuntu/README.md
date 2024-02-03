@@ -1,4 +1,4 @@
-# How to Set Up and Secure Your Ubuntu Server for Development
+# How to Set Up and Secure Your Ubuntu Server
 
 ## Introduction
 
@@ -12,12 +12,12 @@ After completing this guide, you'll be able to:
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-3. [Step 1 - Generating and Setting Up SSH Keys](#step-1---generating-and-setting-up-ssh-keys)
-4. [Step 2 - Adjusting Your SSH Settings for Security](#step-2---adjusting-your-ssh-settings-for-security)
-5. [Step 3 - Installing Packages with a Script](#step-3---installing-packages-with-a-script)
-6. [Conclusion](#conclusion)
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Step 1 - Generating and Setting Up SSH Keys](#step-1---generating-and-setting-up-ssh-keys)
+- [Step 2 - Adjusting Your SSH Settings for Security](#step-2---adjusting-your-ssh-settings-for-security)
+- [Step 3 - Installing Packages with a Script](#step-3---installing-packages-with-a-script)
+- [Conclusion](#conclusion)
 
 ## Prerequisites
 
@@ -64,15 +64,15 @@ Then secure the file:
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-**Important:** Test your SSH key by logging in from another terminal tab or session before proceeding to ensure you don't lose access.
+## Step 2 - Adjusting Your SSH Settings for Security
+
+**Important**: Before proceeding, test your SSH key by logging in from another terminal tab or session to ensure you don’t lose access.
 
 ```bash
 ssh root@<ip_address>
 ```
 
-## Step 2 - Adjusting Your SSH Settings for Security
-
-Enhance your SSH login security by modifying a couple of settings:
+Once you’ve successfully logged in via SSH key, you can further enhance your SSH login security by modifying a couple of settings:
 
 Open the SSH configuration file:
 
@@ -82,7 +82,7 @@ vim /etc/ssh/sshd_config
 
 Include these lines to disable password authentication and deny empty passwords:
 
-```
+```bash
 PasswordAuthentication no
 PermitEmptyPasswords no
 ```
