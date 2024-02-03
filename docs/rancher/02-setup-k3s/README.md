@@ -15,8 +15,9 @@ After completing this guide, you will have:
 - [Prerequisites](#prerequisites)
 - [Step 1 - Installing and Verifying k3s](#step-1---installing-and-verifying-k3s)
 - [Step 2 - Transferring the kubeconfig File](#step-2---transferring-the-kubeconfig-file)
-- [Step 3 - Customizing the kubeconfig File](#step-3---customizing-the-kubeconfig-file)
-- [Step 4 - Merging Configuration Files for Cluster Management](#step-4---merging-configuration-files-for-cluster-management)
+- [Step 3 - Setting Up DNS for the Server](#step-3---setting-up-dns-for-the-server)
+- [Step 4 - Customizing the kubeconfig File](#step-4---customizing-the-kubeconfig-file)
+- [Step 5 - Merging Configuration Files for Cluster Management](#step-5---merging-configuration-files-for-cluster-management)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -28,20 +29,26 @@ Before starting, ensure you have:
 
 ## Step 1 - Installing and Verifying k3s
 
-Install k3s on Ubuntu to kickstart your Rancher setup:
+Before installing k3s, ensure you are connected to your Ubuntu server.
+
+```bash
+ssh root@<ip_address>
+```
+
+Replace `<ip_address>` with the actual IP address of your server. Once connected, you can begin the installation of k3s. The version `v1.24.14+k3s1` is specifically chosen to ensure compatibility with Rancher, as recommended in the [Rancher Quickstart Guide](https://github.com/rancher/quickstart/tree/master/rancher/rancher-common).
 
 ```bash
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.14+k3s1 sh -s - server --cluster-init
 ```
 
-Verify the installation is successful:
+After the installation completes, verify that your cluster is operational:
 
 ```bash
 k3s kubectl get nodes
 k3s kubectl get pods --all-namespaces
 ```
 
-Nodes should appear as `Ready`, with pods in `Running` or `Completed` states.
+You should see nodes marked as `Ready`, and pods should be in `Running` or `Completed` states, indicating that k3s is installed and functioning correctly on your server.
 
 ## Step 2 - Transferring the kubeconfig File
 
@@ -53,43 +60,36 @@ scp root@<ip_address>:/etc/rancher/k3s/k3s.yaml ~/.kube/k3s-murm-rancher.yaml
 
 Replace `<ip_address>` with your server's actual IP. This step is crucial for remote cluster administration.
 
-## Step 3 - Customizing the kubeconfig File
+## Step 3 - Setting Up DNS for the Server
 
-To better identify your cluster, let's customize your Kubernetes configuration file, `~/.kube/k3s-murm-rancher.yaml`. You can use the following steps:
+Before customizing your kubeconfig file, ensure your server is accessible via a DNS name. This involves adding an A record in your DNS management interface pointing to your server’s IP address.
 
-Open the file using `vim`:
+- Log in to your DNS provider's management console.
+- Navigate to the DNS settings section for your domain.
+- Add an A record with the following details:
+  - **Host:** The subdomain or prefix you wish to use (e.g., `k3s` or `rancher`).
+  - **Points to:** The IP address of your Ubuntu server.
+  - **TTL:** Set according to your preference or provider's default.
+
+This DNS setup facilitates access to your server using a memorable URL instead of an IP address.
+
+## Step 4 - Customizing the kubeconfig File
+
+In this step we will customize the kubeconfig file for easier identification and management of the cluster.
+
+First, update the server URL in the kubeconfig file to point to your server's DNS name. Ensure you replace `<server_dns_name>` with your server's DNS name:
 
 ```bash
-vim ~/.kube/k3s-murm-rancher.yaml
+perl -pi -e "s/127.0.0.1/<server_dns_name>/g" ~/.kube/k3s-murm-rancher.yaml
 ```
 
-Modify the cluster name to "rancher" and update the server IP address to your Ubuntu server's IP address. For example:
+Next, change all instances of the default context, cluster, and user names to `k3s-murm-rancher` to reflect your specific Rancher setup. This naming convention makes managing multiple clusters more intuitive:
 
-```yaml
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: ***
-    server: https://<ip_address>:6443 # Remember to replace <ip_address> with your actual IP address
-  name: rancher # Change the cluster name to rancher
-contexts:
-- context:
-    cluster: rancher # Change the context's cluster to rancher
-    user: default
-  name: rancher # Change the context name to rancher
-current-context: default
-kind: Config
-preferences: {}
-users:
-- name: default
-  user:
-    client-certificate-data: ***
-    client-key-data: ***
+```bash
+perl -pi -e "s/default/k3s-murm-rancher/g" ~/.kube/k3s-murm-rancher.yaml
 ```
 
-Once you've made these changes, save and exit `vim`. Your kubeconfig file is now customized, and you can use the updated settings to manage your Kubernetes cluster.
-
-## Step 4 - Merging Configuration Files for Cluster Management
+## Step 5 - Merging Configuration Files for Cluster Management
 
 To streamline the management of multiple Kubernetes clusters, integrate your kubeconfig files:
 
@@ -110,6 +110,7 @@ Proceed by backing up your original config file. Afterward, replace it with the 
 ```bash
 mv ~/.kube/config ~/.kube/config_backup
 mv ~/.kube/merged_kubeconfig ~/.kube/config
+chmod 600 ~/.kube/config
 ```
 
 Next, confirm your ability to connect to the k3s cluster while ensuring there's no disruption with the configurations of any existing clusters. Begin by listing the current contexts to view all available clusters:
@@ -121,7 +122,7 @@ kubectl config get-contexts
 Switch to your k3s cluster's context to verify connectivity:
 
 ```bash
-kubectl config use-context rancher
+kubectl config use-context k3s-murm-rancher
 ```
 
 Check the resources across all namespaces to ensure the cluster is responsive:
@@ -130,11 +131,10 @@ Check the resources across all namespaces to ensure the cluster is responsive:
 kubectl get all --all-namespaces
 ```
 
-Wrap up the process by deleting the now unnecessary k3s kubeconfig file and the backup of the original configuration:
+Wrap up the process by deleting the unnecessary k3s kubeconfig file:
 
 ```bash
 rm ~/.kube/k3s-murm-rancher.yaml
-rm ~/.kube/config_backup
 ```
 
 ## Conclusion
