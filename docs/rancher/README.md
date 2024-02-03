@@ -1,4 +1,4 @@
-# Operations-ready Rancher-Managed Kubernetes for Developers
+# Rancher-Managed Kubernetes for Developers
 
 This guide offers developers a comprehensive walkthrough on initiating an operations-ready Kubernetes cluster managed by Rancher. Unlike traditional Kubernetes setups, Rancher simplifies the orchestration, ensuring developers can deploy consistent tooling and configurations across diverse cloud environments. This document outlines the necessary steps and tools to achieve an operationally ready state with Rancher-managed Kubernetes.
 

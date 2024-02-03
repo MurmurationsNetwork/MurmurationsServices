@@ -87,29 +87,11 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 2. Execute the command `make dev` to set up the servers.
 3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
 
-## Running Self-Managed Kubernetes
+## Running Kubernetes with Rancher
 
-We are now transitioning from hosted k8s to managing k8s ourselves. Please follow the below documentation for complete guidance on how to set up one for yourself.
+We are utilizing Rancher to manage our Kubernetes clusters. For detailed instructions on setting up your Kubernetes clusters with Rancher and guidance on launching Murmurations services, please refer to the documentation linked below.
 
 [Rancher-Managed Kubernetes Documentation](docs/rancher/README.md)
-
-## Run in DigitalOcean
-
-1. Install [Helm](https://helm.sh/docs/intro/install/) and [doctl](https://github.com/digitalocean/doctl#installing-doctl)
-
-2. Create Kubernetes Clusters in DigitalOcean and install [metrics-server](https://github.com/kubernetes-sigs/metrics-server#installation) for monitoring CPU/MEM
-
-3. Install [NGINX Ingress Controller](docs/ingress-nginx)
-
-4. [Create secrets](docs/secrets.md) for each service
-
-5. [Create PVCs](docs/pvcs.md) for each service
-
-6. [Deploy services](docs/deploy-services.md)
-
-7. [Installing and Configuring Cert-Manager](docs/cert-manager.md)
-
-8. Try `index.murmurations.network/v2/ping` or `library.murmurations.network/v1/ping`
 
 ## Optional
 
