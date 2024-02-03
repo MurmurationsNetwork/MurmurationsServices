@@ -6,3 +6,19 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 
 1. [Set up Ubuntu Server](01-setup-ubuntu/README.md)
 2. [Set up K3s](02-setup-k3s/README.md)
+
+## TODOs
+
+- Set up Rancher
+- Set up RKE cluster
+- Set up Load Balancer
+- Set up Longhorn
+- Run Murmuration services
+- Set up Monitoring
+- Set up Alerts
+- Back up / Restore Rancher
+- Upgrade Rancher
+- Migrate data from DO
+- Add and Remove Nodes
+- Back up / Restore Storage
+- Logging
