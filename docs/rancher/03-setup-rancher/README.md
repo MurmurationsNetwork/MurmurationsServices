@@ -70,15 +70,15 @@ With cert-manager in place, proceed to install Rancher. This step involves confi
 helm install rancher rancher-stable/rancher \
   --namespace cattle-system \
   --create-namespace \
-  --set hostname=<server_dns_name> \
   --set replicas=1 \
-  --set bootstrapPassword=<password> \
   --set ingress.tls.source=letsEncrypt \
-  --set letsEncrypt.email=<email> \
-  --set letsEncrypt.ingress.class=traefik
+  --set letsEncrypt.ingress.class=traefik \
+  --set hostname=<server_dns_name> \
+  --set bootstrapPassword=<password> \
+  --set letsEncrypt.email=<email>
 ```
 
-Ensure to replace `<server_dns_name>`, `<password>`, and `<email>` with your server's DNS name, a secure password for Rancher's admin account, and your email address, respectively.
+Ensure to replace `<server_dns_name>`, `<password>`, and `<email>` with your server's DNS name, a secure password for Rancher's admin account, and the email address for Let's Encrypt registration, respectively.
 
 ## Step 5: Accessing Rancher
 

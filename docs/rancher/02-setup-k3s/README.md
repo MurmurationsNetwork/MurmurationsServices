@@ -69,9 +69,9 @@ Before customizing your kubeconfig file, ensure your server is accessible via a 
 - Add an A record with the following details:
   - **Host:** The subdomain or prefix you wish to use (e.g., `k3s` or `rancher`).
   - **Points to:** The IP address of your Ubuntu server.
-  - **TTL:** Set according to your preference or provider's default.
+  - **TTL:** For A Record, 3600 seconds is recommended.
 
-This DNS setup facilitates access to your server using a memorable URL instead of an IP address.
+This DNS setup facilitates access to your server using a memorable URL instead of an IP address. Most importantly, if DNS is not used, the backup and restore processes will not work if the IP address changes.
 
 ## Step 4 - Customizing the kubeconfig File
 
