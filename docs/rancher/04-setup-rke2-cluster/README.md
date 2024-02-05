@@ -17,6 +17,7 @@ Upon completing this guide, you will have accomplished the following:
 - [Step 1 - Accessing the Rancher Dashboard](#step-1---accessing-the-rancher-dashboard)
 - [Step 2 - Initiating Cluster Creation](#step-2---initiating-cluster-creation)
 - [Step 3 - Registering Nodes to the Cluster](#step-3---registering-nodes-to-the-cluster)
+- [Step 4 - Retrieving the Cluster Kubeconfig](#step-4---retrieving-the-cluster-kubeconfig)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -24,7 +25,9 @@ Upon completing this guide, you will have accomplished the following:
 Before beginning, ensure the following requirements are met:
 
 - Confirm Rancher is installed and operational. Rancher simplifies Kubernetes cluster management.
-- Prepare servers for inclusion in your cluster. For guidance on server preparation, refer to the guide on setting up Ubuntu servers ([Setup Ubuntu](../01-setup-ubuntu/README.md)).
+- Prepare servers for your cluster. For guidance on server preparation, refer to the guide on setting up Ubuntu servers ([Setup Ubuntu](../01-setup-ubuntu/README.md)).
+
+**Note**: For a HA setup, deploy an odd number of servers, at least three, for both `etcd` and `control plane` roles to ensure redundancy and avoid split-brain scenarios. This setup maintains control plane availability for managing cluster operations even if a node fails.
 
 ## Step 1 - Accessing the Rancher Dashboard
 
@@ -65,6 +68,32 @@ Open a terminal, connect to your server via SSH, and execute the command provide
 Revisit the Rancher interface and click on the **Machine** tab; your server will be listed and will require a few minutes to initialize.
 
 ![Machine Tab](./assets/images/registering_nodes_5.png)
+
+## Step 4 - Retrieving the Cluster Kubeconfig
+
+To manage your cluster with kubectl from your local environment, you need to download the kubeconfig file from Rancher.
+
+Navigate to **Cluster Management** in Rancher.
+
+![Access Cluster Management](./assets/images/downloading_the_cluster_kubeconfig_file_1.png)
+
+Locate your cluster, click the `...` next to the **Explore** button, and choose **Download Kubeconfig**.
+
+![Download Kubeconfig](./assets/images/downloading_the_cluster_kubeconfig_file_2.png)
+
+Follow the guide on [Merging Configuration Files for Cluster Management](../02-setup-k3s/README.md#step-5---merging-configuration-files-for-cluster-management) to integrate this kubeconfig with any existing configurations.
+
+Alternatively, use the following commands to set up your kubeconfig for cluster management. Replace `<cluster_name>.yaml` with the filename of your downloaded kubeconfig:
+
+```bash
+export KUBECONFIG=~/.kube/config:~/.kube/<cluster_name>.yaml
+kubectl config view --merge --flatten > ~/.kube/merged_kubeconfig
+mv ~/.kube/config ~/.kube/config_backup
+mv ~/.kube/merged_kubeconfig ~/.kube/config
+rm ~/.kube/<cluster_name>.yaml
+```
+
+This process involves merging your new kubeconfig with any existing one, backing up the original config, and then replacing it with the merged file for seamless cluster management. Remember to remove the now redundant kubeconfig file to keep your working directory clean.
 
 ## Conclusion
 
