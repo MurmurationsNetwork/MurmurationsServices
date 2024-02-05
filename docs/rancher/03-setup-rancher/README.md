@@ -12,11 +12,11 @@ After completing this guide, you will have:
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
-- [Step 1: Setting the Correct kubectl Context](#step-1-setting-the-correct-kubectl-context)
-- [Step 2: Adding Necessary Helm Repositories](#step-2-adding-necessary-helm-repositories)
-- [Step 3: Installing cert-manager](#step-3-installing-cert-manager)
-- [Step 4: Deploying Rancher](#step-4-deploying-rancher)
-- [Step 5: Accessing Rancher](#step-5-accessing-rancher)
+- [Step 1 - Setting the Correct kubectl Context](#step-1---setting-the-correct-kubectl-context)
+- [Step 2 - Adding Necessary Helm Repositories](#step-2---adding-necessary-helm-repositories)
+- [Step 3 - Installing cert-manager](#step-3---installing-cert-manager)
+- [Step 4 - Deploying Rancher](#step-4---deploying-rancher)
+- [Step 5 - Accessing Rancher](#step-5---accessing-rancher)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -27,7 +27,7 @@ Before you begin, ensure you have:
 - kubectl configured to communicate with your cluster.
 - Helm installed and configured on your local machine. For detailed installation instructions, visit the [Helm Installation Guide](https://helm.sh/docs/intro/install/).
 
-## Step 1: Setting the Correct kubectl Context
+## Step 1 - Setting the Correct kubectl Context
 
 It's essential to ensure you're working within the right context to apply all commands to the intended k3s cluster.
 
@@ -35,7 +35,7 @@ It's essential to ensure you're working within the right context to apply all co
 kubectl config use-context k3s-murm-rancher
 ```
 
-## Step 2: Adding Necessary Helm Repositories
+## Step 2 - Adding Necessary Helm Repositories
 
 Helm packages simplify Kubernetes applications' deployment and management. By adding these repositories, you gain access to the stable releases of Rancher and the tools required for certificate management.
 
@@ -48,7 +48,7 @@ helm repo update
 - `rancher-stable` contains stable releases of Rancher, allowing you to install the latest supported Rancher version on your cluster.
 - `jetstack` provides the cert-manager Helm chart, a prerequisite for managing certificates within Kubernetes environments.
 
-## Step 3: Installing cert-manager
+## Step 3 - Installing cert-manager
 
 Cert-manager handles certificate management in Kubernetes, automating certificate issuance and renewal. This step is crucial for securing Rancher with valid SSL certificates.
 
@@ -62,7 +62,7 @@ helm install cert-manager jetstack/cert-manager \
 
 Cert-manager is installed in its namespace, ensuring isolation and security. The `installCRDs` option enables the creation of necessary Custom Resource Definitions for certificate management.
 
-## Step 4: Deploying Rancher
+## Step 4 - Deploying Rancher
 
 With cert-manager in place, proceed to install Rancher. This step involves configuring Rancher with an initial admin password, hostname, and email for Let's Encrypt certificate notifications.
 
@@ -80,7 +80,7 @@ helm install rancher rancher-stable/rancher \
 
 Ensure to replace `<server_dns_name>`, `<password>`, and `<email>` with your server's DNS name, a secure password for Rancher's admin account, and the email address for Let's Encrypt registration, respectively.
 
-## Step 5: Accessing Rancher
+## Step 5 - Accessing Rancher
 
 After the installation completes, access Rancher through the following URL to initialize your setup:
 
