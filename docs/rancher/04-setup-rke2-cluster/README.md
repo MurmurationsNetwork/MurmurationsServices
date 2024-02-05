@@ -90,6 +90,7 @@ export KUBECONFIG=~/.kube/config:~/.kube/<cluster_name>.yaml
 kubectl config view --merge --flatten > ~/.kube/merged_kubeconfig
 mv ~/.kube/config ~/.kube/config_backup
 mv ~/.kube/merged_kubeconfig ~/.kube/config
+chmod 600 ~/.kube/config
 rm ~/.kube/<cluster_name>.yaml
 ```
 
