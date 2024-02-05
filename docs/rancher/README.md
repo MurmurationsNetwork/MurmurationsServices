@@ -14,6 +14,8 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 - Set up Load Balancer
 - Set up Longhorn
 - Run Murmuration services
+- Migrating MongoDB
+- Migrating Elasticsearch
 - Set up Monitoring
 - Set up Alerts
 - Back up / Restore Rancher

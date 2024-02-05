@@ -93,3 +93,5 @@ Replace `<server_dns_name>` and `<password>` with your actual server DNS name an
 ## Conclusion
 
 Following these steps, Rancher is now deployed on your k3s cluster. You can manage your Kubernetes clusters through Rancher's intuitive web interface, streamlining the deployment and management of your applications.
+
+Go to Section 4 - [Set up RKE2](../04-setup-rke2-cluster/README.md).
