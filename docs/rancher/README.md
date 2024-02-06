@@ -7,6 +7,7 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 1. [Set up Ubuntu Server](01-setup-ubuntu/README.md)
 2. [Set up K3s for Rancher](02-setup-k3s/README.md)
 3. [Set up Rancher](03-setup-rancher/README.md)
+    - [Upgrade Rancher](03-setup-rancher/upgrade-rancher.md)
 4. [Set up RKE2 cluster for Murmuration services](04-setup-rke2-cluster/README.md)
 5. [Set up a Load Balancer](05-setup-lb/README.md)
 
@@ -19,8 +20,4 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 - Set up Monitoring
 - Set up Alerts
 - Back up / Restore Rancher
-- Upgrade Rancher
-- Migrate data from DO
-- Add and Remove Nodes
 - Back up / Restore Storage
-- Logging
