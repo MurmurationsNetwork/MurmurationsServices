@@ -99,3 +99,5 @@ This process involves merging your new kubeconfig with any existing one, backing
 ## Conclusion
 
 By following these instructions, you have successfully deployed an RKE2 cluster with Rancher. This configuration facilitates the straightforward management and scaling of your Kubernetes cluster, offering comprehensive control over your nodes and services through Rancher's robust dashboard. Your RKE2 cluster is now primed for application and service deployment.
+
+Go to Section 5 - [Set up Load Balancer](../05-setup-lb/README.md).

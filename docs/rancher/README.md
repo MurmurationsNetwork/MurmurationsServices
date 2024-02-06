@@ -8,10 +8,10 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 2. [Set up K3s for Rancher](02-setup-k3s/README.md)
 3. [Set up Rancher](03-setup-rancher/README.md)
 4. [Set up RKE2 cluster for Murmuration services](04-setup-rke2-cluster/README.md)
+5. [Set up a Load Balancer](05-setup-lb/README.md)
 
 ## TODOs
 
-- Set up Load Balancer
 - Set up Longhorn
 - Run Murmuration services
 - Migrating MongoDB
