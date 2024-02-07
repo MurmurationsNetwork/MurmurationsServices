@@ -17,6 +17,14 @@ metadata:
     {{- end }}
 spec:
   ingressClassName: nginx
+  {{- if $isProd }}
+  tls:
+  - hosts:
+    - protoprod-index.murmurations.network
+    - protoprod-library.murmurations.network
+    - protoprod-data-proxy.murmurations.network
+    secretName: letsencrypt-prod-cert
+  {{- end }}
   {{- if $isPretest }}
   tls:
   - hosts:
@@ -27,7 +35,7 @@ spec:
   {{- end }}
   rules:
     {{- if $isProd }}
-    - host: index.murmurations.network
+    - host: protoprod-index.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -37,7 +45,7 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    - host: library.murmurations.network
+    - host: protoprod-library.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -47,7 +55,7 @@ spec:
                 name: library-app
                 port:
                   number: 8080
-    - host: data-proxy.murmurations.network
+    - host: protoprod-data-proxy.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -151,44 +159,3 @@ spec:
                 port:
                   number: 8080
     {{- end }}
-
----
-
-{{- if or $isProd $isStaging }}
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ingress
-  namespace: kube-monitoring
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-spec:
-  {{- if $isProd }}
-  tls:
-    - hosts:
-      - monitoring.murmurations.network
-      secretName: murmurations-network-tls
-  {{- else if $isStaging }}
-  tls:
-    - hosts:
-      - test-monitoring.murmurations.network
-      secretName: murmurations-tech-tls
-  {{- end }}
-  rules:
-    {{- if $isProd }}
-    - host: monitoring.murmurations.network
-    {{- else if $isStaging }}
-    - host: test-monitoring.murmurations.network
-    {{- end }}
-      http:
-        paths:
-          - pathType: ImplementationSpecific
-            path: /(|$)(.*)
-            backend:
-              service:
-                name: kube-prom-stack-grafana
-                port:
-                  number: 80
-{{- end }}

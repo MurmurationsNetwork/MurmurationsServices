@@ -25,11 +25,7 @@ else
 	ENV_FILE = test/e2e-env-development.json
 endif
 
-ifeq ($(DEPLOY_ENV),pretest)
-	VALUES_FILE=./charts/nats/values-contabo.yaml
-else
-	VALUES_FILE=./charts/nats/values-do.yaml
-endif
+VALUES_FILE=./charts/nats/values-contabo.yaml
 
 # The TAG value is constructed based on the commit SHA.
 # If running in a GitHub Actions environment, it uses the GITHUB_SHA.

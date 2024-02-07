@@ -40,9 +40,6 @@ spec:
         persistentVolumeClaim:
           claimName: data-proxy-mongo-pvc
       {{- end }}
-
-# Persistent Volume Claim and Persistent Volume are specific to the "pretest" environment
-{{- if $isPretest }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -55,4 +52,3 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: longhorn
-{{- end }}

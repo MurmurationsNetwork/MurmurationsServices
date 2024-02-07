@@ -27,7 +27,6 @@ spec:
           image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
           # Make sure stateful image can update automatically
           imagePullPolicy: Always
-          {{- if $isPretest }}
           resources:
             requests:
               memory: "750Mi"
@@ -35,7 +34,6 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "1000m"
-          {{- end }}
           {{- if not $isDev }}
           volumeMounts:
             - mountPath: /usr/share/elasticsearch/data
@@ -87,11 +85,7 @@ spec:
       name: index-es-storage
     spec:
       accessModes: ["ReadWriteOnce"]
-      {{- if or $isProd $isStaging }}
-      storageClassName: do-block-storage
-      {{- else if $isPretest }}
       storageClassName: longhorn
-      {{- end }}
       resources:
         requests:
            {{- if $isProd }}

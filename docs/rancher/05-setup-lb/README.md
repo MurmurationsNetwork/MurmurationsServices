@@ -162,8 +162,19 @@ data:
   use-proxy-protocol: "true"
 ```
 
+## Step 6 - Configuring DNS to Point to the Load Balancer
+
+After setting up your load balancer and ensuring it is operational, the final step is to configure a DNS A record to point your domain name to the IP address of the load balancer.
+
+- Log in to your DNS provider's management console.
+- Navigate to the DNS settings section for your domain.
+- Add an A record with the following details:
+  - **Host:** The subdomain or prefix you wish to use (e.g., `lb`).
+  - **Points to:** The IP address of your load balancer server.
+  - **TTL:** For A Record, 3600 seconds is recommended.
+
 ## Conclusion
 
 You have successfully established a load balancer for Murmuration services using Docker and Nginx. This setup enhances the distribution and reliability of your service traffic, ensuring high availability and performance.
 
-Remember to replace placeholders with actual data relevant to your configuration and validate the setup by accessing your services through the load balancer's IP or domain name.
+Go to Section 6 - [Set up Longhorn](../06-setup-longhorn/README.md).
