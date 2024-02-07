@@ -4,17 +4,18 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 
 ## Table of Contents
 
-1. [Set up Ubuntu Server](01-setup-ubuntu/README.md)
-2. [Set up K3s for Rancher](02-setup-k3s/README.md)
-3. [Set up Rancher](03-setup-rancher/README.md)
+1. [Set Up Ubuntu Server](01-setup-ubuntu/README.md)
+2. [Set Up K3s for Rancher](02-setup-k3s/README.md)
+3. [Set Up Rancher](03-setup-rancher/README.md)
     - [Upgrade Rancher](03-setup-rancher/upgrade-rancher.md)
-4. [Set up RKE2 cluster for Murmuration services](04-setup-rke2-cluster/README.md)
-5. [Set up a Load Balancer](05-setup-lb/README.md)
+4. [Set Up RKE2 Cluster for Murmuration Services](04-setup-rke2-cluster/README.md)
+    - [Upgrade RKE2 Cluster](04-setup-rke2-cluster/upgrade-rk2-cluster.md)
+5. [Set Up a Load Balancer](05-setup-lb/README.md)
+6. [Set Up Longhorn](06-setup-longhorn/README.md)
+7. [Run Murmuration Services](07-run-murmuration-services/README.md)
 
 ## TODOs
 
-- Set up Longhorn
-- Run Murmuration services
 - Migrating MongoDB
 - Migrating Elasticsearch
 - Set up Monitoring
