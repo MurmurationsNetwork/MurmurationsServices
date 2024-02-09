@@ -21,5 +21,6 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 - Migrating Elasticsearch
 - Set up Monitoring
 - Set up Alerts
+- Logging
 - Back up / Restore Rancher
 - Back up / Restore Storage
