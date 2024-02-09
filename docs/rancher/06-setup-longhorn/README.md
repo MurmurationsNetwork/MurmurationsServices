@@ -68,3 +68,5 @@ Review the Helm chart options and provide a description if necessary. Confirm th
 ## Conclusion
 
 With Longhorn installed and configured, your RKE2 cluster is now equipped with a robust, distributed block storage system. Longhorn facilitates easy storage management and high availability for your Kubernetes workloads. You can now deploy applications that require persistent storage with confidence, knowing that Longhorn is managing your data.
+
+Go to Section 7 - [Run Murmuration Services](../07-run-murmuration-services/README.md).

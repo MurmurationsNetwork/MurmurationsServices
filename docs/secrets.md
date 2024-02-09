@@ -94,19 +94,3 @@ kubectl \
   --from-literal="MONGO_PASSWORD=password" \
   --from-literal="GITHUB_TOKEN=<YOUR_GITHUB_ACCESS_TOKEN>"
 ```
-
-## Deleting a Secret
-
-To delete a secret that you've created, use the following command:
-
-```bash
-kubectl delete secret SECRET_NAME
-```
-
-Replace `SECRET_NAME` with the name of the secret you want to delete. For example, to delete `index-secret`, you would run:
-
-```
-
-```bash
-kubectl delete secret index-secret
-```
