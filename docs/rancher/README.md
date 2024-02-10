@@ -14,12 +14,12 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 5. [Set Up a Load Balancer](05-setup-lb/README.md)
 6. [Set Up Longhorn](06-setup-longhorn/README.md)
 7. [Run Murmuration Services](07-run-murmuration-services/README.md)
+8. [Set Up Monitoring](08-setup-monitoring/README.md)
 
 ## TODOs
 
 - Migrating MongoDB
 - Migrating Elasticsearch
-- Set up Monitoring
 - Set up Alerts
 - Logging
 - Back up / Restore Rancher

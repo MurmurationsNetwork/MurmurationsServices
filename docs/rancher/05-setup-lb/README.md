@@ -43,7 +43,7 @@ Then, install the necessary packages for HTTPS repository access:
 sudo apt install apt-transport-https ca-certificates curl software-properties-common
 ```
 
-Next, add the Docker repository GPG key:
+Before installing Docker, it's essential to add the Docker repository GPG key to ensure the software package is officially verified and has not been altered:
 
 ```bash
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -75,17 +75,21 @@ sudo systemctl status docker
 
 Docker will now be installed and configured to start on boot.
 
+根據您提供的背景和反饋，您希望修正文檔以更好地說明在不同情境下（測試環境對比高可用性設置）的配置需求。以下是一種改進文檔的方式，它既澄清了高可用性設置的建議，也提供了為了測試目的使用單一節點的選項。
+
+---
+
 ## Step 3 - Setting Up Nginx as a Load Balancer
 
-To configure Nginx as a load balancer, create a configuration file in `/etc/nginx.conf` to handle your traffic:
+To configure Nginx as a load balancer, you'll need to create and modify a configuration file in `/etc/nginx.conf` to manage your traffic appropriately.
 
-First, open the configuration file for editing:
+Open the configuration file for editing by running:
 
 ```bash
 vim /etc/nginx.conf
 ```
 
-Then, insert the following configuration, replacing `<server-address>` with the actual addresses of your services:
+Insert the following configuration, replacing `<server-address>` with the actual addresses of your backend services. For a high-availability (HA) setup, it's recommended to deploy an odd number of servers, at least three, to ensure resilience and failover capabilities:
 
 ```nginx
 worker_processes auto;
@@ -124,7 +128,7 @@ stream {
 }
 ```
 
-Note, if you only have one node for your RKE2 cluster, then you only need to have one server in murmur_servers_http and murmur_servers_https.
+If you're setting up an environment for testing purposes and prefer to use a single server, adjust the `murmur_servers_http` and `murmur_servers_https` blocks by specifying only one `server` directive. Keep in mind that while this configuration is suitable for development or testing, it does not provide the resilience or failover capabilities of a high-availability setup.
 
 ## Step 4 - Launching the Nginx Load Balancer
 
@@ -139,11 +143,11 @@ docker run -d --restart=unless-stopped \
 nginx:1.14
 ```
 
-## Step 5 - Integrating the Load Balancer with Kubernetes
+## Step 5 - Integrating the Load Balancer with the RKE2 Cluster
 
-Configure Kubernetes to direct traffic through your new load balancer:
+Configure the RKE2 cluster to direct traffic through your new load balancer:
 
-First, switch to the appropriate Kubernetes context:
+First, switch to the appropriate RKE2 cluster context:
 
 ```bash
 kubectl config use-context <your-cluster-name>

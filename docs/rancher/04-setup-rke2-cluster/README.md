@@ -31,7 +31,7 @@ Before beginning, ensure the following requirements are met:
 
 ## Step 1 - Accessing the Rancher Dashboard
 
-Begin by opening a web browser and navigating to `http://<rancher_url>`, substituting `<rancher_url>` with your specific Rancher URL. Log in using the credentials established during the Rancher installation.
+Begin by opening a web browser and navigating to `https://<rancher_url>`, substituting `<rancher_url>` with your specific Rancher URL. Log in using the credentials established during the Rancher installation.
 
 ## Step 2 - Initiating Cluster Creation
 
