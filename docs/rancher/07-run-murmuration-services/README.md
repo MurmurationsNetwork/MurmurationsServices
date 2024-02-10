@@ -160,3 +160,5 @@ watch kubectl get pods
 ## Conclusion
 
 By completing the steps in this guide, you have successfully configured your Kubernetes cluster to host Murmurations Network services.
+
+Go to Section 8 - [Set Up Monitoring](../08-setup-monitoring/README.md).
