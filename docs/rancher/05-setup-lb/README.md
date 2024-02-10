@@ -12,7 +12,8 @@ This guide outlines the steps for setting up a load balancer for Murmuration ser
 - [Step 2 - Installing Docker](#step-2---installing-docker)
 - [Step 3 - Setting Up Nginx as a Load Balancer](#step-3---setting-up-nginx-as-a-load-balancer)
 - [Step 4 - Launching the Nginx Load Balancer](#step-4---launching-the-nginx-load-balancer)
-- [Step 5 - Integrating the Load Balancer with Kubernetes](#step-5---integrating-the-load-balancer-with-kubernetes)
+- [Step 5 - Integrating the Load Balancer with the RKE2 Cluster](#step-5---integrating-the-load-balancer-with-the-rke2-cluster)
+- [Step 6 - Configuring DNS to Point to the Load Balancer](#step-6---configuring-dns-to-point-to-the-load-balancer)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -74,10 +75,6 @@ sudo systemctl status docker
 ```
 
 Docker will now be installed and configured to start on boot.
-
-根據您提供的背景和反饋，您希望修正文檔以更好地說明在不同情境下（測試環境對比高可用性設置）的配置需求。以下是一種改進文檔的方式，它既澄清了高可用性設置的建議，也提供了為了測試目的使用單一節點的選項。
-
----
 
 ## Step 3 - Setting Up Nginx as a Load Balancer
 
