@@ -95,4 +95,4 @@ Finalize the installation process, as depicted in the final image.
 
 ## Conclusion
 
-You have successfully configured the Rancher Backup tool with Contabo Object Storage. 
+You have successfully configured the Rancher Backup tool with Contabo Object Storage.
