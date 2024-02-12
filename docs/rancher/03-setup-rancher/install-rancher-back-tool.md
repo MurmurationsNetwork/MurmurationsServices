@@ -4,6 +4,19 @@
 
 This guide outlines the process for installing the Rancher Backup tool with Contabo Object Storage.
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Step 1 - Creating a Bucket in Contabo Object Storage](#step-1---creating-a-bucket-in-contabo-object-storage)
+- [Step 2 - Obtaining S3 Object Storage Credentials](#step-2---obtaining-s3-object-storage-credentials)
+- [Step 3 - Switching Kubectl Context](#step-3---switching-kubectl-context)
+- [Step 4 - Creating Secrets in K3s](#step-4---creating-secrets-in-k3s)
+- [Step 5 - Installing Rancher Backup](#step-5---installing-rancher-backup)
+- [Step 6 - Configuring the Backup Tool](#step-6---configuring-the-backup-tool)
+- [Step 7 - Finalizing the Installation](#step-7---finalizing-the-installation)
+- [Conclusion](#conclusion)
+
 ## Prerequisites
 
 Ensure the availability of the following before beginning:
@@ -82,4 +95,4 @@ Finalize the installation process, as depicted in the final image.
 
 ## Conclusion
 
-You have successfully configured the Rancher Backup tool with Contabo Object Storage. Your Rancher and Kubernetes configurations are now securely backed up, ensuring the capability to restore your cluster to a previous state if necessary.
+You have successfully configured the Rancher Backup tool with Contabo Object Storage. 
