@@ -72,7 +72,7 @@ func TestNodeCreateRequest_Validate(t *testing.T) {
 			mockHTTP: func() *httptest.Server {
 				return httptest.NewServer(
 					http.HandlerFunc(
-						func(w http.ResponseWriter, r *http.Request) {
+						func(w http.ResponseWriter, _ *http.Request) {
 							w.WriteHeader(http.StatusOK)
 						},
 					),
