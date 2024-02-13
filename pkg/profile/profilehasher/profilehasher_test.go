@@ -14,7 +14,7 @@ import (
 
 func createProfileServer(t *testing.T, response string) *httptest.Server {
 	return httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			_, err := w.Write([]byte(response))
 			require.NoError(t, err, "Failed to write response")
 		}),
