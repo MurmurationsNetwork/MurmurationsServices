@@ -127,7 +127,7 @@ func GetJSONStr(source string) (string, error) {
 }
 
 func CheckRedirect(url string) (bool, error) {
-	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+	client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 
