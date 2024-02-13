@@ -11,7 +11,7 @@ import (
 func TestFindAlpha2ByName(t *testing.T) {
 	// Create a mock HTTP server
 	mockServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			// Return a sample response
 			response := `{"TD": ["chad"]}`
 			_, err := w.Write([]byte(response))
