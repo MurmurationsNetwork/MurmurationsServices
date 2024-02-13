@@ -36,7 +36,7 @@ Ensure to replace `<bot-token>` with your actual Telegram bot token.
 
 Access your cluster dashboard to manage and monitor resources:
 
-![Accessing the Kubernetes Cluster Dashboard](./assets/images/cluster-dashboard-access.png)
+![Accessing the Kubernetes Cluster Dashboard](./assets/images/cluster-selection.png)
 
 ## Step 3 - Navigating to Monitoring
 
@@ -48,7 +48,6 @@ Within the dashboard, select "Monitoring" to access the alerting tools:
 
 Find "Alertmanager Config" under the "Alert" section to start configuring alerts:
 
-![Selecting Alertmanager Config Option](./assets/images/alertmanager-config-selection.png)
 ![Creating a New Alertmanager Config](./assets/images/create-alertmanager-config.png)
 
 ## Step 5 - Editing Configuration
@@ -59,9 +58,7 @@ Choose "Edit as YAML" to directly modify the Alertmanager configuration:
 
 ## Step 6 - Applying Your Configuration
 
-Insert the Alertmanager configuration into the YAML editor and save. Remember to replace `telegram-chat-id` with your Telegram group's chat id.
-
-Here is a sample YAML configuration for Alertmanager to send alerts to Telegram:
+Insert the Alertmanager configuration into the YAML editor and save. Remember to replace `telegram-chat-id` with your Telegram group's chat id:
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1alpha1
@@ -111,11 +108,9 @@ spec:
         receiver: 'null' # Alerts matching this route are ignored
 ```
 
-Ensure to replace `telegram-chat-id` with your Telegram group's chat_id.
+![Entering Configuration in YAML Editor](./assets/images/yaml-configuration-entry.png)
 
 For detailed Alertmanager configuration instructions, refer to [AlertmanagerConfig Documentation](https://docs.openshift.com/container-platform/4.11/rest_api/monitoring_apis/alertmanagerconfig-monitoring-coreos-com-v1beta1.html).
-
-![Entering Configuration in YAML Editor](./assets/images/yaml-configuration-entry.png)
 
 ## Conclusion
 
