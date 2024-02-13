@@ -23,6 +23,7 @@ Before proceeding with the upgrade, ensure you have:
 
 - Administrative access to the Kubernetes cluster where Rancher is installed.
 - The `kubectl` tool configured to communicate with your cluster.
+- Back up the Rancher cluster. For details, you can follow [Backing Up Rancher](./backup-rancher.md).
 - Helm installed and configured on your machine.
 
 ## Step 1 - Changing to the Correct Cluster Context

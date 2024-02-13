@@ -1,8 +1,8 @@
-# How to Set Up Telegram Alerts for Your Kubernetes Cluster
+# How to Receive Alerts
 
 ## Introduction
 
-This guide outlines the process of configuring your Kubernetes cluster to send alerts to a Telegram group. By integrating Telegram for alert notifications, you will be immediately informed of significant events affecting your cluster. Follow this guide to ensure you never miss an important alert.
+This guide outlines the process of configuring your Kubernetes cluster to send alerts to a Telegram group.
 
 ## Table of Contents
 

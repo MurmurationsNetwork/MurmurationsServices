@@ -40,4 +40,4 @@ Before you begin, ensure you have:
 
 By following the steps in this guide, you have successfully created a Telegram bot and configured a group for receiving alerts, obtaining both the `botToken` and `chat_id`. Now you can configure your server to RKE2 cluster to receive the alerts.
 
-Go to [How to Receive Alerts](./how-to-receive-alerts.md).
+Go back to [How to Receive Alerts](./how-to-receive-alerts.md).

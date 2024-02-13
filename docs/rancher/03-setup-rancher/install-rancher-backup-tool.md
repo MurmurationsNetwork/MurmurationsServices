@@ -1,4 +1,4 @@
-# Installing the Rancher Backup Tool
+# Install the Rancher Backup Tool
 
 ## Introduction
 
@@ -96,3 +96,5 @@ Finalize the installation process, as depicted in the final image.
 ## Conclusion
 
 You have successfully configured the Rancher Backup tool with Contabo Object Storage.
+
+Go back to [Backup Rancher](./backup-rancher.md).
