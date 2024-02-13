@@ -33,7 +33,7 @@ jobs:
         with:
           go-version: 1.21
       - name: Run Linter
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v4
 
   # Check file changes and determine which services should be excluded from
   # build and deployment.
