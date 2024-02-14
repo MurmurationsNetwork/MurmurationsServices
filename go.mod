@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/lucsky/cuid v1.2.1
-	github.com/nats-io/nats.go v1.32.0
+	github.com/nats-io/nats.go v1.33.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/oschwald/geoip2-golang v1.9.0
 	github.com/redis/go-redis/v9 v9.4.0
