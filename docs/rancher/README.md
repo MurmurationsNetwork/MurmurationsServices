@@ -19,6 +19,7 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
     - [Migrate MongoDB Data](07-run-murmuration-services/migrate-mongodb.md)
 8. [Set Up Monitoring](08-setup-monitoring/README.md)
     - [Receive Alerts](08-setup-monitoring/how-to-receive-alerts.md)
+9. [Set Up Logging](./09-setup-logging/README.md)
 
 ## TODOs
 

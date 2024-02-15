@@ -215,8 +215,11 @@ manually-deploy-dataproxyupdater:
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
-manually-deploy-dataproxyrefresher:
-	helm upgrade murmurations-dataproxyrefresher \
-	./charts/murmurations/charts/dataproxyrefresher \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(SPECIFIC_TAG) \
+manually-deploy-murm-logging:
+	helm upgrade murm-logging ./charts/murm-logging \
+	--namespace murm-logging \
+	--create-namespace \
+	--set global.env=$(DEPLOY_ENV) \
+	--set elasticsearch.image=docker.elastic.co/elasticsearch/elasticsearch:8.12.1 \
+	--set kibana.image=docker.elastic.co/kibana/kibana:8.12.1 \
 	--install --atomic --debug

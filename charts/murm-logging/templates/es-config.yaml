@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: murm-logging-es-config
+  namespace: murm-logging
+data:
+  cluster.name: murm-logging-es-service
+  discovery.seed_hosts: "murm-logging-es-0.murm-logging-es,murm-logging-es-1.murm-logging-es,murm-logging-es-2.murm-logging-es"
+  cluster.initial_master_nodes: "murm-logging-es-0,murm-logging-es-1,murm-logging-es-2"
+  ES_JAVA_OPTS: "-Xms512m -Xmx512m" # Java options to control Elasticsearch JVM settings
+  xpack.security.enabled: "false"
