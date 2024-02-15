@@ -32,8 +32,10 @@ spec:
               cpu: "2"
               memory: "6Gi"
           volumeMounts:
-            - mountPath: /usr/share/elasticsearch/data
-              name: murm-logging-es-storage
+            - name: plugins-volume
+              mountPath: /usr/share/elasticsearch/plugins
+            - name: murm-logging-es-storage
+              mountPath: /usr/share/elasticsearch/data
           ports:
             - containerPort: 9200
               name: rest
@@ -70,17 +72,22 @@ spec:
           image: busybox:1.32
           command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/'] # Set permissions for Elasticsearch data directory
           volumeMounts:
-            - mountPath: /usr/share/elasticsearch/data
-              name: murm-logging-es-storage
+            - name: murm-logging-es-storage
+              mountPath: /usr/share/elasticsearch/data
         - name: install-plugins
           image: {{ .Values.elasticsearch.image }}
+          volumeMounts:
+          - name: plugins-volume
+            mountPath: /usr/share/elasticsearch/plugins
           command:
           - sh
           - -c
-          - bin/elasticsearch-plugin install --batch repository-s3
-          volumeMounts:
-          - mountPath: /usr/share/elasticsearch/data
-            name: murm-logging-es-storage
+          - |
+            bin/elasticsearch-plugin remove --purge repository-s3 || true
+            bin/elasticsearch-plugin install --batch repository-s3
+      volumes:
+      - name: plugins-volume
+        emptyDir: {}
   volumeClaimTemplates:
   - metadata:
       name: murm-logging-es-storage
