@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: murm-logging-kibana
-  namespace: murm-logging
+  namespace: {{ .Values.namespace }}
 spec:
   revisionHistoryLimit: 0
   replicas: 1
@@ -19,11 +19,11 @@ spec:
           image: {{ .Values.kibana.image }}
           resources:
             requests:
-              memory: "1Gi"
-              cpu: "500m"
+              cpu: {{ .Values.kibana.resources.requests.cpu }}
+              memory: {{ .Values.kibana.resources.requests.memory }}
             limits:
-              memory: "2Gi"
-              cpu: "1000m"
+              cpu: {{ .Values.kibana.resources.limits.cpu }}
+              memory: {{ .Values.kibana.resources.limits.memory }}
           ports:
             - containerPort: 5601
           envFrom:

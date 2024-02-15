@@ -8,7 +8,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: murm-logging-es
-  namespace: murm-logging
+  namespace: {{ .Values.namespace }}
 spec:
   serviceName: murm-logging-es
   replicas: {{ .Values.elasticsearch.replicas }}
@@ -26,11 +26,11 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             requests:
-              cpu: "1"
-              memory: "2Gi"
+              cpu: {{ .Values.elasticsearch.resources.requests.cpu }}
+              memory: {{ .Values.elasticsearch.resources.requests.memory }}
             limits:
-              cpu: "2"
-              memory: "6Gi"
+              cpu: {{ .Values.elasticsearch.resources.limits.cpu }}
+              memory: {{ .Values.elasticsearch.resources.limits.memory }}
           volumeMounts:
             - name: plugins-volume
               mountPath: /usr/share/elasticsearch/plugins
