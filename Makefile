@@ -215,6 +215,12 @@ manually-deploy-dataproxyupdater:
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
+manually-deploy-dataproxyrefresher:
+	helm upgrade murmurations-dataproxyrefresher \
+	./charts/murmurations/charts/dataproxyrefresher \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(SPECIFIC_TAG) \
+	--install --atomic --debug
+
 manually-deploy-murm-logging:
 	helm upgrade murm-logging ./charts/murm-logging \
 	--namespace murm-logging \
