@@ -36,8 +36,10 @@ spec:
               cpu: "1000m"
           {{- if not $isDev }}
           volumeMounts:
-            - mountPath: /usr/share/elasticsearch/data
-              name: index-es-storage
+            - name: plugins-volume
+              mountPath: /usr/share/elasticsearch/plugins
+            - name: index-es-storage
+              mountPath: /usr/share/elasticsearch/data
           {{- end }}
           ports:
             - containerPort: 9200
@@ -79,6 +81,18 @@ spec:
           - mountPath: /usr/share/elasticsearch/data
             name: index-es-storage
         {{- end }}
+        - name: install-plugins
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
+          volumeMounts:
+          - name: plugins-volume
+            mountPath: /usr/share/elasticsearch/plugins
+          command:
+            - sh
+            - -c
+            - bin/elasticsearch-plugin install --batch repository-s3
+      volumes:
+      - name: plugins-volume
+        emptyDir: {}
   {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:
