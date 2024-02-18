@@ -137,6 +137,8 @@ kubectl \
 
 For how to obtain the `GITHUB_TOKEN`, please refer to [GitHub's documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for creating a personal access token. No additional scopes are needed.
 
+![Personal Access Token](./assets/images/personal-access-token.png)
+
 ## Step 6 - Deploying the Services
 
 Deploy the Murmurations services to your Kubernetes cluster:

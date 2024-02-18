@@ -50,6 +50,8 @@ Execute the configuration script for Elasticsearch and provide the S3 bucket `AC
 curl -sSL https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh | bash
 ```
 
+![Configure Elasticsearch](./assets/images/configure-elasticsearch.png)
+
 ## Step 3 - Access Kibana on Source
 
 Open another terminal tab and establish port forwarding to access Kibana:
@@ -122,6 +124,8 @@ Execute the configuration script again and provide the S3 bucket `ACCESS_KEY` an
 ```bash
 curl -sSL https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh | bash
 ```
+
+![Configure Elasticsearch](./assets/images/configure-elasticsearch.png)
 
 ## Step 9 - Access Kibana on Destination
 

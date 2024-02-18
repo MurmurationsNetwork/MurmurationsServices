@@ -1,21 +1,29 @@
 #!/bin/bash
 
-# This script configures Elasticsearch pods to access S3 storage by adding the
-# necessary access and secret keys to each pod's Elasticsearch keystore.
+# This script configures Elasticsearch pods for S3 access by updating
+# the necessary access and secret keys in each pod's Elasticsearch keystore.
 
+# Prompt for S3 access credentials and namespace.
 read -p "Enter your ACCESS_KEY: " ACCESS_KEY
 read -p "Enter your SECRET_KEY: " SECRET_KEY
 read -p "Enter your NAMESPACE (default if empty): " NAMESPACE
-NAMESPACE=${NAMESPACE:-default}
+NAMESPACE=${NAMESPACE:-default} # Default namespace if not specified.
 
+# Define Elasticsearch pods to configure.
 PODS="index-es-cluster-0 index-es-cluster-1 index-es-cluster-2"
 
 for POD in $PODS; do
     echo "Configuring pod: $POD"
 
-    kubectl exec -n ${NAMESPACE} $POD -- bash -c "echo ${ACCESS_KEY} | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin s3.client.default.access_key"
+    # Add/overwrite access key in the keystore.
+    kubectl exec -n ${NAMESPACE} $POD -- bash -c "echo ${ACCESS_KEY} | \
+      /usr/share/elasticsearch/bin/elasticsearch-keystore add -f \
+      s3.client.default.access_key --stdin"
 
-    kubectl exec -n ${NAMESPACE} $POD -- bash -c "echo ${SECRET_KEY} | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin s3.client.default.secret_key"
+    # Add/overwrite secret key in the keystore.
+    kubectl exec -n ${NAMESPACE} $POD -- bash -c "echo ${SECRET_KEY} | \
+      /usr/share/elasticsearch/bin/elasticsearch-keystore add -f \
+      s3.client.default.secret_key --stdin"
 
     echo "Configuration completed for pod: $POD"
 done
