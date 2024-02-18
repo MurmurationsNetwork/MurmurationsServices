@@ -1,4 +1,4 @@
-# Migrating MongoDB Data
+# Migrate MongoDB
 
 ## Introduction
 

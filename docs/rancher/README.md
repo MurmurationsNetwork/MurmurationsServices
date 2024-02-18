@@ -16,12 +16,12 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 5. [Set Up a Load Balancer](05-setup-lb/README.md)
 6. [Set Up Longhorn](06-setup-longhorn/README.md)
 7. [Run Murmuration Services](07-run-murmuration-services/README.md)
-    - [Migrate MongoDB Data](07-run-murmuration-services/migrate-mongodb.md)
+    - [Migrate MongoDB](07-run-murmuration-services/migrate-mongodb.md)
+    - [Migrating Elasticsearch](07-run-murmuration-services/migrate-es.md)
 8. [Set Up Monitoring](08-setup-monitoring/README.md)
     - [Receive Alerts](08-setup-monitoring/how-to-receive-alerts.md)
 9. [Set Up Logging](./09-setup-logging/README.md)
 
 ## TODOs
 
-- Migrating Elasticsearch
 - Logging
