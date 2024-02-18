@@ -22,7 +22,7 @@ Upon completing this guide, you will have:
 - [Step 8 - Create Snapshot on Source](#step-8---create-snapshot-on-source)
 - [Step 9 - Switch to Destination Kubernetes Cluster](#step-9---switch-to-destination-kubernetes-cluster)
 - [Step 10 - Access Kibana on Destination](#step-10---access-kibana-on-destination)
-- [Step 11 - Identifying the Master Node on Destination](#step-11---identifying-the-master-node-on-destination)
+- [Step 11 - Identify the Master Node on Destination](#step-11---identify-the-master-node-on-destination)
 - [Step 12 - Connect to the Master Node on Destination](#step-12---connect-to-the-master-node-on-destination)
 - [Step 13 - Configure Elasticsearch on Destination](#step-13---configure-elasticsearch-on-destination)
 - [Step 14 - Reload Secure Settings on Destination](#step-14---reload-secure-settings-on-destination)
@@ -53,7 +53,7 @@ Open another terminal tab and establish port forwarding to access Kibana:
 kubectl port-forward svc/index-kibana 5601:5601
 ```
 
-## Step 3 - Identifying the Master Node on Source
+## Step 3 - Identify the Master Node on Source
 
 Visit [http://localhost:5601/app/dev_tools#/console](http://localhost:5601/app/dev_tools#/console) and execute the following command:
 
@@ -148,7 +148,7 @@ Establish port forwarding to access Kibana in the destination environment:
 kubectl port-forward svc/index-kibana 5601:5601
 ```
 
-## Step 11 - Identifying the Master Node on Destination
+## Step 11 - Identify the Master Node on Destination
 
 Visit [http://localhost:5601/app/dev_tools#/console](http://localhost:5601/app/dev_tools#/console) and execute the following command:
 
