@@ -47,7 +47,7 @@ kubectl config use-context do-lon1-murmprod
 Execute the configuration script for Elasticsearch and provide the S3 bucket `ACCESS_KEY` and `SECRET_KEY`.
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh | bash -s -- <ACCESS_KEY> <SECRET_KEY>
+curl -sSL -o configure-elasticsearch.sh https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh && chmod +x configure-elasticsearch.sh && ./configure-elasticsearch.sh
 ```
 
 ![Configure Elasticsearch](./assets/images/configure-elasticsearch.png)
@@ -122,7 +122,7 @@ kubectl config use-context rke-murm-production
 Execute the configuration script again and provide the S3 bucket `ACCESS_KEY` and `SECRET_KEY`.
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh | bash -s -- <ACCESS_KEY> <SECRET_KEY>
+curl -sSL -o configure-elasticsearch.sh https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh && chmod +x configure-elasticsearch.sh && ./configure-elasticsearch.sh
 ```
 
 ![Configure Elasticsearch](./assets/images/configure-elasticsearch.png)
