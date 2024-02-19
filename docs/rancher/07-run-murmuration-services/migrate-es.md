@@ -150,9 +150,7 @@ POST _nodes/reload_secure_settings
 Create the same snapshot repository configuration on the destination:
 
 ```bash
-PUT /_snapshot/contabo
-
-_space
+PUT /_snapshot/contabo_space
 {
   "type": "s3",
   "settings": {
