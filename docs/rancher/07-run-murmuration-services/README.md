@@ -151,9 +151,7 @@ Note we currently have 4 environments: production, staging, pretest, and develop
 
 ## Step 7 - Checking the Deployment
 
-During the deployment,
-
- open another tab from the terminal and run the following command to check the status of the deployment:
+During the deployment, open another tab from the terminal and run the following command to check the status of the deployment:
 
 ```bash
 watch kubectl get pods
