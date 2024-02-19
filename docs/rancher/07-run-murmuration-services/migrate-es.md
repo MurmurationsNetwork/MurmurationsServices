@@ -44,10 +44,10 @@ kubectl config use-context do-lon1-murmprod
 
 ## Step 2 - Configure Elasticsearch on Source
 
-Execute the configuration script for Elasticsearch and provide the S3 bucket `ACCESS_KEY` and `SECRET_KEY`.
+Execute the configuration script for Elasticsearch and replace `ACCESS_KEY` and `SECRET_KEY` with your own.
 
 ```bash
-curl -sSL -o configure-elasticsearch.sh https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh && chmod +x configure-elasticsearch.sh && ./configure-elasticsearch.sh
+curl -s https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure_es_s3.sh | bash -s -- ACCESS_KEY SECRET_KEY
 ```
 
 ![Configure Elasticsearch](./assets/images/configure-elasticsearch.png)
@@ -119,10 +119,10 @@ kubectl config use-context rke-murm-production
 
 ## Step 8 - Configure Elasticsearch on Destination
 
-Execute the configuration script again and provide the S3 bucket `ACCESS_KEY` and `SECRET_KEY`.
+Execute the configuration script for Elasticsearch and replace `ACCESS_KEY` and `SECRET_KEY` with your own.
 
 ```bash
-curl -sSL -o configure-elasticsearch.sh https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure-elasticsearch.sh && chmod +x configure-elasticsearch.sh && ./configure-elasticsearch.sh
+curl -s https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure_es_s3.sh | bash -s -- ACCESS_KEY SECRET_KEY
 ```
 
 ![Configure Elasticsearch](./assets/images/configure-elasticsearch.png)
