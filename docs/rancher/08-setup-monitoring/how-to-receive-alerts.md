@@ -86,7 +86,7 @@ spec:
             key: bot-token
             name: telegram-bot-token-secret
             optional: false
-          chatID: "telegram-chat-id" # The chat ID to send alerts to, please update with the appropriate chat ID
+          chatID: telegram-chat-id # The chat ID to send alerts to, it is an integer
           disableNotifications: false
           message: >-
             {{ range .Alerts }}{{ .Annotations.summary }}: {{ .Annotations.description }}\n{{ end }}
