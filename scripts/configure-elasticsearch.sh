@@ -3,6 +3,15 @@
 # This script configures Elasticsearch pods for S3 access by updating
 # the necessary access and secret keys in each pod's Elasticsearch keystore.
 
+# Ensure we read input from the terminal even when input is redirected
+if [ -t 0 ]; then
+  # Terminal input available, proceed as normal
+  echo "Reading input from the terminal..."
+else
+  # Input redirected, force read from /dev/tty (the terminal)
+  exec < /dev/tty
+fi
+
 # Prompt for S3 access credentials and namespace.
 read -p "Enter your ACCESS_KEY: " ACCESS_KEY
 read -p "Enter your SECRET_KEY: " SECRET_KEY
