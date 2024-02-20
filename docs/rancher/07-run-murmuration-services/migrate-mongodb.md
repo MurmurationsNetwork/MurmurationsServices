@@ -39,6 +39,8 @@ brew tap mongodb/brew
 brew install mongodb-database-tools
 ```
 
+![Installing MongoDB Database Tools](./assets/images/mongodb-install-db-tools.png)
+
 ## Step 2 - Switching Kubernetes Context to Source
 
 Change to the Kubernetes context for the source environment:
@@ -49,23 +51,35 @@ kubectl config use-context <source-context-name>
 
 Replace `<source-context-name>` with the actual context name of your source Kubernetes cluster.
 
+![Switching Kubernetes Context to Source](./assets/images/k8s-switch-context-to-source.png)
+
 ## Step 3 - Port Forwarding the Source MongoDB Service
 
-For local access to the source MongoDB service, open a new terminal tab and set up a port forwarding rule. This allows you to continue executing commands in another session without interruption:
+For local access to the source MongoDB service, open two new terminal tabs and set up a port forwarding rule. This allows you to continue executing commands in another session without interruption:
 
 ```bash
 kubectl port-forward svc/index-mongo 27017:27017
+
+# Paste in another tab.
+kubectl port-forward svc/data-proxy-mongo 27019:27017
 ```
+
+![k8s Port Forward Source DB](./assets/images/k8s-port-forward-db.png)
 
 ## Step 4 - Dumping Data from the Source Database
 
 Open another terminal tab and export the data from the source MongoDB database. Ensure to replace `<password>` with your actual MongoDB user password. The exported data will be saved to `~/Desktop/index-mongodb-backups`:
 
 ```bash
-mongodump --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --db murmurationsIndex --collection nodes --out ~/Desktop/index-mongodb-backups
+mongodump --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --out ~/Desktop/index-mongodb-backups
+
+# Paste in another tab.
+mongodump --host localhost --port 27019 --username data-proxy-admin --password <password> --authenticationDatabase admin --out ~/Desktop/data-proxy-mongodb-backups
 ```
 
-**Note:** Substitute `<password>` with the real password, and the data will be stored in `~/Desktop/index-mongodb-backups`.
+**Note:** Substitute `<password>` with the real password, and the data will be stored in `~/Desktop/index-mongodb-backups` and `~/Desktop/data-proxy-mongodb-backups`.
+
+![Dump Data from the Source](./assets/images/mongodb-dump-data.png)
 
 ## Step 5 - Switching Kubernetes Context to Destination
 
@@ -77,23 +91,35 @@ kubectl config use-context <destination-context-name>
 
 Replace `<destination-context-name>` with the context name of your destination Kubernetes cluster.
 
+![k8s Switch context to Destination](./assets/images/k8s-switch-context-to-dest.png)
+
 ## Step 6 - Port Forwarding the Destination MongoDB Service
 
-In a new terminal tab, establish port forwarding to the destination MongoDB service:
+In new terminal tabs, establish port forwarding to the destination MongoDB service:
 
 ```bash
 kubectl port-forward svc/index-mongo 27017:27017
+
+# Paste in another tab.
+kubectl port-forward svc/data-proxy-mongo 27019:27017
 ```
+
+![k8s Port Forward Source DB](./assets/images/k8s-port-forward-db.png)
 
 ## Step 7 - Restoring Data to the Destination Database
 
 With port forwarding in place, import the exported data into the destination MongoDB database. Remember to replace `<password>` with the actual password:
 
 ```bash
-mongorestore --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --db murmurationsIndex --collection nodes ~/Desktop/index-mongodb-backups/murmurationsIndex/nodes.bson
+mongorestore --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 ~/Desktop/index-mongodb-backups
+
+# Paste in another tab.
+mongorestore --host localhost --port 27019 --username data-proxy-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 ~/Desktop/data-proxy-mongodb-backups
 ```
 
 **Note:** Substitute `<password>` with the real password.
+
+![MongoDB Restore Data](./assets/images/mongodb-restore-data.png)
 
 ## Conclusion
 
