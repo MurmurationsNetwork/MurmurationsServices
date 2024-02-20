@@ -28,13 +28,17 @@ Before you begin, ensure you have:
 4. Follow the instructions to give your bot a name and a unique username.
 5. After creation, `@BotFather` will provide a `botToken`. Securely store this token, as it is crucial for your bot's operations.
 
+![Bot Father](./assets/images/telegram-bot-father.png)
+
 ## Step 2 - Setting Up a Group for Alerts
 
 1. In Telegram, create a new group that will serve as the destination for your alerts.
-2. Add the bot you created to this group.
+2. After the group is created, navigate to the group and click "Add." Then, search for @your_bot_username, click on the bot, and select "Add."
 3. To activate your bot within the group, send a command like `/hello @your_bot_username`.
 4. Visit `https://api.telegram.org/bot<your-bot-token>/getUpdates` in your browser, replacing `<your-bot-token>` with your bot's token.
 5. Send a message to the group and refresh the browser page to view the updates. Look for the chat JSON object in the response to locate your group's `chat_id`. This ID, typically a negative number, is required for integrating your bot with alert systems.
+
+![Chat ID](./assets/images/telegram-chat-id.png)
 
 ## Conclusion
 
