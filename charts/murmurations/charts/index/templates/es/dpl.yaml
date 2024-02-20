@@ -29,10 +29,10 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              memory: "750Mi"
-              cpu: "100m"
-            limits:
               memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
               cpu: "1000m"
           {{- if not $isDev }}
           volumeMounts:
