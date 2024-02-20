@@ -64,6 +64,7 @@ Insert the Alertmanager configuration into the YAML editor and save. Remember to
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
+  name: telegram-alerts-config
   namespace: default
 spec:
   inhibitRules:
