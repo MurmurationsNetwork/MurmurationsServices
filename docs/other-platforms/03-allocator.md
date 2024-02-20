@@ -12,11 +12,11 @@ The Murmurations Allocator is another service designed to support the Murmuratio
 
 ### Kubernetes Deployment
 
-1. Create a Kubernetes secret named allocator-app-secret with MongoDB credentials, Replace `mongo-admin` and `mongo-password` with actual credentials to ensure secure database access.
+1. Create a Kubernetes secret named allocator-app-secret with MongoDB credentials, Replace `mongo-url`, `mongo-admin` and `mongo-password` with actual credentials to ensure secure database access.
 
     ```bash
     kubectl create secret generic allocator-app-secret \
-        --from-literal="MONGO_HOST=mongodb+srv://" \
+        --from-literal="MONGO_HOST=mongodb+srv://mongo-url" \
         --from-literal="MONGO_USERNAME=mongo-admin" \
         --from-literal="MONGO_PASSWORD=mongo-password"
     ```
