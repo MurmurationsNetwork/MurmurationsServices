@@ -81,7 +81,13 @@ Locate your cluster, click the `...` next to the **Explore** button, and choose 
 
 ![Download Kubeconfig](./assets/images/downloading_the_cluster_kubeconfig_file_2.png)
 
-Follow the guide on [Merging Configuration Files for Cluster Management](../02-setup-k3s/README.md#step-5---merging-configuration-files-for-cluster-management) to integrate this kubeconfig with any existing configurations.
+After you download the config, remember to move it to `~/.kube`:
+
+```bash
+mv <cluster_name>.yaml ~/.kube/
+```
+
+Then you can follow the guide on [Merging Configuration Files for Cluster Management](../02-setup-k3s/README.md#step-5---merging-configuration-files-for-cluster-management) to integrate this kubeconfig with any existing configurations.
 
 Alternatively, use the following commands to set up your kubeconfig for cluster management. Replace `<cluster_name>.yaml` with the filename of your downloaded kubeconfig:
 
