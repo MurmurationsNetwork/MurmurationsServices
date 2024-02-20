@@ -83,7 +83,7 @@ GET /nodes/_search
 
 2. To extract the `profile_url` from the search results, create a file named transform.js. Replace the placeholder hits array in the script below with the actual hits received from your Elasticsearch query.
 
-    ```json
+    ```javascript
     const hits = [
       // Replace this with the actual hits from the Elasticsearch response
       {
@@ -112,7 +112,7 @@ GET /nodes/_search
 
 4. You will get the following result using the above example:
 
-    ```json
+    ```javascript
     [
       'https://ic3.dev/murmurations/e2e-tests/profile-2.json',
       'https://ic3.dev/murmurations/e2e-tests/profile-10.json'
