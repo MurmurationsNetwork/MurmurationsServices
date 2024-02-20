@@ -66,3 +66,5 @@ This command provides real-time insights into the restoration process.
 ## Conclusion
 
 Following this guide ensures a structured and efficient approach to restoring your Rancher-managed Kubernetes environments.
+
+Go back to [Home](../README.md).

@@ -88,3 +88,5 @@ helm upgrade rancher rancher-stable/rancher \
 ## Conclusion
 
 Following these steps will upgrade Rancher to the specified version on your Kubernetes cluster. After the upgrade, you will enjoy the latest features and improvements available in Rancher. It is advisable to check the Rancher documentation for any post-upgrade actions or changes.
+
+Go back to [Home](../README.md).

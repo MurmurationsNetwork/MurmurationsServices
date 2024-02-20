@@ -116,3 +116,5 @@ For detailed Alertmanager configuration instructions, refer to [AlertmanagerConf
 ## Conclusion
 
 By following these steps, your Kubernetes cluster is now configured to send alerts to a Telegram group. This integration with Alertmanager ensures you are promptly notified of any significant events, allowing for quick responses to incidents.
+
+Go back to [Home](../README.md).

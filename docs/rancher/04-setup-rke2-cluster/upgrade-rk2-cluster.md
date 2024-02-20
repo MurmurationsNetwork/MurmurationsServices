@@ -66,3 +66,5 @@ This action will revert the cluster to its state at the time of the snapshot, en
 ## Conclusion
 
 By adhering to these instructions, you can efficiently upgrade the Kubernetes version of your Rancher-managed cluster. This procedure is engineered to be clear and user-friendly, assuring that your clusters remain up-to-date with the most secure and capable version of Kubernetes available. Rancher simplifies the management and upgrading of Kubernetes clusters, enabling you to concentrate on application deployment and management.
+
+Go back to [Home](../README.md).

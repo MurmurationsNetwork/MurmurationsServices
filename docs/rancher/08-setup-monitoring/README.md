@@ -62,3 +62,5 @@ After installation, you can find the Monitoring tab in the sidebar of your clust
 ## Conclusion
 
 You have now equipped your RKE2 cluster with the tools necessary for effective monitoring.
+
+Go to Section 9 - [Set Up Logging](../09-setup-logging/README.md).
