@@ -3,6 +3,7 @@ package dataproxy
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -29,7 +30,8 @@ func StartApplication() {
 
 	if err := server.ListenAndServe(); err != nil &&
 		err != http.ErrServerClosed {
-		logger.Panic("Error when trying to start the server", err)
+		logger.Error("Error when trying to start the server", err)
+		os.Exit(1)
 	}
 
 	<-closed

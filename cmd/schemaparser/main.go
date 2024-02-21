@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -12,8 +13,8 @@ func main() {
 
 	s := schemaparser.NewCronJob()
 	if err := s.Run(); err != nil {
-		logger.Panic("Error running SchemaParser", err)
-		return
+		logger.Error("Failed to run SchemaParser: ", err)
+		os.Exit(1)
 	}
 
 	// Calculate and log the duration

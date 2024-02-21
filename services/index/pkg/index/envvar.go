@@ -2,6 +2,7 @@ package index
 
 import (
 	"log"
+	"os"
 
 	env "github.com/caarlos0/env/v10"
 
@@ -86,15 +87,15 @@ func setupElasticsearch() {
 	// Initialize a new Elasticsearch client.
 	err := elastic.NewClient(config.Values.ES.URL)
 	if err != nil {
-		logger.Panic("Failed to create Elasticsearch client", err)
-		return
+		logger.Error("Failed to create Elasticsearch client", err)
+		os.Exit(1)
 	}
 
 	// Create indices in Elasticsearch.
 	err = elastic.Client.CreateMappings(indices)
 	if err != nil {
-		logger.Panic("Failed to create index mappings for Elasticsearch", err)
-		return
+		logger.Error("Failed to create index mappings for Elasticsearch", err)
+		os.Exit(1)
 	}
 
 	logger.Info("Elasticsearch index created successfully")

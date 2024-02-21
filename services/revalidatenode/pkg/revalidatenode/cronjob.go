@@ -1,6 +1,7 @@
 package revalidatenode
 
 import (
+	"os"
 	"sync"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -28,12 +29,14 @@ func NewCronJob() *NodeRevalidationCron {
 		config.Conf.Mongo.HOST,
 	)
 	if err := mongodb.NewClient(uri, config.Conf.Mongo.DBName); err != nil {
-		logger.Panic("error when trying to connect to MongoDB", err)
+		logger.Error("error when trying to connect to MongoDB", err)
+		os.Exit(1)
 	}
 
 	// Check MongoDB connection.
 	if err := mongodb.Client.Ping(); err != nil {
-		logger.Panic("error when trying to ping the MongoDB", err)
+		logger.Error("error when trying to ping the MongoDB", err)
+		os.Exit(1)
 	}
 
 	// Initialize NATS client.
@@ -46,7 +49,8 @@ func NewCronJob() *NodeRevalidationCron {
 func setupNATS() {
 	err := natsclient.Initialize(config.Conf.Nats.URL)
 	if err != nil {
-		logger.Panic("Failed to create Nats client", err)
+		logger.Error("Failed to create Nats client", err)
+		os.Exit(1)
 	}
 }
 

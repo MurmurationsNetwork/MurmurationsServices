@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -13,8 +14,8 @@ func main() {
 	startTime := time.Now()
 
 	if err := s.Run(); err != nil {
-		logger.Panic("Failed to revalidate nodes: ", err)
-		return
+		logger.Error("Failed to revalidate nodes: ", err)
+		os.Exit(1)
 	}
 
 	duration := time.Since(startTime)

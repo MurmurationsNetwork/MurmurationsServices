@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -77,14 +78,16 @@ func (s *Service) setupServer() {
 func (s *Service) setupNATS() {
 	err := natsclient.Initialize(config.Values.NATS.URL)
 	if err != nil {
-		logger.Panic("Failed to create Nats client", err)
+		logger.Error("Failed to create Nats client", err)
+		os.Exit(1)
 	}
 }
 
 // panic performs a cleanup and then emits the supplied message as the panic value.
 func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 	s.cleanup()
-	logger.Panic(msg, err, logFields...)
+	logger.Error(msg, err, logFields...)
+	os.Exit(1)
 }
 
 // Run starts the validation service and will block until the service is shutdown.
