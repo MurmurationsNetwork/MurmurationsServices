@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   cluster.name: murm-logging-es-service
-  discovery.seed_hosts: "murm-logging-es-0.murm-logging-es,murm-logging-es-1.murm-logging-es,murm-logging-es-2.murm-logging-es"
-  cluster.initial_master_nodes: "murm-logging-es-0,murm-logging-es-1,murm-logging-es-2"
-  ES_JAVA_OPTS: "-Xms512m -Xmx512m" # Java options to control Elasticsearch JVM settings
+  discovery.seed_hosts: "murm-logging-es-0.murm-logging-es"
+  cluster.initial_master_nodes: "murm-logging-es-0"
+  ES_JAVA_OPTS: "-Xms512m -Xmx512m"
   xpack.security.enabled: "false"

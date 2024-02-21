@@ -4,7 +4,6 @@ global:
 namespace: murm-logging
 
 elasticsearch:
-  replicas: 3
   image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
   resources:
     requests:

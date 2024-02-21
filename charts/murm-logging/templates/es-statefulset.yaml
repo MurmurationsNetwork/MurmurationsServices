@@ -11,7 +11,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   serviceName: murm-logging-es
-  replicas: {{ .Values.elasticsearch.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       app: murm-logging-es
