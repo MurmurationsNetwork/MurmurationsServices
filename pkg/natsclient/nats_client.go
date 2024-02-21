@@ -99,10 +99,9 @@ func connectToNATS(natsURL string) (*nats.Conn, error) {
 
 // ensureStreamExists ensures the required stream exists in NATS.
 func (c *NatsClient) ensureStreamExists() error {
-	info, err := c.JsContext.StreamInfo(streamName)
+	_, err := c.JsContext.StreamInfo(streamName)
 	if err == nil {
-		logger.Info(fmt.Sprintf("Stream exists: %+v\n", info))
-		return nil // Stream exists
+		return nil
 	}
 	if err != nats.ErrStreamNotFound {
 		return fmt.Errorf("error checking stream existence: %v", err)

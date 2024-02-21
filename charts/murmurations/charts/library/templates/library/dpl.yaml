@@ -8,6 +8,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: library-app
+  labels:
+    app: murm
 spec:
   # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
   revisionHistoryLimit: 0

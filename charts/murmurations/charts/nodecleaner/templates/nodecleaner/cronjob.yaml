@@ -22,6 +22,8 @@ spec:
       ttlSecondsAfterFinished: 86400
       template:
         metadata:
+          labels:
+            log-group: murm
           annotations:
             checksum/config: {{ include (print $.Template.BasePath "/nodecleaner/config.yaml") . | sha256sum }}
         spec:
