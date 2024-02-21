@@ -8,8 +8,6 @@ import (
 )
 
 func main() {
-	logger.Info("Starting node revalidation process...")
-
 	s := revalidatenode.NewCronJob()
 
 	startTime := time.Now()
@@ -20,6 +18,5 @@ func main() {
 	}
 
 	duration := time.Since(startTime)
-	logger.Info("Node revalidation process completed successfully")
 	logger.Info("Node revalidation run duration: " + duration.String())
 }

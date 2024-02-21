@@ -70,22 +70,12 @@ func (nc *NodeRevalidationCron) Run() error {
 // cleanup disconnects MongoDB and NATS clients.
 func (nc *NodeRevalidationCron) cleanup() {
 	nc.runCleanup.Do(func() {
-		var errOccurred bool
-
 		// Disconnect from MongoDB.
 		mongodb.Client.Disconnect()
 
 		// Disconnect from NATS.
 		if err := natsclient.GetInstance().Disconnect(); err != nil {
 			logger.Error("Error disconnecting from NATS: %v", err)
-			errOccurred = true
-		}
-
-		// Log based on whether an error occurred.
-		if errOccurred {
-			logger.Info("Revalidate node service stopped with errors.")
-		} else {
-			logger.Info("Revalidate node service stopped gracefully.")
 		}
 	})
 }

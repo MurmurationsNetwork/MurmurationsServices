@@ -8,8 +8,6 @@ import (
 )
 
 func main() {
-	logger.Info("Start loading schemas...")
-
 	startTime := time.Now()
 
 	s := schemaparser.NewCronJob()
@@ -20,6 +18,5 @@ func main() {
 
 	// Calculate and log the duration
 	duration := time.Since(startTime)
-	logger.Info("Schemas were loaded successfully")
 	logger.Info("SchemaParser run duration: " + duration.String())
 }
