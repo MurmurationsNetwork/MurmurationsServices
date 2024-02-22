@@ -44,8 +44,6 @@ func (sc *SchemaCron) Run() error {
 	}
 
 	if config.Values.IsLocal {
-		fmt.Printf("testing local schemas\n")
-
 		schemaData, err := readSchemaFilesFromDir("schemas/schemas")
 		if err != nil {
 			return fmt.Errorf("failed to read schema files from dir: %w", err)
@@ -135,7 +133,6 @@ func readSchemaFilesFromDir(dirPath string) (map[string][]byte, error) {
 			return err
 		}
 		if !d.IsDir() && filepath.Ext(path) == ".json" {
-			fmt.Printf("Reading JSON file: %s\n", path)
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return err
