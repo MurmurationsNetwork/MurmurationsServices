@@ -79,7 +79,7 @@ func (s *SchemaParser) GetLocalSchema(schema []byte, fields map[string][]byte) (
 		return nil, fmt.Errorf("failed to parse schema: %w", err)
 	}
 
-	fullJSON, err := s.localConvertToBson(schema, fields)
+	fullJSON, err := s.convertToBson(schema, fields)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert schema to BSON: %w", err)
 	}
@@ -145,7 +145,7 @@ func (s *SchemaParser) parseSchema(data []byte) (*model.SchemaJSON, error) {
 }
 
 // convertToBson converts the schema data into a bson.D type.
-func (s *SchemaParser) convertToBson(data []byte) (bson.D, error) {
+func (s *SchemaParser) convertToBson(data []byte, optionalFields ...map[string][]byte) (bson.D, error) {
 	fullData := orderedmap.New()
 
 	err := json.Unmarshal(data, &fullData)
@@ -153,23 +153,12 @@ func (s *SchemaParser) convertToBson(data []byte) (bson.D, error) {
 		return nil, fmt.Errorf("failed to unmarshal schema: %w", err)
 	}
 
-	bsonData, err := s.parseProperties(*fullData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse properties: %w", err)
+	var bsonData bson.D
+	if len(optionalFields) > 0 && optionalFields[0] != nil {
+		bsonData, err = s.parseProperties(*fullData, optionalFields[0])
+	} else {
+		bsonData, err = s.parseProperties(*fullData)
 	}
-
-	return bsonData, nil
-}
-
-func (s *SchemaParser) localConvertToBson(data []byte, fields map[string][]byte) (bson.D, error) {
-	fullData := orderedmap.New()
-
-	err := json.Unmarshal(data, &fullData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal schema: %w", err)
-	}
-
-	bsonData, err := s.localParseProperties(*fullData, fields)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse properties: %w", err)
 	}
@@ -180,6 +169,7 @@ func (s *SchemaParser) localConvertToBson(data []byte, fields map[string][]byte)
 // parseProperties recursively transforms a map representing a schema into a BSON document.
 func (s *SchemaParser) parseProperties(
 	fullData orderedmap.OrderedMap,
+	optionalFields ...map[string][]byte,
 ) (bson.D, error) {
 	properties, exist := fullData.Get(PropertyKey)
 	if !exist {
@@ -217,7 +207,12 @@ func (s *SchemaParser) parseProperties(
 					refPath,
 				)
 			}
-			subSchema, err := s.fetchReferencedSchema(path)
+			var subSchema *orderedmap.OrderedMap
+			if len(optionalFields) > 0 && optionalFields[0] != nil {
+				subSchema, err = s.fetchReferencedSchema(path, optionalFields[0])
+			} else {
+				subSchema, err = s.fetchReferencedSchema(path)
+			}
 			if err != nil {
 				return nil, fmt.Errorf(
 					"failed to fetch referenced schema with refPath '%s' and key '%s': %w",
@@ -226,7 +221,11 @@ func (s *SchemaParser) parseProperties(
 					err,
 				)
 			}
-			bsonDoc, err = s.parseProperties(*subSchema)
+			if len(optionalFields) > 0 && optionalFields[0] != nil {
+				bsonDoc, err = s.parseProperties(*subSchema, optionalFields[0])
+			} else {
+				bsonDoc, err = s.parseProperties(*subSchema)
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -292,146 +291,43 @@ func (s *SchemaParser) applyOverrides(
 	return bsonDoc
 }
 
-func (s *SchemaParser) localParseProperties(
-	fullData orderedmap.OrderedMap,
-	fields map[string][]byte,
-) (bson.D, error) {
-	properties, exist := fullData.Get(PropertyKey)
-	if !exist {
-		return s.convertToBsonDocument(fullData)
-	}
-
-	propertiesMap, ok := properties.(orderedmap.OrderedMap)
-	if !ok {
-		return nil, fmt.Errorf(
-			"unexpected type for properties. Expected map, got: %T",
-			properties,
-		)
-	}
-
-	for _, key := range propertiesMap.Keys() {
-		value, _ := propertiesMap.Get(key)
-		valueMap, ok := value.(orderedmap.OrderedMap)
-		if !ok {
-			return nil, fmt.Errorf(
-				"unexpected type for value with key '%s'. Expected map, got: %T",
-				key,
-				value,
-			)
-		}
-
-		var bsonDoc bson.D
-		var err error
-
-		refPath, hasRef := valueMap.Get(ReferenceKey)
-		if hasRef && refPath != nil {
-			path, ok := refPath.(string)
-			if !ok {
-				return nil, fmt.Errorf(
-					"unexpected type for refPath. Expected string, got: %T",
-					refPath,
-				)
-			}
-			subSchema, err := s.localFetchReferencedSchema(path, fields)
-			if err != nil {
-				return nil, fmt.Errorf(
-					"failed to fetch referenced schema with refPath '%s' and key '%s': %w",
-					path,
-					key,
-					err,
-				)
-			}
-			bsonDoc, err = s.localParseProperties(*subSchema, fields)
-			if err != nil {
-				return nil, err
-			}
-			bsonDoc = s.applyOverrides(bsonDoc, valueMap)
-		} else {
-			refType, hasType := valueMap.Get(TypeKey)
-			if hasType && refType == ArrayType {
-				bsonDoc, err = s.convertArrayPropToBson(valueMap)
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert array to BSON document with key '%s': %w",
-						key, err,
-					)
-				}
-			} else {
-				bsonDoc, err = s.convertToBsonDocument(valueMap)
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert to BSON document for key '%s': %w",
-						key, err,
-					)
-				}
-			}
-		}
-		propertiesMap.Set(key, bsonDoc)
-	}
-
-	propertiesData, err := s.convertToBsonDocument(propertiesMap)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to convert properties map to BSON document: %w",
-			err,
-		)
-	}
-	fullData.Set(PropertyKey, propertiesData)
-
-	result, err := s.convertToBsonDocument(fullData)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to convert full data to BSON document: %w",
-			err,
-		)
-	}
-	return result, nil
-}
-
 func (s *SchemaParser) fetchReferencedSchema(
 	url string,
+	optionalFields ...map[string][]byte,
 ) (*orderedmap.OrderedMap, error) {
 	_, fieldName := path.Split(url)
 
-	fieldListURL := s.FieldListMap[fieldName]
+	var (
+		fieldJSON []byte
+		ok        bool
+		err       error
+	)
+	if len(optionalFields) > 0 && optionalFields[0] != nil {
+		fieldJSON, ok = optionalFields[0][fieldName]
+		if !ok {
+			return nil, fmt.Errorf(
+				"get schema failed, url: %s, fieldListURL is empty",
+				url,
+			)
+		}
+	} else {
+		fieldListURL := s.FieldListMap[fieldName]
 
-	if fieldListURL == "" {
-		return nil, fmt.Errorf(
-			"get schema failed, url: %s, fieldListURL is empty",
-			url,
-		)
-	}
+		if fieldListURL == "" {
+			return nil, fmt.Errorf(
+				"get schema failed, url: %s, fieldListURL is empty",
+				url,
+			)
+		}
 
-	fieldJSON, err := s.fetchSchema(fieldListURL)
-	if err != nil {
-		return nil, err
+		fieldJSON, err = s.fetchSchema(fieldListURL)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	subSchema := orderedmap.New()
 	err = json.Unmarshal(fieldJSON, &subSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	return subSchema, nil
-}
-
-func (s *SchemaParser) localFetchReferencedSchema(
-	url string,
-	fields map[string][]byte,
-) (*orderedmap.OrderedMap, error) {
-	_, fieldName := path.Split(url)
-
-	fieldJSON, ok := fields[fieldName]
-	if !ok {
-		return nil, fmt.Errorf(
-			"get schema failed, url: %s, fieldListURL is empty",
-			url,
-		)
-	}
-
-	subSchema := orderedmap.New()
-	err := json.Unmarshal(fieldJSON, &subSchema)
 	if err != nil {
 		return nil, err
 	}
