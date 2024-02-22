@@ -107,3 +107,5 @@ After initiating the backup, ensure its successful creation and integrity at you
 ## Conclusion
 
 This step-by-step guide ensures that your Rancher instance is backed up securely and efficiently. Regular review and testing of your backup and restore procedures are essential for maintaining operational resilience.
+
+Go back to [Home](../README.md).

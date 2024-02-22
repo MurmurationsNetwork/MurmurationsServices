@@ -125,4 +125,5 @@ mongorestore --host localhost --port 27019 --username data-proxy-admin --passwor
 
 You have successfully migrated MongoDB data between environments, ensuring a secure transfer and maintaining data integrity.
 
-Go back to [How to Receive Alerts](./how-to-receive-alerts.md).
+Go back to [Home](../README.md).
+
