@@ -33,3 +33,7 @@
 .DS_Store
 # Additional macOS file system metadata
 .DS_Store?
+
+# Schemas folder for local dev
+schemas/*
+!schemas/.gitkeep
