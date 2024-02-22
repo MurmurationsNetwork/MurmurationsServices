@@ -2,15 +2,16 @@ package schemaparser
 
 import (
 	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/schemaparser/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/schemaparser/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/schemaparser/internal/service"
-	"io/fs"
-	"os"
-	"path/filepath"
 )
 
 // SchemaCron represents a cron job for managing schema updates.
@@ -124,7 +125,7 @@ func (sc *SchemaCron) connectToMongoDB() error {
 	return nil
 }
 
-// get Schemas from local folder
+// get Schemas from local folder.
 func readSchemaFilesFromDir(dirPath string) (map[string][]byte, error) {
 	filesData := make(map[string][]byte) // Initialize a map to store filename and its content
 
