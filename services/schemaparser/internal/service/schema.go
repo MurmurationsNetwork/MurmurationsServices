@@ -27,6 +27,7 @@ type SchemaService interface {
 	HasNewCommit(lastCommit string) (bool, error)
 	UpdateSchemas(branchSha string) error
 	SetLastCommit(lastCommit string) error
+	UpdateLocalSchemas(schemas map[string][]byte, fields map[string][]byte) error
 }
 
 type schemaService struct {
@@ -153,6 +154,22 @@ func (s *schemaService) SetLastCommit(newLastCommitTime string) error {
 			"failed to set new last commit time in Redis: %w",
 			err,
 		)
+	}
+
+	return nil
+}
+
+func (s *schemaService) UpdateLocalSchemas(schemas map[string][]byte, fields map[string][]byte) error {
+	parser := schemaparser.NewSchemaParser(nil)
+	for _, schema := range schemas {
+		result, err := parser.GetLocalSchema(schema, fields)
+		if err != nil {
+			return err
+		}
+		err = s.updateSchema(result.Schema, result.FullJSON)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

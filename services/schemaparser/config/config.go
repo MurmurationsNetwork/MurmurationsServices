@@ -7,6 +7,7 @@ type config struct {
 	Mongo   mongoConf
 	Redis   redisConf
 	Github  githubConf
+	IsLocal bool `env:"IS_LOCAL,required"`
 }
 
 type libraryConf struct {
