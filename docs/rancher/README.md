@@ -14,7 +14,7 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 4. [Set Up RKE2 Cluster for Murmuration Services](04-setup-rke2-cluster/README.md)
     - [Upgrade RKE2 Cluster](04-setup-rke2-cluster/upgrade-rk2-cluster.md)
 5. [Set Up a Load Balancer](05-setup-lb/README.md)
-    - [Load ]
+    - [Failover Procedure for Load Balancers](05-setup-lb/failover-procedure-for-load-balancer.md)
 6. [Set Up Longhorn](06-setup-longhorn/README.md)
 7. [Run Murmuration Services](07-run-murmuration-services/README.md)
     - [Migrate MongoDB](07-run-murmuration-services/migrate-mongodb.md)

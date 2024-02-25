@@ -125,8 +125,6 @@ stream {
 }
 ```
 
-If you're setting up an environment for testing purposes and prefer to use a single server, adjust the `murmur_servers_http` and `murmur_servers_https` blocks by specifying only one `server` directive. Keep in mind that while this configuration is suitable for development or testing, it does not provide the resilience or failover capabilities of a high-availability setup.
-
 ## Step 4 - Launching the Nginx Load Balancer
 
 Deploy Nginx within Docker to initiate the load balancing functionality:
