@@ -4,4 +4,4 @@ metadata:
   name: murm-logging-kibana-config
   namespace: {{ .Values.namespace }}
 data:
-  ELASTICSEARCH_HOSTS: http://murm-logging-es:9200
+  ELASTICSEARCH_HOSTS: "http://murm-logging-es:9200"

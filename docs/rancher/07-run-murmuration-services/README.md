@@ -58,9 +58,13 @@ helm install cert-manager jetstack/cert-manager \
 
 ## Step 4 - Updating Ingress Configuration
 
-In this step, you'll update the [ingress.yaml](../../../charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) configuration to correctly route traffic to your deployed services. Specifically, you'll replace the default URLs found in the ingress.yaml file with the custom URLs you've designated for your Murmurations services in Step 1.
+## Step 4 - Updating Ingress and Issuer Configuration
 
-The following diagram illustrates the process of updating these URLs within your ingress.yaml file:
+In this step, you will update both the [ingress.yaml](../../../charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) and [issuer.yaml](../../../charts/murmurations/charts/ingress/templates/cert/issuer.yaml) configurations to ensure correct traffic routing to your deployed services. Specifically, you will modify the ingress.yaml file to replace the default URLs with the custom URLs you established for your Murmurations services in Step 1. Additionally, update the issuer.yaml file by replacing the existing email with your own email address.
+
+Please be aware that we currently support 4 environments: `production`, `staging`, `pretest`, and `development`. The staging environment mirrors production to provide a testing ground for users, while pretest is dedicated to CI/CD processes only.
+
+Below is a diagram demonstrating how to update the production URLs in the ingress.yaml file:
 
 ```text
 +------------------------------------+            +--------------------------------------+
@@ -146,8 +150,6 @@ Deploy the Murmurations services to your Kubernetes cluster:
 ```bash
 make deploy-all-services DEPLOY_ENV=<environment>
 ```
-
-Note we currently have 4 environments: production, staging, pretest, and development. If in step 4 you updated the production URL, then you can use `make deploy-all-services DEPLOY_ENV=production`.
 
 ## Step 7 - Checking the Deployment
 
