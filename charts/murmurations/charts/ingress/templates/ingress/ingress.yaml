@@ -20,9 +20,9 @@ spec:
   {{- if $isProd }}
   tls:
   - hosts:
-    - protoprod-index.murmurations.network
-    - protoprod-library.murmurations.network
-    - protoprod-data-proxy.murmurations.network
+    - index.murmurations.network
+    - library.murmurations.network
+    - data-proxy.murmurations.network
     secretName: letsencrypt-prod-cert
   {{- end }}
   {{- if $isPretest }}
@@ -35,7 +35,7 @@ spec:
   {{- end }}
   rules:
     {{- if $isProd }}
-    - host: protoprod-index.murmurations.network
+    - host: index.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -45,7 +45,7 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    - host: protoprod-library.murmurations.network
+    - host: library.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -55,7 +55,7 @@ spec:
                 name: library-app
                 port:
                   number: 8080
-    - host: protoprod-data-proxy.murmurations.network
+    - host: data-proxy.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
