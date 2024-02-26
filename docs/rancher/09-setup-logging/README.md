@@ -19,9 +19,8 @@ This guide will take you through the process of setting up logging for your envi
 - [Step 9 - Adding Log Flow](#step-9---adding-log-flow)
 - [Step 10 - Validation of Flow and Output](#step-10---validation-of-flow-and-output)
 - [Step 11 - Testing Access to Kibana](#step-11---testing-access-to-kibana)
-- [Step 12 - Navigating to Discover in Kibana](#step-12---navigating-to-discover-in-kibana)
-- [Step 13 - Configuring Index Patterns](#step-13---configuring-index-patterns)
-- [Step 14 - Checking Logs in Kibana](#step-14---checking-logs-in-kibana)
+- [Step 12 - Configuring Index Patterns](#step-12---configuring-index-patterns)
+- [Step 13 - Navigating to Discover in Kibana](#step-13---navigating-to-discover-in-kibana)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -171,25 +170,27 @@ Access Kibana to explore your logs by forwarding a local port to the Kibana serv
 kubectl port-forward -n murm-logging svc/murm-logging-kibana 5601:5601
 ```
 
-Navigate to `http://localhost:5601` in your browser to access Kibana.
+Navigate to `http://localhost:5601/app/management/kibana/dataViews` in your browser to configure index patterns.
 
-![Kibana Home](./assets/images/kibana-home.png)
+![Kibana Dataview](./assets/images/kibana-dataviews.png)
 
-## Step 12 - Navigating to Discover in Kibana
+## Step 12 - Configuring Index Patterns
 
-Explore your logs in Kibana by navigating to the "Discover" section, where you can search and analyze logged events.
+If you follow the guide and configure correctly, the above page should indicate that "You have data in Elasticsearch." Proceed by clicking on "Create data view."
 
-![Navigating to Discover in Kibana](./assets/images/kibana-discover.png)
-
-## Step 13 - Configuring Index Patterns
+![Kibana You Have Data](./assets/images/kibana-you-have-data.png)
 
 Configure index patterns in Kibana as shown in the image and click "Save."
 
 ![Configuring Index Patterns](./assets/images/kibana-configure-indexes.png)
 
-## Step 14 - Checking Logs in Kibana
+## Step 13 - Navigating to Discover in Kibana
 
-Return to the "Discover" page in Kibana to view your logs.
+Explore your logs in Kibana by navigating to the "Discover" section, where you can search and analyze logged events.
+
+![Navigating to Discover in Kibana](./assets/images/kibana-discover.png)
+
+Now you should see the logging showing up.
 
 ![Checking Logs in Kibana](./assets/images/kibana-show-logs.png)
 
