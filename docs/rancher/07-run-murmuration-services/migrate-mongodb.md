@@ -111,10 +111,10 @@ kubectl port-forward svc/data-proxy-mongo 27019:27017
 With port forwarding in place, import the exported data into the destination MongoDB database. Remember to replace `<password>` with the actual password:
 
 ```bash
-mongorestore --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 ~/Desktop/index-mongodb-backups
+mongorestore --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 --nsExclude=admin.* ~/Desktop/index-mongodb-backups
 
 # Paste in another tab.
-mongorestore --host localhost --port 27019 --username data-proxy-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 ~/Desktop/data-proxy-mongodb-backups
+mongorestore --host localhost --port 27019 --username data-proxy-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 --nsExclude=admin.* ~/Desktop/data-proxy-mongodb-backups
 ```
 
 **Note:** Substitute `<password>` with the real password.
