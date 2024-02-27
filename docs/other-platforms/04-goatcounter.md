@@ -33,7 +33,7 @@ GoatCounter is an open-source web analytics platform designed to provide insight
 
 ### Restore to New Service
 
-1. Identify the Pod running GoatCounter in the old service.
+1. Identify the Pod running GoatCounter in the new service.
 
     ```bash
     kubectl get pods | grep 'goatcounter'
