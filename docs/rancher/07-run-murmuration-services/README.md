@@ -77,63 +77,63 @@ data-proxy.murmurations.network  -->     my-data-proxy.murmurations.network
 
 Create Kubernetes secrets for MongoDB credentials and any other necessary secrets for the operation of Murmurations services:
 
-Remember to replace those "password" with strong ones.
+Remember to replace those `<password>` placeholders below with strong passwords. Also make sure you use the same strong password for usernames that are the same (e.g., all instances of `index-admin` below should be using the same strong password).
 
 ```bash
 kubectl \
   create secret generic index-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=index-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<password>"
 
 kubectl \
   create secret generic library-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<password>"
 
 kubectl \
   create secret generic data-proxy-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=password"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<password>"
 
 kubectl \
   create secret generic index-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic library-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic data-proxy-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic nodecleaner-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic revalidatenode-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic dataproxyupdater-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic dataproxyrefresher-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=password"
+  --from-literal="MONGO_PASSWORD=<password>"
 
 kubectl \
   create secret generic schemaparser-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=password" \
+  --from-literal="MONGO_PASSWORD=<password>" \
   --from-literal="GITHUB_TOKEN=<GITHUB_TOKEN>"
 ```
 
