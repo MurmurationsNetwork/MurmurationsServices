@@ -68,9 +68,9 @@ Below is a diagram demonstrating how to update the production URLs in the ingres
 +------------------------------------+            +--------------------------------------+
 |           Ingress.yaml             |            |        Updated Ingress.yaml          |
 +------------------------------------+            +--------------------------------------+
-protoprod-index.murmurations.network       -->     my-index.murmurations.network
-protoprod-library.murmurations.network     -->     my-library.murmurations.network
-protoprod-data-proxy.murmurations.network  -->     my-data-proxy.murmurations.network
+index.murmurations.network       -->     my-index.murmurations.network
+library.murmurations.network     -->     my-library.murmurations.network
+data-proxy.murmurations.network  -->     my-data-proxy.murmurations.network
 ```
 
 ## Step 5 - Creating Required Secrets
@@ -154,7 +154,7 @@ make deploy-all-services DEPLOY_ENV=<environment>
 During the deployment, open another tab from the terminal and run the following command to check the status of the deployment:
 
 ```bash
-watch kubectl get pods
+kubectl get pods --watch
 ```
 
 ## Conclusion

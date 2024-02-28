@@ -61,11 +61,11 @@ This section provides the command to run on the Ubuntu servers designated for in
 
 ![Command for node registration](./assets/images/registering_nodes_3.png)
 
-Open a terminal, connect to your server via SSH, and execute the command provided by Rancher.
+Open a terminal, connect to each of your servers via SSH, and execute the command provided by Rancher.
 
 ![Paste Command](./assets/images/registering_nodes_4.png)
 
-Revisit the Rancher interface and click on the **Machine** tab; your server will be listed and will require a few minutes to initialize.
+Revisit the Rancher interface and click on the **Machine** tab; your servers will be listed and will require a few minutes to initialize.
 
 ![Machine Tab](./assets/images/registering_nodes_5.png)
 
