@@ -12,7 +12,7 @@ ADD . /src/index
 RUN CGO_ENABLED=0 go build -o /bin/index ./cmd/index
 
 # --- Runtime Stage ---
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 

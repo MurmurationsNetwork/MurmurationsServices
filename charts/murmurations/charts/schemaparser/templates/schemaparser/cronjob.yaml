@@ -37,12 +37,13 @@ spec:
             - name: schemaparser-app
               image: {{ .Values.image }}
               imagePullPolicy: IfNotPresent
-              # Limit the CPU usage.
+              {{- if not $isDev }}
               resources:
                 requests:
                   cpu: "100m"
                 limits:
                   cpu: "500m"
+              {{- end }}
               envFrom:
                 - configMapRef:
                     name: schemaparser-app-config

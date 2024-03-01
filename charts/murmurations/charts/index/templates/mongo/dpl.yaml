@@ -48,6 +48,7 @@ spec:
             claimName: index-mongo-pvc
       {{- end }}
 ---
+{{- if not $isDev }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -59,3 +60,4 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: longhorn
+{{- end }}

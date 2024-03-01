@@ -27,11 +27,6 @@ spec:
       containers:
         - name: library-app
           image: {{ .Values.image }}
-          resources:
-            requests:
-              memory: "32Mi"
-            limits:
-              memory: "64Mi"
           envFrom:
             - configMapRef:
                 name: library-app-config
@@ -55,14 +50,4 @@ spec:
             path: {{ .Values.global.sourcepath }}
       {{- end }}
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: library-mongo-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: longhorn
+
