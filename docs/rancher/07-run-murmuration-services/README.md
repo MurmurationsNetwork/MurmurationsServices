@@ -27,7 +27,7 @@ Before you start, ensure you have:
 
 ## Step 1 - Configuring DNS Records
 
-Configure DNS A records for your services by pointing them to your load balancer URL created in the [Setup Load Balancer Tutorial](../05-setup-lb/README.md). Example DNS configurations:
+Configure DNS CNAME records for your services by pointing them to your load balancer URL created in the [Setup Load Balancer Tutorial](../05-setup-lb/README.md). Example DNS configurations:
 
 ```bash
 index.your.site C <load_balancer_url>
@@ -72,71 +72,7 @@ This table demonstrates how to update the production URLs in the `ingress.yaml` 
 
 ## Step 5 - Creating Required Secrets
 
-Create Kubernetes secrets for MongoDB credentials and any other necessary secrets for the operation of Murmurations services.
-
-Remember to replace those `<*-password>` placeholders below with strong passwords. Also make sure you use the same strong password for usernames that are the same (e.g., all instances of `index-admin-password` below should be using the same strong password).
-
-```bash
-kubectl \
-  create secret generic index-mongo-secret \
-  --from-literal="MONGO_INITDB_ROOT_USERNAME=index-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<index-admin-password>"
-
-kubectl \
-  create secret generic library-mongo-secret \
-  --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<library-admin-password>"
-
-kubectl \
-  create secret generic data-proxy-mongo-secret \
-  --from-literal="MONGO_INITDB_ROOT_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<data-proxy-password>"
-
-kubectl \
-  create secret generic index-secret \
-  --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<index-admin-password>"
-
-kubectl \
-  create secret generic library-secret \
-  --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=<library-admin-password>"
-
-kubectl \
-  create secret generic data-proxy-secret \
-  --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<data-proxy-password>"
-
-kubectl \
-  create secret generic nodecleaner-secret \
-  --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<index-admin-password>"
-
-kubectl \
-  create secret generic revalidatenode-secret \
-  --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<index-admin-password>"
-
-kubectl \
-  create secret generic dataproxyupdater-secret \
-  --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<data-proxy-password>"
-
-kubectl \
-  create secret generic dataproxyrefresher-secret \
-  --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<data-proxy-password>"
-
-kubectl \
-  create secret generic schemaparser-secret \
-  --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=<library-admin-password>" \
-  --from-literal="GITHUB_TOKEN=<GITHUB_TOKEN>"
-```
-
-For how to obtain the `GITHUB_TOKEN`, please refer to [GitHub's documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for creating a personal access token. No additional scopes are needed.
-
-![Personal Access Token](./assets/images/personal-access-token.png)
+[Create Kubernetes secrets](secrets.md) for MongoDB credentials and any other necessary secrets for the operation of Murmurations services.
 
 ## Step 6 - Deploying the Services
 

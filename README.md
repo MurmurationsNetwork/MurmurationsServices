@@ -32,7 +32,7 @@ For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/RE
     docker pull kibana:7.17.5
     ```
 
-6. [Create secrets](docs/secrets.md) for each service
+6. [Create secrets](docs/rancher/07-run-murmuration-services/secrets.md) for each service
 
 7. Add the following to your host file `sudo vim /etc/hosts`
 
@@ -48,7 +48,7 @@ For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/RE
 
 2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v2/ping` and `data-proxy.murmurations.dev/v1/ping`
 
-### Using Pre-commit and custom git hooks
+## Setting up Pre-commit and custom git hooks for development
 
 > Note: [Pre-commit](https://pre-commit.com) is a linter to ensure consistent style, etc. Please use it before submitting pull requests to this repository.
 
