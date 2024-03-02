@@ -5,8 +5,8 @@ set -e
 
 # Setup environment variables.
 ssh_private_key="$SSH_PRIVATE_KEY"
-pretest_server_ip="$PRETEST_SERVER_IP"
-kubeconfig_path="$PRETEST_KUBECONFIG_PATH"
+server_ip="$SERVER_IP"
+kubeconfig_path="$KUBECONFIG_PATH"
 
 # Define DEPLOY_ENV; use development if not provided.
 DEPLOY_ENV="${DEPLOY_ENV:-development}"
@@ -24,17 +24,17 @@ echo "$ssh_private_key" > ssh_key
 chmod 600 ssh_key
 eval $(ssh-agent -s)
 ssh-add ssh_key
-ssh-keyscan -H "$pretest_server_ip" >> ~/.ssh/known_hosts
+ssh-keyscan -H "$server_ip" >> ~/.ssh/known_hosts
 
 # Copy Kubernetes config from the server.
 echo "Copying Kubernetes configuration..."
-scp "root@$pretest_server_ip:$kubeconfig_path" ./kubeconfig
+scp "root@$server_ip:$kubeconfig_path" ./kubeconfig
 
 # Setting KUBECONFIG environment variable.
 export KUBECONFIG=./kubeconfig
 
 # Replace localhost IP in Kubeconfig.
-sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/'$pretest_server_ip':6443/' \
+sed -i 's/https:\/\/127.0.0.1:6443/https:\/\/'$server_ip':6443/' \
     ./kubeconfig
 
 # Install kubectl.

@@ -107,8 +107,8 @@ jobs:
       - build
     runs-on: ubuntu-latest
     env:
-      PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
-      PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+      SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+      KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       EXCLUDE_MATRIX: ${{ needs.check-exclusions.outputs.exclude_matrix }}
       DEPLOY_ENV: pretest
