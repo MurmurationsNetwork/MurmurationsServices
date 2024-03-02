@@ -30,9 +30,9 @@ Before you start, ensure you have:
 Configure DNS A records for your services by pointing them to your load balancer URL created in the [Setup Load Balancer Tutorial](../05-setup-lb/README.md). Example DNS configurations:
 
 ```bash
-my-index.murmurations.network C <load_balancer_url>
-my-library.murmurations.network C <load_balancer_url>
-my-data-proxy.murmurations.network C <load_balancer_url>
+index.your.site C <load_balancer_url>
+library.your.site C <load_balancer_url>
+data-proxy.your.site C <load_balancer_url>
 ```
 
 ## Step 2 - Switching Kubernetes Context
