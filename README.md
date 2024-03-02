@@ -93,6 +93,10 @@ We are utilizing Rancher to manage our Kubernetes clusters. For detailed instruc
 
 [Rancher-Managed Kubernetes Documentation](docs/rancher/README.md)
 
+## Troubleshooting
+
+For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/README.md).
+
 ## Optional
 
 - [Seed the data](docs/seed.md)
