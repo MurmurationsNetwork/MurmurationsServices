@@ -62,78 +62,75 @@ In this step, you will update both the [ingress.yaml](../../../charts/murmuratio
 
 Please be aware that we currently support 4 environments: `production`, `staging`, `pretest`, and `development`. The staging environment mirrors production to provide a testing ground for users, while pretest is dedicated to CI/CD processes only.
 
-Below is a diagram demonstrating how to update the production URLs in the ingress.yaml file:
+This table demonstrates how to update the production URLs in the `ingress.yaml` file:
 
-```text
-+------------------------------------+            +--------------------------------------+
-|           Ingress.yaml             |            |        Updated Ingress.yaml          |
-+------------------------------------+            +--------------------------------------+
-index.murmurations.network       -->     my-index.murmurations.network
-library.murmurations.network     -->     my-library.murmurations.network
-data-proxy.murmurations.network  -->     my-data-proxy.murmurations.network
-```
+|           Ingress.yaml             |        Updated Ingress.yaml   |
+|------------------------------------|-------------------------------|
+| index.murmurations.network         |     index.your.website        |
+| library.murmurations.network       |     library.your.website      |
+| data-proxy.murmurations.network    |     data-proxy.your.website   |
 
 ## Step 5 - Creating Required Secrets
 
-Create Kubernetes secrets for MongoDB credentials and any other necessary secrets for the operation of Murmurations services:
+Create Kubernetes secrets for MongoDB credentials and any other necessary secrets for the operation of Murmurations services.
 
-Remember to replace those `<password>` placeholders below with strong passwords. Also make sure you use the same strong password for usernames that are the same (e.g., all instances of `index-admin` below should be using the same strong password).
+Remember to replace those `<*-password>` placeholders below with strong passwords. Also make sure you use the same strong password for usernames that are the same (e.g., all instances of `index-admin-password` below should be using the same strong password).
 
 ```bash
 kubectl \
   create secret generic index-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=index-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<password>"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<index-admin-password>"
 
 kubectl \
   create secret generic library-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<password>"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<library-admin-password>"
 
 kubectl \
   create secret generic data-proxy-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<password>"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<data-proxy-password>"
 
 kubectl \
   create secret generic index-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<index-admin-password>"
 
 kubectl \
   create secret generic library-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<library-admin-password>"
 
 kubectl \
   create secret generic data-proxy-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<data-proxy-password>"
 
 kubectl \
   create secret generic nodecleaner-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<index-admin-password>"
 
 kubectl \
   create secret generic revalidatenode-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<index-admin-password>"
 
 kubectl \
   create secret generic dataproxyupdater-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<data-proxy-password>"
 
 kubectl \
   create secret generic dataproxyrefresher-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<password>"
+  --from-literal="MONGO_PASSWORD=<data-proxy-password>"
 
 kubectl \
   create secret generic schemaparser-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=<password>" \
+  --from-literal="MONGO_PASSWORD=<library-admin-password>" \
   --from-literal="GITHUB_TOKEN=<GITHUB_TOKEN>"
 ```
 

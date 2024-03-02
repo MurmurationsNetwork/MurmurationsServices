@@ -5,6 +5,14 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MurmurationsNetwork/MurmurationsServices/main.yaml?branch=main&style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MurmurationsNetwork/MurmurationsServices?style=flat-square)](https://goreportcard.com/report/github.com/MurmurationsNetwork/MurmurationsServices)
 
+## Run in production
+
+We are utilizing [Rancher](https://www.rancher.com/) to orchestrate the deployment of Murmurations services in Kubernetes clusters. For detailed instructions on setting up a Kubernetes cluster with Rancher and guidance on launching the index, library and other services that implement the Murmurations protocol, please refer to the [Rancher-managed Kubernetes documentation](docs/rancher/README.md).
+
+## Troubleshooting
+
+For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/README.md).
+
 ## Run locally
 
 ### Setup
@@ -40,9 +48,11 @@
 
 2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v2/ping` and `data-proxy.murmurations.dev/v1/ping`
 
-## Using Pre-commit and custom git hooks
+### Using Pre-commit and custom git hooks
 
-1. Install pre-commit on your Mac by running `brew install pre-commit`.
+> Note: [Pre-commit](https://pre-commit.com) is a linter to ensure consistent style, etc. Please use it before submitting pull requests to this repository.
+
+1. Install pre-commit on a Mac by running `brew install pre-commit`.
 
 2. Add pre-commit file and change permission.
 
@@ -83,19 +93,9 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 
 ## Running E2E Tests Locally
 
-1. Ensure that you have Newman installed. If not, install it using the following command: `npm install -g newman`.
+1. Ensure that you have [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating) and [Newman](https://github.com/postmanlabs/newman) (`npm install -g newman`) installed.
 2. Execute the command `make dev` to set up the servers.
 3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
-
-## Running Kubernetes with Rancher
-
-We are utilizing Rancher to manage our Kubernetes clusters. For detailed instructions on setting up your Kubernetes clusters with Rancher and guidance on launching Murmurations services, please refer to the documentation linked below.
-
-[Rancher-Managed Kubernetes Documentation](docs/rancher/README.md)
-
-## Troubleshooting
-
-For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/README.md).
 
 ## Optional
 
