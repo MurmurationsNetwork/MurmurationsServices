@@ -16,6 +16,7 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 5. [Set Up a Load Balancer](05-setup-lb/README.md)
     - [Failover Procedure for Load Balancers](05-setup-lb/failover-procedure-for-load-balancer.md)
 6. [Set Up Longhorn](06-setup-longhorn/README.md)
+    - [Set Up Recurring Backup](06-setup-longhorn/recurring-backup.md)
 7. [Run Murmuration Services](07-run-murmuration-services/README.md)
     - [Migrate MongoDB](07-run-murmuration-services/migrate-mongodb.md)
     - [Migrating Elasticsearch](07-run-murmuration-services/migrate-es.md)
