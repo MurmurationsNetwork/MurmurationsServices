@@ -52,7 +52,7 @@ jobs:
     env:
       DEPLOY_ENV: pretest
       PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
-      PRETEST_KUBECONFIG_PATH: ${{ secrets.PRETEST_KUBECONFIG_PATH }}
+      KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - name: Checkout Code

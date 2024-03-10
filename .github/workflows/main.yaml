@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SERVER_IP: ${{ secrets.PRODUCTION_SERVER_IP }}
-      KUBECONFIG_PATH: ${{ secrets.PRODUCTION_KUBECONFIG_PATH }}
+      KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       EXCLUDE_MATRIX: ${{ needs.check-exclusions.outputs.exclude_matrix }}
       DEPLOY_ENV: production
