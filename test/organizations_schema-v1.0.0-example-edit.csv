@@ -1,2 +1,0 @@
-oid,name,primary_url,email,urls[0].name,urls[0].url,urls[1].name,urls[1].url,description,mission,locality,region,country_name,geolocation.lat,geolocation.lon,image,rss,tags[0],tags[1]
-2,Example Company,https://example.com,example@murmurations.network,Facebook,https://facebook.com/example,Instagram,https://instagram.com/example,Example,Example,Paris,Paris,France,2.3345625,48.8608158,https://example.com/example.jpg,https://example.com/rss,Private limited company,Co-op
