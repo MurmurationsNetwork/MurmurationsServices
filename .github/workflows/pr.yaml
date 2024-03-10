@@ -1,7 +1,3 @@
-# This workflow is triggered on pull requests to the main branch. It includes
-# jobs for testing, linting, checking for build exclusions, building Docker
-# images, and deploying services.
-
 name: PR Workflow
 on:
   pull_request:
@@ -35,8 +31,6 @@ jobs:
       - name: Run Linter
         uses: golangci/golangci-lint-action@v4
 
-  # Check file changes and determine which services should be excluded from
-  # build and deployment.
   check-exclusions:
     name: Check Exclusions
     runs-on: ubuntu-latest
@@ -134,7 +128,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Install Newman
         run: |

@@ -1,20 +1,10 @@
-# Workflow Description:
-# This GitHub Actions workflow is initiated by specific review comments from
-# authorized users in pull request reviews. It automates the build and deployment
-# process when a comment containing '/rebuild' is detected.
-
 name: Redeploy on Specific Review Comment by Authorized User
 
-# Triggers:
-# The workflow is activated by the creation of review comments in pull requests.
 on:
   pull_request_review_comment:
     types: [created]
 
 jobs:
-  # Job: Check Comment and Trigger Build
-  # This job checks if the comment contains '/rebuild'. It triggers the subsequent
-  # build job only if this condition is met.
   check-comment-and-trigger-build:
     if: contains(github.event.comment.body, '/rebuild')
     runs-on: ubuntu-latest
@@ -22,7 +12,6 @@ jobs:
       - name: Trigger Build Job
         run: echo "Triggering Build Job"
 
-  # Job: Build Docker Image
   build:
     name: Build Docker Image - ${{ matrix.service }}
     needs: check-comment-and-trigger-build
@@ -45,7 +34,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }} # Check out the PR's head branch.
+          ref: ${{ github.head_ref }}
 
       - name: DockerHub Login
         uses: docker/login-action@v3.0.0
@@ -56,7 +45,6 @@ jobs:
       - name: Publish Docker Image
         run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
 
-  # Job: Deploy Services
   deploy:
     name: Deploy Services
     needs: build
@@ -70,7 +58,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }} # Check out the PR's head branch.
+          ref: ${{ github.head_ref }}
 
       - name: Run Deployment Script
         run: ./scripts/deploy-services.sh
@@ -87,7 +75,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Install Newman
         run: |
