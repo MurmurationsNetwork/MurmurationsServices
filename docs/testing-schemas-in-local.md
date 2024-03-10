@@ -7,8 +7,8 @@
 
 ## Adding Custom Schemas
 
-1. Place your custom schema files within the `schemas/schemas` directory. This is the designated location for all custom schema files.
-2. If your schema includes `$ref` references, ensure that these referenced files are located in the `schemas/fields` directory. This organization is crucial to avoid errors during the CronJob execution.
+1. Place your custom schema files within the `library/schemas` directory. This is the designated location for all custom schema files.
+2. If your schema includes `$ref` references, ensure that these referenced files are located in the `library/fields` directory. This organization is crucial to avoid errors during the CronJob execution.
 
 ## SchemaParser Cronjob Execution
 

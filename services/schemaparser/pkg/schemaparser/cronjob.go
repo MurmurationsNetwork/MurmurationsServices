@@ -45,11 +45,11 @@ func (sc *SchemaCron) Run() error {
 	}
 
 	if config.Values.IsLocal {
-		schemaData, err := readSchemaFilesFromDir("schemas/schemas")
+		schemaData, err := readSchemaFilesFromDir("library/schemas")
 		if err != nil {
 			return fmt.Errorf("failed to read schema files from dir: %w", err)
 		}
-		fieldData, err := readSchemaFilesFromDir("schemas/fields")
+		fieldData, err := readSchemaFilesFromDir("library/fields")
 		if err != nil {
 			return fmt.Errorf("failed to read field files from dir: %w", err)
 		}
