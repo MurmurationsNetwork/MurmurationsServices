@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -145,7 +146,8 @@ func (s *Service) registerRoutes() {
 // panic performs a cleanup and then emits the supplied message as the panic value.
 func (s *Service) panic(msg string, err error, logFields ...zapcore.Field) {
 	s.cleanup()
-	logger.Panic(msg, err, logFields...)
+	logger.Error(msg, err, logFields...)
+	os.Exit(1)
 }
 
 // Run starts the library service and will block until the service is shutdown.

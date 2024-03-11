@@ -2,6 +2,7 @@ package nodecleaner
 
 import (
 	"context"
+	"os"
 	"sync"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
@@ -28,15 +29,18 @@ func NewCronJob() *NodeCleaner {
 		config.Conf.Mongo.HOST,
 	)
 	if err := mongodb.NewClient(uri, config.Conf.Mongo.DBName); err != nil {
-		logger.Panic("Failed to connect to MongoDB", err)
+		logger.Error("Failed to connect to MongoDB", err)
+		os.Exit(1)
 	}
 
 	if err := mongodb.Client.Ping(); err != nil {
-		logger.Panic("Failed to ping MongoDB", err)
+		logger.Error("Failed to ping MongoDB", err)
+		os.Exit(1)
 	}
 
 	if err := elastic.NewClient(config.Conf.ES.URL); err != nil {
-		logger.Panic("Failed to connect to Elasticsearch", err)
+		logger.Error("Failed to connect to Elasticsearch", err)
+		os.Exit(1)
 	}
 
 	return &NodeCleaner{}

@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: index-app
+        log-group: murm
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/index/config.yaml") . | sha256sum }}
     spec:

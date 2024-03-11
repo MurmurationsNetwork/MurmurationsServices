@@ -1,6 +1,8 @@
 package global
 
 import (
+	"os"
+
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
@@ -20,10 +22,12 @@ func mongoInit() {
 
 	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
 	if err != nil {
-		logger.Panic("error when trying to connect to MongoDB", err)
+		logger.Error("error when trying to connect to MongoDB", err)
+		os.Exit(1)
 	}
 	err = mongo.Client.Ping()
 	if err != nil {
-		logger.Panic("error when trying to ping the MongoDB", err)
+		logger.Error("error when trying to ping the MongoDB", err)
+		os.Exit(1)
 	}
 }

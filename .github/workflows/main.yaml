@@ -1,4 +1,4 @@
-name: main
+name: Main Workflow
 
 on:
   push:
@@ -7,233 +7,75 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go 1.x
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set Up Go
         uses: actions/setup-go@v5
         with:
           go-version: 1.21
-
-      - name: Test
+      - name: Execute Tests
         run: make test
 
-  build-index:
-    name: Build Index
-    needs: test
+  lint:
+    name: Lint Code
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set Up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21
+      - name: Run Linter
+        uses: golangci/golangci-lint-action@v4
 
-      - name: Login to DockerHub
+  build:
+    name: Build Docker Image - ${{ matrix.service }}
+    needs:
+      - test
+      - lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - index
+          - library
+          - geoip
+          - validation
+          - dataproxy
+          - nodecleaner
+          - revalidatenode
+          - schemaparser
+          - dataproxyupdater
+          - dataproxyrefresher
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: DockerHub Login
         uses: docker/login-action@v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish index docker images
-        run: make docker-push-index DEPLOY_ENV=production
-
-  build-library:
-    name: Build Library
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish library docker images
-        run: make docker-push-library DEPLOY_ENV=production
-
-  build-geoip:
-    name: Build Geo IP
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish geoip docker images
-        run: make docker-push-geoip DEPLOY_ENV=production
-
-  build-validation:
-    name: Build Validation
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish validation docker images
-        run: make docker-push-validation DEPLOY_ENV=production
-
-  build-nodecleaner:
-    name: Build Node Cleaner
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish nodecleaner docker images
-        run: make docker-push-nodecleaner DEPLOY_ENV=production
-
-  build-revalidatenode:
-    name: Build Revalidate Node
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish revalidatenode docker images
-        run: make docker-push-revalidatenode DEPLOY_ENV=production
-
-  build-schemaparser:
-    name: Build Schema Parser
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish schemaparser docker images
-        run: make docker-push-schemaparser DEPLOY_ENV=production
-
-  build-dataproxy:
-    name: Build Data Proxy
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish dataproxy docker images
-        run: make docker-push-dataproxy DEPLOY_ENV=production
-
-  build-dataproxyupdater:
-    name: Build Data Proxy Updater
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish dataproxyupdater docker images
-        run: make docker-push-dataproxyupdater DEPLOY_ENV=production
-
-  build-dataproxyrefresher:
-    name: Build Data Proxy Refresher
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish dataproxyrefresher docker images
-        run: make docker-push-dataproxyrefresher DEPLOY_ENV=production
+      - name: Publish Docker Image
+        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=production
 
   deploy:
-    name: Deploy
+    name: Deploy Services
     needs:
-      - build-index
-      - build-library
-      - build-geoip
-      - build-validation
-      - build-nodecleaner
-      - build-revalidatenode
-      - build-schemaparser
-      - build-dataproxy
-      - build-dataproxyupdater
-      - build-dataproxyrefresher
+      - test
+      - lint
+      - build
     runs-on: ubuntu-latest
+    env:
+      SERVER_IP: ${{ secrets.PRODUCTION_SERVER_IP }}
+      KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DEPLOY_ENV: production
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Save DigitalOcean kubeconfig with short-lived credentials
-        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 murmprod
-
-      - name: Deploy Murmurations Core
-        run: make deploy-murmurations-core DEPLOY_ENV=production
-
-      - name: Restart index deployment
-        run: make deploy-index DEPLOY_ENV=production
-
-      - name: Restart library deployment
-        run: make deploy-library DEPLOY_ENV=production
-
-      - name: Restart geoip deployment
-        run: make deploy-geoip DEPLOY_ENV=production
-
-      - name: Restart validation deployment
-        run: make deploy-validation DEPLOY_ENV=production
-
-      - name: Restart nodecleaner deployment
-        run: make deploy-nodecleaner DEPLOY_ENV=production
-
-      - name: Restart revalidatenode deployment
-        run: make deploy-revalidatenode DEPLOY_ENV=production
-
-      - name: Restart schemaparser deployment
-        run: make deploy-schemaparser DEPLOY_ENV=production
-
-      - name: Restart dataproxy deployment
-        run: make deploy-dataproxy DEPLOY_ENV=production
-
-      - name: Restart dataproxyupdater deployment
-        run: make deploy-dataproxyupdater DEPLOY_ENV=production
-
-      - name: Restart dataproxyrefresher deployment
-        run: make deploy-dataproxyrefresher DEPLOY_ENV=production
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup SSH and Deploy Services
+        run: ./scripts/deploy-services.sh
