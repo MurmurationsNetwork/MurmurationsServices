@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
@@ -8,18 +9,15 @@ import (
 )
 
 func main() {
-	logger.Info("Starting node revalidation process...")
-
 	s := revalidatenode.NewCronJob()
 
 	startTime := time.Now()
 
 	if err := s.Run(); err != nil {
-		logger.Panic("Failed to revalidate nodes: ", err)
-		return
+		logger.Error("Failed to revalidate nodes: ", err)
+		os.Exit(1)
 	}
 
 	duration := time.Since(startTime)
-	logger.Info("Node revalidation process completed successfully")
 	logger.Info("Node revalidation run duration: " + duration.String())
 }

@@ -8,6 +8,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: library-app
+  labels:
+    app: murm
 spec:
   # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
   revisionHistoryLimit: 0
@@ -25,13 +27,6 @@ spec:
       containers:
         - name: library-app
           image: {{ .Values.image }}
-          {{- if $isPretest }}
-          resources:
-            requests:
-              memory: "32Mi"
-            limits:
-              memory: "64Mi"
-          {{- end }}
           envFrom:
             - configMapRef:
                 name: library-app-config
@@ -54,19 +49,5 @@ spec:
           hostPath:
             path: {{ .Values.global.sourcepath }}
       {{- end }}
-
 ---
 
-{{- if $isPretest }}
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: library-mongo-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: longhorn
-{{- end }}

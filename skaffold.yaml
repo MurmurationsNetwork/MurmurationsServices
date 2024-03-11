@@ -76,8 +76,10 @@ deploy:
       - name: nats
         remoteChart: nats
         repo: https://nats-io.github.io/k8s/helm/charts
+        namespace: murm-queue
+        createNamespace: true
         valuesFiles:
-          - charts/nats/values-dev.yaml
+          - charts/murm-queue/values-dev.yaml
 
 # Port forwarding configuration.
 portForward:

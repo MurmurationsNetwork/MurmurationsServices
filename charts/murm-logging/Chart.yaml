@@ -1,0 +1,20 @@
+apiVersion: v2
+name: murm-logging
+description: A Helm chart for deploying Elasticsearch and Kibana for logging in the murm project
+type: application
+
+# Version of this chart
+version: 0.1.0
+
+# Version of application being deployed
+appVersion: "8.12.1"
+
+keywords:
+  - elasticsearch
+  - kibana
+  - logging
+home: https://www.elastic.co/elastic-stack
+
+sources:
+  - https://github.com/elastic/elasticsearch
+  - https://github.com/elastic/kibana

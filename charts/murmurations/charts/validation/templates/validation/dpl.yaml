@@ -19,6 +19,7 @@ spec:
     metadata:
       labels:
         app: validation-app
+        log-group: murm
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/validation/config.yaml") . | sha256sum }}
     spec:

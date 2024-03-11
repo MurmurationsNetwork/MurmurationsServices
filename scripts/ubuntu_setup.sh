@@ -12,7 +12,7 @@ fi
 
 # Update and Upgrade the System
 echo "Updating and upgrading system packages..."
-apt-get update && apt-get upgrade -y
+DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 
 # Install essential tools
 echo "Installing vim, git, and htop..."

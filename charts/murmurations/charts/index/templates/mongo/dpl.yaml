@@ -26,13 +26,13 @@ spec:
       containers:
         - name: index-mongo
           image: mongo:5.0.6
-          # resources:
-          #   requests:
-          #     memory: "128Mi"
-          #     cpu: "8m"
-          #   limits:
-          #     memory: "256Mi"
-          #     cpu: "16m"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "16m"
+            limits:
+              memory: "256Mi"
+              cpu: "32m"
           {{- if not $isDev }}
           volumeMounts:
           - mountPath: /data/db
@@ -47,10 +47,8 @@ spec:
           persistentVolumeClaim:
             claimName: index-mongo-pvc
       {{- end }}
-
 ---
-
-{{- if $isPretest }}
+{{- if not $isDev }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

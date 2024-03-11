@@ -1,31 +1,25 @@
-# Rancher-Managed Kubernetes Documentation
+# Rancher-Managed Kubernetes for Developers
 
-## Introduction
+This guide offers developers a comprehensive walkthrough on initiating an operations-ready Kubernetes cluster managed by Rancher. Unlike traditional Kubernetes setups, Rancher simplifies the orchestration, ensuring developers can deploy consistent tooling and configurations across diverse cloud environments. This document outlines the necessary steps and tools to achieve an operationally ready state with Rancher-managed Kubernetes.
 
-Welcome to the Rancher-Managed Kubernetes Documentation. This resource is dedicated to helping you manage and optimize Kubernetes clusters using Rancher. Here, you'll find comprehensive guides and instructions tailored for Rancher-managed Kubernetes environments.
+## Table of Contents
 
-### Managing Services in Kubernetes
-
-- [Running Murmurations Services on Contabo](run-murmurations-services-on-contabo.md): Detailed instructions for deploying and managing Murmurations services on Kubernetes clusters managed by Rancher, specifically on Contabo infrastructure.
-
-### Persistent Storage Management
-
-- [Install Longhorn](./install-longhorn.md): Learn how to install Longhorn on your Kubernetes cluster.
-- [Backing Up Longhorn Volumes to Contabo](./backup-longhorn-volumes-to-contabo): Learn how to securely back up your Longhorn volumes to Contabo's S3-compatible storage.
-
-### Monitoring and Alerting
-
-- [Monitoring Guide](monitoring-guide.md): Learn how to set up and manage monitoring for your Kubernetes clusters.
-- [How to Create Alerts](how-to-create-alerts.md): Learn how to create alerts.
-- [How to Receive Alerts](how-to-receive-alerts.md): Learn how to configure and receive alerts.
-- [How to Create a Telegram Bot](how-to-create-a-telegram-bot.md): Learn how to create a Telegram bot, including how to retrieve its token and chat ID, which are essential for receiving alerts via Telegram.
-
-### Keeping Your Environment Up-to-Date
-
-- [Upgrading Kubernetes in Rancher](upgrade-kubernetes.md): Step-by-step guide to upgrading Kubernetes versions in your Rancher-managed environments.
-- [Upgrading Rancher for Kubernetes Management](upgrade-rancher.md): Comprehensive process for updating Rancher to ensure smooth management of your Kubernetes clusters.
-
-### Backup and Disaster Recovery
-
-- [Backing up Rancher](backing-up-rancher.md): A guide on how to back up your Rancher.
-- [Restoring Rancher](restoring-rancher.md): A guide on how to perform a restore with Rancher.
+1. [Set Up Ubuntu Server](01-setup-ubuntu/README.md)
+2. [Set Up K3s for Rancher](02-setup-k3s/README.md)
+    - [Upgrade K3s](02-setup-k3s/upgrade-k3s.md)
+3. [Set Up Rancher](03-setup-rancher/README.md)
+    - [Backup Rancher](./03-setup-rancher/backup-rancher.md)
+    - [Restore Rancher](03-setup-rancher/restore-rancher.md)
+    - [Upgrade Rancher](03-setup-rancher/upgrade-rancher.md)
+4. [Set Up RKE2 Cluster for Murmuration Services](04-setup-rke2-cluster/README.md)
+    - [Upgrade RKE2 Cluster](04-setup-rke2-cluster/upgrade-rk2-cluster.md)
+5. [Set Up a Load Balancer](05-setup-lb/README.md)
+    - [Failover Procedure for Load Balancers](05-setup-lb/failover-procedure-for-load-balancer.md)
+6. [Set Up Longhorn](06-setup-longhorn/README.md)
+    - [Set Up Recurring Backup](06-setup-longhorn/recurring-backup.md)
+7. [Run Murmuration Services](07-run-murmuration-services/README.md)
+    - [Migrate MongoDB](07-run-murmuration-services/migrate-mongodb.md)
+    - [Migrating Elasticsearch](07-run-murmuration-services/migrate-es.md)
+8. [Set Up Monitoring](08-setup-monitoring/README.md)
+    - [Receive Alerts](08-setup-monitoring/how-to-receive-alerts.md)
+9. [Set Up Logging](./09-setup-logging/README.md)

@@ -8,8 +8,8 @@ ADD . /src/dataproxyrefresher
 # Build the Go application with CGO disabled and output the binary to /bin/dataproxyrefresher.
 RUN CGO_ENABLED=0 go build -o /bin/dataproxyrefresher ./cmd/dataproxyrefresher
 
-# Using Ubuntu 20.04 as the base image for the final container.
-FROM ubuntu:20.04
+# Using Ubuntu 22.04 as the base image for the final container.
+FROM ubuntu:22.04
 
 # Update the package list and install the ca-certificates package for SSL/TLS support.
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
