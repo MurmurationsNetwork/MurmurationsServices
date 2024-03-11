@@ -2,7 +2,9 @@ package schemaparser
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
@@ -40,6 +42,25 @@ func NewCronJob() *SchemaCron {
 func (sc *SchemaCron) Run() error {
 	if err := sc.connectToMongoDB(); err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %w", err)
+	}
+
+	if config.Values.IsLocal {
+		schemaData, err := readSchemaFilesFromDir("library/schemas")
+		if err != nil {
+			return fmt.Errorf("failed to read schema files from dir: %w", err)
+		}
+		fieldData, err := readSchemaFilesFromDir("library/fields")
+		if err != nil {
+			return fmt.Errorf("failed to read field files from dir: %w", err)
+		}
+
+		// if schema data is not empty, update the schemas
+		if len(schemaData) > 0 {
+			err = sc.svc.UpdateLocalSchemas(schemaData, fieldData)
+			if err != nil {
+				return fmt.Errorf("failed to update local schemas: %w", err)
+			}
+		}
 	}
 
 	branchInfo, err := sc.svc.GetBranchInfo(config.Values.Github.BranchURL)
@@ -102,4 +123,33 @@ func (sc *SchemaCron) connectToMongoDB() error {
 		return err
 	}
 	return nil
+}
+
+// get Schemas from local folder.
+func readSchemaFilesFromDir(dirPath string) (map[string][]byte, error) {
+	filesData := make(map[string][]byte) // Initialize a map to store filename and its content
+
+	err := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && filepath.Ext(path) == ".json" {
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			relPath, err := filepath.Rel(dirPath, path)
+			if err != nil {
+				return err
+			}
+			filesData[relPath] = data
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return filesData, nil
 }

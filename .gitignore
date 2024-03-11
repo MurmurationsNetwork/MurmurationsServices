@@ -35,7 +35,7 @@
 .DS_Store?
 
 # Schemas folder for local dev
-schemas/fields/*
-!schemas/fields/.gitkeep
-schemas/schemas/*
-!schemas/schemas/.gitkeep
+library/fields/*
+!library/fields/.gitkeep
+library/schemas/*
+!library/schemas/.gitkeep
