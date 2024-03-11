@@ -2,6 +2,7 @@ package limiter
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -33,8 +34,8 @@ func NewRateLimit() gin.HandlerFunc {
 func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 	rate, err := limiter.NewRateFromFormatted(options.Period)
 	if err != nil {
-		logger.Panic("Error when trying to parse rate limit period", err)
-		return nil
+		logger.Error("Error when trying to parse rate limit period", err)
+		os.Exit(1)
 	}
 	store := memory.NewStore()
 	ipRateLimiter := limiter.New(store, rate)

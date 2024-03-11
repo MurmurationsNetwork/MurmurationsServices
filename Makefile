@@ -25,11 +25,7 @@ else
 	ENV_FILE = test/e2e-env-development.json
 endif
 
-ifeq ($(DEPLOY_ENV),pretest)
-	VALUES_FILE=./charts/nats/values-contabo.yaml
-else
-	VALUES_FILE=./charts/nats/values-do.yaml
-endif
+VALUES_FILE=./charts/murm-queue/values-contabo.yaml
 
 # The TAG value is constructed based on the commit SHA.
 # If running in a GitHub Actions environment, it uses the GITHUB_SHA.
@@ -77,11 +73,17 @@ deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress \
 	--set global.env=$(DEPLOY_ENV) --install --atomic
 
-deploy-mq:
+deploy-nats:
 	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
 	helm repo update && \
-	helm upgrade murmurations-mq nats/nats --version 1.1.6 -f $(VALUES_FILE) \
-	--set global.env=$(DEPLOY_ENV) --install --atomic
+	helm upgrade nats nats/nats \
+	--namespace murm-queue \
+	--create-namespace \
+	--install \
+	--atomic \
+	--set global.env=$(DEPLOY_ENV) \
+	--version 1.1.6 \
+	-f $(VALUES_FILE)
 
 deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
@@ -141,7 +143,7 @@ deploy-dataproxyrefresher:
 SPECIFIC_TAG ?= latest
 MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
                         manually-deploy-ingress \
-                        manually-deploy-mq \
+                        manually-deploy-nats \
                         manually-deploy-index \
                         manually-deploy-validation \
                         manually-deploy-library \
@@ -163,11 +165,17 @@ manually-deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress \
 	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
 
-manually-deploy-mq:
+manually-deploy-nats:
 	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
 	helm repo update && \
-	helm upgrade murmurations-mq nats/nats --version 1.1.6 -f $(VALUES_FILE) \
-	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
+	helm upgrade nats nats/nats \
+	--namespace murm-queue \
+	--create-namespace \
+	--install \
+	--atomic \
+	--set global.env=$(DEPLOY_ENV) \
+	--version 1.1.6 \
+	-f $(VALUES_FILE)
 
 manually-deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
@@ -223,4 +231,13 @@ manually-deploy-dataproxyrefresher:
 	helm upgrade murmurations-dataproxyrefresher \
 	./charts/murmurations/charts/dataproxyrefresher \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(SPECIFIC_TAG) \
+	--install --atomic --debug
+
+manually-deploy-murm-logging:
+	helm upgrade murm-logging ./charts/murm-logging \
+	--namespace murm-logging \
+	--create-namespace \
+	--set global.env=$(DEPLOY_ENV) \
+	--set elasticsearch.image=docker.elastic.co/elasticsearch/elasticsearch:8.12.1 \
+	--set kibana.image=docker.elastic.co/kibana/kibana:8.12.1 \
 	--install --atomic --debug

@@ -26,8 +26,8 @@ func NewCronJob() *SchemaCron {
 	redisClient := redis.NewClient(config.Values.Redis.URL)
 	err := redisClient.Ping()
 	if err != nil {
-		logger.Panic("error when trying to ping Redis", err)
-		return nil
+		logger.Error("error when trying to ping Redis", err)
+		os.Exit(1)
 	}
 
 	return &SchemaCron{

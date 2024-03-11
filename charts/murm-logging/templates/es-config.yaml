@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: murm-logging-es-config
+  namespace: {{ .Values.namespace }}
+data:
+  cluster.name: "murm-logging-es-service"
+  discovery.seed_hosts: "murm-logging-es-0.murm-logging-es"
+  cluster.initial_master_nodes: "murm-logging-es-0"
+  ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+  xpack.security.enabled: "false"

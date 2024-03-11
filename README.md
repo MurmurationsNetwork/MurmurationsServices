@@ -5,6 +5,14 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MurmurationsNetwork/MurmurationsServices/main.yaml?branch=main&style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MurmurationsNetwork/MurmurationsServices?style=flat-square)](https://goreportcard.com/report/github.com/MurmurationsNetwork/MurmurationsServices)
 
+## Run in production
+
+We are utilizing [Rancher](https://www.rancher.com/) to orchestrate the deployment of Murmurations services in Kubernetes clusters. For detailed instructions on setting up a Kubernetes cluster with Rancher and guidance on launching the index, library and other services that implement the Murmurations protocol, please refer to the [Rancher-managed Kubernetes documentation](docs/rancher/README.md).
+
+## Troubleshooting
+
+For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/README.md).
+
 ## Run locally
 
 ### Setup
@@ -24,7 +32,7 @@
     docker pull kibana:7.17.5
     ```
 
-6. [Create secrets](docs/secrets.md) for each service
+6. [Create secrets](docs/rancher/07-run-murmuration-services/secrets.md) for each service
 
 7. Add the following to your host file `sudo vim /etc/hosts`
 
@@ -40,9 +48,11 @@
 
 2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v2/ping` and `data-proxy.murmurations.dev/v1/ping`
 
-## Using Pre-commit and custom git hooks
+## Setting up Pre-commit and custom git hooks for development
 
-1. Install pre-commit on your Mac by running `brew install pre-commit`.
+> Note: [Pre-commit](https://pre-commit.com) is a linter to ensure consistent style, etc. Please use it before submitting pull requests to this repository.
+
+1. Install pre-commit on a Mac by running `brew install pre-commit`.
 
 2. Add pre-commit file and change permission.
 
@@ -83,33 +93,9 @@ Now, pre-commit will run automatically on `git commit`. If you want to manually 
 
 ## Running E2E Tests Locally
 
-1. Ensure that you have Newman installed. If not, install it using the following command: `npm install -g newman`.
+1. Ensure that you have [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating) and [Newman](https://github.com/postmanlabs/newman) (`npm install -g newman`) installed.
 2. Execute the command `make dev` to set up the servers.
 3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
-
-## Running Self-Managed Kubernetes
-
-We are now transitioning from hosted k8s to managing k8s ourselves. Please follow the below documentation for complete guidance on how to set up one for yourself.
-
-[Rancher-Managed Kubernetes Documentation](docs/rancher/README.md)
-
-## Run in DigitalOcean
-
-1. Install [Helm](https://helm.sh/docs/intro/install/) and [doctl](https://github.com/digitalocean/doctl#installing-doctl)
-
-2. Create Kubernetes Clusters in DigitalOcean and install [metrics-server](https://github.com/kubernetes-sigs/metrics-server#installation) for monitoring CPU/MEM
-
-3. Install [NGINX Ingress Controller](docs/ingress-nginx)
-
-4. [Create secrets](docs/secrets.md) for each service
-
-5. [Create PVCs](docs/pvcs.md) for each service
-
-6. [Deploy services](docs/deploy-services.md)
-
-7. [Installing and Configuring Cert-Manager](docs/cert-manager.md)
-
-8. Try `index.murmurations.network/v2/ping` or `library.murmurations.network/v1/ping`
 
 ## Optional
 

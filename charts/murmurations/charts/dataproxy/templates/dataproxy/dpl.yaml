@@ -19,6 +19,7 @@ spec:
     metadata:
       labels:
         app: data-proxy-app
+        log-group: murm
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/dataproxy/config.yaml") . | sha256sum }}
     spec:
