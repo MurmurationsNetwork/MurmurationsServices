@@ -142,6 +142,7 @@ spec:
           time_format: '%Y-%m-%dT%H:%M:%S.%LZ'
           keep_time_key: true
           utc: true
+    # Adds geographical information based on the IP address in the logs
     - geoip:
         geoip_lookup_keys: ip
         records:
