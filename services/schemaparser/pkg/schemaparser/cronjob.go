@@ -127,25 +127,30 @@ func (sc *SchemaCron) connectToMongoDB() error {
 
 // get Schemas from local folder.
 func readSchemaFilesFromDir(dirPath string) (map[string][]byte, error) {
-	filesData := make(map[string][]byte) // Initialize a map to store filename and its content
+	filesData := make(
+		map[string][]byte,
+	) // Initialize a map to store filename and its content
 
-	err := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if !d.IsDir() && filepath.Ext(path) == ".json" {
-			data, err := os.ReadFile(path)
+	err := filepath.WalkDir(
+		dirPath,
+		func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
-			relPath, err := filepath.Rel(dirPath, path)
-			if err != nil {
-				return err
+			if !d.IsDir() && filepath.Ext(path) == ".json" {
+				data, err := os.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				relPath, err := filepath.Rel(dirPath, path)
+				if err != nil {
+					return err
+				}
+				filesData[relPath] = data
 			}
-			filesData[relPath] = data
-		}
-		return nil
-	})
+			return nil
+		},
+	)
 
 	if err != nil {
 		return nil, err

@@ -73,7 +73,10 @@ func (s *SchemaParser) GetSchema(url string) (*SchemaResult, error) {
 }
 
 // GetLocalSchema fetches, parses and converts a schema to BSON from local schema byte.
-func (s *SchemaParser) GetLocalSchema(schema []byte, fields map[string][]byte) (*SchemaResult, error) {
+func (s *SchemaParser) GetLocalSchema(
+	schema []byte,
+	fields map[string][]byte,
+) (*SchemaResult, error) {
 	parsedSchema, err := s.parseSchema(schema)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse schema: %w", err)
@@ -145,7 +148,10 @@ func (s *SchemaParser) parseSchema(data []byte) (*model.SchemaJSON, error) {
 }
 
 // convertToBson converts the schema data into a bson.D type.
-func (s *SchemaParser) convertToBson(data []byte, optionalFields ...map[string][]byte) (bson.D, error) {
+func (s *SchemaParser) convertToBson(
+	data []byte,
+	optionalFields ...map[string][]byte,
+) (bson.D, error) {
 	fullData := orderedmap.New()
 
 	err := json.Unmarshal(data, &fullData)
@@ -209,7 +215,10 @@ func (s *SchemaParser) parseProperties(
 			}
 			var subSchema *orderedmap.OrderedMap
 			if len(optionalFields) > 0 && optionalFields[0] != nil {
-				subSchema, err = s.fetchReferencedSchema(path, optionalFields[0])
+				subSchema, err = s.fetchReferencedSchema(
+					path,
+					optionalFields[0],
+				)
 			} else {
 				subSchema, err = s.fetchReferencedSchema(path)
 			}

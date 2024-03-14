@@ -63,8 +63,6 @@ func logRequest(c *gin.Context, startTime time.Time, path string) {
 		Path:       path,
 	}
 
-	geoInfo := getGeoInfo(param.ClientIP)
-
 	logger.Info(
 		"Log Entry",
 		zap.Int("status", param.StatusCode),
@@ -72,9 +70,7 @@ func logRequest(c *gin.Context, startTime time.Time, path string) {
 		zap.String("method", param.Method),
 		zap.String("path", param.Path),
 		zap.String("ip", param.ClientIP),
-		zap.String("city", geoInfo.City),
-		zap.String("country", geoInfo.Country),
-		zap.Float64("lat", geoInfo.Lat),
-		zap.Float64("lon", geoInfo.Lon),
+		// The city, country, latitude, and longitude information will
+		// be collected and processed by the logging software, Fluentd.
 	)
 }

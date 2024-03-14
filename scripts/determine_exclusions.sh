@@ -12,7 +12,6 @@ AFTER_COMMIT=$2
 declare -A SERVICE_PATHS=(
     ["index"]="go.mod pkg/ cmd/index/ services/index/"
     ["library"]="go.mod pkg/ cmd/library/ services/library/"
-    ["geoip"]="go.mod pkg/ cmd/geoip/ services/geoip/"
     ["validation"]="go.mod pkg/ cmd/validation/ services/validation/"
     ["dataproxy"]="go.mod pkg/ cmd/dataproxy/ services/dataproxy/"
     ["nodecleaner"]="go.mod pkg/ cmd/nodecleaner/ services/nodecleaner/"

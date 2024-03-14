@@ -11,7 +11,6 @@ require (
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/nats.go v1.33.1
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/oschwald/geoip2-golang v1.9.0
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.9.0
 	github.com/tevino/abool/v2 v2.1.0
@@ -52,7 +51,6 @@ require (
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/oschwald/maxminddb-golang v1.11.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

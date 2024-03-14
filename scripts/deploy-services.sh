@@ -50,7 +50,7 @@ echo "Deploying message queue..."
 make deploy-nats DEPLOY_ENV=$DEPLOY_ENV
 
 # Deployment logic for each service.
-declare -a services=("index" "library" "geoip" "validation" "dataproxy"
+declare -a services=("index" "library" "validation" "dataproxy"
                      "nodecleaner" "revalidatenode" "schemaparser"
                      "dataproxyupdater" "dataproxyrefresher")
 

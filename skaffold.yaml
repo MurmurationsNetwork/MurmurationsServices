@@ -20,10 +20,6 @@ build:
       context: .
       docker:
         dockerfile: build/dataproxyupdater/docker/Dockerfile-dev
-    - image: murmurations/geoip
-      context: .
-      docker:
-        dockerfile: build/geoip/docker/Dockerfile-dev
     - image: murmurations/index
       context: .
       docker:
@@ -66,7 +62,6 @@ deploy:
           nodecleaner.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_nodecleaner}}"
           schemaparser.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_schemaparser}}"
           revalidatenode.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_revalidatenode}}"
-          geoip.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_geoip}}"
           dataproxy.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxy}}"
           dataproxyupdater.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyupdater}}"
           dataproxyrefresher.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyrefresher}}"

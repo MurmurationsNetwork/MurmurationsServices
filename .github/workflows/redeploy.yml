@@ -21,7 +21,6 @@ jobs:
         service:
           - index
           - library
-          - geoip
           - validation
           - dataproxy
           - nodecleaner

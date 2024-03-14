@@ -1,6 +1,0 @@
-image: ""
-
-geoip:
-  replicas: 1
-  service:
-    port: 8080
