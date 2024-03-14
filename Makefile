@@ -4,7 +4,6 @@
 include ./build/dataproxy/mk/Makefile
 include ./build/dataproxyrefresher/mk/Makefile
 include ./build/dataproxyupdater/mk/Makefile
-include ./build/geoip/mk/Makefile
 include ./build/index/mk/Makefile
 include ./build/library/mk/Makefile
 include ./build/nodecleaner/mk/Makefile
@@ -115,11 +114,6 @@ deploy-revalidatenode:
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(TAG) \
 	--install --atomic
 
-deploy-geoip:
-	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)geoip:$(TAG) \
-	--install --atomic
-
 deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(TAG) \
@@ -150,7 +144,6 @@ MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
                         manually-deploy-nodecleaner \
                         manually-deploy-schemaparser \
                         manually-deploy-revalidatenode \
-                        manually-deploy-geoip \
                         manually-deploy-dataproxy \
                         manually-deploy-dataproxyupdater \
                         manually-deploy-dataproxyrefresher
@@ -209,11 +202,6 @@ manually-deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode \
 	./charts/murmurations/charts/revalidatenode \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(SPECIFIC_TAG) \
-	--install --atomic --debug
-
-manually-deploy-geoip:
-	helm upgrade murmurations-geoip ./charts/murmurations/charts/geoip \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)geoip:$(SPECIFIC_TAG) \
 	--install --atomic --debug
 
 manually-deploy-dataproxy:
