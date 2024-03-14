@@ -133,29 +133,29 @@ metadata:
   namespace: default
 spec:
   filters:
-  - tag_normaliser:
-      format: ${namespace_name}.${pod_name}.${container_name}
-  - parser:
-      parse:
-        type: json
-        time_key: time
-        time_format: '%Y-%m-%dT%H:%M:%S.%LZ'
-        keep_time_key: true
-        utc: true
-  # Adds geographical information based on the IP address in the logs
-  - geoip:
-      geoip_lookup_keys: ip
-      records:
-        - city: ${city.names.en["ip"]}
-          country: ${country.iso_code["ip"]}
-          lat: ${location.latitude["ip"]}
-          lon: ${location.longitude["ip"]}
+    - tag_normaliser:
+        format: '${namespace_name}.${pod_name}.${container_name}'
+    - parser:
+        parse:
+          type: json
+          time_key: time
+          time_format: '%Y-%m-%dT%H:%M:%S.%LZ'
+          keep_time_key: true
+          utc: true
+    - geoip:
+        geoip_lookup_keys: ip
+        records:
+          - geo: >-
+              '{ "lat": ${location.latitude["ip"]}, "lon":
+              ${location.longitude["ip"]}, "country": ${country.iso_code["ip"]},
+              "region": ${subdivisions.0.iso_code["ip"]}, "city":
+              ${city.names.en["ip"]} }'
   localOutputRefs:
-  - elasticsearch-output
+    - elasticsearch-output
   match:
-  - select:
-      labels:
-        log-group: murm
+    - select:
+        labels:
+          log-group: murm
 ```
 
 ![Rancher logging flow creation](./assets/images/rancher-logging-flow-create.png)
