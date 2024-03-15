@@ -2,8 +2,51 @@
 
 ## Table of Contents
 
+- [Set Up Kibana Error Filters](#set-up-kibana-error-filters)
 - [Fix Failed Jobs](#fix-failed-jobs)
 - [Fix Issues with Message Queues](#fix-issues-with-message-queues)
+
+## Set Up Kibana Error Filters
+
+If something goes wrong with the servers and you need to check the error logs quickly, setting up a filter in Kibana can save you a lot of time.
+
+Here’s a simple step-by-step guide to make things smoother:
+
+**1. Switch to the Right Context**:
+
+Open your terminal and switch to the correct Kubernetes context with the following command:
+
+```bash
+kubectl config use-context <target-k8s-context>
+```
+
+**2. Connect Kibana to Port 5601**:
+
+Next, you’ll want to make Kibana accessible on your local machine. Run this command:
+
+```bash
+kubectl port-forward -n murm-logging svc/murm-logging-kibana 5601:5601
+```
+
+**3. Open Kibana in Your Browser**:
+
+Go to [Kibana discover page](http://localhost:5601/app/discover).
+
+**4. Create a Filter**:
+
+Once you're in, set up a filter. This will help you focus on the specific logs you’re interested in.
+
+![Kibana Add Filter](./assets/images/kibana-add-filter.png)
+
+**5. Pin the Filter**:
+
+Don’t forget to pin your filter. This keeps it active and visible, so you don't lose track of it while you navigate around.
+
+![Kibana Pin Filter](./assets/images/kibana-pin-filter.png)
+
+**6. Repeat as Needed**:
+
+You can set up multiple filters depending on what you need to monitor. Just repeat the steps above for each new filter.
 
 ## Fix Failed Jobs
 
