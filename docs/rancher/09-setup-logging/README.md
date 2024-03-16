@@ -142,15 +142,14 @@ spec:
           time_format: '%Y-%m-%dT%H:%M:%S.%LZ'
           keep_time_key: true
           utc: true
-    # Adds geographical information based on the IP address in the logs
     - geoip:
         geoip_lookup_keys: ip
         records:
           - geo: >-
-              '{ "lat": ${location.latitude["ip"]}, "lon":
-              ${location.longitude["ip"]}, "country": ${country.iso_code["ip"]},
-              "region": ${subdivisions.0.iso_code["ip"]}, "city":
-              ${city.names.en["ip"]} }'
+              '{"type": "Point", "coordinates": [${location.longitude["ip"]}, ${location.latitude["ip"]}]}'
+          - country: '${country.iso_code["ip"]}'
+          - region: '${subdivisions.0.iso_code["ip"]}'
+          - city: '${city.names.en["ip"]}'
   localOutputRefs:
     - elasticsearch-output
   match:
@@ -183,7 +182,37 @@ Navigate to `http://localhost:5601/app/management/kibana/dataViews` in your brow
 
 ![Kibana Dataview](./assets/images/kibana-dataviews.png)
 
-## Step 12 - Configuring Index Patterns
+## Step 12 - Update Index Type
+
+```text
+DELETE /_index_template/murm_logs_template
+
+PUT _component_template/geo_component_template
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "geo": {
+          "type": "geo_shape"
+        }
+      }
+    }
+  }
+}
+
+PUT _index_template/murm_logs_template
+{
+  "index_patterns": ["murm-logs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1
+    }
+  },
+  "composed_of": ["geo_component_template"]
+}
+```
+
+## Step 13 - Configuring Index Patterns
 
 If you follow the guide and configure correctly, the above page should indicate that "You have data in Elasticsearch." Proceed by clicking on "Create data view."
 
@@ -193,7 +222,7 @@ Configure index patterns in Kibana as shown in the image and click "Save."
 
 ![Configuring Index Patterns](./assets/images/kibana-configure-indexes.png)
 
-## Step 13 - Navigating to Discover in Kibana
+## Step 14 - Navigating to Discover in Kibana
 
 Explore your logs in Kibana by navigating to the "Discover" section, where you can search and analyze logged events.
 
