@@ -38,15 +38,19 @@ Once you're in, set up a filter. This will help you focus on the specific logs y
 
 ![Kibana Add Filter](./assets/images/kibana-add-filter.png)
 
-**5. Pin the Filter**:
-
-Don’t forget to pin your filter. This keeps it active and visible, so you don't lose track of it while you navigate around.
-
-![Kibana Pin Filter](./assets/images/kibana-pin-filter.png)
-
-**6. Repeat as Needed**:
+**5. Repeat as Needed**:
 
 You can set up multiple filters depending on what you need to monitor. Just repeat the steps above for each new filter.
+
+**6. Save the Search**:
+
+To save your current search results for future reference, click on the upper right corner of the screen. You will be prompted to provide a name for your saved search.
+
+![Kibana Save Search](./assets/images/kibana-save-search.png)
+
+To access your saved searches later, simply click on the "Open" tab.
+
+![Kibana View Saved Search](./assets/images/kibana-view-saved-search.png)
 
 ## Fix Failed Jobs
 
