@@ -42,13 +42,13 @@ GoatCounter is an open-source web analytics platform designed to provide insight
 2. Copy the goatcounter.db to new service's Pod. Replace <POD_NAME> with the name of GoatCounter Pod.
 
     ```bash
-    kubectl cp ./goatcounter.db <POD_NAME>:/goatcounter.db
+    kubectl cp ./goatcounter_backup.sql <POD_NAME>:/goatcounter_backup.sql
     ```
 
 3. Connect to the identified Pod and delete the goatcounter.db file.
 
     ```bash
-    kubectl exec -it <POD_NAME -- sh
+    kubectl exec -it <POD_NAME> -- bash
     ```
 
 4. Delete the goatcounter.db file.
