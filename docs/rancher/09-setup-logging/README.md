@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This guide will take you through the process of setting up logging for your environment using Elasticsearch and Kibana. By the end of this tutorial, you will have a powerful logging system in place, enabling efficient log management and analysis.
+This guide will walk you through the process of setting up logging for your environment using Elasticsearch and Kibana. By the end of this tutorial, you will have a powerful logging system in place, enabling efficient log management and analysis.
 
 ## Table of Contents
 
@@ -18,9 +18,11 @@ This guide will take you through the process of setting up logging for your envi
 - [Step 8 - Configuring Logging Output](#step-8---configuring-logging-output)
 - [Step 9 - Adding Log Flow](#step-9---adding-log-flow)
 - [Step 10 - Validation of Flow and Output](#step-10---validation-of-flow-and-output)
-- [Step 11 - Testing Access to Kibana](#step-11---testing-access-to-kibana)
-- [Step 12 - Configuring Index Patterns](#step-12---configuring-index-patterns)
-- [Step 13 - Navigating to Discover in Kibana](#step-13---navigating-to-discover-in-kibana)
+- [Step 11 - Accessing the Kibana Console](#step-11---accessing-the-kibana-console)
+- [Step 12 - Updating Index Type](#step-12---updating-index-type)
+- [Step 13 - Go to Data Views Management](#step-13---go-to-data-views-management)
+- [Step 14 - Configuring Index Patterns](#step-14---configuring-index-patterns)
+- [Step 15 - Navigating to Discover in Kibana](#step-15---navigating-to-discover-in-kibana)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -158,8 +160,6 @@ spec:
           log-group: murm
 ```
 
-![Rancher logging flow creation](./assets/images/rancher-logging-flow-create.png)
-
 ## Step 10 - Validation of Flow and Output
 
 Validate the configuration by checking the status of the flow and output in your cluster to ensure they are correctly set up.
@@ -170,23 +170,23 @@ kubectl get flow && kubectl get output
 
 ![Validation of Flow and Output](./assets/images/kubectl-validate-flow-output.png)
 
-## Step 11 - Testing Access to Kibana
+## Step 11 - Accessing the Kibana Console
 
-Access Kibana to explore your logs by forwarding a local port to the Kibana service in your cluster.
+Access the Kibana console by forwarding a local port to the Kibana service in your cluster.
 
 ```bash
 kubectl port-forward -n murm-logging svc/murm-logging-kibana 5601:5601
 ```
 
-Navigate to `http://localhost:5601/app/management/kibana/dataViews` in your browser to configure index patterns.
+Navigate to `http://localhost:5601/app/dev_tools#/console` in your browser to update index type.
 
-![Kibana Dataview](./assets/images/kibana-dataviews.png)
+![Kibana Console](./assets/images/kibana-console.png)
 
-## Step 12 - Update Index Type
+## Step 12 - Updating Index Type
+
+Copy and paste the following into the console and execute them one by one. The goal is to tell Elasticsearch that the geo field is not just a simple JSON data type but a geo_shape.
 
 ```text
-DELETE /_index_template/murm_logs_template
-
 PUT _component_template/geo_component_template
 {
   "template": {
@@ -212,7 +212,13 @@ PUT _index_template/murm_logs_template
 }
 ```
 
-## Step 13 - Configuring Index Patterns
+![kibana Console Update Index](./assets/images/kibana-console-update-index.png)
+
+## Step 13 - Go to Data Views Management
+
+Navigate to `http://localhost:5601/app/management/kibana/dataViews` in your browser to configure index patterns.
+
+## Step 14 - Configuring Index Patterns
 
 If you follow the guide and configure correctly, the above page should indicate that "You have data in Elasticsearch." Proceed by clicking on "Create data view."
 
@@ -222,7 +228,7 @@ Configure index patterns in Kibana as shown in the image and click "Save."
 
 ![Configuring Index Patterns](./assets/images/kibana-configure-indexes.png)
 
-## Step 14 - Navigating to Discover in Kibana
+## Step 15 - Navigating to Discover in Kibana
 
 Explore your logs in Kibana by navigating to the "Discover" section, where you can search and analyze logged events.
 
