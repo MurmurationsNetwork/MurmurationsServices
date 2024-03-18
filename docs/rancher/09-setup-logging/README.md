@@ -179,7 +179,7 @@ Access Kibana to explore your logs by forwarding a local port to the Kibana serv
 kubectl port-forward -n murm-logging svc/murm-logging-kibana 5601:5601
 ```
 
-Navigate to `http://localhost:5601/app/management/kibana/dataViews` in your browser to configure index patterns.
+Navigate to [http://localhost:5601/app/management/kibana/dataViews](http://localhost:5601/app/management/kibana/dataViews) in your browser to configure index patterns.
 
 ![Kibana Dataview](./assets/images/kibana-dataviews.png)
 
