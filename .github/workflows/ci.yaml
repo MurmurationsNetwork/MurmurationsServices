@@ -1,4 +1,4 @@
-name: PR Workflow
+name: CI Workflow
 on:
   pull_request:
     branches:
@@ -89,7 +89,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish Docker Image
         if: matrix.service != ''
-        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
+        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=ci
 
   deploy:
     name: Deploy Services
@@ -100,11 +100,11 @@ jobs:
       - build
     runs-on: ubuntu-latest
     env:
-      SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+      SERVER_IP: ${{ secrets.CI_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       EXCLUDE_MATRIX: ${{ needs.check-exclusions.outputs.exclude_matrix }}
-      DEPLOY_ENV: pretest
+      DEPLOY_ENV: ci
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -149,4 +149,4 @@ jobs:
           https://pretest1-data-proxy.murmurations.network/v1/ping 200 300
 
       - name: Newman E2E Test
-        run: make newman-test DEPLOY_ENV=pretest
+        run: make newman-test DEPLOY_ENV=ci

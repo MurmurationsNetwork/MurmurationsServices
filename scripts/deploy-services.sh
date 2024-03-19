@@ -9,7 +9,7 @@ server_ip="$SERVER_IP"
 kubeconfig_path="$KUBECONFIG_PATH"
 
 # Define DEPLOY_ENV; use development if not provided.
-DEPLOY_ENV="${DEPLOY_ENV:-development}"
+DEPLOY_ENV="${DEPLOY_ENV:-dev}"
 
 # Transform the string into valid JSON and then parse it.
 formatted_json=$(echo $EXCLUDE_MATRIX | \

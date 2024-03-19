@@ -6,7 +6,7 @@ This was necessitated by [issue #210](https://github.com/MurmurationsNetwork/Mur
 
 1. Change makefile
     ```
-    ENV ?= staging
+    ENV ?= live-test
     ```
 2. change ingress.yaml
    - test-index.murmurations.network -> test-index1.murmurations.network

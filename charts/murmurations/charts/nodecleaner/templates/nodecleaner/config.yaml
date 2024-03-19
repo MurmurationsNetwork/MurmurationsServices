@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,10 +13,10 @@ data:
   MONGO_DB_NAME: murmurationsIndex
   ELASTICSEARCH_URL: http://index-es:9200
   # Delete TTL, notice: need to modify the value in index service as well
-  {{- if eq .Values.global.env "production" }}
+  {{- if $isLive }}
   VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs
   DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs
-  {{- else if eq .Values.global.env "staging" }}
+  {{- else if $isLiveTest }}
   VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs
   DELETED_TTL: "1209600" # 2 weeks
   {{- else }}

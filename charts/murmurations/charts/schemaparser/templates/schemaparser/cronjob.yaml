@@ -1,15 +1,15 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: schemaparser-app
 spec:
-  {{- if or $isProd $isStaging $isPretest }}
+  {{- if or $isLive $isLiveTest $isCI }}
   schedule: "*/1 * * * *"  # every minute
   {{- else }}
   schedule: "*/2 * * * *"  # every two minutes
@@ -49,7 +49,7 @@ spec:
                     name: schemaparser-app-config
                 - secretRef:
                     name: schemaparser-secret
-          {{- if eq .Values.global.env "development" }}
+          {{- if eq .Values.global.env "dev" }}
               command: ["go", "run"]
               args: ["cmd/schemaparser/main.go"]
               volumeMounts:

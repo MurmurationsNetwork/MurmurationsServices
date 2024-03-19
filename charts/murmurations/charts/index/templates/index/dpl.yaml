@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,7 +44,7 @@ spec:
             periodSeconds: 60
             timeoutSeconds: 30
             failureThreshold: 3
-      {{- if eq .Values.global.env "development" }}
+      {{- if $isDev }}
           volumeMounts:
             - mountPath: /src/index
               name: source-path

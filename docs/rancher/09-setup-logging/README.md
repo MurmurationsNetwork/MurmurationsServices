@@ -70,7 +70,7 @@ Upon successful installation, the logging tool's tab will appear in the Rancher 
 Deploy Elasticsearch and Kibana in your cluster by executing the provided command. This step sets up the core components for your logging system.
 
 ```bash
-make manually-deploy-murm-logging DEPLOY_ENV=production
+make manually-deploy-murm-logging DEPLOY_ENV=live
 ```
 
 ## Step 7 - Checking Installation Status

@@ -176,7 +176,7 @@ func (s *Service) setupV2Routes(nodeHandler rest.NodeHandler) {
 	v2.GET("/ping", handler.PingHandler)
 	v2.PUT(
 		"/feature-flag/:flagName",
-		AllowInNonProductionMiddleware(),
+		AllowInNonLiveMiddleware(),
 		s.ToggleFeatureFlag,
 	)
 

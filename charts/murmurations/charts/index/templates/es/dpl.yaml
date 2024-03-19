@@ -1,8 +1,8 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 # StatefulSet manages stateful applications, providing stable persistent storage
 # and unique network identifiers.
@@ -102,11 +102,11 @@ spec:
       storageClassName: longhorn
       resources:
         requests:
-           {{- if $isProd }}
+           {{- if $isLive }}
           storage: 10Gi
-          {{- else if $isStaging }}
+          {{- else if $isLiveTest }}
           storage: 5Gi
-          {{- else if $isPretest }}
+          {{- else if $isCI }}
           storage: 5Gi
           {{- end }}
   {{- end }}

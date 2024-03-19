@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AllowInNonProductionMiddleware() gin.HandlerFunc {
+func AllowInNonLiveMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Default to restrictive behavior (suitable for production)
-		// Only allow the operation in non-production environments if explicitly specified.
-		if os.Getenv("APP_ENV") != "development" &&
-			os.Getenv("APP_ENV") != "staging" &&
-			os.Getenv("APP_ENV") != "pretest" {
+		// Default to restrictive behavior (suitable for live)
+		// Only allow the operation in non-live environments if explicitly specified.
+		if os.Getenv("APP_ENV") != "dev" &&
+			os.Getenv("APP_ENV") != "live-test" &&
+			os.Getenv("APP_ENV") != "ci" {
 			c.AbortWithStatusJSON(
 				http.StatusForbidden,
 				gin.H{"error": "Operation not allowed in this environment"},

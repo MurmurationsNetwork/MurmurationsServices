@@ -60,9 +60,9 @@ helm install cert-manager jetstack/cert-manager \
 
 In this step, you will update both the [ingress.yaml](../../../charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) and [issuer.yaml](../../../charts/murmurations/charts/ingress/templates/cert/issuer.yaml) configurations to ensure correct traffic routing to your deployed services. Specifically, you will modify the [ingress.yaml](../../../charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) file to replace the default URLs with the custom URLs you established for your Murmurations services in Step 1. Additionally, update the [issuer.yaml](../../../charts/murmurations/charts/ingress/templates/cert/issuer.yaml) file by replacing the existing email with your own email address.
 
-Please be aware that we currently support 4 environments: `production`, `staging`, `pretest`, and `development`. The staging environment mirrors production to provide a testing ground for users, while pretest is dedicated to CI/CD processes only.
+Please be aware that we currently support 4 environments: `live`, `live-test`, `ci`, and `dev`. The live-test environment mirrors live to provide a testing ground for users, while pretest is dedicated to CI/CD processes only.
 
-This table demonstrates how to update the production URLs in the `ingress.yaml` file:
+This table demonstrates how to update the live URLs in the `ingress.yaml` file:
 
 |           Ingress.yaml             |        Updated Ingress.yaml   |
 |------------------------------------|-------------------------------|

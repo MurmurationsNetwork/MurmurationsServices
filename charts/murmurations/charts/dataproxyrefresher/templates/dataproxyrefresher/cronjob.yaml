@@ -1,25 +1,24 @@
-# Define environment variables to control the deployment configuration.
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: dataproxyrefresher-app
 spec:
-  # Conditionally suspend the job for pretest environment.
-  {{- if $isPretest }}
+  # Conditionally suspend the job for ci environment.
+  {{- if $isCI }}
   suspend: true
   {{- end }}
 
   # Conditionally set the schedule based on the environment.
-  {{- if $isProd }}
-  schedule: "0 1 * * *"      # every day at 1 a.m. for production
-  {{- else if or $isStaging $isPretest }}
-  schedule: "0 * * * *"      # every hour for staging and pretest
+  {{- if $isLive }}
+  schedule: "0 1 * * *"      # every day at 1 a.m. for live
+  {{- else if or $isLiveTest $isCI }}
+  schedule: "0 * * * *"      # every hour for live-test and ci
   {{- else }}
   schedule: "*/2 * * * *"    # every 2 minutes for development
   {{- end }}
@@ -28,7 +27,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      {{ if $isProd }}
+      {{ if $isLive }}
       backoffLimit: 3
       {{ else }}
       backoffLimit: 0

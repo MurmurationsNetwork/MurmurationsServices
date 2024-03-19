@@ -79,7 +79,7 @@ PUT /_snapshot/contabo_space
 {
   "type": "s3",
   "settings": {
-    "bucket": "es-backup-production",
+    "bucket": "es-backup-live",
     "endpoint": "eu2.contabostorage.com",
     "region": "EU",
     "path_style_access": "true",
@@ -114,7 +114,7 @@ PUT /_snapshot/contabo_space/my_snapshot?wait_for_completion=true
 Switch your Kubernetes context to the destination cluster:
 
 ```bash
-kubectl config use-context rke-murm-production
+kubectl config use-context rke-murm-live
 ```
 
 ## Step 8 - Configure Elasticsearch on Destination
@@ -154,7 +154,7 @@ PUT /_snapshot/contabo_space
 {
   "type": "s3",
   "settings": {
-    "bucket": "es-backup-production",
+    "bucket": "es-backup-live",
     "endpoint": "eu2.contabostorage.com",
     "region": "EU",
     "path_style_access": "true",

@@ -42,17 +42,17 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish Docker Image
-        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=pretest
+        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=ci
 
   deploy:
     name: Deploy Services
     needs: build
     runs-on: ubuntu-latest
     env:
-      DEPLOY_ENV: pretest
-      PRETEST_SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
+      SERVER_IP: ${{ secrets.CI_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DEPLOY_ENV: ci
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

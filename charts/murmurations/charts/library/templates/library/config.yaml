@@ -1,3 +1,9 @@
+{{- $env := .Values.global.env }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,7 +18,7 @@ data:
   # Rate limit
   GET_RATE_LIMIT_PERIOD: 6000-M
   POST_RATE_LIMIT_PERIOD: 6000-M
-  {{- if not (eq .Values.global.env "development") }}
+  {{- if not $isDev }}
   STATIC_FILE_PATH: /app/static
   {{ else }}
   STATIC_FILE_PATH: /src/library/services/library/static

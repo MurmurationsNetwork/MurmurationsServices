@@ -1,22 +1,22 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: index-app-config
 data:
-  {{ if $isProd }}
-  APP_ENV: "production"
-  {{ else if $isStaging }}
-  APP_ENV: "staging"
-  {{ else if $isPretest }}
-  APP_ENV: "pretest"
+  {{ if $isLive }}
+  APP_ENV: "live"
+  {{ else if $isLiveTest }}
+  APP_ENV: "live-test"
+  {{ else if $isCI }}
+  APP_ENV: "ci"
   {{ else }}
-  APP_ENV: "development"
+  APP_ENV: "dev"
   {{- end }}
   SERVER_PORT: "8080"
   SERVER_TIMEOUT_READ: 5s
@@ -35,9 +35,9 @@ data:
   GET_RATE_LIMIT_PERIOD: 6000-M
   POST_RATE_LIMIT_PERIOD: 6000-M
   # Delete TTL, notice: need to modify the value in nodecleaner service as well
-  {{ if $isProd }}
+  {{ if $isLive }}
   DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs
-  {{ else if $isStaging }}
+  {{ else if $isLiveTest }}
   DELETED_TTL: "1209600" # 2 weeks
   {{- else }}
   DELETED_TTL: "120" # 2 mins

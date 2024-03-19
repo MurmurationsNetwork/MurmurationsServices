@@ -50,7 +50,7 @@ this case, it runs `reflex` with the configuration file located at
 
 ## `<service_name>/docker/Dockerfile`
 
-This is a Dockerfile that defines a production environment for a service. 
+This is a Dockerfile that defines a live environment for a service.
 
 The build stage compiles the Go app and creates a fully static binary, which is
 then copied to the runtime stage. The runtime stage sets up the environment for

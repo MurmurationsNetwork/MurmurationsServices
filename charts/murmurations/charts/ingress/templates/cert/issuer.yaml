@@ -1,4 +1,10 @@
-{{- if not (eq .Values.global.env "development") }}
+{{- $env := .Values.global.env }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
+
+{{- if not $isDev }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:

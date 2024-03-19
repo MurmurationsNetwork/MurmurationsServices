@@ -1,19 +1,19 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 # Define TTL and EXTERNAL_DATA_PROXY_URL based on the environment
 {{- $refreshTTL := "600" }} # Default to 10 mins * 60 seconds for development and others
 {{- $externalDataProxyURL := "http://data-proxy-app:8080" }} # Default for development and others
-{{- if $isProd }}
+{{- if $isLive }}
   {{- $refreshTTL = "7776000" }} # 90 days * 24 hrs * 60 mins * 60 secs
   {{- $externalDataProxyURL = "https://data-proxy.murmurations.network" }}
-{{- else if $isStaging }}
+{{- else if $isLiveTest }}
   {{- $refreshTTL = "86400" }} # 24 hrs * 60 mins * 60 secs
   {{- $externalDataProxyURL = "https://test-data-proxy.murmurations.network" }}
-{{- else if $isPretest }}
+{{- else if $isCI }}
   {{- $refreshTTL = "86400" }} # 24 hrs * 60 mins * 60 secs
   {{- $externalDataProxyURL = "https://pretest1-data-proxy.murmurations.network" }}
 {{- end }}

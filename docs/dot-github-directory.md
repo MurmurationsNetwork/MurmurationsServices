@@ -36,7 +36,7 @@ committed to the pull request.
 ### `test.yaml`
 
 This workflow is exactly the same as the `main.yaml` workflow above except that
-the deployment is made to a test environment, not the production one.
+the deployment is made to a test environment, not the live one.
 
 The `e2e-test` job automates the end-to-end testing process for the project's
 components. The job is triggered by the completion of the `deploy` job, and uses

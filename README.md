@@ -5,7 +5,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MurmurationsNetwork/MurmurationsServices/main.yaml?branch=main&style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MurmurationsNetwork/MurmurationsServices?style=flat-square)](https://goreportcard.com/report/github.com/MurmurationsNetwork/MurmurationsServices)
 
-## Run in production
+## Run in live
 
 We are utilizing [Rancher](https://www.rancher.com/) to orchestrate the deployment of Murmurations services in Kubernetes clusters. For detailed instructions on setting up a Kubernetes cluster with Rancher and guidance on launching the index, library and other services that implement the Murmurations protocol, please refer to the [Rancher-managed Kubernetes documentation](docs/rancher/README.md).
 

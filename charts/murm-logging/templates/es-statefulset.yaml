@@ -1,5 +1,8 @@
 {{- $env := .Values.global.env }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 # Only deploy if the environment is not development
 {{- if not $isDev }}
@@ -85,6 +88,6 @@ spec:
       storageClassName: longhorn
       resources:
         requests:
-          storage: {{ if eq $env "production" }}10Gi{{ else }}5Gi{{ end }}
+          storage: {{ if eq $env "live" }}10Gi{{ else }}5Gi{{ end }}
 
 {{- end }}

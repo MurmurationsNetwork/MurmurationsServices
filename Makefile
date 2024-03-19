@@ -14,14 +14,14 @@ include ./build/validation/mk/Makefile
 #--------------------------
 # Set environment variables.
 #--------------------------
-DEPLOY_ENV ?= development
+DEPLOY_ENV ?= dev
 
-ifeq ($(DEPLOY_ENV), staging)
-	ENV_FILE = test/e2e-env-staging.json
-else ifeq ($(DEPLOY_ENV), pretest)
-	ENV_FILE = test/e2e-env-pretest.json
+ifeq ($(DEPLOY_ENV), live-test)
+	ENV_FILE = test/e2e-env-live-test.json
+else ifeq ($(DEPLOY_ENV), ci)
+	ENV_FILE = test/e2e-env-ci.json
 else
-	ENV_FILE = test/e2e-env-development.json
+	ENV_FILE = test/e2e-env-dev.json
 endif
 
 VALUES_FILE=./charts/murm-queue/values-contabo.yaml
@@ -31,7 +31,7 @@ VALUES_FILE=./charts/murm-queue/values-contabo.yaml
 # In a local environment, it uses the SHA of the HEAD commit.
 TAG ?= $(shell git rev-parse --short $(if $(GITHUB_SHA),$(GITHUB_SHA),HEAD))
 
-DOCKER_TAG_PREFIX := $(if $(filter production,$(DEPLOY_ENV)),,${DEPLOY_ENV}-)
+DOCKER_TAG_PREFIX := $(if $(filter live,$(DEPLOY_ENV)),,${DEPLOY_ENV}-)
 
 #--------------------------
 # Set up the development servers
@@ -54,7 +54,7 @@ test:
 #--------------------------
 .PHONY: newman-test
 newman-test:
-	newman run test/e2e-tests-staging.json -e $(ENV_FILE) --verbose --delay-request 10
+	newman run test/e2e-tests-live-test.json -e $(ENV_FILE) --verbose --delay-request 10
 
 check-clean:
 	@if [ -n "$(shell git status --porcelain)" ]; then \

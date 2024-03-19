@@ -1,4 +1,4 @@
-name: Main Workflow
+name: Live Test Workflow
 
 on:
   push:
@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish Docker Image
-        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=production
+        run: make docker-push-${{ matrix.service }} DEPLOY_ENV=live-test
 
   deploy:
     name: Deploy Services
@@ -69,12 +69,51 @@ jobs:
       - build
     runs-on: ubuntu-latest
     env:
-      SERVER_IP: ${{ secrets.PRODUCTION_SERVER_IP }}
+      SERVER_IP: ${{ secrets.LIVE_TEST_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      DEPLOY_ENV: production
+      DEPLOY_ENV: live-test
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Setup SSH and Deploy Services
         run: ./scripts/deploy-services.sh
+
+  e2e_test:
+    name: E2E Test
+    needs:
+      - test
+      - lint
+      - build
+      - deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Newman
+        run: |
+          npm install -g newman
+
+      - name: Test Index
+        run: >
+          ./scripts/wait_for_timeout.sh
+          https://test-index.murmurations.network/v2/ping 200 300
+
+      - name: Test Library
+        run: >
+          ./scripts/wait_for_timeout.sh
+          https://test-library.murmurations.network/v2/ping 200 300
+
+      - name: Test Data Proxy
+        run: >
+          ./scripts/wait_for_timeout.sh
+          https://test-data-proxy.murmurations.network/v1/ping 200 300
+
+      - name: Newman E2E Test
+        run: make newman-test DEPLOY_ENV=live-test

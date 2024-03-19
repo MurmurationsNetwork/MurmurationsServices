@@ -1,8 +1,8 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 apiVersion: v1
 kind: ConfigMap
@@ -13,11 +13,11 @@ data:
   MONGO_DB_NAME: murmurationsDataProxy
   INDEX_HOST: http://index-app:8080
   EXTERNAL_DATA_PROXY_URL:
-    {{- if $isProd }}
+    {{- if $isLive }}
     "https://data-proxy.murmurations.network"
-    {{- else if $isStaging }}
+    {{- else if $isLiveTest }}
     "https://test-data-proxy.murmurations.network"
-    {{- else if $isPretest }}
+    {{- else if $isCI }}
     "https://pretest1-data-proxy.murmurations.network"
     {{- else }}
     "http://data-proxy-app:8080"

@@ -1,8 +1,8 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -25,7 +25,7 @@ spec:
       containers:
         - name: library-mongo
           image: mongo:5.0.6
-          {{- if not (eq .Values.global.env "development") }}
+          {{- if not $isDev }}
           volumeMounts:
           - mountPath: /data/db
             name: mongo-storage

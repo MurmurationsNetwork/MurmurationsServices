@@ -1,8 +1,8 @@
 {{- $env := .Values.global.env }}
-{{- $isProd := eq $env "production" }}
-{{- $isStaging := eq $env "staging" }}
-{{- $isPretest := eq $env "pretest" }}
-{{- $isDev := eq $env "development" }}
+{{- $isLive := eq $env "live" }}
+{{- $isLiveTest := eq $env "live-test" }}
+{{- $isCI := eq $env "ci" }}
+{{- $isDev := eq $env "dev" }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +26,7 @@ spec:
       containers:
         - name: validation-app
           image: {{ .Values.image }}
-          {{- if $isPretest }}
+          {{- if $isCI }}
           resources:
             requests:
               memory: "32Mi"
