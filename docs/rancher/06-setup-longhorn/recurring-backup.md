@@ -7,7 +7,7 @@ This document provides a step-by-step guide on setting up recurring backups for 
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Step 1 - Creating a Bucket in Contabo Object Storage](#step-1---creating-a-bucket-in-contabo-object-storage)
+- [Step 1 - Creating a Space in DigitalOcean Object Storage](#step-1---creating-a-space-in-digitalocean-object-storage)
 - [Step 2 - Obtaining Access Key and Secret Key](#step-2---obtaining-access-key-and-secret-key)
 - [Step 3 - Creating a Kubernetes Secret](#step-3---creating-a-kubernetes-secret)
 - [Step 4 - Configuring Backup Settings in Longhorn](#step-4---configuring-backup-settings-in-longhorn)
