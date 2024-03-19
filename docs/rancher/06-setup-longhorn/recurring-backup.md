@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document provides a step-by-step guide on setting up recurring backups for your data using Contabo object storage. By following these steps, you will create a backup bucket in Contabo, generate access credentials, create a Kubernetes secret, and configure the backup settings in Longhorn.
+This document provides a step-by-step guide on setting up recurring backups for your data using DigitalOcean object storage. By following these steps, you will create a space in DigitalOcean, generate access credentials, create a Kubernetes secret, and configure the backup settings in Longhorn.
 
 ## Table of Contents
 
@@ -98,6 +98,6 @@ Change the task to "Backup", click "Add to Default Group", and then click "OK".
 
 ## Conclusion
 
-With the successful configuration of recurring backups using Contabo object storage and Longhorn, you have now ensured the safety and availability of your data.
+With the successful configuration of recurring backups using DigitalOcean object storage and Longhorn, you have now ensured the safety and availability of your data.
 
 Go back to [Home](../README.md).
