@@ -16,17 +16,21 @@ This document provides a step-by-step guide on setting up recurring backups for 
 - [Step 7 - Creating Recurring Backups](#step-7---creating-recurring-backups)
 - [Conclusion](#conclusion)
 
-## Step 1 - Creating a Bucket in Contabo Object Storage
+## Step 1 - Creating a Space in DigitalOcean Object Storage
 
-Go to the Contabo object storage page to create a bucket.
+Navigate to the DigitalOcean Object Storage page to create a space.
 
-![Contabo Bucket Creation](./assets/images/contabo-bucket-creation.png)
+![DigitalOcean Space Creation 1](./assets/images/do-space-creation-1.png)
+
+Choose "Amsterdam" for the datacenter region, provide a unique space name, and then click "Create".
+
+![DigitalOcean Space Creation 2](./assets/images/do-space-creation-2.png)
 
 ## Step 2 - Obtaining Access Key and Secret Key
 
-Retrieve the access key and secret key provided after creating your bucket.
+Navigate to the "Applications & API" section on DigitalOcean and create a Spaces access key.
 
-![Contabo Secret Keys](./assets/images/contabo-secret-keys.png)
+![Do Secret Keys](./assets/images/do-secret-keys.png)
 
 ## Step 3 - Creating a Kubernetes Secret
 
@@ -42,21 +46,22 @@ Replace `<your_access_key>` and `<your_secret_key>` with your actual credentials
 kubectl create secret generic aws-secrets \
   --from-literal=AWS_ACCESS_KEY_ID=<your_access_key> \
   --from-literal=AWS_SECRET_ACCESS_KEY=<your_secret_key> \
-  --from-literal=AWS_ENDPOINTS='https://contabostorage.com/' \
-  --from-literal=AWS_REGION=default \
-  --from-literal=VIRTUAL_HOSTED_STYLE=true \
+  --from-literal=AWS_ENDPOINTS='https://ams3.digitaloceanspaces.com' \
+  --from-literal=AWS_REGION=us-east-1 \
+  --from-literal=VIRTUAL_HOSTED_STYLE=false \
   -n longhorn-system
 ```
 
 ## Step 4 - Configuring Backup Settings in Longhorn
 
-Navigate to the Longhorn UI. In the top navigation bar, click on "Settings". Under the "Backup" section, set the Backup Target to:
+Access the Longhorn user interface. Click on "Settings" in the top navigation bar. Within the "Backup" section, specify your Backup Target using the following format:
 
 ```bash
-s3://eu2@contabo/<bucket-name>/
+s3://[SPACENAME]@[REGION]/[FOLDER-NAME]
+# For example: s3://mybackup@ams3/myfolder-backups
 ```
 
-Replace `<bucket-name>` with the actual name of your bucket.
+This configuration directs Longhorn to store backups in the specified S3-compatible storage location. Replace `[SPACENAME]` with the name of your space, `[REGION]` with the region of your storage, and `[FOLDER-NAME]` with your desired folder name for the backups.
 
 For the Backup Target Credential Secret, use:
 
