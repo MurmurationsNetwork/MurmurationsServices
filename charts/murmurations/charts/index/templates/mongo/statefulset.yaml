@@ -26,10 +26,10 @@ spec:
         resources:
           requests:
             memory: "128Mi"
-            cpu: "16m"
+            cpu: "32m"
           limits:
             memory: "256Mi"
-            cpu: "32m"
+            cpu: "64m"
         envFrom:
         - secretRef:
             name: index-mongo-secret
