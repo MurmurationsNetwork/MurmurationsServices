@@ -1,17 +1,17 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: schemaparser-redis
   labels:
     app: redis
     role: leader
 spec:
-  # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
-  revisionHistoryLimit: 0
+  serviceName: "schemaparser-redis"
   replicas: 1
   selector:
     matchLabels:
       app: redis
+      role: leader
   template:
     metadata:
       labels:

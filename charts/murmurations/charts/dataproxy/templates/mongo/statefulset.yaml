@@ -1,0 +1,44 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-proxy-mongo
+spec:
+  serviceName: "data-proxy-mongo"
+  replicas: {{ .Values.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: data-proxy-mongo
+  template:
+    metadata:
+      labels:
+        app: data-proxy-mongo
+    spec:
+      containers:
+      - name: data-proxy-mongo
+        image: mongo:5.0.6
+        envFrom:
+        - secretRef:
+            name: data-proxy-mongo-secret
+        {{- if not $isDev }}
+        volumeMounts:
+        - mountPath: /data/db
+          name: dataproxy-mongo-storage
+        {{- end }}
+  {{- if not $isDev }}
+  volumeClaimTemplates:
+  - metadata:
+      name: dataproxy-mongo-storage
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: longhorn
+  {{- end }}
