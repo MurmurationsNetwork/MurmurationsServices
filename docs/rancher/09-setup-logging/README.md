@@ -178,7 +178,7 @@ Access the Kibana console by forwarding a local port to the Kibana service in yo
 kubectl port-forward -n murm-logging svc/murm-logging-kibana 5601:5601
 ```
 
-Navigate to `http://localhost:5601/app/dev_tools#/console` in your browser to update index type.
+Navigate to <http://localhost:5601/app/dev_tools#/console> in your browser to update index type.
 
 ![Kibana Console](./assets/images/kibana-console.png)
 

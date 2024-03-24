@@ -19,6 +19,6 @@ echo "Installing vim, git, and htop..."
 apt-get install -y vim git htop
 
 # Installation open-iscsi for longhorn.
-apt-get install open-iscsi
+apt-get install -y open-iscsi
 
 echo "Ubuntu setup is complete. Essential packages have been installed."
