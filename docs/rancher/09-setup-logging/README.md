@@ -217,7 +217,6 @@ PUT _index_template/murm_logs_template
 ## Step 13 - Go to Data Views Management
 
 Navigate to `http://localhost:5601/app/management/kibana/dataViews` in your browser to configure index patterns.
->>>>>>> main
 
 ## Step 14 - Configuring Index Patterns
 
