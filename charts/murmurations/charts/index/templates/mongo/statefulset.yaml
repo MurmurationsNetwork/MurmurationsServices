@@ -1,0 +1,52 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: index-mongo
+spec:
+  serviceName: "index-mongo"
+  replicas: {{ .Values.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: index-mongo
+  template:
+    metadata:
+      labels:
+        app: index-mongo
+    spec:
+      priorityClassName: murmurations-high-priority
+      containers:
+      - name: index-mongo
+        image: mongo:5.0.6
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "32m"
+          limits:
+            memory: "256Mi"
+            cpu: "64m"
+        envFrom:
+        - secretRef:
+            name: index-mongo-secret
+        {{- if not $isDev }}
+        volumeMounts:
+        - mountPath: /data/db
+          name: index-mongo-storage
+        {{- end }}
+  {{- if not $isDev }}
+  volumeClaimTemplates:
+  - metadata:
+      name: index-mongo-storage
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: longhorn
+  {{- end }}
