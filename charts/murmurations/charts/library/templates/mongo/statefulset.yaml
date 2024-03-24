@@ -1,0 +1,44 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: library-mongo
+spec:
+  serviceName: "library-mongo"
+  replicas: {{ .Values.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: library-mongo
+  template:
+    metadata:
+      labels:
+        app: library-mongo
+    spec:
+      containers:
+      - name: library-mongo
+        image: mongo:5.0.6
+        envFrom:
+        - secretRef:
+            name: library-mongo-secret
+        {{- if not $isDev }}
+        volumeMounts:
+        - mountPath: /data/db
+          name: library-mongo-storage
+        {{- end }}
+  {{- if not $isDev }}
+  volumeClaimTemplates:
+  - metadata:
+      name: library-mongo-storage
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: longhorn
+  {{- end }}

@@ -110,5 +110,3 @@ spec:
           storage: 5Gi
           {{- end }}
   {{- end }}
-
----
