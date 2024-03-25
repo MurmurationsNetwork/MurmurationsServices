@@ -50,6 +50,7 @@ jobs:
           - schemaparser
           - dataproxyupdater
           - dataproxyrefresher
+          - maintenance
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

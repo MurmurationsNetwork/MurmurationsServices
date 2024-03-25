@@ -10,6 +10,7 @@ include ./build/nodecleaner/mk/Makefile
 include ./build/revalidatenode/mk/Makefile
 include ./build/schemaparser/mk/Makefile
 include ./build/validation/mk/Makefile
+include ./build/maintenance/mk/Makefile
 
 #--------------------------
 # Set environment variables.
@@ -228,4 +229,9 @@ manually-deploy-murm-logging:
 	--set global.env=$(DEPLOY_ENV) \
 	--set elasticsearch.image=docker.elastic.co/elasticsearch/elasticsearch:8.12.1 \
 	--set kibana.image=docker.elastic.co/kibana/kibana:8.12.1 \
+	--install --atomic --debug
+
+manually-deploy-maintenance:
+	helm upgrade murmurations-maintenance ./charts/murmurations/charts/maintenance \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)maintenance:$(SPECIFIC_TAG) \
 	--install --atomic --debug
