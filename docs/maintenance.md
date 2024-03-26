@@ -2,10 +2,10 @@
 
 ## Turn on maintenance mode
 
-1. Deploy the Maintenance Service: Use the following command to deploy the maintenance service to your desired environment (e.g., production, staging, or pretest). Replace <YOUR_DEPLOY_ENV> with your target environment.
+1. Deploy the Maintenance Service: Use the following command to deploy the maintenance service.
 
     ```bash
-    make manually-deploy-maintenance DEPLOY_ENV=<YOUR_DEPLOY_ENV>
+    make manually-deploy-maintenance
     ```
 
 2. Update the Ingress Configuration: Modify the [ingress.yaml](./charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) file to route traffic to the maintenance service. Change backend.service.name to maintenance-service:

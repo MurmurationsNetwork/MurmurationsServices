@@ -233,5 +233,5 @@ manually-deploy-murm-logging:
 
 manually-deploy-maintenance:
 	helm upgrade murmurations-maintenance ./charts/murmurations/charts/maintenance \
-	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)maintenance:$(SPECIFIC_TAG) \
+	--set image=murmurations/$(DOCKER_TAG_PREFIX)maintenance:$(SPECIFIC_TAG) \
 	--install --atomic --debug
