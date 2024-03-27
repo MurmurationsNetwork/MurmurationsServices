@@ -76,6 +76,7 @@ jobs:
           - schemaparser
           - dataproxyupdater
           - dataproxyrefresher
+          - maintenance
         exclude: ${{ fromJSON(needs.check-exclusions.outputs.exclude_matrix) }}
     steps:
       - name: Checkout Code
