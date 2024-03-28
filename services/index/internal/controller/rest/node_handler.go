@@ -296,7 +296,9 @@ func (handler *nodeHandler) Search(c *gin.Context) {
 		default:
 			jsonErr = jsonapi.NewError(
 				[]string{"Unknown Error"},
-				[]string{},
+				[]string{
+					"An unexpected error occurred. Please try again later.",
+				},
 				nil,
 				[]int{http.StatusInternalServerError},
 			)
@@ -516,7 +518,9 @@ func (handler *nodeHandler) Export(c *gin.Context) {
 		default:
 			jsonErr = jsonapi.NewError(
 				[]string{"Unknown Error"},
-				[]string{},
+				[]string{
+					"An unexpected error occurred. Please try again later.",
+				},
 				nil,
 				[]int{http.StatusInternalServerError},
 			)
@@ -790,7 +794,7 @@ func handleGetNodeErrors(c *gin.Context, err error, nodeID *string) {
 		default:
 			jsonErr = jsonapi.NewError(
 				[]string{"Unknown Error"},
-				[]string{},
+				[]string{"An unexpected error occurred. Please try again later."},
 				nil,
 				[]int{http.StatusInternalServerError},
 			)
