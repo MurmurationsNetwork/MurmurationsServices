@@ -765,7 +765,10 @@ func handleGetNodeErrors(c *gin.Context, err error, nodeID *string) {
 	if errors.As(err, &notFoundError) {
 		nodeIDMsg := "a node"
 		if nodeID != nil {
-			nodeIDMsg = fmt.Sprintf("the following node_id in the Index: %s", *nodeID)
+			nodeIDMsg = fmt.Sprintf(
+				"the following node_id in the Index: %s",
+				*nodeID,
+			)
 		}
 		jsonErr = jsonapi.NewError(
 			[]string{"Node Not Found"},
@@ -798,7 +801,11 @@ func handleGetNodeErrors(c *gin.Context, err error, nodeID *string) {
 	c.JSON(jsonErr[0].Status, res)
 }
 
-func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string) {
+func handleDeleteNodeErrors(
+	c *gin.Context,
+	err error,
+	nodeID, profileURL string,
+) {
 	var (
 		notFoundError   index.NotFoundError
 		databaseError   index.DatabaseError
@@ -807,7 +814,7 @@ func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string
 		errMsg          string
 		detailMsg       string
 		statusCode      int
-		logAsError      bool = true
+		logAsError      = true
 	)
 
 	switch {
@@ -821,7 +828,9 @@ func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string
 		errMsg = deleteNodeError.Message
 		detailMsg = deleteNodeError.Detail
 		switch deleteNodeError.ErrorCode {
-		case index.ErrorHTTPRequestFailed, index.ErrorProfileURLCheckFail, index.ErrorProfileStillExists:
+		case index.ErrorHTTPRequestFailed,
+			index.ErrorProfileURLCheckFail,
+			index.ErrorProfileStillExists:
 			logAsError = false
 		default:
 		}
@@ -846,7 +855,12 @@ func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string
 	if detailMsg != "" {
 		details = append(details, detailMsg)
 	}
-	jsonErr = jsonapi.NewError([]string{errMsg}, details, nil, []int{statusCode})
+	jsonErr = jsonapi.NewError(
+		[]string{errMsg},
+		details,
+		nil,
+		[]int{statusCode},
+	)
 
 	meta := jsonapi.NewMeta("", nodeID, profileURL)
 	res := jsonapi.Response(nil, jsonErr, nil, meta)

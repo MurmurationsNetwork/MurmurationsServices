@@ -76,5 +76,11 @@ type DeleteNodeError struct {
 
 // Error conforms to go conventions.
 func (e DeleteNodeError) Error() string {
-	return fmt.Sprintf("Message: %s, Detail: %s, Profile URL: %s, Node ID: %s", e.Message, e.Detail, e.ProfileURL, e.NodeID)
+	return fmt.Sprintf(
+		"Message: %s, Detail: %s, Profile URL: %s, Node ID: %s",
+		e.Message,
+		e.Detail,
+		e.ProfileURL,
+		e.NodeID,
+	)
 }
