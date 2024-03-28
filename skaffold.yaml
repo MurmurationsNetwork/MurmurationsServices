@@ -44,6 +44,10 @@ build:
       context: .
       docker:
         dockerfile: build/validation/docker/Dockerfile-dev
+    - image: murmurations/maintenance
+      context: .
+      docker:
+        dockerfile: build/maintenance/docker/Dockerfile
 
 # Deployment configuration settings.
 deploy:
@@ -65,6 +69,7 @@ deploy:
           dataproxy.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxy}}"
           dataproxyupdater.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyupdater}}"
           dataproxyrefresher.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_dataproxyrefresher}}"
+          maintenance.image: "{{.IMAGE_FULLY_QUALIFIED_murmurations_maintenance}}"
           # Path to MurmurationsServices on local computer
           global.sourcepath: "{{.SOURCEPATH}}"
           global.env: "development"
