@@ -156,8 +156,7 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 	for retries != 0 {
 		nodeInfo, err := handler.svc.GetNode(result.ID)
 		if err != nil {
-			logger.Error("Failed to get a node", err)
-			handleGetNodeErrors(c, err, result.ID)
+			handleGetNodeErrors(c, err, &result.ID)
 			return
 		}
 
@@ -213,8 +212,7 @@ func (handler *nodeHandler) Get(c *gin.Context) {
 
 	node, err := handler.svc.GetNode(nodeID)
 	if err != nil {
-		logger.Error("Failed to get a node", err)
-		handleGetNodeErrors(c, err, nodeID)
+		handleGetNodeErrors(c, err, &nodeID)
 		return
 	}
 
@@ -356,7 +354,6 @@ func (handler *nodeHandler) Delete(c *gin.Context) {
 
 	profileURL, err := handler.svc.Delete(nodeID)
 	if err != nil {
-		logger.Error("Failed to delete a node", err)
 		handleDeleteNodeErrors(c, err, nodeID, profileURL)
 		return
 	}
@@ -573,38 +570,7 @@ func (handler *nodeHandler) GetNodes(c *gin.Context) {
 
 	searchResult, err := handler.svc.GetNodes(&esQuery)
 	if err != nil {
-		logger.Error("Failed to get a node", err)
-
-		var notFoundError index.NotFoundError
-		var databaseError index.DatabaseError
-		var jsonErr []jsonapi.Error
-
-		switch {
-		case errors.As(err, &notFoundError):
-			jsonErr = jsonapi.NewError(
-				[]string{"Node Not Found"},
-				[]string{},
-				nil,
-				[]int{http.StatusNotFound},
-			)
-		case errors.As(err, &databaseError):
-			jsonErr = jsonapi.NewError(
-				[]string{databaseError.Message},
-				[]string{"Error while trying to delete a node."},
-				nil,
-				[]int{http.StatusNotFound},
-			)
-		default:
-			jsonErr = jsonapi.NewError(
-				[]string{"Unknown Error"},
-				[]string{},
-				nil,
-				[]int{http.StatusInternalServerError},
-			)
-		}
-
-		res := jsonapi.Response(nil, jsonErr, nil, nil)
-		c.JSON(jsonErr[0].Status, res)
+		handleGetNodeErrors(c, err, nil)
 		return
 	}
 
@@ -791,93 +757,98 @@ func handleAddNodeErrors(c *gin.Context, err error) {
 	c.JSON(jsonErr[0].Status, res)
 }
 
-func handleGetNodeErrors(c *gin.Context, err error, nodeID string) {
+func handleGetNodeErrors(c *gin.Context, err error, nodeID *string) {
 	var notFoundError index.NotFoundError
 	var databaseError index.DatabaseError
 	var jsonErr []jsonapi.Error
 
-	switch {
-	case errors.As(err, &notFoundError):
+	if errors.As(err, &notFoundError) {
+		nodeIDMsg := "a node"
+		if nodeID != nil {
+			nodeIDMsg = fmt.Sprintf("the following node_id in the Index: %s", *nodeID)
+		}
 		jsonErr = jsonapi.NewError(
 			[]string{"Node Not Found"},
-			[]string{
-				fmt.Sprintf(
-					"Could not locate the following node_id in the Index: %s",
-					nodeID,
-				),
-			},
+			[]string{fmt.Sprintf("Could not locate %s", nodeIDMsg)},
 			nil,
 			[]int{http.StatusNotFound},
 		)
+	} else {
+		logger.Error("Failed to get a node", err)
 
-	case errors.As(err, &databaseError):
-		jsonErr = jsonapi.NewError(
-			[]string{databaseError.Message},
-			[]string{"Error while trying to access the database."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
-
-	default:
-		jsonErr = jsonapi.NewError(
-			[]string{"Unknown Error"},
-			[]string{"An unexpected error occurred. Please try again later."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		switch {
+		case errors.As(err, &databaseError):
+			jsonErr = jsonapi.NewError(
+				[]string{databaseError.Message},
+				[]string{"Error while trying to delete a node."},
+				nil,
+				[]int{http.StatusNotFound},
+			)
+		default:
+			jsonErr = jsonapi.NewError(
+				[]string{"Unknown Error"},
+				[]string{},
+				nil,
+				[]int{http.StatusInternalServerError},
+			)
+		}
 	}
 
 	res := jsonapi.Response(nil, jsonErr, nil, nil)
 	c.JSON(jsonErr[0].Status, res)
 }
 
-func handleDeleteNodeErrors(
-	c *gin.Context,
-	err error,
-	nodeID, profileURL string,
-) {
+func handleDeleteNodeErrors(c *gin.Context, err error, nodeID, profileURL string) {
 	var (
 		notFoundError   index.NotFoundError
 		databaseError   index.DatabaseError
 		deleteNodeError index.DeleteNodeError
 		jsonErr         []jsonapi.Error
+		errMsg          string
+		detailMsg       string
+		statusCode      int
+		logAsError      bool = true
 	)
 
 	switch {
 	case errors.As(err, &notFoundError):
-		jsonErr = jsonapi.NewError(
-			[]string{"Node Not Found"},
-			[]string{},
-			nil,
-			[]int{http.StatusNotFound},
-		)
+		errMsg = "Node Not Found"
+		statusCode = http.StatusNotFound
+		logAsError = false
 
 	case errors.As(err, &deleteNodeError):
-		jsonErr = jsonapi.NewError(
-			[]string{deleteNodeError.Message},
-			[]string{deleteNodeError.Detail},
-			nil,
-			[]int{http.StatusBadRequest},
-		)
+		statusCode = http.StatusBadRequest
+		errMsg = deleteNodeError.Message
+		detailMsg = deleteNodeError.Detail
+		switch deleteNodeError.ErrorCode {
+		case index.ErrorHTTPRequestFailed, index.ErrorProfileURLCheckFail, index.ErrorProfileStillExists:
+			logAsError = false
+		default:
+		}
 
 	case errors.As(err, &databaseError):
-		jsonErr = jsonapi.NewError(
-			[]string{databaseError.Message},
-			[]string{"Error while trying to delete a node."},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		errMsg = databaseError.Message
+		detailMsg = "Error while trying to delete a node."
+		statusCode = http.StatusInternalServerError
 
 	default:
-		jsonErr = jsonapi.NewError(
-			[]string{"Unknown Error"},
-			[]string{},
-			nil,
-			[]int{http.StatusInternalServerError},
-		)
+		errMsg = "Unknown Error"
+		statusCode = http.StatusInternalServerError
 	}
+
+	if logAsError {
+		logger.Error("Failed to delete a node", err)
+	} else {
+		logger.Info(fmt.Sprintf("Info on node deletion: %s - %s", errMsg, detailMsg))
+	}
+
+	details := []string{}
+	if detailMsg != "" {
+		details = append(details, detailMsg)
+	}
+	jsonErr = jsonapi.NewError([]string{errMsg}, details, nil, []int{statusCode})
 
 	meta := jsonapi.NewMeta("", nodeID, profileURL)
 	res := jsonapi.Response(nil, jsonErr, nil, meta)
-	c.JSON(jsonErr[0].Status, res)
+	c.JSON(statusCode, res)
 }

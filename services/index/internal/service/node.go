@@ -252,6 +252,7 @@ func (s *nodeService) checkProfileURL(node *model.Node) error {
 				err,
 			),
 			ProfileURL: node.ProfileURL,
+			ErrorCode:  index.ErrorHTTPRequestFailed,
 		}
 	}
 	defer resp.Body.Close()
@@ -275,7 +276,8 @@ func (s *nodeService) checkProfileURL(node *model.Node) error {
 				node.ProfileURL,
 				node.ID,
 			),
-			NodeID: node.ID,
+			NodeID:    node.ID,
+			ErrorCode: index.ErrorProfileURLCheckFail,
 		}
 	}
 
@@ -291,6 +293,7 @@ func (s *nodeService) checkProfileURL(node *model.Node) error {
 		Message:    "Profile Still Exists",
 		Detail:     fmt.Sprintf("Profile URL %s still exists", node.ProfileURL),
 		ProfileURL: node.ProfileURL,
+		ErrorCode:  index.ErrorProfileStillExists,
 	}
 }
 

@@ -56,20 +56,25 @@ func (e ValidationError) Error() string {
 	return fmt.Sprintf("Validation failed on field '%s': %s", e.Field, e.Reason)
 }
 
+const (
+	// HTTP request failure.
+	ErrorHTTPRequestFailed = 1
+	// Profile URL check failure.
+	ErrorProfileURLCheckFail = 2
+	// Profile URL still exists.
+	ErrorProfileStillExists = 3
+)
+
+// DeleteNodeError defines errors during node deletion, including context.
 type DeleteNodeError struct {
-	Message    string
-	Detail     string
-	ProfileURL string
-	NodeID     string
+	Message    string // General error message
+	Detail     string // Error details
+	NodeID     string // Affected node ID
+	ProfileURL string // Associated profile URL
+	ErrorCode  int    // Error categorization code
 }
 
 // Error conforms to go conventions.
 func (e DeleteNodeError) Error() string {
-	return fmt.Sprintf(
-		"Message: %s, Detail: %s, Profile URL: %s, Node ID: %s",
-		e.Message,
-		e.Detail,
-		e.ProfileURL,
-		e.NodeID,
-	)
+	return fmt.Sprintf("Message: %s, Detail: %s, Profile URL: %s, Node ID: %s", e.Message, e.Detail, e.ProfileURL, e.NodeID)
 }
