@@ -9,7 +9,7 @@ type UpdatesService interface {
 	Get(schemaName string) *model.Update
 	Save(schemaName string, lastUpdated int64, apiEntry string) error
 	Update(schemaName string, lastUpdated int64) error
-	SaveError(schemaName string, errorMessage string) error
+	SaveError(schemaName string, hasError bool, errorMessage string, errorStatus int) error
 }
 
 type updatesService struct {
@@ -40,7 +40,9 @@ func (svc *updatesService) Update(schemaName string, lastUpdated int64) error {
 
 func (svc *updatesService) SaveError(
 	schemaName string,
+	hasError bool,
 	errorMessage string,
+	errorStatus int,
 ) error {
-	return svc.mongoRepo.SaveError(schemaName, errorMessage)
+	return svc.mongoRepo.SaveError(schemaName, hasError, errorMessage, errorStatus)
 }

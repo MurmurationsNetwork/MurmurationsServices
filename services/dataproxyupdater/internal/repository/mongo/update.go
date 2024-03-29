@@ -16,7 +16,7 @@ type UpdateRepository interface {
 	Get(schemaName string) *model.Update
 	Save(schemaName string, lastUpdated int64, apiEntry string) error
 	Update(schemaName string, lastUpdated int64) error
-	SaveError(schemaName string, errorMessage string) error
+	SaveError(schemaName string, hasError bool, errorMessage string, errorStatus int) error
 }
 
 func NewUpdateRepository(client *mongo.Client) UpdateRepository {
@@ -83,11 +83,13 @@ func (r *updateRepository) Update(schemaName string, lastUpdated int64) error {
 
 func (r *updateRepository) SaveError(
 	schemaName string,
+	hasError bool,
 	errorMessage string,
+	errorStatus int,
 ) error {
 	filter := bson.M{"schema": schemaName}
 	update := bson.M{
-		"$set": bson.M{"has_error": true, "error_message": errorMessage},
+		"$set": bson.M{"has_error": hasError, "error_message": errorMessage, "error_status": errorStatus},
 	}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
