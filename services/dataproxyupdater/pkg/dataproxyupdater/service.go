@@ -18,6 +18,7 @@ import (
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/global"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/service"
 )
@@ -26,8 +27,12 @@ func init() {
 	global.Init()
 }
 
-func errCleanUp(schemaName string, svc service.UpdatesService, errStr string) {
-	err := svc.SaveError(schemaName, errStr)
+func cleanUpWithError(schemaName string, svc service.UpdatesService, errStr string, errStatus ...int) {
+	status := -1
+	if len(errStr) > 0 {
+		status = errStatus[0]
+	}
+	err := svc.SaveError(schemaName, true, errStr, status)
 	if err != nil {
 		logger.Fatal("save error message failed", err)
 	}
@@ -37,6 +42,13 @@ func errCleanUp(schemaName string, svc service.UpdatesService, errStr string) {
 func cleanUp() {
 	mongodb.Client.Disconnect()
 	os.Exit(0)
+}
+
+func removeError(schemaName string, svc service.UpdatesService) {
+	err := svc.SaveError(schemaName, false, "", model.ErrorStatusOK)
+	if err != nil {
+		logger.Fatal("remove error message failed", err)
+	}
 }
 
 func Run() {
@@ -58,12 +70,22 @@ func Run() {
 		lastUpdated := time.Now().AddDate(0, 0, -100).Unix()
 		err := svc.Save(schemaName, lastUpdated, apiEntry)
 		if err != nil {
-			errStr := "save update status to server failed" + err.Error()
+			errStr := "save update status to server failed: " + err.Error()
 			logger.Error("save update status to server failed", err)
-			errCleanUp(schemaName, svc, errStr)
+			cleanUpWithError(schemaName, svc, errStr)
 		}
 		// get newer update again
 		update = svc.Get(schemaName)
+	}
+
+	if update.HasError && update.ErrorStatus == model.ErrorStatusAPIUnavailable {
+		url := getURL(update.APIEntry+"/entries/recently-changed", update.LastUpdated, time.Now().Unix(), 1, 0)
+		_, err := getProfiles(url)
+		if err == nil {
+			removeError(schemaName, svc)
+			// get newer update again
+			update = svc.Get(schemaName)
+		}
 	}
 
 	// if the last error didn't solve, don't run
@@ -75,15 +97,15 @@ func Run() {
 
 	mapping, err := importutil.GetMapping(schemaName)
 	if err != nil {
-		errStr := "get mapping failed " + err.Error()
+		errStr := "get mapping failed: " + err.Error()
 		logger.Error("get mapping failed", err)
-		errCleanUp(schemaName, svc, errStr)
+		cleanUpWithError(schemaName, svc, errStr)
 	}
 
 	if len(mapping) == 0 {
 		errStr := "can't find the mapping: " + schemaName
 		logger.Info(errStr)
-		errCleanUp(schemaName, svc, errStr)
+		cleanUpWithError(schemaName, svc, errStr)
 	}
 
 	// recent-changes API
@@ -96,9 +118,9 @@ func Run() {
 	url := getURL(entry, update.LastUpdated, until, limit, offset)
 	profiles, err := getProfiles(url)
 	if err != nil {
-		errStr := "get profile failed" + err.Error()
+		errStr := "get profile failed: " + err.Error()
 		logger.Error("get profile failed", err)
-		errCleanUp(schemaName, svc, errStr)
+		cleanUpWithError(schemaName, svc, errStr, model.ErrorStatusAPIUnavailable)
 	}
 	for len(profiles) > 0 {
 		for _, oldProfile := range profiles {
@@ -110,7 +132,7 @@ func Run() {
 			if err != nil {
 				errStr := "map profile failed, profile id is " + oldProfile["id"].(string) + ". error message: " + err.Error()
 				logger.Error("map profile failed", err)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 			oid := profileJSON["oid"].(string)
 
@@ -128,7 +150,7 @@ func Run() {
 			if err != nil {
 				errStr := "validate profile failed, profile id is " + oid + ". error message: " + err.Error()
 				logger.Error("validate profile failed", err)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 			if !isValid {
 				errStr := "validate profile failed, profile id is " + oid + ". failure reasons: " + failureReasons
@@ -141,7 +163,7 @@ func Run() {
 			if err != nil {
 				errStr := "can't count profile, profile id is " + oid
 				logger.Info(errStr)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 			if count <= 0 {
 				profileJSON["cuid"] = cuid.New()
@@ -149,14 +171,14 @@ func Run() {
 				if err != nil {
 					errStr := "can't add a profile, profile id is " + oid
 					logger.Info(errStr)
-					errCleanUp(schemaName, svc, errStr)
+					cleanUpWithError(schemaName, svc, errStr)
 				}
 			} else {
 				result, err := profileSvc.Update(oid, profileJSON)
 				if err != nil {
 					errStr := "can't update a profile, profile id is " + oid
 					logger.Info(errStr)
-					errCleanUp(schemaName, svc, errStr)
+					cleanUpWithError(schemaName, svc, errStr)
 				}
 				profileJSON["cuid"] = result["cuid"]
 			}
@@ -168,7 +190,7 @@ func Run() {
 			if err != nil {
 				errStr := "failed to post profile to Index, profile url is " + profileURL + ". error message: " + err.Error()
 				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 
 			// save node_id to profile
@@ -176,33 +198,33 @@ func Run() {
 			if err != nil {
 				errStr := "update node id failed. profile id is " + oid
 				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 		}
 		offset += limit
 		url = getURL(entry, update.LastUpdated, until, limit, offset)
 		profiles, err = getProfiles(url)
 		if err != nil {
-			errStr := "get profile failed" + err.Error()
+			errStr := "get profile failed: " + err.Error()
 			logger.Error("get profile failed", err)
-			errCleanUp(schemaName, svc, errStr)
+			cleanUpWithError(schemaName, svc, errStr, model.ErrorStatusAPIUnavailable)
 		}
 	}
 
 	// save back to update
 	err = svc.Update(schemaName, until)
 	if err != nil {
-		errStr := "failed to update the updates" + err.Error()
+		errStr := "failed to update the updates: " + err.Error()
 		logger.Error("failed to update the updates", err)
-		errCleanUp(schemaName, svc, errStr)
+		cleanUpWithError(schemaName, svc, errStr)
 	}
 
 	// get profile with not posted
 	notPostedProfiles, err := profileSvc.GetNotPosted()
 	if err != nil {
-		errStr := "failed to get not posted nodes" + err.Error()
+		errStr := "failed to get not posted nodes: " + err.Error()
 		logger.Error("failed to get not posted nodes", err)
-		errCleanUp(schemaName, svc, errStr)
+		cleanUpWithError(schemaName, svc, errStr)
 	}
 
 	for _, notPostedProfile := range notPostedProfiles {
@@ -211,13 +233,13 @@ func Run() {
 		if err != nil {
 			errStr := "failed to get not posted nodes, node id is " + notPostedProfile.NodeID + err.Error()
 			logger.Error("failed to get not posted nodes", err)
-			errCleanUp(schemaName, svc, errStr)
+			cleanUpWithError(schemaName, svc, errStr)
 		}
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
 			errStr := "read post body failed. node id is " + notPostedProfile.NodeID + err.Error()
 			logger.Error(errStr, err)
-			errCleanUp(schemaName, svc, errStr)
+			cleanUpWithError(schemaName, svc, errStr)
 		}
 
 		var nodeData importutil.NodeData
@@ -225,7 +247,7 @@ func Run() {
 		if err != nil {
 			errStr := "unmarshal body failed. node id is " + notPostedProfile.NodeID + err.Error()
 			logger.Error(errStr, err)
-			errCleanUp(schemaName, svc, errStr)
+			cleanUpWithError(schemaName, svc, errStr)
 		}
 
 		if res.StatusCode == 404 {
@@ -233,7 +255,7 @@ func Run() {
 			if err != nil {
 				errStr := "delete profile failed. node cuid is " + notPostedProfile.Cuid + err.Error()
 				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 		}
 
@@ -242,7 +264,7 @@ func Run() {
 			if err != nil {
 				errStr := "update isPosted failed. node id is " + notPostedProfile.NodeID + err.Error()
 				logger.Error(errStr, err)
-				errCleanUp(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr)
 			}
 		} else {
 			if nodeData.Errors != nil {
@@ -291,7 +313,7 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&bodyJSON)
 	if err != nil {
-		return nil, fmt.Errorf("can't parse data from" + url)
+		return nil, fmt.Errorf("can't parse data from: " + url)
 	}
 
 	return bodyJSON, nil
