@@ -3,7 +3,6 @@ package dataproxyupdater
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/model"
 	"io"
 	"net/http"
 	"os"
@@ -19,6 +18,7 @@ import (
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/global"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/repository/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxyupdater/internal/service"
 )
