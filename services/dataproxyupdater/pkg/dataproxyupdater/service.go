@@ -58,7 +58,7 @@ func Run() {
 		lastUpdated := time.Now().AddDate(0, 0, -100).Unix()
 		err := svc.Save(schemaName, lastUpdated, apiEntry)
 		if err != nil {
-			errStr := "save update status to server failed" + err.Error()
+			errStr := "save update status to server failed: " + err.Error()
 			logger.Error("save update status to server failed", err)
 			errCleanUp(schemaName, svc, errStr)
 		}
@@ -75,7 +75,7 @@ func Run() {
 
 	mapping, err := importutil.GetMapping(schemaName)
 	if err != nil {
-		errStr := "get mapping failed " + err.Error()
+		errStr := "get mapping failed: " + err.Error()
 		logger.Error("get mapping failed", err)
 		errCleanUp(schemaName, svc, errStr)
 	}
@@ -96,7 +96,7 @@ func Run() {
 	url := getURL(entry, update.LastUpdated, until, limit, offset)
 	profiles, err := getProfiles(url)
 	if err != nil {
-		errStr := "get profile failed" + err.Error()
+		errStr := "get profile failed: " + err.Error()
 		logger.Error("get profile failed", err)
 		errCleanUp(schemaName, svc, errStr)
 	}
@@ -183,7 +183,7 @@ func Run() {
 		url = getURL(entry, update.LastUpdated, until, limit, offset)
 		profiles, err = getProfiles(url)
 		if err != nil {
-			errStr := "get profile failed" + err.Error()
+			errStr := "get profile failed: " + err.Error()
 			logger.Error("get profile failed", err)
 			errCleanUp(schemaName, svc, errStr)
 		}
@@ -192,7 +192,7 @@ func Run() {
 	// save back to update
 	err = svc.Update(schemaName, until)
 	if err != nil {
-		errStr := "failed to update the updates" + err.Error()
+		errStr := "failed to update the updates: " + err.Error()
 		logger.Error("failed to update the updates", err)
 		errCleanUp(schemaName, svc, errStr)
 	}
@@ -200,7 +200,7 @@ func Run() {
 	// get profile with not posted
 	notPostedProfiles, err := profileSvc.GetNotPosted()
 	if err != nil {
-		errStr := "failed to get not posted nodes" + err.Error()
+		errStr := "failed to get not posted nodes: " + err.Error()
 		logger.Error("failed to get not posted nodes", err)
 		errCleanUp(schemaName, svc, errStr)
 	}
@@ -291,7 +291,7 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&bodyJSON)
 	if err != nil {
-		return nil, fmt.Errorf("can't parse data from" + url)
+		return nil, fmt.Errorf("can't parse data from: " + url)
 	}
 
 	return bodyJSON, nil
