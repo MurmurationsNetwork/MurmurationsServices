@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -499,8 +498,6 @@ func mapToProfile(
 			}
 		}
 	}
-
-	fmt.Println(profile)
 
 	// Put schema here
 	profile["linked_schemas"] = schemas
