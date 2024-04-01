@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -513,12 +514,25 @@ func destructField(
 	value string,
 ) (map[string]interface{}, error) {
 	// Handle (list) fields - issue #727
-	// Check if field name ends with "(list)" and adjust processing accordingly
+	// Validating the field name
+	if strings.Contains(field, "(") {
+		// Use regex to validate the field name
+		regexPattern := `^.+\(list-\d+\)$`
+		re, err := regexp.Compile(regexPattern)
+		if err != nil {
+			return nil, err
+		}
+		if !re.MatchString(field) {
+			return nil, errors.New("field format error: please use (list-number) format for lists")
+		}
+	}
+
+	// Check if field name with multiple (list) - e.g., tags(list-0), tags(list-1)
 	isList := false
-	if strings.HasSuffix(field, "(list)") {
-		// Remove the "(list)" suffix
-		field = strings.TrimSuffix(field, "(list)")
+	lastLeftParenIndex := strings.LastIndex(field, "(")
+	if lastLeftParenIndex != -1 && strings.HasSuffix(field, ")") {
 		isList = true
+		field = field[:lastLeftParenIndex]
 	}
 
 	// Destructure field name
