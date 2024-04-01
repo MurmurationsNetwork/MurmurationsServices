@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"sort"
@@ -498,6 +499,8 @@ func mapToProfile(
 		}
 	}
 
+	fmt.Println(profile)
+
 	// Put schema here
 	profile["linked_schemas"] = schemas
 	return profile, nil
@@ -541,7 +544,7 @@ func destructField(
 
 		// If the field is a list, and it's the last path, append the value to the array
 		if isList && i == len(path)-1 {
-			values := strings.Split(value, ",")
+			values := splitEscapedComma(value)
 			_, exists := current[p]
 			if !exists {
 				current[p] = make([]interface{}, 0)
@@ -651,4 +654,24 @@ func parseSchemas(schemas []string) ([]string, []string, error) {
 		validateJSONSchemas[i] = string(body)
 	}
 	return validateJSONSchemas, validateSchemas, nil
+}
+
+func splitEscapedComma(s string) []string {
+	var result []string
+	var current strings.Builder
+	for i := 0; i < len(s); i++ {
+		// Split the string by comma, but if the comma is at the first one or the comma is escaped, ignore it
+		if s[i] == ',' && (i == 0 || s[i-1] != '\\') {
+			result = append(result, current.String())
+			current.Reset()
+		} else if s[i] == ',' && i > 0 && s[i-1] == '\\' {
+			// If the current character is a backslash and the next character is a comma, which means the comma is escaped
+			current.WriteRune(',')
+		} else if s[i] != '\\' {
+			// Other characters are written to the current string
+			current.WriteByte(s[i])
+		}
+	}
+	result = append(result, current.String())
+	return result
 }
