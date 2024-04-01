@@ -509,6 +509,15 @@ func destructField(
 	field string,
 	value string,
 ) (map[string]interface{}, error) {
+	// Handle (list) fields - issue #727
+	// Check if field name ends with "(list)" and adjust processing accordingly
+	isList := false
+	if strings.HasSuffix(field, "(list)") {
+		// Remove the "(list)" suffix
+		field = strings.TrimSuffix(field, "(list)")
+		isList = true
+	}
+
 	// Destructure field name
 	// e.g., "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
 	fieldName := strings.Split(field, ".")
@@ -521,12 +530,28 @@ func destructField(
 			path = append(path, p)
 		}
 	}
+
+	// Iterate profile to put value into the correct path
 	current := profile
 	for i, p := range path {
 		// If the current path is a number, skip it, because it's already handled in the previous loop
 		if _, err := strconv.Atoi(p); err == nil {
 			continue
 		}
+
+		// If the field is a list, and it's the last path, append the value to the array
+		if isList && i == len(path)-1 {
+			values := strings.Split(value, ",")
+			_, exists := current[p]
+			if !exists {
+				current[p] = make([]interface{}, 0)
+			}
+			for _, v := range values {
+				current[p] = append(current[p].([]interface{}), destructValue(v))
+			}
+			break
+		}
+
 		// If the next path is a number, and it's the last element, it means it's an array
 		if i == len(path)-2 {
 			if _, err := strconv.Atoi(path[i+1]); err == nil {
