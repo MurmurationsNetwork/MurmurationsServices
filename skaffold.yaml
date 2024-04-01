@@ -57,6 +57,7 @@ deploy:
     releases:
       - name: murmurations
         chartPath: charts/murmurations
+        namespace: default
         setValueTemplates:
           # Dynamically setting image references using setValueTemplates.
           # Reference: https://skaffold-v2-latest.firebaseapp.com/docs/deployers/helm/#fqn-strategy-single-fully-qualified-name-default
