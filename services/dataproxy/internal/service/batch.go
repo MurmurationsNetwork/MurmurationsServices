@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -509,6 +510,28 @@ func destructField(
 	field string,
 	value string,
 ) (map[string]interface{}, error) {
+	// Handle (list) fields - issue #727
+	// Validating the field name
+	if strings.Contains(field, "(") {
+		// Use regex to validate the field name
+		regexPattern := `^.+\(list-\d+\)$`
+		re, err := regexp.Compile(regexPattern)
+		if err != nil {
+			return nil, err
+		}
+		if !re.MatchString(field) {
+			return nil, errors.New("field format error: please use (list-number) format for lists")
+		}
+	}
+
+	// Check if field name with multiple (list) - e.g., tags(list-0), tags(list-1)
+	isList := false
+	lastLeftParenIndex := strings.LastIndex(field, "(")
+	if lastLeftParenIndex != -1 && strings.HasSuffix(field, ")") {
+		isList = true
+		field = field[:lastLeftParenIndex]
+	}
+
 	// Destructure field name
 	// e.g., "urls[0].name" -> ["urls", 0, "name"], "tags[0]" -> ["tags", 0]
 	fieldName := strings.Split(field, ".")
@@ -521,22 +544,37 @@ func destructField(
 			path = append(path, p)
 		}
 	}
+
+	// Iterate profile to put value into the correct path
 	current := profile
 	for i, p := range path {
 		// If the current path is a number, skip it, because it's already handled in the previous loop
 		if _, err := strconv.Atoi(p); err == nil {
 			continue
 		}
+
+		// If the field is a list, and it's the last path, append the value to the array
+		if isList && i == len(path)-1 {
+			values := splitEscapedComma(value)
+			_, exists := current[p]
+			if !exists {
+				current[p] = make([]interface{}, 0)
+			}
+			for _, v := range values {
+				trimmedValue := strings.TrimSpace(v)
+				current[p] = append(current[p].([]interface{}), trimmedValue)
+			}
+			break
+		}
+
 		// If the next path is a number, and it's the last element, it means it's an array
 		if i == len(path)-2 {
 			if _, err := strconv.Atoi(path[i+1]); err == nil {
 				if _, ok := current[path[i]]; !ok {
 					current[path[i]] = make([]interface{}, 0)
 				}
-				current[path[i]] = append(
-					current[path[i]].([]interface{}),
-					destructValue(value),
-				)
+				trimmedValue := strings.TrimSpace(value)
+				current[path[i]] = append(current[path[i]].([]interface{}), trimmedValue)
 				break
 			}
 		}
@@ -626,4 +664,28 @@ func parseSchemas(schemas []string) ([]string, []string, error) {
 		validateJSONSchemas[i] = string(body)
 	}
 	return validateJSONSchemas, validateSchemas, nil
+}
+
+func splitEscapedComma(s string) []string {
+	var result []string
+	var current strings.Builder
+	for i := 0; i < len(s); i++ {
+		// Split the string by comma
+		// If the first character is a comma, ignore it
+		// If the current character is a comma and the previous character is not a backslash, split the string
+		if s[i] == ',' && (i == 0 || s[i-1] != '\\') {
+			if current.Len() > 0 || i != 0 {
+				result = append(result, current.String())
+				current.Reset()
+			}
+		} else if s[i] == ',' && i > 0 && s[i-1] == '\\' {
+			// If the current character is a backslash and the next character is a comma, which means the comma is escaped
+			current.WriteRune(',')
+		} else if s[i] != '\\' {
+			// Other characters are written to the current string
+			current.WriteByte(s[i])
+		}
+	}
+	result = append(result, current.String())
+	return result
 }
