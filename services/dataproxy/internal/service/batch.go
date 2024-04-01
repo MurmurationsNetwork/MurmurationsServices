@@ -561,7 +561,7 @@ func destructField(
 				current[p] = make([]interface{}, 0)
 			}
 			for _, v := range values {
-				current[p] = append(current[p].([]interface{}), destructValue(v))
+				current[p] = append(current[p].([]interface{}), v)
 			}
 			break
 		}
@@ -572,10 +572,7 @@ func destructField(
 				if _, ok := current[path[i]]; !ok {
 					current[path[i]] = make([]interface{}, 0)
 				}
-				current[path[i]] = append(
-					current[path[i]].([]interface{}),
-					destructValue(value),
-				)
+				current[path[i]] = append(current[path[i]].([]interface{}), value)
 				break
 			}
 		}
