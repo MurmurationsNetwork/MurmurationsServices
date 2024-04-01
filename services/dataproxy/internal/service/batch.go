@@ -671,10 +671,14 @@ func splitEscapedComma(s string) []string {
 	var result []string
 	var current strings.Builder
 	for i := 0; i < len(s); i++ {
-		// Split the string by comma, but if the comma is at the first one or the comma is escaped, ignore it
+		// Split the string by comma
+		// If the first character is a comma, ignore it
+		// If the current character is a comma and the previous character is not a backslash, split the string
 		if s[i] == ',' && (i == 0 || s[i-1] != '\\') {
-			result = append(result, current.String())
-			current.Reset()
+			if current.Len() > 0 || i != 0 {
+				result = append(result, current.String())
+				current.Reset()
+			}
 		} else if s[i] == ',' && i > 0 && s[i-1] == '\\' {
 			// If the current character is a backslash and the next character is a comma, which means the comma is escaped
 			current.WriteRune(',')
