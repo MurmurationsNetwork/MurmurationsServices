@@ -29,7 +29,7 @@ func init() {
 
 func cleanUpWithError(schemaName string, svc service.UpdatesService, errStr string, errStatus ...int) {
 	status := -1
-	if len(errStr) > 0 {
+	if len(errStatus) > 0 {
 		status = errStatus[0]
 	}
 	err := svc.SaveError(schemaName, true, errStr, status)
