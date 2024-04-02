@@ -16,7 +16,7 @@ This guide outlines the management of cluster nodes within Rancher. By following
 
 ## Prerequisites
 
-- - **Crucial**: Prior to beginning, it is essential to add new nodes to your cluster, equivalent in number to those you intend to drain. This ensures the overall node count remains constant, maintaining your cluster's stability and capacity.
+- **Crucial**: Prior to beginning, it is essential to add new nodes to your cluster, equivalent in number to those you intend to drain. This ensures the overall node count remains constant, maintaining your cluster's stability and capacity.
 
 ## Step 1 - Select Cluster
 
