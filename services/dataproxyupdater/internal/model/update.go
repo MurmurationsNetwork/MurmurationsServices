@@ -3,6 +3,7 @@ package model
 const (
 	ErrorStatusOK             = 0
 	ErrorStatusAPIUnavailable = 1
+	ErrorStatusPostIndexError = 2
 )
 
 type Update struct {
