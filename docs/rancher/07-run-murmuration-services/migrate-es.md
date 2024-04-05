@@ -44,7 +44,7 @@ kubectl config use-context do-lon1-murmprod
 
 ## Step 2 - Configure Elasticsearch on Source
 
-Execute the configuration script for Elasticsearch and replace `ACCESS_KEY` and `SECRET_KEY` with your own.
+Execute the configuration script for Elasticsearch and replace `ACCESS_KEY` and `SECRET_KEY` with the ones from your bucket.
 
 ```bash
 curl -s https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure_es_s3.sh | bash -s -- ACCESS_KEY SECRET_KEY
@@ -75,14 +75,12 @@ POST _nodes/reload_secure_settings
 Define a snapshot repository with your storage details:
 
 ```bash
-PUT /_snapshot/contabo_space
+PUT /_snapshot/do_space
 {
   "type": "s3",
   "settings": {
     "bucket": "es-backup-production",
-    "endpoint": "eu2.contabostorage.com",
-    "region": "EU",
-    "path_style_access": "true",
+    "endpoint": "ams3.digitaloceanspaces.com",
     "protocol": "https",
     "compress": true,
     "max_snapshot_bytes_per_sec": "10mb",
@@ -99,7 +97,7 @@ PUT /_snapshot/contabo_space
 Initiate a snapshot of the desired indices:
 
 ```bash
-PUT /_snapshot/contabo_space/my_snapshot?wait_for_completion=true
+PUT /_snapshot/do_space/my_snapshot?wait_for_completion=true
 {
   "indices": "nodes",
   "ignore_unavailable": true,
@@ -150,14 +148,12 @@ POST _nodes/reload_secure_settings
 Create the same snapshot repository configuration on the destination:
 
 ```bash
-PUT /_snapshot/contabo_space
+PUT /_snapshot/do_space
 {
   "type": "s3",
   "settings": {
     "bucket": "es-backup-production",
-    "endpoint": "eu2.contabostorage.com",
-    "region": "EU",
-    "path_style_access": "true",
+    "endpoint": "ams3.digitaloceanspaces.com",
     "protocol": "https",
     "compress": true,
     "max_snapshot_bytes_per_sec": "10mb",
@@ -178,7 +174,7 @@ Restore the snapshot to the destination Elasticsearch cluster:
 DELETE /nodes
 
 # Restore the snapshot.
-POST /_snapshot/contabo_space/my_snapshot/_restore?wait_for_completion=true
+POST /_snapshot/do_space/my_snapshot/_restore?wait_for_completion=true
 {
   "indices": "nodes",
   "ignore_unavailable": true,
