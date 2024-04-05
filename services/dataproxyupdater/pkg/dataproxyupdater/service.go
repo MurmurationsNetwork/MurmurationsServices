@@ -78,6 +78,7 @@ func Run() {
 		update = svc.Get(schemaName)
 	}
 
+	// Handle All Error Status
 	if update.HasError && update.ErrorStatus == model.ErrorStatusAPIUnavailable {
 		url := getURL(update.APIEntry+"/entries/recently-changed", update.LastUpdated, time.Now().Unix(), 1, 0)
 		_, err := getProfiles(url)
@@ -86,6 +87,11 @@ func Run() {
 			// get newer update again
 			update = svc.Get(schemaName)
 		}
+	}
+
+	// Internal Network Error, just clean the error and run again
+	if update.HasError && update.ErrorStatus == model.ErrorStatusPostIndexError {
+		removeError(schemaName, svc)
 	}
 
 	// if the last error didn't solve, don't run
@@ -190,7 +196,7 @@ func Run() {
 			if err != nil {
 				errStr := "failed to post profile to Index, profile url is " + profileURL + ". error message: " + err.Error()
 				logger.Error(errStr, err)
-				cleanUpWithError(schemaName, svc, errStr)
+				cleanUpWithError(schemaName, svc, errStr, model.ErrorStatusPostIndexError)
 			}
 
 			// save node_id to profile
