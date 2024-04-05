@@ -32,10 +32,10 @@ Before starting, ensure you have:
 Before initiating the installation of k3s, it's imperative to establish a secure connection to your Ubuntu server:
 
 ```bash
-ssh root@<ip_address>
+ssh root@{{ip_address}}
 ```
 
-Ensure to replace `<ip_address>` with the actual IP address of your server.
+Ensure to replace `{{ip_address}}` with the actual IP address of your server.
 
 Once a secure connection is established, you can proceed with the k3s installation. It's crucial to consult the [SUSE Rancher support matrix](https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-1/) to verify compatibility with your intended k3s version. The highest supported version at this time is v1.27. For a detailed list of available versions, visit the [list of k3s versions](https://github.com/k3s-io/k3s/tags).
 
@@ -59,10 +59,10 @@ You should see nodes marked as `Ready`, and pods should be in `Running` or `Comp
 Transfer the kubeconfig file to manage the cluster remotely:
 
 ```bash
-scp root@<ip_address>:/etc/rancher/k3s/k3s.yaml ~/.kube/k3s-murm-rancher.yaml
+scp root@{{ip_address}}:/etc/rancher/k3s/k3s.yaml ~/.kube/k3s-murm-rancher.yaml
 ```
 
-Replace `<ip_address>` with your server's actual IP. This step is crucial for remote cluster administration.
+Replace `{{ip_address}}` with your server's actual IP. This step is crucial for remote cluster administration.
 
 ## Step 3 - Setting Up DNS for the Server
 
@@ -81,10 +81,10 @@ This DNS setup facilitates access to your server using a memorable URL instead o
 
 In this step we will customize the kubeconfig file for easier identification and management of the cluster.
 
-First, update the server URL in the kubeconfig file to point to your server's DNS name. Ensure you replace `<server_dns_name>` with your server's DNS name:
+First, update the server URL in the kubeconfig file to point to your server's DNS name. Ensure you replace `{{server_dns_name}}` with your server's DNS name:
 
 ```bash
-perl -pi -e "s/127.0.0.1/<server_dns_name>/g" ~/.kube/k3s-murm-rancher.yaml
+perl -pi -e "s/127.0.0.1/{{server_dns_name}}/g" ~/.kube/k3s-murm-rancher.yaml
 ```
 
 Next, change all instances of the default context, cluster, and user names to `k3s-murm-rancher` to reflect your specific Rancher setup. This naming convention makes managing multiple clusters more intuitive:

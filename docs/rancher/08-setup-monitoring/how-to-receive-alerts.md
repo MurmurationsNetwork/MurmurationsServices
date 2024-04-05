@@ -27,10 +27,10 @@ Before you begin, ensure you have:
 Securely store your Telegram bot token as a Kubernetes secret:
 
 ```bash
-kubectl create secret generic telegram-bot-token-secret --from-literal=bot-token=<bot-token> --namespace=default
+kubectl create secret generic telegram-bot-token-secret --from-literal=bot-token={{bot-token}} --namespace=default
 ```
 
-Ensure to replace `<bot-token>` with your actual Telegram bot token.
+Ensure to replace `{{bot-token}}` with your actual Telegram bot token.
 
 ## Step 2 - Accessing Your Kubernetes Cluster Dashboard
 

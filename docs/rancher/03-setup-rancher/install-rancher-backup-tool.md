@@ -55,8 +55,8 @@ After switching the context, proceed to create a Kubernetes secret in your clust
 
 ```shell
 kubectl create secret generic contabo-s3-creds \
-  --from-literal=accessKey=<access key> \
-  --from-literal=secretKey=<secret key>
+  --from-literal=accessKey={{access key}} \
+  --from-literal=secretKey={{secret key}}
 ```
 
 ## Step 5 - Installing Rancher Backup

@@ -30,9 +30,9 @@ Before you start, ensure you have:
 Configure DNS CNAME records for your services by pointing them to your load balancer URL created in the [Setup Load Balancer Tutorial](../05-setup-lb/README.md). Example DNS configurations:
 
 ```bash
-index.your.site C <load_balancer_url>
-library.your.site C <load_balancer_url>
-data-proxy.your.site C <load_balancer_url>
+index.your.site C {{load_balancer_url}}
+library.your.site C {{load_balancer_url}}
+data-proxy.your.site C {{load_balancer_url}}
 ```
 
 ## Step 2 - Switching Kubernetes Context
@@ -40,10 +40,10 @@ data-proxy.your.site C <load_balancer_url>
 Switch to the Kubernetes context for your cluster where the Murmurations services will be deployed:
 
 ```bash
-kubectl config use-context <context_name>
+kubectl config use-context {{context_name}}
 ```
 
-Replace `<context_name>` with your cluster's context name.
+Replace `{{context_name}}` with your cluster's context name.
 
 ## Step 3 - Installing Cert-Manager with Helm
 
@@ -79,7 +79,7 @@ This table demonstrates how to update the production URLs in the `ingress.yaml` 
 Deploy the Murmurations services to your Kubernetes cluster:
 
 ```bash
-make deploy-all-services DEPLOY_ENV=<environment>
+make deploy-all-services DEPLOY_ENV={{environment}}
 ```
 
 ## Step 7 - Checking the Deployment

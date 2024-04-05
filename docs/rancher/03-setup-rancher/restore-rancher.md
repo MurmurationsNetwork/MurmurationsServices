@@ -39,7 +39,7 @@ kind: Restore
 metadata:
   name: restore-migration
 spec:
-  backupFilename: <backup file name>
+  backupFilename: {{backup file name}}
   encryptionConfigSecretName: encryptionconfig
   storageLocation:
     s3:
