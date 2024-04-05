@@ -20,7 +20,7 @@ require (
 	go.mongodb.org/mongo-driver v1.14.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
-	golang.org/x/net v0.22.0
+	golang.org/x/net v0.23.0
 	golang.org/x/sync v0.6.0
 )
 
