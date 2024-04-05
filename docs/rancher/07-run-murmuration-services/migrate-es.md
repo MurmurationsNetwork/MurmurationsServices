@@ -2,11 +2,7 @@
 
 ## Introduction
 
-This document provides a detailed guide for migrating Elasticsearch data across different environments.
-
-Upon completing this guide, you will have:
-
-- Successfully migrated Elasticsearch data.
+This document provides a detailed guide for migrating Elasticsearch data across different environments. In the documentation, we use DigitalOcean Spaces as an example.
 
 ## Table of Contents
 
@@ -32,7 +28,7 @@ Upon completing this guide, you will have:
 Before starting, ensure you have:
 
 1. Administrative access to both source and destination Kubernetes clusters.
-2. Necessary credentials and access keys for Elasticsearch secure settings.
+2. The access key and secret key for your storage bucket from Amazon S3, DigitalOcean, or another provider.
 
 ## Step 1 - Connect to Source Kubernetes Cluster
 
@@ -79,8 +75,9 @@ PUT /_snapshot/do_space
 {
   "type": "s3",
   "settings": {
-    "bucket": "es-backup-production",
-    "endpoint": "ams3.digitaloceanspaces.com",
+    "bucket": "<bucket_name>",
+    "endpoint": "<region>.digitaloceanspaces.com",
+    "base_path": "<folder_name>",
     "protocol": "https",
     "compress": true,
     "max_snapshot_bytes_per_sec": "10mb",
@@ -152,8 +149,9 @@ PUT /_snapshot/do_space
 {
   "type": "s3",
   "settings": {
-    "bucket": "es-backup-production",
-    "endpoint": "ams3.digitaloceanspaces.com",
+    "bucket": "<bucket_name>",
+    "endpoint": "<region>.digitaloceanspaces.com",
+    "base_path": "<folder_name>",
     "protocol": "https",
     "compress": true,
     "max_snapshot_bytes_per_sec": "10mb",
