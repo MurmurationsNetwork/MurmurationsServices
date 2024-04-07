@@ -28,7 +28,7 @@ This document provides a detailed guide for migrating Elasticsearch data across 
 Before starting, ensure you have:
 
 1. Administrative access to both source and destination Kubernetes clusters.
-2. The access key and secret key for your storage bucket from Amazon S3, DigitalOcean, or another provider.
+2. The access key and secret key for your storage bucket from Amazon S3, DigitalOcean Spaces or other S3-compatible cloud providers.
 
 ## Step 1 - Connect to Source Kubernetes Cluster
 
@@ -40,7 +40,7 @@ kubectl config use-context do-lon1-murmprod
 
 ## Step 2 - Configure Elasticsearch on Source
 
-Execute the configuration script for Elasticsearch and replace `ACCESS_KEY` and `SECRET_KEY` with the ones from your bucket.
+Execute the configuration script for Elasticsearch, and replace `ACCESS_KEY` and `SECRET_KEY` with the credentials from your cloud account.
 
 ```bash
 curl -s https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure_es_s3.sh | bash -s -- ACCESS_KEY SECRET_KEY
