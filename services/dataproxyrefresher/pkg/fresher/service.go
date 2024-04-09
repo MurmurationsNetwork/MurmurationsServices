@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/lucsky/cuid"
+	"go.uber.org/zap"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
@@ -261,11 +262,9 @@ func (r *DataproxyRefresher) updateProfileIfValid(
 
 	if !isValid {
 		logger.Info(
-			fmt.Sprintf(
-				"Validation failed for Profile ID %s. Failure reasons: %s",
-				profile.Oid,
-				failureReasons,
-			),
+			"Validation failed",
+			zap.String("profile_id", profile.Oid),
+			zap.String("reason", failureReasons),
 		)
 		return nil
 	}

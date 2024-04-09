@@ -27,7 +27,12 @@ func init() {
 	global.Init()
 }
 
-func cleanUpWithError(schemaName string, svc service.UpdatesService, errStr string, errStatus ...int) {
+func cleanUpWithError(
+	schemaName string,
+	svc service.UpdatesService,
+	errStr string,
+	errStatus ...int,
+) {
 	status := -1
 	if len(errStatus) > 0 {
 		status = errStatus[0]
@@ -79,8 +84,15 @@ func Run() {
 	}
 
 	// Handle All Error Status
-	if update.HasError && update.ErrorStatus == model.ErrorStatusAPIUnavailable {
-		url := getURL(update.APIEntry+"/entries/recently-changed", update.LastUpdated, time.Now().Unix(), 1, 0)
+	if update.HasError &&
+		update.ErrorStatus == model.ErrorStatusAPIUnavailable {
+		url := getURL(
+			update.APIEntry+"/entries/recently-changed",
+			update.LastUpdated,
+			time.Now().Unix(),
+			1,
+			0,
+		)
 		_, err := getProfiles(url)
 		if err == nil {
 			removeError(schemaName, svc)
@@ -90,7 +102,8 @@ func Run() {
 	}
 
 	// Internal Network Error, just clean the error and run again
-	if update.HasError && update.ErrorStatus == model.ErrorStatusPostIndexError {
+	if update.HasError &&
+		update.ErrorStatus == model.ErrorStatusPostIndexError {
 		removeError(schemaName, svc)
 	}
 
@@ -126,7 +139,12 @@ func Run() {
 	if err != nil {
 		errStr := "get profile failed: " + err.Error()
 		logger.Error("get profile failed", err)
-		cleanUpWithError(schemaName, svc, errStr, model.ErrorStatusAPIUnavailable)
+		cleanUpWithError(
+			schemaName,
+			svc,
+			errStr,
+			model.ErrorStatusAPIUnavailable,
+		)
 	}
 	for len(profiles) > 0 {
 		for _, oldProfile := range profiles {
@@ -196,7 +214,12 @@ func Run() {
 			if err != nil {
 				errStr := "failed to post profile to Index, profile url is " + profileURL + ". error message: " + err.Error()
 				logger.Error(errStr, err)
-				cleanUpWithError(schemaName, svc, errStr, model.ErrorStatusPostIndexError)
+				cleanUpWithError(
+					schemaName,
+					svc,
+					errStr,
+					model.ErrorStatusPostIndexError,
+				)
 			}
 
 			// save node_id to profile
@@ -213,7 +236,12 @@ func Run() {
 		if err != nil {
 			errStr := "get profile failed: " + err.Error()
 			logger.Error("get profile failed", err)
-			cleanUpWithError(schemaName, svc, errStr, model.ErrorStatusAPIUnavailable)
+			cleanUpWithError(
+				schemaName,
+				svc,
+				errStr,
+				model.ErrorStatusAPIUnavailable,
+			)
 		}
 	}
 
