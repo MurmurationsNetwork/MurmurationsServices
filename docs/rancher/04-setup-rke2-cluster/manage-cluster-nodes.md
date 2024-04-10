@@ -25,21 +25,21 @@ This guide outlines the management of cluster nodes within Rancher. By following
 
 Before removing nodes, it is essential to update the load balancer configuration to prevent routing issues.
 
-**First, Connect to the Server**
+**First, Connect to the Server:**
 Use SSH to connect to the server hosting the Nginx load balancer:
 
 ```sh
 ssh root@{{your_load_balancer_node_ip}}
 ```
 
-**Second, Update the Configuration**
+**Second, Update the Configuration:**
 Edit the Nginx configuration file. Replace the old IP addresses with the new ones:
 
 ```sh
 vim /etc/nginx/nginx.conf
 ```
 
-**Lastly, Reload the Nginx Configuration**
+**Lastly, Reload the Nginx Configuration:**
 After making the necessary changes, reload the Nginx configuration to apply them without restarting the container:
 
 ```sh
