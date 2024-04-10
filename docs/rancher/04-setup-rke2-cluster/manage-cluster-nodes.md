@@ -56,7 +56,7 @@ First, select the cluster from the cluster management page:
 
 ![Rancher Cluster Management Page](./assets/images/rancher-cluster-management-page.png)
 
-Secondly, select the node you removed in step 4 and delete it:
+Secondly, select the nodes you removed in step 4 and delete it:
 
 ![Rancher Delete Drained Nodes](./assets/images/rancher-delete-drained-nodes.png)
 
