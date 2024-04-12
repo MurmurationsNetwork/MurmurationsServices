@@ -73,22 +73,22 @@ helm install rancher rancher-stable/rancher \
   --set replicas=1 \
   --set ingress.tls.source=letsEncrypt \
   --set letsEncrypt.ingress.class=traefik \
-  --set hostname=<server_dns_name> \
-  --set bootstrapPassword=<password> \
-  --set letsEncrypt.email=<email>
+  --set hostname={{server_dns_name}} \
+  --set bootstrapPassword={{password}} \
+  --set letsEncrypt.email={{email}}
 ```
 
-Ensure to replace `<server_dns_name>`, `<password>`, and `<email>` with your server's DNS name, a secure password for Rancher's admin account, and the email address for Let's Encrypt registration, respectively.
+Ensure to replace `{{server_dns_name}}`, `{{password}}`, and `{{email}}` with your server's DNS name, a secure password for Rancher's admin account, and the email address for Let's Encrypt registration, respectively.
 
 ## Step 5 - Accessing Rancher
 
 After the installation completes, access Rancher through the following URL to initialize your setup:
 
 ```bash
-https://<server_dns_name>/dashboard/?setup=<password>
+https://{{server_dns_name}}/dashboard/?setup={{password}}
 ```
 
-Replace `<server_dns_name>` and `<password>` with your actual server DNS name and the password you set during the Rancher installation.
+Replace `{{server_dns_name}}` and `{{password}}` with your actual server DNS name and the password you set during the Rancher installation.
 
 ## Conclusion
 

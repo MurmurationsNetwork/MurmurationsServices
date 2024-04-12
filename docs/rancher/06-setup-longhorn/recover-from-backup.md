@@ -59,19 +59,19 @@ If you have multiple volumes to recover, please repeat the process for each one.
 Switch to the correct Kubernetes context:
 
 ```bash
-kubectl config use-context <k8s-context>
+kubectl config use-context {{k8s-context}}
 ```
 
 Ensure the service you wish to recover is not running. You can uninstall the service using Helm:
 
 ```bash
-helm uninstall <service-name>
+helm uninstall {{service-name}}
 ```
 
 Redeploy the service, and the volume will be mounted automatically.
 
 ```bash
-make manually-deploy-<service-name> DEPLOY_ENV=<env>
+make manually-deploy-{{service-name}} DEPLOY_ENV={{env}}
 ```
 
 ![Service Restored Successfully](./assets/images/longhorn-restore-successully.png)

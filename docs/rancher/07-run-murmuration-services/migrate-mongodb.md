@@ -46,10 +46,10 @@ brew install mongodb-database-tools
 Change to the Kubernetes context for the source environment:
 
 ```bash
-kubectl config use-context <source-context-name>
+kubectl config use-context {{source-context-name}}
 ```
 
-Replace `<source-context-name>` with the actual context name of your source Kubernetes cluster.
+Replace `{{source-context-name}}` with the actual context name of your source Kubernetes cluster.
 
 ![Switching Kubernetes Context to Source](./assets/images/k8s-switch-context-to-source.png)
 
@@ -68,16 +68,16 @@ kubectl port-forward svc/data-proxy-mongo 27019:27017
 
 ## Step 4 - Dumping Data from the Source Database
 
-Open another terminal tab and export the data from the source MongoDB database. Ensure to replace `<password>` with your actual MongoDB user password. The exported data will be saved to `~/Desktop/index-mongodb-backups`:
+Open another terminal tab and export the data from the source MongoDB database. Ensure to replace `{{password}}` with your actual MongoDB user password. The exported data will be saved to `~/Desktop/index-mongodb-backups`:
 
 ```bash
-mongodump --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --out ~/Desktop/index-mongodb-backups
+mongodump --host localhost --port 27017 --username index-admin --password {{password}} --authenticationDatabase admin --out ~/Desktop/index-mongodb-backups
 
 # Paste in another tab.
-mongodump --host localhost --port 27019 --username data-proxy-admin --password <password> --authenticationDatabase admin --out ~/Desktop/data-proxy-mongodb-backups
+mongodump --host localhost --port 27019 --username data-proxy-admin --password {{password}} --authenticationDatabase admin --out ~/Desktop/data-proxy-mongodb-backups
 ```
 
-**Note:** Substitute `<password>` with the real password, and the data will be stored in `~/Desktop/index-mongodb-backups` and `~/Desktop/data-proxy-mongodb-backups`.
+**Note:** Substitute `{{password}}` with the real password, and the data will be stored in `~/Desktop/index-mongodb-backups` and `~/Desktop/data-proxy-mongodb-backups`.
 
 ![Dump Data from the Source](./assets/images/mongodb-dump-data.png)
 
@@ -86,10 +86,10 @@ mongodump --host localhost --port 27019 --username data-proxy-admin --password <
 Switch to the Kubernetes context for the destination environment:
 
 ```bash
-kubectl config use-context <destination-context-name>
+kubectl config use-context {{destination-context-name}}
 ```
 
-Replace `<destination-context-name>` with the context name of your destination Kubernetes cluster.
+Replace `{{destination-context-name}}` with the context name of your destination Kubernetes cluster.
 
 ![k8s Switch context to Destination](./assets/images/k8s-switch-context-to-dest.png)
 
@@ -108,16 +108,16 @@ kubectl port-forward svc/data-proxy-mongo 27019:27017
 
 ## Step 7 - Restoring Data to the Destination Database
 
-With port forwarding in place, import the exported data into the destination MongoDB database. Remember to replace `<password>` with the actual password:
+With port forwarding in place, import the exported data into the destination MongoDB database. Remember to replace `{{password}}` with the actual password:
 
 ```bash
-mongorestore --host localhost --port 27017 --username index-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 --nsExclude="admin.*" ~/Desktop/index-mongodb-backups
+mongorestore --host localhost --port 27017 --username index-admin --password {{password}} --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 --nsExclude="admin.*" ~/Desktop/index-mongodb-backups
 
 # Paste in another tab.
-mongorestore --host localhost --port 27019 --username data-proxy-admin --password <password> --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 --nsExclude="admin.*" ~/Desktop/data-proxy-mongodb-backups
+mongorestore --host localhost --port 27019 --username data-proxy-admin --password {{password}} --authenticationDatabase admin --drop --batchSize=500 --numInsertionWorkersPerCollection=1 --nsExclude="admin.*" ~/Desktop/data-proxy-mongodb-backups
 ```
 
-**Note:** Substitute `<password>` with the real password.
+**Note:** Substitute `{{password}}` with the real password.
 
 ![MongoDB Restore Data](./assets/images/mongodb-restore-data.png)
 
@@ -126,4 +126,3 @@ mongorestore --host localhost --port 27019 --username data-proxy-admin --passwor
 You have successfully migrated MongoDB data between environments, ensuring a secure transfer and maintaining data integrity.
 
 Go back to [Home](../README.md).
-

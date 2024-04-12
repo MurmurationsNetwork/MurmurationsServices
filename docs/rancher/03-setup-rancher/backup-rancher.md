@@ -45,7 +45,7 @@ Securely store this key in a safe location, such as a password manager. This wil
 
 1. Navigate to your preferred working directory.
 2. Create a new file named `encryption-provider-config.yaml`.
-3. Open the file in an editor and insert the following configuration, replacing `<base64-encoded-secret>` with your previously generated key:
+3. Open the file in an editor and insert the following configuration, replacing `{{base64-encoded-secret}}` with your previously generated key:
 
 ```yaml
 apiVersion: apiserver.config.k8s.io/v1
@@ -57,7 +57,7 @@ resources:
         - aescbc:
             keys:
             - name: key1
-                secret: <base64-encoded-secret>
+                secret: {{base64-encoded-secret}}
         - identity: {}
 ```
 

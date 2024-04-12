@@ -76,13 +76,13 @@ helm search repo rancher-stable/rancher --versions | sort -r | head -n 5
 
 ## Step 7 - Upgrading Rancher
 
-Upgrade Rancher to a version that suits your environment and needs. Ensure to replace `<desired_version>` with the specific version number of Rancher you intend to upgrade to.
+Upgrade Rancher to a version that suits your environment and needs. Ensure to replace `{{desired_version}}` with the specific version number of Rancher you intend to upgrade to.
 
 ```bash
 helm upgrade rancher rancher-stable/rancher \
   --namespace cattle-system \
   -f values.yaml \
-  --version=<desired_version>
+  --version={{desired_version}}
 ```
 
 ## Conclusion

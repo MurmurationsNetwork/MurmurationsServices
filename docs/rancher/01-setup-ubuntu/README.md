@@ -43,7 +43,7 @@ cat ~/.ssh/id_rsa.pub | pbcopy
 Log into your server as the root user:
 
 ```bash
-ssh root@<ip_address>
+ssh root@{{ip_address}}
 ```
 
 Set up the `.ssh` directory and secure it:
@@ -69,7 +69,7 @@ chmod 600 ~/.ssh/authorized_keys
 **Important**: Before proceeding, test your SSH key by logging in from another terminal tab or session to ensure you don’t lose access.
 
 ```bash
-ssh root@<ip_address>
+ssh root@{{ip_address}}
 ```
 
 Once you’ve successfully logged in via SSH key, you can further enhance your SSH login security by modifying a couple of settings:
