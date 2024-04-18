@@ -19,11 +19,3 @@ reloader:
 
 service:
   name: nats
-
-# Pod template configuration for Kubernetes.
-podTemplate:
-  # Define topology spread constraints for pod placement.
-  topologySpreadConstraints:
-    kubernetes.io/hostname:
-      maxSkew: 1  # Define the maximum skew between pods.
-      whenUnsatisfiable: DoNotSchedule  # Policy for when skew is unsatisfiable.
