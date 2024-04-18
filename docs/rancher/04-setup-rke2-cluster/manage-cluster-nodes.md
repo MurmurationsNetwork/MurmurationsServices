@@ -36,14 +36,28 @@ ssh root@{{your_load_balancer_node_ip}}
 Edit the Nginx configuration file. Replace the old IP addresses with the new ones:
 
 ```sh
-vim /etc/nginx/nginx.conf
+vim /etc/nginx.conf
 ```
 
-**Lastly, Reload the Nginx Configuration:**
-After making the necessary changes, reload the Nginx configuration to apply them without restarting the container:
+**Lastly, Restart the Nginx Container:**
+After making the necessary changes, restart the Nginx container to apply them:
 
 ```sh
-docker exec $(docker ps -q --filter "ancestor=nginx:1.14") nginx -s reload
+CONTAINER_IDS=$(docker ps -q --filter "ancestor=nginx:1.14")
+
+docker stop $CONTAINER_IDS
+
+docker rm $CONTAINER_IDS
+
+docker run -d --restart=unless-stopped \
+  --name lb-nginx \
+  -p 80:80 \
+  -p 443:443 \
+  -p 30017:30017 \
+  -v /etc/nginx.conf:/etc/nginx/nginx.conf \
+  -v /etc/nginx/ssl/tls.crt:/etc/nginx/ssl/tls.crt \
+  -v /etc/nginx/ssl/tls.key:/etc/nginx/ssl/tls.key \
+  nginx:1.14
 ```
 
 ## Step 2 - Select Cluster
