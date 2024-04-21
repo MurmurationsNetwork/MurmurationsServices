@@ -2,11 +2,7 @@
 
 ## Introduction
 
-This document provides a detailed guide for migrating Elasticsearch data across different environments.
-
-Upon completing this guide, you will have:
-
-- Successfully migrated Elasticsearch data.
+This document provides a detailed guide for migrating Elasticsearch data across different environments. In the documentation, we use DigitalOcean Spaces as an example.
 
 ## Table of Contents
 
@@ -32,7 +28,7 @@ Upon completing this guide, you will have:
 Before starting, ensure you have:
 
 1. Administrative access to both source and destination Kubernetes clusters.
-2. Necessary credentials and access keys for Elasticsearch secure settings.
+2. The access key and secret key for your storage bucket from Amazon S3, DigitalOcean Spaces or other S3-compatible cloud providers.
 
 ## Step 1 - Connect to Source Kubernetes Cluster
 
@@ -44,7 +40,7 @@ kubectl config use-context do-lon1-murmprod
 
 ## Step 2 - Configure Elasticsearch on Source
 
-Execute the configuration script for Elasticsearch and replace `ACCESS_KEY` and `SECRET_KEY` with your own.
+Execute the configuration script for Elasticsearch, and replace `ACCESS_KEY` and `SECRET_KEY` with the credentials from your cloud account.
 
 ```bash
 curl -s https://raw.githubusercontent.com/MurmurationsNetwork/MurmurationsServices/main/scripts/configure_es_s3.sh | bash -s -- ACCESS_KEY SECRET_KEY
@@ -75,14 +71,13 @@ POST _nodes/reload_secure_settings
 Define a snapshot repository with your storage details:
 
 ```bash
-PUT /_snapshot/contabo_space
+PUT /_snapshot/do_space
 {
   "type": "s3",
   "settings": {
-    "bucket": "es-backup-production",
-    "endpoint": "eu2.contabostorage.com",
-    "region": "EU",
-    "path_style_access": "true",
+    "bucket": "<bucket_name>",
+    "endpoint": "<region>.digitaloceanspaces.com",
+    "base_path": "<folder_name>",
     "protocol": "https",
     "compress": true,
     "max_snapshot_bytes_per_sec": "10mb",
@@ -99,7 +94,7 @@ PUT /_snapshot/contabo_space
 Initiate a snapshot of the desired indices:
 
 ```bash
-PUT /_snapshot/contabo_space/my_snapshot?wait_for_completion=true
+PUT /_snapshot/do_space/my_snapshot?wait_for_completion=true
 {
   "indices": "nodes",
   "ignore_unavailable": true,
@@ -150,14 +145,13 @@ POST _nodes/reload_secure_settings
 Create the same snapshot repository configuration on the destination:
 
 ```bash
-PUT /_snapshot/contabo_space
+PUT /_snapshot/do_space
 {
   "type": "s3",
   "settings": {
-    "bucket": "es-backup-production",
-    "endpoint": "eu2.contabostorage.com",
-    "region": "EU",
-    "path_style_access": "true",
+    "bucket": "<bucket_name>",
+    "endpoint": "<region>.digitaloceanspaces.com",
+    "base_path": "<folder_name>",
     "protocol": "https",
     "compress": true,
     "max_snapshot_bytes_per_sec": "10mb",
@@ -178,7 +172,7 @@ Restore the snapshot to the destination Elasticsearch cluster:
 DELETE /nodes
 
 # Restore the snapshot.
-POST /_snapshot/contabo_space/my_snapshot/_restore?wait_for_completion=true
+POST /_snapshot/do_space/my_snapshot/_restore?wait_for_completion=true
 {
   "indices": "nodes",
   "ignore_unavailable": true,

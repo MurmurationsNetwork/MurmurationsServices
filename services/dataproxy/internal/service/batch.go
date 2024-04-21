@@ -520,7 +520,9 @@ func destructField(
 			return nil, err
 		}
 		if !re.MatchString(field) {
-			return nil, errors.New("field format error: please use (list-number) format for lists")
+			return nil, errors.New(
+				"field format error: please use (list-number) format for lists",
+			)
 		}
 	}
 
@@ -574,7 +576,10 @@ func destructField(
 					current[path[i]] = make([]interface{}, 0)
 				}
 				trimmedValue := strings.TrimSpace(value)
-				current[path[i]] = append(current[path[i]].([]interface{}), trimmedValue)
+				current[path[i]] = append(
+					current[path[i]].([]interface{}),
+					trimmedValue,
+				)
 				break
 			}
 		}

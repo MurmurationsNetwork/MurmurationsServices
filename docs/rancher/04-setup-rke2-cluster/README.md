@@ -31,7 +31,7 @@ Before beginning, ensure the following requirements are met:
 
 ## Step 1 - Accessing the Rancher Dashboard
 
-Begin by opening a web browser and navigating to `https://<rancher_url>`, substituting `<rancher_url>` with your specific Rancher URL. Log in using the credentials established during the Rancher installation.
+Begin by opening a web browser and navigating to `https://{{rancher_url}}`, substituting `{{rancher_url}}` with your specific Rancher URL. Log in using the credentials established during the Rancher installation.
 
 ## Step 2 - Initiating Cluster Creation
 
@@ -84,20 +84,20 @@ Locate your cluster, click the `...` next to the **Explore** button, and choose 
 After you download the config, remember to move it to `~/.kube`:
 
 ```bash
-mv <cluster_name>.yaml ~/.kube/
+mv {{cluster_name}}.yaml ~/.kube/
 ```
 
 Then you can follow the guide on [Merging Configuration Files for Cluster Management](../02-setup-k3s/README.md#step-5---merging-configuration-files-for-cluster-management) to integrate this kubeconfig with any existing configurations.
 
-Alternatively, use the following commands to set up your kubeconfig for cluster management. Replace `<cluster_name>.yaml` with the filename of your downloaded kubeconfig:
+Alternatively, use the following commands to set up your kubeconfig for cluster management. Replace `{{cluster_name}}.yaml` with the filename of your downloaded kubeconfig:
 
 ```bash
-export KUBECONFIG=~/.kube/config:~/.kube/<cluster_name>.yaml
+export KUBECONFIG=~/.kube/config:~/.kube/{{cluster_name}}.yaml
 kubectl config view --merge --flatten > ~/.kube/merged_kubeconfig
 mv ~/.kube/config ~/.kube/config_backup
 mv ~/.kube/merged_kubeconfig ~/.kube/config
 chmod 600 ~/.kube/config
-rm ~/.kube/<cluster_name>.yaml
+rm ~/.kube/{{cluster_name}}.yaml
 ```
 
 This process involves merging your new kubeconfig with any existing one, backing up the original config, and then replacing it with the merged file for seamless cluster management. Remember to remove the now redundant kubeconfig file to keep your working directory clean.

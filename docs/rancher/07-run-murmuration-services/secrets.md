@@ -4,7 +4,7 @@ This guide will walk you through the process of managing secrets using `kubectl`
 
 ## Creating Secrets
 
-Remember to replace the `<*_PASSWORD>` placeholders below with strong passwords. Also make sure you use the same strong password for usernames that are the same (e.g., all instances of `INDEX_ADMIN_PASSWORD` below should be using the same strong password).
+Remember to replace the `{{*_PASSWORD}}` placeholders below with strong passwords. Also make sure you use the same strong password for usernames that are the same (e.g., all instances of `INDEX_ADMIN_PASSWORD` below should be using the same strong password).
 
 You will also need to create a GitHub access token for the `schemaparser` service ([see the next section](#creating-a-github-personal-access-token) for instructions).
 
@@ -14,58 +14,58 @@ Execute these commands to create secrets for each service:
 kubectl \
   create secret generic index-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=index-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<INDEX_ADMIN_PASSWORD>"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD={{INDEX_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic library-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=library-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<LIBRARY_ADMIN_PASSWORD>"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD={{LIBRARY_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic data-proxy-mongo-secret \
   --from-literal="MONGO_INITDB_ROOT_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_INITDB_ROOT_PASSWORD=<DATA_PROXY_ADMIN_PASSWORD>"
+  --from-literal="MONGO_INITDB_ROOT_PASSWORD={{DATA_PROXY_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic index-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<INDEX_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{INDEX_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic library-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=<LIBRARY_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{LIBRARY_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic data-proxy-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<DATA_PROXY_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{DATA_PROXY_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic nodecleaner-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<INDEX_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{INDEX_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic revalidatenode-secret \
   --from-literal="MONGO_USERNAME=index-admin" \
-  --from-literal="MONGO_PASSWORD=<INDEX_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{INDEX_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic dataproxyupdater-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<DATA_PROXY_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{DATA_PROXY_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic dataproxyrefresher-secret \
   --from-literal="MONGO_USERNAME=data-proxy-admin" \
-  --from-literal="MONGO_PASSWORD=<DATA_PROXY_ADMIN_PASSWORD>"
+  --from-literal="MONGO_PASSWORD={{DATA_PROXY_ADMIN_PASSWORD}}"
 
 kubectl \
   create secret generic schemaparser-secret \
   --from-literal="MONGO_USERNAME=library-admin" \
-  --from-literal="MONGO_PASSWORD=<LIBRARY_ADMIN_PASSWORD>" \
-  --from-literal="GITHUB_TOKEN=<GITHUB_TOKEN>"
+  --from-literal="MONGO_PASSWORD={{LIBRARY_ADMIN_PASSWORD}}" \
+  --from-literal="GITHUB_TOKEN={{GITHUB_TOKEN}}"
 ```
 
 ## Creating a GitHub Personal Access Token

@@ -2,14 +2,14 @@
 
 ## Introduction
 
-This guide outlines the process for installing the Rancher Backup tool with Contabo Object Storage.
+This guide outlines the process for installing the Rancher Backup tool using Digital Ocean Spaces Object Storage.
 
 ## Table of Contents
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
-- [Step 1 - Creating a Bucket in Contabo Object Storage](#step-1---creating-a-bucket-in-contabo-object-storage)
-- [Step 2 - Obtaining S3 Object Storage Credentials](#step-2---obtaining-s3-object-storage-credentials)
+- [Step 1 - Creating a Space in Digital Ocean Spaces Object Storage](#step-1---creating-a-space-in-digital-ocean-spaces-object-storage)
+- [Step 2 - Obtaining Digital Ocean Object Storage Credentials](#step-2---obtaining-digital-ocean-object-storage-credentials)
 - [Step 3 - Switching Kubectl Context](#step-3---switching-kubectl-context)
 - [Step 4 - Creating Secrets in K3s](#step-4---creating-secrets-in-k3s)
 - [Step 5 - Installing Rancher Backup](#step-5---installing-rancher-backup)
@@ -21,25 +21,25 @@ This guide outlines the process for installing the Rancher Backup tool with Cont
 
 Ensure the availability of the following before beginning:
 
-- A Contabo account with Object Storage service.
+- A Digital Ocean account with Spaces Object Storage enabled.
 - Administrative access to your Rancher dashboard.
 - A K3s cluster with `kubectl` configured.
 
-## Step 1 - Creating a Bucket in Contabo Object Storage
+## Step 1 - Creating a Space in Digital Ocean Spaces Object Storage
 
-Navigate to the Contabo Object Storage section to set up a new storage bucket for storing Rancher backups. Access the Object Storage panel:
+Navigate to the Digital Ocean Spaces Object Storage section to set up a new space for storing Rancher backups. Access the Object Storage panel:
 
-![Object Storage Panel](./assets/images/object-storage-panel.png)
+![Object Storage Panel](./assets/images/do-object-storage-panel.png)
 
-Then, proceed to create a new bucket by clicking on "Create Bucket" and specifying the required bucket name, region, and storage class.
+Then, proceed to create a new space by clicking on "Create Space" and specifying the required space name.
 
-![Bucket Creation](./assets/images/bucket-creation.png)
+![Space Creation](./assets/images/do-space-creation.png)
 
-## Step 2 - Obtaining S3 Object Storage Credentials
+## Step 2 - Obtaining Digital Ocean Object Storage Credentials
 
-Following the bucket creation, it's necessary to retrieve your S3-compatible storage credentials, including the Access Key and Secret Key. This can be done by going to the "Account" section within the Contabo panel and locating your credentials under "S3 Object Storage Credentials."
+After setting up the space, it's necessary to obtain your S3-compatible storage credentials, including the Access Key and Secret Key. This can be done by navigating to the "Application & API" section within the Digital Ocean control panel and selecting "Generate New Key"
 
-![S3 Credentials](./assets/images/s3-credentials.png)
+![S3 Credentials](./assets/images/do-space-credentials.png)
 
 ## Step 3 - Switching Kubectl Context
 
@@ -51,12 +51,12 @@ kubectl config use-context k3s-murm-rancher
 
 ## Step 4 - Creating Secrets in K3s
 
-After switching the context, proceed to create a Kubernetes secret in your cluster using the obtained credentials. This is done by executing a command to create a generic secret named `contabo-s3-creds`, incorporating your access and secret keys.
+After switching the context, proceed to create a Kubernetes secret in your cluster using the obtained credentials. This is done by executing a command to create a generic secret named `do-space-creds`, incorporating your access and secret keys.
 
 ```shell
-kubectl create secret generic contabo-s3-creds \
-  --from-literal=accessKey=<access key> \
-  --from-literal=secretKey=<secret key>
+kubectl create secret generic do-space-creds \
+  --from-literal=accessKey={{access key}} \
+  --from-literal=secretKey={{secret key}}
 ```
 
 ## Step 5 - Installing Rancher Backup
@@ -72,19 +72,20 @@ From the Rancher main page, navigate to "Cluster Tools" within the sidebar and f
 
 ## Step 6 - Configuring the Backup Tool
 
-Customize the installation to fit your backup requirements and environment. Start by selecting the project for deployment and click on "Customize Helm options before install" for more detailed settings.
+Customize the installation to fit your backup requirements and environment.
+
+Start by selecting the project for deployment and click on "Customize Helm options before install" for more detailed settings.
 
 ![Backup Tool Customization](./assets/images/backup-tool-customization.png)
 
-Ensure the default storage location is the S3-compatible object store, select the created secret from step 4, and enter the bucket name, region, and endpoint details as shown.
+Ensure the default storage location is set to the S3-compatible object store, select the created secret from step 4, and enter the space name, region, and endpoint details as shown.
 
-![Storage Location Settings](./assets/images/storage-location-settings.png)
-
-```text
-Credential secret: contabo-s3-creds
-Bucket name: rancher-backup
-Region: EU
-Endpoint: eu2.contabostorage.com
+```yaml
+Credential secret: do-space-creds
+Space name: murm-backup
+Region: ams3
+Folder: rancher-backup
+Endpoint: ams3.digitaloceanspaces.com
 ```
 
 ## Step 7 - Finalizing the Installation

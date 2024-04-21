@@ -37,15 +37,15 @@ Navigate to the "Applications & API" section on DigitalOcean and create a Spaces
 Open a terminal and switch your Kubernetes context to the desired one.
 
 ```bash
-kubectl config use-context <context>
+kubectl config use-context {{context}}
 ```
 
-Replace `<your_access_key>` and `<your_secret_key>` with your actual credentials. Execute the following command to create the secret in the `longhorn-system` namespace:
+Replace `{{your_access_key}}` and `{{your_secret_key}}` with your actual credentials. Execute the following command to create the secret in the `longhorn-system` namespace:
 
 ```bash
 kubectl create secret generic aws-secrets \
-  --from-literal=AWS_ACCESS_KEY_ID=<your_access_key> \
-  --from-literal=AWS_SECRET_ACCESS_KEY=<your_secret_key> \
+  --from-literal=AWS_ACCESS_KEY_ID={{your_access_key}} \
+  --from-literal=AWS_SECRET_ACCESS_KEY={{your_secret_key}} \
   --from-literal=AWS_ENDPOINTS='https://ams3.digitaloceanspaces.com' \
   --from-literal=AWS_REGION=us-east-1 \
   --from-literal=VIRTUAL_HOSTED_STYLE=false \
