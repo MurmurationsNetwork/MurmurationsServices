@@ -17,6 +17,15 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/index/config.yaml") . | sha256sum }}
     spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 10
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 10
       containers:
         - name: index-app
           image: {{ .Values.image }}

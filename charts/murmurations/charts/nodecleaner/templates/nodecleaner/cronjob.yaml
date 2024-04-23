@@ -22,6 +22,15 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 10
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 10
       # Retry the Job 3 times before marking it as failed.
       backoffLimit: 3
       # Delete the Job and its pods 24 hours after completion.
