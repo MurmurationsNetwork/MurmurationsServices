@@ -9,9 +9,9 @@ kind: ConfigMap
 metadata:
   name: dataproxyupdater-app-config
 data:
-  MONGO_HOST: data-proxy-mongo:27017
-  MONGO_DB_NAME: murmurationsDataProxy
-  INDEX_HOST: http://index-app:8080
+  MONGO_HOST: "data-proxy-mongo:27017"
+  MONGO_DB_NAME: "murmurationsDataProxy"
+  INDEX_HOST: "http://index-app:8080"
   EXTERNAL_DATA_PROXY_URL:
     {{- if $isProd }}
     "https://data-proxy.murmurations.network"

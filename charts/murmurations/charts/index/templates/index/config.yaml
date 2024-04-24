@@ -19,21 +19,21 @@ data:
   APP_ENV: "development"
   {{- end }}
   SERVER_PORT: "8080"
-  SERVER_TIMEOUT_READ: 5s
-  SERVER_TIMEOUT_WRITE: 10s
-  SERVER_TIMEOUT_IDLE: 15s
-  MONGO_HOST: index-mongo:27017
-  MONGO_DB_NAME: murmurationsIndex
-  ELASTICSEARCH_URL: http://index-es:9200
-  LIBRARY_URL: http://library-app:8080
-  NATS_CLUSTER_ID: murmurations
-  NATS_URL: http://nats.murm-queue.svc.cluster.local:4222
+  SERVER_TIMEOUT_READ: "5s"
+  SERVER_TIMEOUT_WRITE: "15s"
+  SERVER_TIMEOUT_IDLE: "15s"
+  MONGO_HOST: "index-mongo:27017"
+  MONGO_DB_NAME: "murmurationsIndex"
+  ELASTICSEARCH_URL: "http://index-es:9200"
+  LIBRARY_URL: "http://library-app:8080"
+  NATS_CLUSTER_ID: "murmurations"
+  NATS_URL: "http://nats.murm-queue.svc.cluster.local:4222"
   TAGS_ARRAY_SIZE: "100"
   TAGS_STRING_LENGTH: "100"
   TAGS_FUZZINESS: "3"
   # Rate limit
-  GET_RATE_LIMIT_PERIOD: 6000-M
-  POST_RATE_LIMIT_PERIOD: 6000-M
+  GET_RATE_LIMIT_PERIOD: "6000-M"
+  POST_RATE_LIMIT_PERIOD: "6000-M"
   # Delete TTL, notice: need to modify the value in nodecleaner service as well
   {{ if $isProd }}
   DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs

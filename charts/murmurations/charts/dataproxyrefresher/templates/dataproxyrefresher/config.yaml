@@ -23,8 +23,8 @@ kind: ConfigMap
 metadata:
   name: dataproxyrefresher-app-config
 data:
-  MONGO_HOST: data-proxy-mongo:27017
-  MONGO_DB_NAME: murmurationsDataProxy
-  INDEX_HOST: http://index-app:8080
+  MONGO_HOST: "data-proxy-mongo:27017"
+  MONGO_DB_NAME: "murmurationsDataProxy"
+  INDEX_HOST: "http://index-app:8080"
   REFRESH_TTL: "{{ $refreshTTL }}"
   EXTERNAL_DATA_PROXY_URL: "{{ $externalDataProxyURL }}"
