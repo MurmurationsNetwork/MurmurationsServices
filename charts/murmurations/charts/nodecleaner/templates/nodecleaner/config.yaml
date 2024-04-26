@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: nodecleaner-app-config
 data:
-  MONGO_HOST: index-mongo:27017
-  MONGO_DB_NAME: murmurationsIndex
-  ELASTICSEARCH_URL: http://index-es:9200
+  MONGO_HOST: "index-mongo:27017"
+  MONGO_DB_NAME: "murmurationsIndex"
+  ELASTICSEARCH_URL: "http://index-es:9200"
   # Delete TTL, notice: need to modify the value in index service as well
   {{- if eq .Values.global.env "production" }}
   VALIDATION_FAILED_TTL: "604800" # 1 week = 7 days * 24 hrs * 60 mins * 60 secs

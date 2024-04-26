@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: revalidatenode-app-config
 data:
-  MONGO_HOST: index-mongo:27017
-  MONGO_DB_NAME: murmurationsIndex
-  NATS_CLUSTER_ID: murmurations
-  NATS_URL: http://nats.murm-queue.svc.cluster.local:4222
+  MONGO_HOST: "index-mongo:27017"
+  MONGO_DB_NAME: "murmurationsIndex"
+  NATS_CLUSTER_ID: "murmurations"
+  NATS_URL: "http://nats.murm-queue.svc.cluster.local:4222"
