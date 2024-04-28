@@ -87,7 +87,7 @@ Sometimes, NATS might not work right. If that happens, these steps can help rese
    ```bash
    kubectl get pods --all-namespaces | grep Terminating | awk '{print $1 " " $2}' | while read ns pod; do kubectl delete pod $pod -n $ns --grace-period=0 --force; done
    ```
-   
+
    This command identifies all pods that are stuck in a Terminating state across all namespaces and forcefully deletes them, prompting Kubernetes to recreate them on other nodes.
 
 2. **Removing the Unavailable Machine**: Next, navigate to the Rancher UI to remove the node that has become unavailable. Here’s how:
