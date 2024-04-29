@@ -5,6 +5,7 @@
 - [Set Up Kibana Error Filters](#set-up-kibana-error-filters)
 - [Fix Failed Jobs](#fix-failed-jobs)
 - [Fix Issues with Message Queues](#fix-issues-with-message-queues)
+- [Manual Intervention for Node Failures](#manual-intervention-for-node-failures)
 
 ## Set Up Kibana Error Filters
 
@@ -78,3 +79,23 @@ Sometimes, NATS might not work right. If that happens, these steps can help rese
 3. **Delete Each Stateful Set**: Choose each NATS stateful set one by one and use `command + d` to delete them. You don't need to wait for one to restart before deleting the next.
 
     ![k9s Nats](./assets/images/k9s-nats.png)
+
+## Manual Intervention for Node Failures
+
+1. **Forcing Pod Recreation on Other Nodes**: When a node fails, some pods may remain in a terminating state indefinitely. To address this, force the scheduler to recreate these pods on other available nodes using the following command:
+
+   ```bash
+   kubectl get pods --all-namespaces | grep Terminating | awk '{print $1 " " $2}' | while read ns pod; do kubectl delete pod $pod -n $ns --grace-period=0 --force; done
+   ```
+
+   This command identifies all pods that are stuck in a Terminating state across all namespaces and forcefully deletes them, prompting Kubernetes to recreate them on other nodes.
+
+2. **Removing the Unavailable Machine**: Next, navigate to the Rancher UI to remove the node that has become unavailable. Here’s how:
+
+   1. Go to the ☰ menu and select Cluster Management.
+   2. Locate the cluster containing the failed node.
+   3. Select the node in question and use the option to delete it, removing the unavailable machine from your cluster.
+
+   This step ensures that the cluster's resources are updated and that the failed node is no longer considered part of the cluster.
+
+3. **Adding a New Node Using a Temporary Server**: To maintain the desired capacity of your cluster, you can quickly add a new node using one of the available temporary servers. Following the instruction provided in the [documentation](../rancher/04-setup-rke2-cluster/README.md#step-3---registering-nodes-to-the-cluster), you can add a new node to your cluster and ensure that the applications continue to run smoothly.
