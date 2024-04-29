@@ -31,7 +31,7 @@ kubectl config use-context {{new-rancher-context}}
 
 ## Step 2 - Create Encryption Configuration
 
-Create an `encryption-provider-config.yaml` file and replace the `{{base64-encoded-secret}}` with the one you created before.
+Create an `encryption-provider-config.yaml` file to decrypt the backup file. Replace the `{{base64-encoded-secret}}` with the one you created before.
 
 ```yaml
 apiVersion: apiserver.config.k8s.io/v1
