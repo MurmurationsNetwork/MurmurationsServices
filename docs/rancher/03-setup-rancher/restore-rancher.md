@@ -63,26 +63,9 @@ Access the Rancher dashboard and locate the **Rancher Backups > Restores** secti
 
 ## Step 4 - Executing the Restore
 
-Select **Edit as YAML** and enter the following Restore YAML configuration:
+Provide the backup file name, select the encryption config secret, and click "Create".
 
 ![Create Rancher Restore Page](./assets/images/create-rancher-restore-page.png)
-
-```yaml
-apiVersion: resources.cattle.io/v1
-kind: Restore
-metadata:
-  name: restore-migration
-spec:
-  backupFilename: {{backup file name}}
-  encryptionConfigSecretName: encryptionconfig
-  storageLocation:
-    s3:
-      credentialSecretName: do-space-creds
-      credentialSecretNamespace: default
-      bucketName: {{do space name}}
-      region: ams3
-      endpoint: ams3.digitaloceanspaces.com
-```
 
 ## Step 5 - Monitoring Restore Progress
 
