@@ -8,7 +8,7 @@ This guide offers developers a comprehensive walkthrough on initiating an operat
 2. [Set Up K3s for Rancher](02-setup-k3s/README.md)
     - [Upgrade K3s](02-setup-k3s/upgrade-k3s.md)
 3. [Set Up Rancher](03-setup-rancher/README.md)
-    - [Backup Rancher](./03-setup-rancher/backup-rancher.md)
+    - [Backup Rancher](03-setup-rancher/backup-rancher.md)
     - [Disaster Recovery](03-setup-rancher/disaster-recovery-rancher.md)
     - [Restore Rancher](03-setup-rancher/restore-rancher.md)
     - [Upgrade Rancher](03-setup-rancher/upgrade-rancher.md)

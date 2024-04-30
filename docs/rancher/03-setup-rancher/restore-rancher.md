@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document provides a comprehensive guide on how to restore your Rancher deployment within the existing cluster.
+This document provides a comprehensive guide on how to restore your Rancher deployment within the "existing" cluster.
 
 ## Table of Contents
 
@@ -26,7 +26,7 @@ Before beginning the restoration process, ensure you have:
 ## Step 1 - Navigate to the Rancher Dashboard
 
 ```bash
-kubectl config use-context {{new-rancher-context}}
+kubectl config use-context k3s-murm-rancher
 ```
 
 ## Step 2 - Create Encryption Configuration
@@ -73,7 +73,7 @@ Provide the backup file name, select the encryption config secret, and click "Cr
 To monitor the restoration progress, run the following command to check the logs of the backup operator:
 
 ```bash
-kubectl config use-context {{new-rancher-context}}
+kubectl config use-context k3s-murm-rancher
 kubectl logs -n cattle-resources-system -l app.kubernetes.io/name=rancher-backup -f
 ```
 

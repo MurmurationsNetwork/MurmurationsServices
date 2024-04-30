@@ -18,8 +18,10 @@ This document offers a detailed guide on how to restore your Rancher deployment 
 
 Before beginning the restoration process, ensure you have:
 
-- A newly set up server following the [Setup Ubuntu](../01-setup-ubuntu/README.md) guide.
-- A backup file ready for restoration. Check the DigitalOcean space.
+1. **Set Up an Ubuntu Server**: Follow the instructions in the [Set Up Ubuntu Server](../01-setup-ubuntu/README.md) guide.
+2. **Install k3s for Rancher Integration**: Follow the [Set Up k3s for Rancher](../02-setup-k3s/README.md) guide.
+3. **Update the DNS Record**: Modify the DNS record to point the Rancher URL to the IP address of the newly created server.
+4. **Prepare for Rancher Backup**: Ensure a backup file is ready for restoration. Verify the file in your DigitalOcean space.
 
 ## Step 1 - Switch to the k3s cluster
 
@@ -40,7 +42,7 @@ helm repo update
 
 ### 2. Set a `CHART_VERSION` variable
 
-Refer to the [support matrix](https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-3/) under the Rancher Apps / Cluster Tools section to determine which rancher-backup versions are compatible. For instance, if you are using Rancher version `v2.8.3`, you should set the chart version to `103.0.1+up4.0.1`.
+Refer to the [support matrix](https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-3/#el-59173) under the Rancher Apps / Cluster Tools section to determine which rancher-backup versions are compatible. For instance, if you are using Rancher version `v2.8.3`, you should set the chart version to `103.0.1+up4.0.1`.
 
 ![Rancher Backup Support Matrix](./assets/images/rancher-backup-support-matrix.png)
 
