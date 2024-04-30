@@ -78,13 +78,15 @@ Start by selecting the project for deployment and click on "Customize Helm optio
 
 ![Backup Tool Customization](./assets/images/backup-tool-customization.png)
 
-Ensure the default storage location is set to the S3-compatible object store, select the created secret from step 4, and enter the space name, region, and endpoint details as shown.
+Ensure the default storage location is set to the S3-compatible object store, select the created secret from step 4, and enter the bucket name, region, and endpoint details as shown.
+
+![Backup Tool Config](./assets/images/backup-tool-config.png)
 
 ```yaml
-Credential secret: do-space-creds
-Space name: {{space-name}}
+Credential Secret: do-space-creds
+Bucket Name: {{do-space-name}}
 Region: ams3
-Folder: rancher-backup
+Folder: {{rancher-backup}}
 Endpoint: ams3.digitaloceanspaces.com
 ```
 
