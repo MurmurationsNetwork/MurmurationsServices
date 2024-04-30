@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document provides a detailed guide on how to restore your Rancher deployment.
+This document provides a comprehensive guide on how to restore your Rancher deployment within the existing cluster.
 
 ## Table of Contents
 
@@ -34,6 +34,7 @@ kubectl config use-context {{new-rancher-context}}
 Create an `encryption-provider-config.yaml` file to decrypt the backup file. Replace the `{{base64-encoded-secret}}` with the one you created before.
 
 ```yaml
+# encryption-provider-config.yaml
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
