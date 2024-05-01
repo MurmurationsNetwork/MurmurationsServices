@@ -237,8 +237,7 @@ func (s *nodeService) Delete(nodeID string) (string, error) {
 	return s.proceedWithDeletion(node)
 }
 
-// checkProfileURL checks the profile URL's existence, content type, and
-// redirect status.
+// checkProfileURL checks the profile URL's existence, content type.
 func (s *nodeService) checkProfileURL(node *model.Node) error {
 	resp, err := httputil.Get(node.ProfileURL)
 	if err != nil {
@@ -266,26 +265,11 @@ func (s *nodeService) checkProfileURL(node *model.Node) error {
 		isJSON = false
 	}
 
-	// Check for redirects.
-	hasRedirect, err := httputil.CheckRedirect(node.ProfileURL)
-	if err != nil {
-		return index.DeleteNodeError{
-			Message: "Profile URL Cannot Be Checked",
-			Detail: fmt.Sprintf(
-				"There was an error when trying to reach %s to delete node_id: %s",
-				node.ProfileURL,
-				node.ID,
-			),
-			NodeID:    node.ID,
-			ErrorCode: index.ErrorProfileURLCheckFail,
-		}
-	}
-
-	// If the profile URL doesn't return a 200 OK status, or if it redirects,
-	// or if the response is not JSON, then we consider the profile URL invalid
-	// or non-existent for our purposes and return nil, indicating that it's safe
-	// to proceed with deletion.
-	if resp.StatusCode != http.StatusOK || hasRedirect || !isJSON {
+	// If the profile URL doesn't return a 200 OK status, or if the response is
+	// not JSON, then we consider the profile URL invalid, or non-existent for
+	// our purposes and return nil, indicating that it's safe to proceed with
+	// deletion.
+	if resp.StatusCode != http.StatusOK || !isJSON {
 		return nil
 	}
 
