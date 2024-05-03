@@ -1,0 +1,9 @@
+apiVersion: v2
+name: cleanup
+description: murmurations cleanup
+
+type: application
+
+version: 0.1.5
+
+appVersion: 1.16.5

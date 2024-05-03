@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pod-cleanup-job
+  namespace: default
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: pod-cleanup-account
+          containers:
+          - name: cleanup
+            image: {{ .Values.image }}
+            imagePullPolicy: Always
+          restartPolicy: Never
