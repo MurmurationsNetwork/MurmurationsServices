@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/httputil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/index/internal/model"
 )
@@ -38,28 +37,6 @@ func (n *NodeCreateRequest) Validate() []jsonapi.Error {
 		return jsonapi.NewError(
 			[]string{"Invalid Profile URL"},
 			[]string{"The `profile_url` is not a valid URL."},
-			nil,
-			[]int{http.StatusBadRequest},
-		)
-	}
-
-	// Check if profile_url has redirect or not.
-	hasRedirect, err := httputil.CheckRedirect(n.ProfileURL)
-	if err != nil {
-		return jsonapi.NewError(
-			[]string{"Invalid Profile URL"},
-			[]string{"The `profile_url` can't be reached."},
-			nil,
-			[]int{http.StatusBadRequest},
-		)
-	}
-	if hasRedirect {
-		return jsonapi.NewError(
-			[]string{"No Redirects"},
-			[]string{
-				"The profile data must be located at the URL specified. " +
-					"Redirects are not supported by the index.",
-			},
 			nil,
 			[]int{http.StatusBadRequest},
 		)

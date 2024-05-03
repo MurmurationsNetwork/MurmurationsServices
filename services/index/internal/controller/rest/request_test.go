@@ -45,24 +45,6 @@ func TestNodeCreateRequest_Validate(t *testing.T) {
 			hasError: true,
 		},
 		{
-			name: "URL redirects",
-			request: rest.NodeCreateRequest{
-				ID:         "testNode3",
-				ProfileURL: "http://localhost/redirect",
-				Status:     "Validated",
-			},
-			mockHTTP: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(
-						func(w http.ResponseWriter, r *http.Request) {
-							http.Redirect(w, r, "/", http.StatusFound)
-						},
-					),
-				)
-			},
-			hasError: true,
-		},
-		{
 			name: "valid request",
 			request: rest.NodeCreateRequest{
 				ID:         "testNode1",
