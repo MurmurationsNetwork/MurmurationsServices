@@ -37,7 +37,7 @@ Then, proceed to create a new space by clicking on "Create Space" and specifying
 
 ## Step 2 - Obtaining Digital Ocean Object Storage Credentials
 
-After setting up the space, it's necessary to obtain your S3-compatible storage credentials, including the Access Key and Secret Key. This can be done by navigating to the "Application & API" section within the Digital Ocean control panel and selecting "Generate New Key"
+After setting up the space, you need to obtain your S3-compatible storage credentials, which include the Access Key and Secret Key. To do this, navigate to the "API" section and select "Generate New Key" under the Space Keys tab.
 
 ![S3 Credentials](./assets/images/do-space-credentials.png)
 
@@ -78,13 +78,15 @@ Start by selecting the project for deployment and click on "Customize Helm optio
 
 ![Backup Tool Customization](./assets/images/backup-tool-customization.png)
 
-Ensure the default storage location is set to the S3-compatible object store, select the created secret from step 4, and enter the space name, region, and endpoint details as shown.
+Ensure the default storage location is set to the S3-compatible object store, select the created secret from step 4, and enter the bucket name, region, and endpoint details as shown.
+
+![Backup Tool Config](./assets/images/backup-tool-config.png)
 
 ```yaml
-Credential secret: do-space-creds
-Space name: murm-backup
+Credential Secret: do-space-creds
+Bucket Name: {{do-space-name}}
 Region: ams3
-Folder: rancher-backup
+Folder: {{rancher-backup}}
 Endpoint: ams3.digitaloceanspaces.com
 ```
 

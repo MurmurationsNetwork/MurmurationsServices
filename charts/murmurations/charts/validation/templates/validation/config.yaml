@@ -8,5 +8,5 @@ data:
   SERVER_TIMEOUT_WRITE: "10s"
   SERVER_TIMEOUT_IDLE: "15s"
   NATS_CLUSTER_ID: "murmurations"
-  NATS_URL: http://nats.murm-queue.svc.cluster.local:4222
+  NATS_URL: "http://nats.murm-queue.svc.cluster.local:4222"
   LIBRARY_URL: "http://library-app:8080"

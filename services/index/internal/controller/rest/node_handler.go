@@ -149,9 +149,10 @@ func (handler *nodeHandler) AddSync(c *gin.Context) {
 		return
 	}
 
-	// try the 1st time in 1 second, 2nd time in 2 seconds, 3rd in 4, 4th in 8, 5th in 16 seconds.
+	// SERVER_TIMEOUT_WRITE is 15 seconds, so we can't wait for more than that.
+	// Try the 1st time in 1 second, 2nd time in 2 seconds, 3rd in 4
 	waitInterval := 1 * time.Second
-	retries := 5
+	retries := 3
 
 	for retries != 0 {
 		nodeInfo, err := handler.svc.GetNode(result.ID)

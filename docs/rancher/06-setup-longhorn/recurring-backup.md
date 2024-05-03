@@ -47,7 +47,7 @@ kubectl create secret generic aws-secrets \
   --from-literal=AWS_ACCESS_KEY_ID={{your_access_key}} \
   --from-literal=AWS_SECRET_ACCESS_KEY={{your_secret_key}} \
   --from-literal=AWS_ENDPOINTS='https://ams3.digitaloceanspaces.com' \
-  --from-literal=AWS_REGION=us-east-1 \
+  --from-literal=AWS_REGION=ams3 \
   --from-literal=VIRTUAL_HOSTED_STYLE=false \
   -n longhorn-system
 ```
@@ -58,7 +58,7 @@ Access the Longhorn user interface. Click on "Settings" in the top navigation ba
 
 ```bash
 s3://[SPACENAME]@[REGION]/[FOLDER-NAME]
-# For example: s3://mybackup@ams3/myfolder-backups
+# For example: s3://murmbackup@ams3/rke-production-backup
 ```
 
 This configuration directs Longhorn to store backups in the specified S3-compatible storage location. Replace `[SPACENAME]` with the name of your space, `[REGION]` with the region of your storage, and `[FOLDER-NAME]` with your desired folder name for the backups.

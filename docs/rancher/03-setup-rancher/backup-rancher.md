@@ -51,14 +51,14 @@ Securely store this key in a safe location, such as a password manager. This wil
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
-    - resources:
-        - secrets
+  - resources:
+      - secrets
     providers:
-        - aescbc:
-            keys:
+      - aescbc:
+          keys:
             - name: key1
-                secret: {{base64-encoded-secret}}
-        - identity: {}
+              secret: {{base64-encoded-secret}}
+      - identity: {}
 ```
 
 Example commands for creating and editing the file:
