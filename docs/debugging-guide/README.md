@@ -28,6 +28,14 @@
 
 3. **Adding a New Node Using a Temporary Server**: To maintain the desired capacity of your cluster, you can quickly add a new node using one of the available temporary servers. Following the instruction provided in the [documentation](../rancher/04-setup-rke2-cluster/README.md#step-3---registering-nodes-to-the-cluster), you can add a new node to your cluster and ensure that the applications continue to run smoothly.
 
+4. **Restarting the Load Balancer Docker**: log in to the load balancer server, remove the old IP address, add the new node IP, and restart the Nginx Docker container to ensure the configuration is updated. When setup loadbalancer, Please follow the documentation provided in the [Load Balancer Setup](../rancher/05-setup-lb/README.md#step-4---launching-the-nginx-load-balancer) to ensure the following commands are effective.
+
+   ```bash
+   vim /etc/nginx.conf
+   # Remove old IP and add new node IP
+   docker restart lb-nginx
+   ```
+
 ## Manual Intervention for Rancher Failure
 
 Please refer to the [Rancher Disaster Recovery](../rancher/03-setup-rancher/disaster-recovery-rancher.md) guide.
