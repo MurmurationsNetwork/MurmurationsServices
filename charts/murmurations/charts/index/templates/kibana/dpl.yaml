@@ -18,11 +18,11 @@ spec:
       - key: "node.kubernetes.io/unreachable"
         operator: "Exists"
         effect: "NoExecute"
-        tolerationSeconds: 10
+        tolerationSeconds: 60
       - key: "node.kubernetes.io/not-ready"
         operator: "Exists"
         effect: "NoExecute"
-        tolerationSeconds: 10
+        tolerationSeconds: 60
       containers:
         - name: index-kibana
           image: docker.elastic.co/kibana/kibana:7.17.5

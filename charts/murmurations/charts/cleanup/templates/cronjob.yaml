@@ -15,3 +15,5 @@ spec:
             image: {{ .Values.image }}
             imagePullPolicy: Always
           restartPolicy: Never
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
