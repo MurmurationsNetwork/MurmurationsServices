@@ -133,9 +133,10 @@ First, execute the following command to start Nginx as a load balancer:
 
 ```bash
 docker run -d --restart=unless-stopped \
--p 80:80 -p 443:443 \
--v /etc/nginx.conf:/etc/nginx/nginx.conf \
-nginx:1.14
+  --name lb-nginx \
+  -p 80:80 -p 443:443 \
+  -v /etc/nginx.conf:/etc/nginx/nginx.conf \
+  nginx:1.14
 ```
 
 ## Step 5 - Integrating the Load Balancer with the RKE2 Cluster
