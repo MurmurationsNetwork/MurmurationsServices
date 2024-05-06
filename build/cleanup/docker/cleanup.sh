@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAMESPACES=("default" "murm-queue", "murm-logging")
+NAMESPACES=("default" "murm-queue" "murm-logging")
 
 for NAMESPACE in "${NAMESPACES[@]}"
 do
