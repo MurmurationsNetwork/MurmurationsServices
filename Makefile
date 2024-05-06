@@ -138,6 +138,7 @@ deploy-dataproxyrefresher:
 # Set the specific tag and environment for manual deployments
 SPECIFIC_TAG ?= latest
 MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
+						manually-deploy-cleanup \
                         manually-deploy-ingress \
                         manually-deploy-nats \
                         manually-deploy-index \
@@ -148,7 +149,7 @@ MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
                         manually-deploy-revalidatenode \
                         manually-deploy-dataproxy \
                         manually-deploy-dataproxyupdater \
-                        manually-deploy-dataproxyrefresher
+                        manually-deploy-dataproxyrefresher \
 
 deploy-all-services: $(MANUAL_DEPLOY_TARGETS)
 
