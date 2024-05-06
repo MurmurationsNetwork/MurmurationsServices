@@ -33,3 +33,18 @@ statefulSet:
           operator: "Exists"
           effect: "NoExecute"
           tolerationSeconds: 60
+
+natsBox:
+  podTemplate:
+    patch:
+      - op: add
+        path: /spec/tolerations
+        value:
+          - key: "node.kubernetes.io/unreachable"
+            operator: "Exists"
+            effect: "NoExecute"
+            tolerationSeconds: 60
+          - key: "node.kubernetes.io/not-ready"
+            operator: "Exists"
+            effect: "NoExecute"
+            tolerationSeconds: 60
