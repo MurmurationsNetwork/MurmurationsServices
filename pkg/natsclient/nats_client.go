@@ -42,9 +42,17 @@ func Initialize(url string) error {
 // GetInstance retrieves the initialized NatsClient instance.
 func GetInstance() *NatsClient {
 	if instance == nil || instance.conn == nil {
-		panic("NATS client is not initialized. Call Initialize first.")
+		return nil
 	}
 	return instance
+}
+
+// IsConnected checks if the NATS client is currently connected.
+func IsConnected() bool {
+	if instance == nil || instance.conn == nil {
+		return false
+	}
+	return instance.conn.IsConnected()
 }
 
 // AddSubscription adds a subscription to the NatsClient for management.
