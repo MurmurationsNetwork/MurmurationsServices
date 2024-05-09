@@ -42,7 +42,7 @@ spec:
           livenessProbe:
             httpGet:
               path: v2/ping
-              port: 8080
+              port: {{ .Values.index.service.port }}
             initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/elastic"
 	mongodb "github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 )
@@ -16,6 +17,10 @@ func PingHandler(c *gin.Context) {
 	}
 
 	if !checkNATS(c) {
+		return
+	}
+
+	if !checkES(c) {
 		return
 	}
 
@@ -50,6 +55,25 @@ func checkNATS(c *gin.Context) bool {
 
 	if !natsclient.IsConnected() {
 		c.String(http.StatusInternalServerError, "NATS is not connected")
+		return false
+	}
+
+	return true
+}
+
+// checkES performs a health check on Elasticsearch. Returns true if Elasticsearch is healthy.
+func checkES(c *gin.Context) bool {
+	if elastic.Client.GetClient() == nil {
+		return true
+	}
+
+	err := elastic.Client.Ping()
+	if err != nil {
+		c.String(
+			http.StatusInternalServerError,
+			"Error pinging Elasticsearch: %s",
+			err,
+		)
 		return false
 	}
 

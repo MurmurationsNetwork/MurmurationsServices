@@ -10,6 +10,14 @@ type mockClient struct {
 func (*mockClient) setClient(_ *elastic.Client) {
 }
 
+func (*mockClient) GetClient() *elastic.Client {
+	return nil
+}
+
+func (mockClient) Ping() error {
+	return nil
+}
+
 func (*mockClient) CreateMappings(_ []Index) error {
 	return nil
 }
