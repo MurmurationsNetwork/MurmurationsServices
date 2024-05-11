@@ -3,10 +3,10 @@ package elastic
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/olivere/elastic/v7"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
@@ -23,15 +23,11 @@ func (c *esClient) GetClient() *elastic.Client {
 }
 
 func (c *esClient) Ping() error {
-	_, code, err := c.client.Ping(URL).Do(context.Background())
-	if err != nil {
+	respond, err := c.client.ClusterHealth().
+		Index(constant.ESIndex.Node).
+		Do(context.Background())
+	if err != nil || respond.Status != "green" {
 		return fmt.Errorf("error pinging Elasticsearch: %w", err)
-	}
-	if code != http.StatusOK {
-		return fmt.Errorf(
-			"elasticsearch ping failed with status code: %d",
-			code,
-		)
 	}
 	return nil
 }
