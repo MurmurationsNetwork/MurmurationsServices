@@ -10,26 +10,18 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
 )
 
-// PingHandler responds to ping requests by checking the status of MongoDB and NATS.
+// PingHandler handles ping requests and checks the status of MongoDB, NATS, and Elasticsearch.
 func PingHandler(c *gin.Context) {
-	if !checkMongoDB(c) {
+	if !checkMongoDB(c) || !checkNATS(c) || !checkES(c) {
 		return
 	}
-
-	if !checkNATS(c) {
-		return
-	}
-
-	if !checkES(c) {
-		return
-	}
-
 	c.String(http.StatusOK, "pong!")
 }
 
-// checkMongoDB performs a health check on MongoDB. Returns true if MongoDB is healthy.
+// checkMongoDB verifies MongoDB's health. Returns true if healthy or not configured.
 func checkMongoDB(c *gin.Context) bool {
 	client := mongodb.Client.GetClient()
+	// If there is no client, assume MongoDB is not configured and return true.
 	if client == nil {
 		return true
 	}
@@ -47,9 +39,10 @@ func checkMongoDB(c *gin.Context) bool {
 	return true
 }
 
-// checkNATS checks if NATS is connected. Returns true if NATS is connected.
+// checkNATS verifies if NATS is connected. Returns true if connected or not configured.
 func checkNATS(c *gin.Context) bool {
 	if natsclient.GetInstance() == nil {
+		// If there is no instance, assume NATS is not configured and return true.
 		return true
 	}
 
@@ -61,9 +54,10 @@ func checkNATS(c *gin.Context) bool {
 	return true
 }
 
-// checkES performs a health check on Elasticsearch. Returns true if Elasticsearch is healthy.
+// checkES verifies Elasticsearch's health. Returns true if healthy or not configured.
 func checkES(c *gin.Context) bool {
 	if elastic.Client.GetClient() == nil {
+		// If there is no client, assume Elasticsearch is not configured and return true.
 		return true
 	}
 
