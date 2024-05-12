@@ -44,9 +44,9 @@ spec:
               path: v2/ping
               port: {{ .Values.index.service.port }}
             initialDelaySeconds: 120
-            periodSeconds: 10
+            periodSeconds: 5
             timeoutSeconds: 5
-            failureThreshold: 3
+            failureThreshold: 4
       {{- if eq .Values.global.env "development" }}
           volumeMounts:
             - mountPath: /src/index
