@@ -6,6 +6,7 @@ import (
 
 	"github.com/olivere/elastic/v7"
 
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 )
 
@@ -15,6 +16,29 @@ type esClient struct {
 
 func (c *esClient) setClient(client *elastic.Client) {
 	c.client = client
+}
+
+func (c *esClient) GetClient() *elastic.Client {
+	return c.client
+}
+
+// Ping checks the health status of the Elasticsearch cluster, specifically
+// the health of the node index. It returns an error if the cluster is not in
+// a 'green' state or if any other issue occurs during the request.
+func (c *esClient) Ping() error {
+	response, err := c.client.ClusterHealth().
+		Index(constant.ESIndex.Node).
+		Do(context.Background())
+	if err != nil {
+		return fmt.Errorf("error pinging Elasticsearch: %w", err)
+	}
+	if response.Status != "green" {
+		return fmt.Errorf(
+			"cluster health is %s, expected green",
+			response.Status,
+		)
+	}
+	return nil
 }
 
 func (c *esClient) CreateMappings(indices []Index) error {

@@ -12,6 +12,7 @@ import (
 
 var (
 	Client esClientInterface
+	URL    string
 )
 
 type esClientInterface interface {
@@ -24,7 +25,9 @@ type esClientInterface interface {
 	DeleteMany(string, *Query) error
 	Export(string, *Query, []interface{}) (*elastic.SearchResult, error)
 	GetNodes(string, *Query) (*elastic.SearchResult, error)
+	Ping() error
 
+	GetClient() *elastic.Client
 	setClient(*elastic.Client)
 }
 
@@ -65,6 +68,7 @@ func NewClient(url string) error {
 	}
 
 	Client.setClient(client)
+	URL = url
 
 	return nil
 }

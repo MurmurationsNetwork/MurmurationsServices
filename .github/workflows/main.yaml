@@ -51,6 +51,7 @@ jobs:
           - dataproxyupdater
           - dataproxyrefresher
           - maintenance
+          - cleanup
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

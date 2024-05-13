@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-cleanup-account
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-deleter-clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete", "get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-deleter-clusterrolebinding
+subjects:
+- kind: ServiceAccount
+  name: pod-cleanup-account
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: pod-deleter-clusterrole
+  apiGroup: rbac.authorization.k8s.io

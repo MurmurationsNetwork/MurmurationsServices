@@ -13,7 +13,7 @@ import (
 const (
 	DefaultInitialBackoff      = 30 * time.Second
 	DefaultMaxBackoff          = 4 * time.Minute
-	DefaultMultiplier          = 2
+	DefaultMultiplier          = 1
 	DefaultRandomizationFactor = 0.15
 )
 

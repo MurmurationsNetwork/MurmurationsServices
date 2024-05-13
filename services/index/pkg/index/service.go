@@ -219,22 +219,28 @@ func (s *Service) Run() {
 // WaitUntilUp returns a channel which blocks until the index service is up.
 func (s *Service) WaitUntilUp() <-chan struct{} {
 	initialized := make(chan struct{})
+	timeout := time.After(1 * time.Minute)
 	go func() {
 		for {
-			resp, err := http.Get(
-				fmt.Sprintf(
-					"http://localhost:%s/v2/ping",
-					config.Values.Server.Port,
-				),
-			)
-			if err == nil && resp.StatusCode == http.StatusOK {
-				close(initialized)
-				return
+			select {
+			case <-timeout:
+				panic("Service startup timed out")
+			default:
+				resp, err := http.Get(
+					fmt.Sprintf(
+						"http://localhost:%s/v2/ping",
+						config.Values.Server.Port,
+					),
+				)
+				if err == nil && resp.StatusCode == http.StatusOK {
+					close(initialized)
+					return
+				}
+				logger.Info(
+					"Ping failed, waiting for service to finish starting...",
+				)
+				time.Sleep(5 * time.Second)
 			}
-			logger.Info(
-				"Ping failed, waiting for service to finish starting...",
-			)
-			time.Sleep(time.Second)
 		}
 	}()
 	return initialized

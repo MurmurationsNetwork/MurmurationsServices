@@ -11,6 +11,7 @@ include ./build/revalidatenode/mk/Makefile
 include ./build/schemaparser/mk/Makefile
 include ./build/validation/mk/Makefile
 include ./build/maintenance/mk/Makefile
+include ./build/cleanup/mk/Makefile
 
 #--------------------------
 # Set environment variables.
@@ -137,6 +138,7 @@ deploy-dataproxyrefresher:
 # Set the specific tag and environment for manual deployments
 SPECIFIC_TAG ?= latest
 MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
+						manually-deploy-cleanup \
                         manually-deploy-ingress \
                         manually-deploy-nats \
                         manually-deploy-index \
@@ -147,7 +149,7 @@ MANUAL_DEPLOY_TARGETS = manually-deploy-murmurations-core \
                         manually-deploy-revalidatenode \
                         manually-deploy-dataproxy \
                         manually-deploy-dataproxyupdater \
-                        manually-deploy-dataproxyrefresher
+                        manually-deploy-dataproxyrefresher \
 
 deploy-all-services: $(MANUAL_DEPLOY_TARGETS)
 
@@ -170,6 +172,11 @@ manually-deploy-nats:
 	--set global.env=$(DEPLOY_ENV) \
 	--version 1.1.6 \
 	-f $(VALUES_FILE)
+
+manually-deploy-cleanup:
+	helm upgrade murmurations-cleanup ./charts/murmurations/charts/cleanup \
+	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)cleanup:$(SPECIFIC_TAG) \
+	--install --atomic --debug
 
 manually-deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \

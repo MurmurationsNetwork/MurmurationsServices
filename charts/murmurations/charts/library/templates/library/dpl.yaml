@@ -24,6 +24,15 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/library/config.yaml") . | sha256sum }}
     spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
       containers:
         - name: library-app
           image: {{ .Values.image }}
@@ -36,10 +45,10 @@ spec:
             httpGet:
               path: v2/ping
               port: 8080
-            initialDelaySeconds: 600
-            periodSeconds: 60
-            timeoutSeconds: 30
-            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 4
       {{- if $isDev }}
           volumeMounts:
             - mountPath: /src/library
