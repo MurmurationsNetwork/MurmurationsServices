@@ -17,6 +17,7 @@ By the end of this guide, you will be able to:
 - [Step 1 - Installing Longhorn](#step-1---installing-longhorn)
 - [Step 2 - Customizing Helm Options](#step-2---customizing-helm-options)
 - [Step 3 - Configuring Longhorn Settings](#step-3---configuring-longhorn-settings)
+- [Step 4 - Configuring Pod Deletion Policy](#step-4---configuring-pod-deletion-policy)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -64,6 +65,20 @@ After adjusting the settings to your preference, click on the Next button to pro
 Review the Helm chart options and provide a description if necessary. Confirm the settings and click on the **Install** button to complete the Longhorn setup.
 
 ![Finalize Installation](./assets/images/finalize_installation.png)
+
+## Step 4 - Configuring Pod Deletion Policy
+
+After installation, navigate back to your cluster in the Rancher dashboard.
+
+Select the cluster where Longhorn was installed, then find and select Longhorn from the menu.
+
+In the Longhorn section, click on Manage storage system via UI, which will open a new tab.
+
+In the newly opened Longhorn UI tab, navigate to Settings > General.
+
+Find the setting "Pod Deletion Policy When Node is Down".
+
+Select **delete-both-statefulset-and-deployment-pod** to ensure pods are properly managed when a node is down.
 
 ## Conclusion
 
