@@ -19,6 +19,7 @@ declare -A SERVICE_PATHS=(
     ["schemaparser"]="go.mod pkg/ cmd/schemaparser/ services/schemaparser/"
     ["dataproxyupdater"]="go.mod pkg/ cmd/dataproxyupdater/ services/dataproxyupdater/"
     ["dataproxyrefresher"]="go.mod pkg/ cmd/dataproxyrefresher/ services/dataproxyrefresher/"
+    ["maintenance"]="build/maintenance"
 )
 
 # Function to check if any files changed for a service.
