@@ -74,11 +74,15 @@ Select the cluster where Longhorn was installed, then find and select Longhorn f
 
 In the Longhorn section, click on Manage storage system via UI, which will open a new tab.
 
+![Longhorn UI](./assets/images/longhorn_ui.png)
+
 In the newly opened Longhorn UI tab, navigate to Settings > General.
 
 Find the setting "Pod Deletion Policy When Node is Down".
 
 Select **delete-both-statefulset-and-deployment-pod** to ensure pods are properly managed when a node is down.
+
+![Pod Deletion Policy](./assets/images/pod_deletion_policy.png)
 
 ## Conclusion
 
