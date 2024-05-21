@@ -84,6 +84,10 @@ Select **delete-both-statefulset-and-deployment-pod** to ensure pods are properl
 
 ![Pod Deletion Policy](./assets/images/pod_deletion_policy.png)
 
+Click on the **Save** button to apply the changes.
+
+![Save Changes](./assets/images/save_changes.png)
+
 ## Conclusion
 
 With Longhorn installed and configured, your RKE2 cluster is now equipped with a robust, distributed block storage system. Longhorn facilitates easy storage management and high availability for your Kubernetes workloads. You can now deploy applications that require persistent storage with confidence, knowing that Longhorn is managing your data.
