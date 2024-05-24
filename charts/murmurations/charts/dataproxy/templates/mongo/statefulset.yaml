@@ -19,6 +19,15 @@ spec:
       labels:
         app: data-proxy-mongo
     spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
       containers:
       - name: data-proxy-mongo
         image: mongo:5.0.6
