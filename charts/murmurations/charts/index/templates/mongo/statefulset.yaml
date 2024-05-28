@@ -39,14 +39,19 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "64m"
-        envFrom:
-        - secretRef:
-            name: index-mongo-secret
-        {{- if not $isDev }}
+        command: [ "mongod" ]
+        args: [ "--config", "/etc/mongo/mongodb.conf" ]
         volumeMounts:
-        - mountPath: /data/db
-          name: index-mongo-storage
+        {{- if not $isDev }}
+        - name: index-mongo-storage
+          mountPath: /data/db
         {{- end }}
+        - name: index-mongo-config-volume
+          mountPath: /etc/mongo
+      volumes:
+        - name: index-mongo-config-volume
+          configMap:
+            name: index-mongo-config
   {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:
