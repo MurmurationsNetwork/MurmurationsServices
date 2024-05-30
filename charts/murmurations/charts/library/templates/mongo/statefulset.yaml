@@ -31,14 +31,19 @@ spec:
       containers:
       - name: library-mongo
         image: mongo:5.0.6
-        envFrom:
-        - secretRef:
-            name: library-mongo-secret
-        {{- if not $isDev }}
+        command: [ "mongod" ]
+        args: [ "--config", "/etc/mongo/mongodb.conf" ]
         volumeMounts:
-        - mountPath: /data/db
-          name: library-mongo-storage
+        {{- if not $isDev }}
+          - name: library-mongo-storage
+            mountPath: /data/db
         {{- end }}
+          - name: library-mongo-config-volume
+            mountPath: /etc/mongo
+      volumes:
+        - name: library-mongo-config-volume
+          configMap:
+            name: library-mongo-config
   {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:
