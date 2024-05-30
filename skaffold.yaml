@@ -99,3 +99,8 @@ portForward:
     namespace: default
     port: 27017
     localPort: 27019
+  - resourceType: service
+    resourceName: schemaparser-redis
+    namespace: default
+    port: 6379
+    localPort: 6379

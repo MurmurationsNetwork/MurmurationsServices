@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: schemaparser-redis-config
+data:
+  redis.conf: |
+    port 6379
+    bind 0.0.0.0
+    protected-mode no
+    dir /data
+    appendonly yes
+    appendfilename "appendonly.aof"
+    save 900 1
+    save 300 10
+    save 60 10000
+  start-redis.sh: |
+    #!/bin/sh
+    if [ "$(hostname)" = "schemaparser-redis-0" ]; then
+      redis-server /etc/redis/redis.conf
+    else
+      redis-server /etc/redis/redis.conf --slaveof schemaparser-redis-0.schemaparser-redis 6379
+    fi
