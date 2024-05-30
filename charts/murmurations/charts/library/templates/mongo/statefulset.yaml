@@ -28,6 +28,10 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
       containers:
       - name: library-mongo
         image: mongo:5.0.6

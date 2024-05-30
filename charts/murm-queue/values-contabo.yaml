@@ -20,6 +20,12 @@ reloader:
 service:
   name: nats
 
+podTemplate:
+  topologySpreadConstraints:
+    kubernetes.io/hostname:
+      maxSkew: 1
+      whenUnsatisfiable: ScheduleAnyway
+
 statefulSet:
   patch:
     - op: add
