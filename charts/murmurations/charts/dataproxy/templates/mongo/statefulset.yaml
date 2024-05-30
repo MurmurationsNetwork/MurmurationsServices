@@ -31,14 +31,19 @@ spec:
       containers:
       - name: data-proxy-mongo
         image: mongo:5.0.6
-        envFrom:
-        - secretRef:
-            name: data-proxy-mongo-secret
-        {{- if not $isDev }}
+        command: [ "mongod" ]
+        args: [ "--config", "/etc/mongo/mongodb.conf" ]
         volumeMounts:
-        - mountPath: /data/db
-          name: dataproxy-mongo-storage
+        {{- if not $isDev }}
+        - name: dataproxy-mongo-storage
+          mountPath: /data/db
         {{- end }}
+        - name: data-proxy-mongo-config-volume
+          mountPath: /etc/mongo
+      volumes:
+        - name: data-proxy-mongo-config-volume
+          configMap:
+            name: data-proxy-mongo-config
   {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:

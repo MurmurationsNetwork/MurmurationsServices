@@ -35,11 +35,11 @@ spec:
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
         volumeMounts:
         {{- if not $isDev }}
-          - name: library-mongo-storage
-            mountPath: /data/db
+        - name: library-mongo-storage
+          mountPath: /data/db
         {{- end }}
-          - name: library-mongo-config-volume
-            mountPath: /etc/mongo
+        - name: library-mongo-config-volume
+          mountPath: /etc/mongo
       volumes:
         - name: library-mongo-config-volume
           configMap:

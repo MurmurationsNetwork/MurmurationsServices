@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-proxy-mongo-init
+  labels:
+    app: data-proxy-mongo
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mongo-init
+          image: mongo:5.0.6
+          envFrom:
+            - secretRef:
+                name: data-proxy-mongo-secret
+          command: [ "bash", "-c" ]
+          args:
+            - |
+              until mongo --host data-proxy-mongo-0.data-proxy-mongo.default.svc.cluster.local:27017 --eval "print(\"waiting for MongoDB to start...\")"; do
+                sleep 5
+              done
+              mongo --host data-proxy-mongo-0.data-proxy-mongo.default.svc.cluster.local:27017 --eval 'rs.initiate({
+                _id: "rs0",
+                members: [
+                  { _id: 0, host: "data-proxy-mongo-0.data-proxy-mongo.default.svc.cluster.local:27017" },
+                  { _id: 1, host: "data-proxy-mongo-1.data-proxy-mongo.default.svc.cluster.local:27017" },
+                  { _id: 2, host: "data-proxy-mongo-2.data-proxy-mongo.default.svc.cluster.local:27017" }
+                ]
+              })'
+              until mongo --host data-proxy-mongo:27017 --eval 'rs.status().ok'; do
+                sleep 5
+              done
+              mongo --host "mongodb://data-proxy-mongo:27017/?replicaSet=rs0" --eval "
+              db.getSiblingDB('admin').createUser({
+                user: '${MONGO_INITDB_ROOT_USERNAME}',
+                pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
+                roles: [{ role: 'readWriteAnyDatabase', db: 'admin' }]
+              })"
