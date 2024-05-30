@@ -12,7 +12,11 @@ metadata:
     app: schemaparser-redis
 spec:
   serviceName: "schemaparser-redis"
+  {{ if $isDev }}
+  replicas: 1
+  {{- else }}
   replicas: {{ .Values.redis.replicas }}
+  {{- end }}
   selector:
     matchLabels:
       app: schemaparser-redis
@@ -51,7 +55,9 @@ spec:
             cpu: "16m"
         ports:
         - containerPort: 6379
+        {{ if not $isDev }}
         command: [ "/bin/sh", "-c", "/tmp/redis/start-redis.sh" ]
+        {{- end }}
         volumeMounts:
         {{- if not $isDev }}
           - mountPath: /data

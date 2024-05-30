@@ -10,7 +10,11 @@ metadata:
   name: index-mongo
 spec:
   serviceName: "index-mongo"
+  {{ if $isDev }}
+  replicas: 1
+  {{- else }}
   replicas: {{ .Values.mongo.replicas }}
+  {{- end }}
   selector:
     matchLabels:
       app: index-mongo
@@ -43,8 +47,14 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "64m"
+        {{ if not $isDev }}
         command: [ "mongod" ]
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
+        {{- else }}
+        envFrom:
+        - secretRef:
+            name: index-mongo-secret
+        {{- end }}
         volumeMounts:
         {{- if not $isDev }}
         - name: index-mongo-storage

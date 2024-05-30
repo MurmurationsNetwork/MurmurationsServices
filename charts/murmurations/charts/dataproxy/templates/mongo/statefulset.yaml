@@ -10,7 +10,11 @@ metadata:
   name: data-proxy-mongo
 spec:
   serviceName: "data-proxy-mongo"
+  {{ if $isDev }}
+  replicas: 1
+  {{- else }}
   replicas: {{ .Values.mongo.replicas }}
+  {{- end }}
   selector:
     matchLabels:
       app: data-proxy-mongo
@@ -35,8 +39,14 @@ spec:
       containers:
       - name: data-proxy-mongo
         image: mongo:5.0.6
+        {{ if not $isDev }}
         command: [ "mongod" ]
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
+        {{- else }}
+        envFrom:
+          - secretRef:
+              name: data-proxy-mongo-secret
+        {{- end }}
         volumeMounts:
         {{- if not $isDev }}
         - name: dataproxy-mongo-storage

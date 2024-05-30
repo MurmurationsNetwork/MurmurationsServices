@@ -1,3 +1,10 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
+{{- if or $isProd $isStaging $isPretest }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -40,3 +47,4 @@ spec:
                 pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
                 roles: [{ role: 'readWriteAnyDatabase', db: 'admin' }]
               })"
+{{- end }}
