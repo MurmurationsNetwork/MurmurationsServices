@@ -43,8 +43,8 @@ spec:
               until mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.status().ok'; do
                 sleep 5
               done
-              if ! mongo --host "mongodb://index-mongo:27017/?replicaSet=rs0" --eval "db.getSiblingDB('admin').getUser('${MONGO_INITDB_ROOT_USERNAME}')"; then
-                mongo --host "mongodb://index-mongo:27017/?replicaSet=rs0" --eval "
+              if ! mongo --host index-mongo-0.index-mongo:27017 --eval "db.getSiblingDB('admin').getUser('${MONGO_INITDB_ROOT_USERNAME}')"; then
+                mongo --host index-mongo-0.index-mongo:27017 --eval "
                 db.getSiblingDB('admin').createUser({
                   user: '${MONGO_INITDB_ROOT_USERNAME}',
                   pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
