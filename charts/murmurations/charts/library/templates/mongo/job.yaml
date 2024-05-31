@@ -30,7 +30,7 @@ spec:
               until mongo --host library-mongo-0.library-mongo:27017 --eval "print(\"waiting for MongoDB to start...\")"; do
                 sleep 5
               done
-              if ! mongo --host library-mongo-0.library-mongo:27017 --eval 'rs.status()'; then
+              if mongo --host library-mongo-0.library-mongo:27017 --eval 'rs.status().ok' | grep -q 0; then
                 mongo --host library-mongo-0.library-mongo:27017 --eval 'rs.initiate({
                   _id: "rs0",
                   members: [
