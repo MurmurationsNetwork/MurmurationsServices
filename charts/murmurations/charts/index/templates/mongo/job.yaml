@@ -12,7 +12,7 @@ metadata:
   labels:
     app: index-mongo
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
 spec:
   template:
@@ -27,24 +27,28 @@ spec:
           command: [ "bash", "-c" ]
           args:
             - |
-              until mongo --host index-mongo-0.index-mongo.default.svc.cluster.local:27017 --eval "print(\"waiting for MongoDB to start...\")"; do
+              until mongo --host index-mongo-0.index-mongo:27017 --eval "print(\"waiting for MongoDB to start...\")"; do
                 sleep 5
               done
-              mongo --host index-mongo-0.index-mongo.default.svc.cluster.local:27017 --eval 'rs.initiate({
-                _id: "rs0",
-                members: [
-                  { _id: 0, host: "index-mongo-0.index-mongo.default.svc.cluster.local:27017" },
-                  { _id: 1, host: "index-mongo-1.index-mongo.default.svc.cluster.local:27017" },
-                  { _id: 2, host: "index-mongo-2.index-mongo.default.svc.cluster.local:27017" }
-                ]
-              })'
-              until mongo --host index-mongo:27017 --eval 'rs.status().ok'; do
+              if ! mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.status()'; then
+                mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.initiate({
+                  _id: "rs0",
+                  members: [
+                    { _id: 0, host: "index-mongo-0.index-mongo:27017" },
+                    { _id: 1, host: "index-mongo-1.index-mongo:27017" },
+                    { _id: 2, host: "index-mongo-2.index-mongo:27017" }
+                  ]
+                })'
+              fi
+              until mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.status().ok'; do
                 sleep 5
               done
-              mongo --host "mongodb://index-mongo:27017/?replicaSet=rs0" --eval "
-              db.getSiblingDB('admin').createUser({
-                user: '${MONGO_INITDB_ROOT_USERNAME}',
-                pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
-                roles: [{ role: 'readWriteAnyDatabase', db: 'admin' }]
-              })"
+              if ! mongo --host "mongodb://index-mongo:27017/?replicaSet=rs0" --eval "db.getSiblingDB('admin').getUser('${MONGO_INITDB_ROOT_USERNAME}')"; then
+                mongo --host "mongodb://index-mongo:27017/?replicaSet=rs0" --eval "
+                db.getSiblingDB('admin').createUser({
+                  user: '${MONGO_INITDB_ROOT_USERNAME}',
+                  pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
+                  roles: [{ role: 'readWriteAnyDatabase', db: 'admin' }]
+                })"
+              fi
 {{- end }}
