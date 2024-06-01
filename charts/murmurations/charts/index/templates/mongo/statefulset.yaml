@@ -10,10 +10,10 @@ metadata:
   name: index-mongo
 spec:
   serviceName: "index-mongo"
-  {{ if $isDev }}
-  replicas: 1
-  {{- else }}
+  {{ if or $isProd $isStaging }}
   replicas: {{ .Values.mongo.replicas }}
+  {{- else }}
+  replicas: 1
   {{- end }}
   selector:
     matchLabels:
