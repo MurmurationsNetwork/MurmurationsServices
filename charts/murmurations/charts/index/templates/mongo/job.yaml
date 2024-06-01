@@ -33,8 +33,8 @@ spec:
               MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
               MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
 
-              mongo --host $MONGO_URI --quiet --eval 'rs.status()' > /dev/null 2>&1
-              if [ $? -ne 0 ]; then
+              mongo --host index-mongo-0.index-mongo:27017 --quiet --eval 'rs.status().ok' > /dev/null 2>&1
+              if [ $? -ne 1 ]; then
                 echo "Replica set not initialized. Initializing..."
                 mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.initiate({
                   _id: "rs0",
@@ -61,6 +61,8 @@ spec:
               else
                 echo "User '${MONGO_INITDB_ROOT_USERNAME}' already exists."
               fi
+
+              sleep 10
 
               echo "MongoDB replica set and user setup complete."
 {{- end }}
