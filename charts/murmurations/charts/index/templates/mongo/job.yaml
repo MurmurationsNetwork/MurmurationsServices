@@ -13,7 +13,7 @@ metadata:
     app: index-mongo
   annotations:
     "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   template:
     spec:
@@ -27,10 +27,15 @@ spec:
           command: [ "bash", "-c" ]
           args:
             - |
-              until mongo --host index-mongo-0.index-mongo:27017 --eval "print(\"waiting for MongoDB to start...\")"; do
-                sleep 5
-              done
-              if mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.status().ok' | grep -q 0; then
+              #!/bin/bash
+
+              MONGO_URI="mongodb://index-mongo:27017/?replicaSet=rs0"
+              MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+              MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+              mongo --host $MONGO_URI --quiet --eval 'rs.status()' > /dev/null 2>&1
+              if [ $? -ne 0 ]; then
+                echo "Replica set not initialized. Initializing..."
                 mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.initiate({
                   _id: "rs0",
                   members: [
@@ -39,16 +44,23 @@ spec:
                     { _id: 2, host: "index-mongo-2.index-mongo:27017" }
                   ]
                 })'
+                sleep 10
+              else
+                echo "Replica set already initialized."
               fi
-              until mongo --host index-mongo-0.index-mongo:27017 --eval 'rs.status().ok'; do
-                sleep 5
-              done
-              if ! mongo --host index-mongo-0.index-mongo:27017 --eval "db.getSiblingDB('admin').getUser('${MONGO_INITDB_ROOT_USERNAME}')"; then
-                mongo --host index-mongo-0.index-mongo:27017 --eval "
-                db.getSiblingDB('admin').createUser({
+
+              USER_EXISTS=$(mongo --host $MONGO_URI --quiet --eval 'db.getSiblingDB("admin").getUser("'"${MONGO_INITDB_ROOT_USERNAME}"'")')
+
+              if [ "$USER_EXISTS" == "null" ]; then
+                echo "User '${MONGO_INITDB_ROOT_USERNAME}' does not exist. Creating user..."
+                mongo --host $MONGO_URI --quiet --eval "db.getSiblingDB('admin').createUser({
                   user: '${MONGO_INITDB_ROOT_USERNAME}',
                   pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
                   roles: [{ role: 'readWriteAnyDatabase', db: 'admin' }]
                 })"
+              else
+                echo "User '${MONGO_INITDB_ROOT_USERNAME}' already exists."
               fi
+
+              echo "MongoDB replica set and user setup complete."
 {{- end }}
