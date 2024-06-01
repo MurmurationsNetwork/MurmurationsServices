@@ -36,6 +36,9 @@ spec:
         - maxSkew: 1
           topologyKey: "kubernetes.io/hostname"
           whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+              matchLabels:
+                app: index-mongo
       priorityClassName: murmurations-high-priority
       containers:
       - name: index-mongo

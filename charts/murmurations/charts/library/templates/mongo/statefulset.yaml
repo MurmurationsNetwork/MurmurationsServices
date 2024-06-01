@@ -36,6 +36,9 @@ spec:
         - maxSkew: 1
           topologyKey: "kubernetes.io/hostname"
           whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: library-mongo
       containers:
       - name: library-mongo
         image: mongo:5.0.6

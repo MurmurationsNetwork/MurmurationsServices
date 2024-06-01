@@ -34,6 +34,13 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: schemaparser-redis
       initContainers:
         - name: init-permissions
           image: busybox
