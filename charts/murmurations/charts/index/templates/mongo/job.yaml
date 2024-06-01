@@ -4,7 +4,7 @@
 {{- $isPretest := eq $env "pretest" }}
 {{- $isDev := eq $env "development" }}
 
-{{- if or $isProd $isStaging $isPretest }}
+{{- if or $isProd $isStaging }}
 apiVersion: batch/v1
 kind: Job
 metadata:

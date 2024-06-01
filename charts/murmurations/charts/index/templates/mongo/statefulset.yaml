@@ -50,7 +50,7 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "64m"
-        {{ if not $isDev }}
+        {{ if or $isProd $isStaging }}
         command: [ "mongod" ]
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
         {{- else }}

@@ -42,7 +42,7 @@ spec:
       containers:
       - name: library-mongo
         image: mongo:5.0.6
-        {{ if not $isDev }}
+        {{ if or $isProd $isStaging }}
         command: [ "mongod" ]
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
         {{- else }}
