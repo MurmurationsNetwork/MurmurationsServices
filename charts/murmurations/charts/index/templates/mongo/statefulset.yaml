@@ -43,16 +43,24 @@ spec:
       containers:
       - name: index-mongo
         image: mongo:5.0.6
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "32m"
-          limits:
-            memory: "256Mi"
-            cpu: "64m"
         {{ if or $isProd $isStaging }}
         command: [ "mongod" ]
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - |
+                if [ "$(mongo --quiet --eval 'db.hello().ok' | grep 1)" ]; then
+                  exit 0
+                else
+                  exit 1
+                fi
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
         {{- else }}
         envFrom:
         - secretRef:

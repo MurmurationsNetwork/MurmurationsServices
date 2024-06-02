@@ -45,6 +45,21 @@ spec:
         {{ if or $isProd $isStaging }}
         command: [ "mongod" ]
         args: [ "--config", "/etc/mongo/mongodb.conf" ]
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - |
+                if [ "$(mongo --quiet --eval 'db.hello().ok' | grep 1)" ]; then
+                  exit 0
+                else
+                  exit 1
+                fi
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
         {{- else }}
         envFrom:
           - secretRef:

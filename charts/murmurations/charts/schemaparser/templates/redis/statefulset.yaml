@@ -44,7 +44,7 @@ spec:
       initContainers:
         - name: init-permissions
           image: busybox
-          command: ['sh', '-c', 'cp /etc/redis/start-redis.sh /tmp/redis/start-redis.sh && chmod +x /tmp/redis/start-redis.sh && ls -l /tmp/redis/']
+          command: ['sh', '-c', 'cp /etc/redis/start-redis.sh /tmp/redis/start-redis.sh && chmod +x /tmp/redis/start-redis.sh']
           volumeMounts:
             - name: schemaparser-redis-config-volume
               mountPath: /etc/redis
