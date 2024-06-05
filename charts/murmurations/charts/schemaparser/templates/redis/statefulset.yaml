@@ -59,7 +59,7 @@ spec:
             cpu: "8m"
           limits:
             memory: "32Mi"
-            cpu: "16m"
+            cpu: "32m"
         ports:
         - containerPort: 6379
         {{ if or $isProd $isStaging }}
