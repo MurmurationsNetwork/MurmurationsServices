@@ -10,7 +10,11 @@ metadata:
   name: index-mongo
 spec:
   serviceName: "index-mongo"
+  {{ if or $isProd $isStaging }}
   replicas: {{ .Values.mongo.replicas }}
+  {{- else }}
+  replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       app: index-mongo
@@ -28,25 +32,51 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+              matchLabels:
+                app: index-mongo
       priorityClassName: murmurations-high-priority
       containers:
       - name: index-mongo
         image: mongo:5.0.6
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "32m"
-          limits:
-            memory: "256Mi"
-            cpu: "64m"
+        {{ if or $isProd $isStaging }}
+        command: [ "mongod" ]
+        args: [ "--config", "/etc/mongo/mongodb.conf" ]
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - |
+                if [ "$(mongo --quiet --eval 'db.hello().ok' | grep 1)" ]; then
+                  exit 0
+                else
+                  exit 1
+                fi
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        {{- else }}
         envFrom:
         - secretRef:
             name: index-mongo-secret
-        {{- if not $isDev }}
-        volumeMounts:
-        - mountPath: /data/db
-          name: index-mongo-storage
         {{- end }}
+        volumeMounts:
+        {{- if not $isDev }}
+        - name: index-mongo-storage
+          mountPath: /data/db
+        {{- end }}
+        - name: index-mongo-config-volume
+          mountPath: /etc/mongo
+      volumes:
+        - name: index-mongo-config-volume
+          configMap:
+            name: index-mongo-config
   {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:

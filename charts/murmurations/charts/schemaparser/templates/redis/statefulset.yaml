@@ -9,20 +9,21 @@ kind: StatefulSet
 metadata:
   name: schemaparser-redis
   labels:
-    app: redis
-    role: leader
+    app: schemaparser-redis
 spec:
   serviceName: "schemaparser-redis"
+  {{ if or $isProd $isStaging }}
+  replicas: {{ .Values.redis.replicas }}
+  {{- else }}
   replicas: 1
+  {{- end }}
   selector:
     matchLabels:
-      app: redis
-      role: leader
+      app: schemaparser-redis
   template:
     metadata:
       labels:
-        app: redis
-        role: leader
+        app: schemaparser-redis
     spec:
       tolerations:
       - key: "node.kubernetes.io/unreachable"
@@ -33,8 +34,24 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: schemaparser-redis
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: ['sh', '-c', 'cp /etc/redis/start-redis.sh /tmp/redis/start-redis.sh && chmod +x /tmp/redis/start-redis.sh']
+          volumeMounts:
+            - name: schemaparser-redis-config-volume
+              mountPath: /etc/redis
+            - name: schemaparser-redis-script-volume
+              mountPath: /tmp/redis
       containers:
-      - name: leader
+      - name: schemaparser-redis
         image: redis:7.2.4
         resources:
           requests:
@@ -42,14 +59,27 @@ spec:
             cpu: "8m"
           limits:
             memory: "32Mi"
-            cpu: "16m"
+            cpu: "32m"
         ports:
         - containerPort: 6379
-        {{- if not $isDev }}
+        {{ if or $isProd $isStaging }}
+        command: [ "/bin/sh", "-c", "/tmp/redis/start-redis.sh" ]
+        {{- end }}
         volumeMounts:
+        {{- if not $isDev }}
           - mountPath: /data
             name: schemaparser-redis-storage
-            {{- end }}
+        {{- end }}
+          - name: schemaparser-redis-config-volume
+            mountPath: /etc/redis
+          - name: schemaparser-redis-script-volume
+            mountPath: /tmp/redis
+      volumes:
+        - name: schemaparser-redis-config-volume
+          configMap:
+            name: schemaparser-redis-config
+        - name: schemaparser-redis-script-volume
+          emptyDir: { }
   {{- if not $isDev }}
   volumeClaimTemplates:
     - metadata:
