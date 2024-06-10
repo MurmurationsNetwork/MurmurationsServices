@@ -1,0 +1,68 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
+{{ if or $isProd $isStaging }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-proxy-mongo-init
+  labels:
+    app: data-proxy-mongo
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mongo-init
+          image: mongo:5.0.6
+          envFrom:
+            - secretRef:
+                name: data-proxy-mongo-secret
+          command: [ "bash", "-c" ]
+          args:
+            - |
+              #!/bin/bash
+
+              MONGO_URI="mongodb://data-proxy-mongo:27017/?replicaSet=rs0"
+              MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+              MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+              mongo --host data-proxy-mongo-0.data-proxy-mongo --quiet --eval 'rs.status().ok' > /dev/null 2>&1
+              if [ $? -ne 1 ]; then
+                echo "Replica set not initialized. Initializing..."
+                mongo --host data-proxy-mongo-0.data-proxy-mongo:27017 --eval 'rs.initiate({
+                  _id: "rs0",
+                  members: [
+                    { _id: 0, host: "data-proxy-mongo-0.data-proxy-mongo:27017" },
+                    { _id: 1, host: "data-proxy-mongo-1.data-proxy-mongo:27017" },
+                    { _id: 2, host: "data-proxy-mongo-2.data-proxy-mongo:27017" }
+                  ]
+                })'
+                sleep 10
+              else
+                echo "Replica set already initialized."
+              fi
+
+              USER_EXISTS=$(mongo --host $MONGO_URI --quiet --eval 'db.getSiblingDB("admin").getUser("'"${MONGO_INITDB_ROOT_USERNAME}"'")')
+
+              if [ "$USER_EXISTS" == "null" ]; then
+                echo "User '${MONGO_INITDB_ROOT_USERNAME}' does not exist. Creating user..."
+                mongo --host $MONGO_URI --quiet --eval "db.getSiblingDB('admin').createUser({
+                  user: '${MONGO_INITDB_ROOT_USERNAME}',
+                  pwd: '${MONGO_INITDB_ROOT_PASSWORD}',
+                  roles: [{ role: 'readWriteAnyDatabase', db: 'admin' }]
+                })"
+              else
+                echo "User '${MONGO_INITDB_ROOT_USERNAME}' already exists."
+              fi
+
+              sleep 10
+
+              echo "MongoDB replica set and user setup complete."
+{{- end }}

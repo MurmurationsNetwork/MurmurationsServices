@@ -10,7 +10,11 @@ metadata:
   name: library-mongo
 spec:
   serviceName: "library-mongo"
+  {{ if or $isProd $isStaging }}
   replicas: {{ .Values.mongo.replicas }}
+  {{- else }}
+  replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       app: library-mongo
@@ -28,17 +32,50 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: library-mongo
       containers:
       - name: library-mongo
         image: mongo:5.0.6
+        {{ if or $isProd $isStaging }}
+        command: [ "mongod" ]
+        args: [ "--config", "/etc/mongo/mongodb.conf" ]
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - |
+                if [ "$(mongo --quiet --eval 'db.hello().ok' | grep 1)" ]; then
+                  exit 0
+                else
+                  exit 1
+                fi
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        {{- else }}
         envFrom:
-        - secretRef:
-            name: library-mongo-secret
-        {{- if not $isDev }}
-        volumeMounts:
-        - mountPath: /data/db
-          name: library-mongo-storage
+          - secretRef:
+              name: library-mongo-secret
         {{- end }}
+        volumeMounts:
+        {{- if not $isDev }}
+        - name: library-mongo-storage
+          mountPath: /data/db
+        {{- end }}
+        - name: library-mongo-config-volume
+          mountPath: /etc/mongo
+      volumes:
+        - name: library-mongo-config-volume
+          configMap:
+            name: library-mongo-config
   {{- if not $isDev }}
   volumeClaimTemplates:
   - metadata:

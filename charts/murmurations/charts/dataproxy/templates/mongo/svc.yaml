@@ -6,6 +6,4 @@ spec:
   selector:
     app: data-proxy-mongo
   ports:
-    - name: db
-      protocol: TCP
-      port: 27017
+    - port: 27017

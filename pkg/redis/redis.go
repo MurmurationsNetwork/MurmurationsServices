@@ -19,9 +19,12 @@ func NewClient(url string) Redis {
 	}
 	return &redisImpl{
 		client: redis.NewClient(&redis.Options{
-			Addr:     url,
-			Password: "",
-			DB:       0,
+			Addr:         url,
+			Password:     "",
+			DB:           0,
+			DialTimeout:  10 * time.Second,
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
 		}),
 	}
 }

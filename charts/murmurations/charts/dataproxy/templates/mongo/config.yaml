@@ -2,3 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: data-proxy-mongo-config
+data:
+  mongodb.conf: |
+    net:
+      bindIp: 0.0.0.0
+      port: 27017
+    replication:
+      replSetName: rs0
