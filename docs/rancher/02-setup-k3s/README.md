@@ -42,7 +42,7 @@ Once a secure connection is established, you can proceed with the k3s installati
 To install k3s, execute the following command, ensuring you adjust the version number as needed to match the version compatible with your setup:
 
 ```bash
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.26.12+k3s1 sh -s - server --cluster-init
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.27.14+k3s1 sh -s - server --cluster-init
 ```
 
 After the installation completes, verify that your cluster is operational:
