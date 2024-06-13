@@ -53,7 +53,7 @@ Install `cert-manager` in your cluster to manage certificates automatically:
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
-  --set installCRDs=true
+  --set crds.enabled=true
 ```
 
 ## Step 4 - Updating Ingress Configuration
