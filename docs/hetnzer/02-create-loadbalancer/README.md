@@ -7,6 +7,12 @@ This guide will demonstrate how to set up a Hetzner Load Balancer.
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Step 1 - Creating a Hetzner Load Balancer](#step-1---creating-a-hetzner-load-balancer)
+- [Step 2 - Setting Up Location and Type](#step-2---setting-up-location-and-type)
+- [Step 3 - Add Target](#step-3--add-target)
+- [Step 4 - Update Services](#step-4---update-services)
+- [Step 5 - Select Label](#step-5---select-label)
+- [Step 6 - Create Load Balancer](#step-6---create-load-balancer)
 
 ## Step 1 - Creating a Hetzner Load Balancer
 
@@ -16,14 +22,14 @@ This guide will demonstrate how to set up a Hetzner Load Balancer.
 
     ![step-1](./assets/images/step-1.png)
 
-### Step 2 - Setting Up Location and Type
+## Step 2 - Setting Up Location and Type
 
 1. Choose "Nuremburg" as the location.
 2. Choose "lb11" as the type.
 
     ![step-2](./assets/images/step-2.png)
 
-### Step 3- Add Target
+## Step 3- Add Target
 
 1. Click on "Add Target".
 2. Select "Label" as the target type.
@@ -34,7 +40,7 @@ This guide will demonstrate how to set up a Hetzner Load Balancer.
 
     ![step-3-2](./assets/images/step-3-2.png)
 
-### Step 4 - Update Services
+## Step 4 - Update Services
 
 1. Click on "Add Service", and select "TLS Passthrough" as the service type.
 
