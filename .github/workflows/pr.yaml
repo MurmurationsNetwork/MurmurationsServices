@@ -137,17 +137,17 @@ jobs:
       - name: Test Index
         run: >
           ./scripts/wait_for_timeout.sh
-          https://pretest1-index.murmurations.network/v2/ping 200 300
+          https://pretest-index.murmurations.network/v2/ping 200 300
 
       - name: Test Library
         run: >
           ./scripts/wait_for_timeout.sh
-          https://pretest1-library.murmurations.network/v2/ping 200 300
+          https://pretest-library.murmurations.network/v2/ping 200 300
 
       - name: Test Data Proxy
         run: >
           ./scripts/wait_for_timeout.sh
-          https://pretest1-data-proxy.murmurations.network/v1/ping 200 300
+          https://pretest-data-proxy.murmurations.network/v1/ping 200 300
 
       - name: Newman E2E Test
         run: make newman-test DEPLOY_ENV=pretest
