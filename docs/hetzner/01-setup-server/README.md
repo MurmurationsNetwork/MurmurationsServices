@@ -7,7 +7,7 @@ This guide will demonstrate how to set up a Hetzner server as a Kubernetes node.
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Step 1 - Creating a Hetzer Server](#step-1---creating-a-hetzner-server)
+- [Step 1 - Creating a Hetzner Server](#step-1---creating-a-hetzner-server)
 - [Step 2 - Setting Up Location and Image](#step-2---setting-up-location-and-image)
 - [Step 3 - Choose Server Type](#step-3---choose-server-type)
 - [Step 4 - Choose Network and SSH Key](#step-4---choose-network-and-ssh-key)
