@@ -17,6 +17,7 @@ After completing this guide, you will have:
 - [Step 3 - Installing cert-manager](#step-3---installing-cert-manager)
 - [Step 4 - Deploying Rancher](#step-4---deploying-rancher)
 - [Step 5 - Accessing Rancher](#step-5---accessing-rancher)
+- [Step 6 - Configuring kubeconfig Token TTL](#step-6---configuring-kubeconfig-token-ttl)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -56,7 +57,7 @@ Cert-manager handles certificate management in Kubernetes, automating certificat
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
-  --version v1.13.3 \
+  --version v1.14.6 \
   --set installCRDs=true
 ```
 
@@ -89,6 +90,22 @@ https://{{server_dns_name}}/dashboard/?setup={{password}}
 ```
 
 Replace `{{server_dns_name}}` and `{{password}}` with your actual server DNS name and the password you set during the Rancher installation.
+
+## Step 6 - Configuring kubeconfig Token TTL
+
+To prevent the kubeconfig from expiring too quickly, it's essential to adjust the default token TTL (Time-To-Live) settings. We'll change the kubeconfig-default-token-ttl-minutes setting to 129600 minutes, which equals 90 days. Follow these steps to update the token TTL:
+
+1. In the bottom right corner, click on the Global Settings.
+
+    ![Global Settings](./assets/images/global-settings.png)
+
+2. Locate the `kubeconfig-default-token-ttl-minutes` setting, and click on the Edit Setting button.
+
+    ![Edit kubeconfig Token TTL Setting](./assets/images/kubeconfig-ttl.png)
+
+3. Change the Value to 129600 to set the TTL to 90 days, and click Save to apply the change.
+
+    ![Set kubeconfig Token TTL to 90 days](./assets/images/kubeconfig-ttl-edit.png)
 
 ## Conclusion
 

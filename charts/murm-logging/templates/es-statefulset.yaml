@@ -94,6 +94,5 @@ spec:
       storageClassName: longhorn
       resources:
         requests:
-          storage: {{ if eq $env "production" }}10Gi{{ else }}5Gi{{ end }}
-
+          storage: 8Gi
 {{- end }}
