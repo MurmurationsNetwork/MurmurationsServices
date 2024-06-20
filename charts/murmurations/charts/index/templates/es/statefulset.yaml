@@ -111,10 +111,10 @@ spec:
       storageClassName: longhorn
       resources:
         requests:
-           {{- if $isProd }}
+          {{- if $isProd }}
           storage: 10Gi
           {{- else if $isStaging }}
-          storage: 5Gi
+          storage: 10Gi
           {{- else if $isPretest }}
           storage: 5Gi
           {{- end }}
