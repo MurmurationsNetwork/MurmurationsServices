@@ -15,7 +15,7 @@
   {{- $externalDataProxyURL = "https://test-data-proxy.murmurations.network" }}
 {{- else if $isPretest }}
   {{- $refreshTTL = "86400" }} # 24 hrs * 60 mins * 60 secs
-  {{- $externalDataProxyURL = "https://pretest1-data-proxy.murmurations.network" }}
+  {{- $externalDataProxyURL = "https://pretest-data-proxy.murmurations.network" }}
 {{- end }}
 
 apiVersion: v1

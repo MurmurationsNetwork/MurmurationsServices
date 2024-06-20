@@ -36,9 +36,9 @@ spec:
   {{- if $isPretest }}
   tls:
   - hosts:
-    - pretest1-index.murmurations.network
-    - pretest1-library.murmurations.network
-    - pretest1-data-proxy.murmurations.network
+    - pretest-index.murmurations.network
+    - pretest-library.murmurations.network
+    - pretest-data-proxy.murmurations.network
     secretName: letsencrypt-prod-cert
   {{- end }}
   rules:
@@ -105,7 +105,7 @@ spec:
                 port:
                   number: 8080
     {{- else if $isPretest }}
-    - host: pretest1-index.murmurations.network
+    - host: pretest-index.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -115,7 +115,7 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    - host: pretest1-library.murmurations.network
+    - host: pretest-library.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -125,7 +125,7 @@ spec:
                 name: library-app
                 port:
                   number: 8080
-    - host: pretest1-data-proxy.murmurations.network
+    - host: pretest-data-proxy.murmurations.network
       http:
         paths:
           - pathType: ImplementationSpecific
