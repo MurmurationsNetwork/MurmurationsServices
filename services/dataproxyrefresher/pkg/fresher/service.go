@@ -68,6 +68,12 @@ func (r *DataproxyRefresher) Run() error {
 
 	for _, profile := range profiles {
 		if err := r.processProfile(mapping, profile); err != nil {
+			if strings.Contains(err.Error(), "failed to get data from API") {
+				logger.Info(
+					"Ignoring error for profile - cuid: " + profile.Cuid,
+				)
+				continue
+			}
 			return err
 		}
 	}
