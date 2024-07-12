@@ -11,7 +11,7 @@ require (
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/nats.go v1.36.0
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/redis/go-redis/v9 v9.5.3
+	github.com/redis/go-redis/v9 v9.5.4
 	github.com/stretchr/testify v1.9.0
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
