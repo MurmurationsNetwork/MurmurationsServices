@@ -11,7 +11,7 @@ require (
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/nats.go v1.36.0
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/redis/go-redis/v9 v9.5.4
+	github.com/redis/go-redis/v9 v9.6.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
@@ -19,8 +19,8 @@ require (
 	github.com/xuri/excelize/v2 v2.8.1
 	go.mongodb.org/mongo-driver v1.16.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
-	golang.org/x/net v0.27.0
+	golang.org/x/exp v0.0.0-20240716175740-e3f259677ff7
+	golang.org/x/net v0.25.0
 	golang.org/x/sync v0.7.0
 )
 
