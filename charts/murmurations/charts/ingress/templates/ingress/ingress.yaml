@@ -136,7 +136,7 @@ spec:
                 port:
                   number: 8080
    {{- else if $isDev }}
-    - host: index.murmurations.dev
+    - host: index.murmurations.developers
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -146,7 +146,7 @@ spec:
                 name: index-app
                 port:
                   number: 8080
-    - host: library.murmurations.dev
+    - host: library.murmurations.developers
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -156,7 +156,7 @@ spec:
                 name: library-app
                 port:
                   number: 8080
-    - host: data-proxy.murmurations.dev
+    - host: data-proxy.murmurations.developers
       http:
         paths:
           - pathType: ImplementationSpecific

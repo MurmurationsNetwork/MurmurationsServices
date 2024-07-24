@@ -3,30 +3,30 @@
 	"values": [
 		{
 			"key": "indexBaseUrl",
-			"value": "http://index.murmurations.dev/v2",
+			"value": "http://index.murmurations.developers/v2",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "indexBaseUrlV1",
-			"value": "http://index.murmurations.dev/v1",
+			"value": "http://index.murmurations.developers/v1",
 			"enabled": true
 		},
 		{
 			"key": "libraryBaseUrl",
-			"value": "http://library.murmurations.dev/v2",
+			"value": "http://library.murmurations.developers/v2",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "libraryBaseUrlV1",
-			"value": "http://library.murmurations.dev/v1",
+			"value": "http://library.murmurations.developers/v1",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "dataProxyBaseUrl",
-			"value": "http://data-proxy.murmurations.dev/v1",
+			"value": "http://data-proxy.murmurations.developers/v1",
 			"type": "default",
 			"enabled": true
 		}
