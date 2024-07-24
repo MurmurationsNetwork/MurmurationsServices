@@ -37,16 +37,16 @@ For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/RE
 7. Add the following to your host file `sudo vim /etc/hosts`
 
     ```sh
-    127.0.0.1   index.murmurations.dev
-    127.0.0.1   library.murmurations.dev
-    127.0.0.1   data-proxy.murmurations.dev
+    127.0.0.1   index.murmurations.developers
+    127.0.0.1   library.murmurations.developers
+    127.0.0.1   data-proxy.murmurations.developers
     ```
 
 ### After completing the setup
 
 1. Run `make dev` to start services
 
-2. Try `index.murmurations.dev/v2/ping`, `library.murmurations.dev/v2/ping` and `data-proxy.murmurations.dev/v1/ping`
+2. Try `index.murmurations.developers/v2/ping`, `library.murmurations.developers/v2/ping` and `data-proxy.murmurations.developers/v1/ping`
 
 ## Setting up Pre-commit and custom git hooks for development
 
