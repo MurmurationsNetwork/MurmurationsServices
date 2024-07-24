@@ -136,7 +136,7 @@ spec:
                 port:
                   number: 8080
    {{- else if $isDev }}
-    - host: index.murmurations.developerselopers
+    - host: index.murmurations.developers
       http:
         paths:
           - pathType: ImplementationSpecific
