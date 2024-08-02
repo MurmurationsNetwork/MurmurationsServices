@@ -14,8 +14,8 @@ brew install k6
 
 ## 3. Write a Script
 
-- We will use the constant-arrival-rate executor for load testing. Adjust the rate to increase the requests per second.
-- Virtual users can be thought of as the number of threads to execute the function. If the rate is greater than the maxVUs, then you won't be able to hit the desired rate.
+- Use the constant-arrival-rate executor for load testing. Adjust the rate to increase requests per second.
+- Virtual users (VUs) are similar to the number of threads executing the function. If the rate exceeds maxVUs, the desired rate won't be achieved.
 
 ```javascript
 import http from 'k6/http';
@@ -63,3 +63,16 @@ k6 run load-test.js
 
 - **http_req_duration**: Provides a comprehensive view of response times. Aim for < 500 milliseconds.
 - **http_req_failed**: Ensures request reliability. Aim for 0%.
+
+## Note
+
+If you hit the rate limit, please update the rate settings.
+
+Update the rate limit in the config file `charts/murmurations/charts/index/templates/index/config.yaml`:
+
+```yaml
+GET_RATE_LIMIT_PERIOD: "6000-M"
+POST_RATE_LIMIT_PERIOD: "6000-M"
+```
+
+Manually deploy the index server after updating.
