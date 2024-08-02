@@ -71,8 +71,8 @@ If you hit the rate limit, please update the rate settings.
 Update the rate limit in the config file `charts/murmurations/charts/index/templates/index/config.yaml`:
 
 ```yaml
-GET_RATE_LIMIT_PERIOD: "6000-M"
-POST_RATE_LIMIT_PERIOD: "6000-M"
+GET_RATE_LIMIT_PERIOD: "<some-big-number>-M"
+POST_RATE_LIMIT_PERIOD: "<some-big-number>-M"
 ```
 
-Manually deploy the index server after updating.
+Remember to manually deploy the index server after updating.
