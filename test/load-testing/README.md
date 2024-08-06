@@ -1,5 +1,14 @@
 # How to Perform Load Testing
 
+## Table of Contents
+1. [Update the Hosts](#1-update-the-hosts)
+2. [Install k6](#2-install-k6)
+3. [Write a Script](#3-write-a-script)
+4. [Run the Test](#4-run-the-test)
+5. [Check the Results](#5-check-the-results)
+6. [Note](#6-note)
+7. [Debug](#7-debug)
+
 ## 1. Update the Hosts
 
 ```bash
@@ -64,7 +73,7 @@ k6 run load-test.js
 - **http_req_duration**: Provides a comprehensive view of response times. Aim for < 500 milliseconds.
 - **http_req_failed**: Ensures request reliability. Aim for 0%.
 
-## Note
+## 6. Note
 
 If you hit the rate limit, please update the rate settings.
 
@@ -76,3 +85,25 @@ POST_RATE_LIMIT_PERIOD: "<some-big-number>-M"
 ```
 
 Remember to manually deploy the index server after updating.
+
+## 7. Debug
+
+### Access Kibana
+
+```sh
+kubectl port-forward service/index-kibana 5601:5601
+```
+
+### Access MongoDB
+
+```sh
+kubectl port-forward service/index-mongo 27017:27017
+```
+
+### Access NATS
+
+```sh
+kubectl port-forward svc/nats 4222:4222 -n murm-queue
+nats stream ls
+nats stream info nodes
+```

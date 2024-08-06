@@ -1,9 +1,13 @@
 import http from 'k6/http';
 import { check } from 'k6';
 
-// Function to generate a random number between 0 and 2^64 - 1
-function getRandomNumber() {
-  return Math.floor(Math.random() * Math.pow(2, 64));
+// Function to generate a UUID
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 // Define the profile URL as a constant
@@ -17,20 +21,20 @@ export let options = {
   scenarios: {
     constant_request_rate: {
       executor: 'constant-arrival-rate',
-      rate: 1, // Number of requests per second
+      rate: 100, // Number of requests per second
       timeUnit: '1s',
-      duration: '1m', // Test duration
-      preAllocatedVUs: 50, // Initial pool of virtual users
+      duration: '10s', // Test duration
+      preAllocatedVUs: 10, // Initial pool of virtual users
       maxVUs: 100, // Maximum number of virtual users
     },
   },
 };
 
 function sendPostRequest() {
-  const profileUrlWithRandom = `${BASE_PROFILE_URL}/${getRandomNumber()}`;
+  const profileUrlWithUUID = `${BASE_PROFILE_URL}/${generateUUID()}`;
   const url = 'http://load-testing-index.murmurations.network/v2/nodes';
   const payload = JSON.stringify({
-    profile_url: profileUrlWithRandom,
+    profile_url: profileUrlWithUUID,
   });
 
   const params = {
@@ -60,7 +64,7 @@ function sendGetRequest() {
     'GET request status is 200': (r) => r.status === 200,
   });
 
-  console.log(res.body)
+  console.log(res.body);
 
   if (!success) {
     console.error(`GET Error: Expected status 200 but got ${res.status} - ${res.body}`);
