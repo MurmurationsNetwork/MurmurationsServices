@@ -58,14 +58,32 @@ function sendPostRequest() {
 }
 
 function sendGetRequest() {
-  const url = `http://load-testing-index.murmurations.network/v2/nodes?lat=${LATITUDE}&lon=${LONGITUDE}&range=10km`;
+  // URLs to be requested with different probabilities
+  const url50 = 'http://load-testing-index.murmurations.network/v2/nodes';
+  const url25 = 'http://load-testing-index.murmurations.network/v2/nodes?page_size=100';
+  const url15 = 'http://load-testing-index.murmurations.network/v2/nodes?page_size=500';
+  const url10 = 'http://load-testing-index.murmurations.network/v2/nodes?page_size=1000';
+
+  // Generate a random number between 0 and 100
+  let random = Math.random() * 100;
+  let url;
+
+  // Select the URL based on the random number to match the specified percentages
+  if (random < 50) {
+    url = url50; // 50% of the time
+  } else if (random < 75) {
+    url = url25; // 25% of the time
+  } else if (random < 90) {
+    url = url15; // 15% of the time
+  } else {
+    url = url10; // 10% of the time
+  }
+
   let res = http.get(url);
 
   let success = check(res, {
     'GET request status is 200': (r) => r.status === 200,
   });
-
-  console.log(res.body);
 
   if (!success) {
     console.error(`GET Error: Expected status 200 but got ${res.status} - ${res.body}`);
