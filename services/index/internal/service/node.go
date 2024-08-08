@@ -144,7 +144,7 @@ func (s *nodeService) SetNodeInvalid(node *model.Node) error {
 	return s.elasticRepo.DeleteByID(node.ID)
 }
 
-// Temp counter for debugging
+// Temp counter for debugging.
 var counter uint64
 
 // AddNode adds a new node to the system.
@@ -179,7 +179,9 @@ func (s *nodeService) AddNode(
 
 	// Increment the counter
 	atomic.AddUint64(&counter, 1)
-	logger.Info(fmt.Sprintf("@@Publish NodeCreated event request no: %d", counter))
+	logger.Info(
+		fmt.Sprintf("@@Publish NodeCreated event request no: %d", counter),
+	)
 
 	err = messaging.Publish(messaging.NodeCreated, messaging.NodeCreatedData{
 		ProfileURL: node.ProfileURL,

@@ -68,7 +68,7 @@ func (handler *nodeHandler) ValidationFailed() error {
 	return nil
 }
 
-// Temp counter for debugging
+// Temp counter for debugging.
 var counter uint64
 
 // processValidatedNode handles the processing of validated nodes.

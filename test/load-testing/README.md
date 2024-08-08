@@ -68,6 +68,14 @@ kubectl port-forward service/index-kibana 5601:5601
 kubectl port-forward service/index-mongo 27017:27017
 ```
 
+### Access Validation Redis
+
+```sh
+kubectl port-forward service/validation-redis 6379:6379
+nats stream ls
+nats stream info nodes
+```
+
 ### Access NATS
 
 ```sh

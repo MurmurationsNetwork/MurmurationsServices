@@ -89,7 +89,7 @@ func (handler *nodeHandler) getNodeID(
 	return nodeID, nil
 }
 
-// Temp counter for debugging
+// Temp counter for debugging.
 var counter uint64
 
 func (handler *nodeHandler) Add(c *gin.Context) {

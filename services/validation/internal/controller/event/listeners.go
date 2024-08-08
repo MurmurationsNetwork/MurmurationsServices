@@ -28,7 +28,10 @@ type nodeHandler struct {
 }
 
 // NewNodeHandler creates a new NodeHandler with the provided validation service.
-func NewNodeHandler(redis redis.Redis, validationService service.ValidationService) NodeHandler {
+func NewNodeHandler(
+	redis redis.Redis,
+	validationService service.ValidationService,
+) NodeHandler {
 	return &nodeHandler{
 		redis:             redis,
 		validationService: validationService,
@@ -44,7 +47,7 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 	)
 }
 
-// Temp counter for debugging
+// Temp counter for debugging.
 var counter uint64
 
 // newNodeCreatedHandler handles the logic for node-created messages.
@@ -65,7 +68,7 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 		}
 	}()
 
-	// Increment the counter
+	// Increment the counter.
 	atomic.AddUint64(&counter, 1)
 	logger.Info(fmt.Sprintf("Receiving new node created event no: %d", counter))
 
@@ -75,7 +78,11 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 		return
 	}
 
-	nodeKey := fmt.Sprintf("%s:%d", nodeCreatedData.ProfileURL, nodeCreatedData.Version)
+	nodeKey := fmt.Sprintf(
+		"%s:%d",
+		nodeCreatedData.ProfileURL,
+		nodeCreatedData.Version,
+	)
 	exists, err := handler.redis.Get(nodeKey)
 	if err != nil {
 		logger.Error("Error getting key from Redis", err)
