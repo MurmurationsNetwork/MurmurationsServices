@@ -12,11 +12,7 @@ metadata:
     app: validation-redis
 spec:
   serviceName: "validation-redis"
-  {{ if or $isProd $isStaging }}
-  replicas: {{ .Values.redis.replicas }}
-  {{- else }}
   replicas: 1
-  {{- end }}
   selector:
     matchLabels:
       app: validation-redis
@@ -55,11 +51,11 @@ spec:
         image: redis:7.2.4
         resources:
           requests:
-            memory: "16Mi"
-            cpu: "8m"
-          limits:
-            memory: "32Mi"
+            memory: "250Mi"
             cpu: "32m"
+          limits:
+            memory: "500Mi"
+            cpu: "64m"
         ports:
         - containerPort: 6379
         {{ if or $isProd $isStaging }}

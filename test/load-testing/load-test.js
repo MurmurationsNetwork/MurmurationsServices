@@ -11,6 +11,7 @@ function generateUUID() {
 }
 
 // Define the profile URL as a constant
+const POST_URL = 'http://load-testing-index.murmurations.network';
 const BASE_PROFILE_URL = 'http://5.78.90.240/profile';
 
 // Define the latitude and longitude constants
@@ -21,9 +22,9 @@ export let options = {
   scenarios: {
     constant_request_rate: {
       executor: 'constant-arrival-rate',
-      rate: 25, // Number of requests per second
+      rate: 20, // Number of requests per second
       timeUnit: '1s',
-      duration: '60s', // Test duration
+      duration: '1m', // Test duration
       preAllocatedVUs: 1000, // Initial pool of virtual users
       maxVUs: 5000, // Maximum number of virtual users
     },
@@ -32,7 +33,7 @@ export let options = {
 
 function sendPostRequest() {
   const profileUrlWithUUID = `${BASE_PROFILE_URL}/${generateUUID()}`;
-  const url = 'http://index.murmurations.developers/v2/nodes';
+  const url = `${POST_URL}/v2/nodes`;
   const payload = JSON.stringify({
     profile_url: profileUrlWithUUID,
   });

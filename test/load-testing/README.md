@@ -29,7 +29,7 @@ brew install k6
 ## 4. Run the Test
 
 ```bash
-k6 run load-test.js
+k6 run test/load-testing/load-test.js
 ```
 
 ## 5. Check the Results
@@ -72,8 +72,6 @@ kubectl port-forward service/index-mongo 27017:27017
 
 ```sh
 kubectl port-forward service/validation-redis 6379:6379
-nats stream ls
-nats stream info nodes
 ```
 
 ### Access NATS
@@ -82,4 +80,9 @@ nats stream info nodes
 kubectl port-forward svc/nats 4222:4222 -n murm-queue
 nats stream ls
 nats stream info nodes
+```
+
+```
+while true; do kubectl logs validation-app-5b76b595d6-nf954 --tail=100; sleep 1; done
+while true; do kubectl logs index-app-6f8f86bb8-m8p2s --tail=100; sleep 1; done
 ```
