@@ -14,10 +14,7 @@ function generateUUID() {
 const POST_URL = 'http://load-testing-index.murmurations.network';
 const BASE_PROFILE_URL = 'http://5.78.90.240/profile';
 
-// Define the latitude and longitude constants
-const LATITUDE = 48.8566;
-const LONGITUDE = 2.3522;
-
+// Define the options for the test
 export let options = {
   scenarios: {
     constant_request_rate: {
@@ -57,42 +54,6 @@ function sendPostRequest() {
   return res;
 }
 
-function sendGetRequest() {
-  // URLs to be requested with different probabilities
-  const url50 = 'http://load-testing-index.murmurations.network/v2/nodes';
-  const url25 = 'http://load-testing-index.murmurations.network/v2/nodes?page_size=100';
-  const url15 = 'http://load-testing-index.murmurations.network/v2/nodes?page_size=500';
-  const url10 = 'http://load-testing-index.murmurations.network/v2/nodes?page_size=1000';
-
-  // Generate a random number between 0 and 100
-  let random = Math.random() * 100;
-  let url;
-
-  // Select the URL based on the random number to match the specified percentages
-  if (random < 50) {
-    url = url50; // 50% of the time
-  } else if (random < 75) {
-    url = url25; // 25% of the time
-  } else if (random < 90) {
-    url = url15; // 15% of the time
-  } else {
-    url = url10; // 10% of the time
-  }
-
-  let res = http.get(url);
-
-  let success = check(res, {
-    'GET request status is 200': (r) => r.status === 200,
-  });
-
-  if (!success) {
-    console.error(`GET Error: Expected status 200 but got ${res.status} - ${res.body}`);
-  }
-
-  return res;
-}
-
 export default function () {
   sendPostRequest();
-  sendGetRequest();
 }

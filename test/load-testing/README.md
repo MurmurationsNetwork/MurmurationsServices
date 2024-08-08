@@ -29,7 +29,8 @@ brew install k6
 ## 4. Run the Test
 
 ```bash
-k6 run test/load-testing/load-test.js
+k6 run test/load-testing/read_load_test.js
+k6 run test/load-testing/write_load_test.js
 ```
 
 ## 5. Check the Results

@@ -35,6 +35,13 @@ spec:
       containers:
         - name: index-app
           image: {{ .Values.image }}
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "128m"
+            limits:
+              memory: "128Mi"
+              cpu: "256m"
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
