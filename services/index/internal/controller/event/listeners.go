@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync/atomic"
 
 	natsio "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
@@ -67,6 +68,9 @@ func (handler *nodeHandler) ValidationFailed() error {
 	return nil
 }
 
+// Temp counter for debugging
+var counter uint64
+
 // processValidatedNode handles the processing of validated nodes.
 func (handler *nodeHandler) processValidatedNode(msg *natsio.Msg) {
 	defer safeAcknowledgeMessage(msg)
@@ -77,6 +81,10 @@ func (handler *nodeHandler) processValidatedNode(msg *natsio.Msg) {
 		logger.Error("Failed to unmarshal validated node data", err)
 		return
 	}
+
+	// Increment the counter
+	atomic.AddUint64(&counter, 1)
+	logger.Info(fmt.Sprintf("Receiving validated node event no: %d", counter))
 
 	if err = handler.svc.SetNodeValid(&model.Node{
 		ProfileURL:  data.ProfileURL,

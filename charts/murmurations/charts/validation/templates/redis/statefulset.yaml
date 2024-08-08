@@ -1,0 +1,78 @@
+{{- $env := .Values.global.env }}
+{{- $isProd := eq $env "production" }}
+{{- $isStaging := eq $env "staging" }}
+{{- $isPretest := eq $env "pretest" }}
+{{- $isDev := eq $env "development" }}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: validation-redis
+  labels:
+    app: validation-redis
+spec:
+  serviceName: "validation-redis"
+  {{ if or $isProd $isStaging }}
+  replicas: {{ .Values.redis.replicas }}
+  {{- else }}
+  replicas: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      app: validation-redis
+  template:
+    metadata:
+      labels:
+        app: validation-redis
+    spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: validation-redis
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: ['sh', '-c', 'cp /etc/redis/start-redis.sh /tmp/redis/start-redis.sh && chmod +x /tmp/redis/start-redis.sh']
+          volumeMounts:
+            - name: validation-redis-config-volume
+              mountPath: /etc/redis
+            - name: validation-redis-script-volume
+              mountPath: /tmp/redis
+      containers:
+      - name: validation-redis
+        image: redis:7.2.4
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "8m"
+          limits:
+            memory: "32Mi"
+            cpu: "32m"
+        ports:
+        - containerPort: 6379
+        {{ if or $isProd $isStaging }}
+        command: [ "/bin/sh", "-c", "/tmp/redis/start-redis.sh" ]
+        {{- end }}
+        volumeMounts:
+          - name: validation-redis-config-volume
+            mountPath: /etc/redis
+          - name: validation-redis-script-volume
+            mountPath: /tmp/redis
+      volumes:
+        - name: validation-redis-config-volume
+          configMap:
+            name: validation-redis-config
+        - name: validation-redis-script-volume
+          emptyDir: { }

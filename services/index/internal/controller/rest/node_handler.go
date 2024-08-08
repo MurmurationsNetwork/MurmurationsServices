@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -88,6 +89,9 @@ func (handler *nodeHandler) getNodeID(
 	return nodeID, nil
 }
 
+// Temp counter for debugging
+var counter uint64
+
 func (handler *nodeHandler) Add(c *gin.Context) {
 	var req NodeCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -106,6 +110,10 @@ func (handler *nodeHandler) Add(c *gin.Context) {
 		c.JSON(err[0].Status, jsonapi.Response(nil, err, nil, nil))
 		return
 	}
+
+	// Increment the counter
+	atomic.AddUint64(&counter, 1)
+	logger.Info(fmt.Sprintf("@@Receiving Add node request no: %d", counter))
 
 	result, err := handler.svc.AddNode(&model.Node{
 		ProfileURL: req.ProfileURL,

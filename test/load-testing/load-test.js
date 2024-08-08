@@ -21,18 +21,18 @@ export let options = {
   scenarios: {
     constant_request_rate: {
       executor: 'constant-arrival-rate',
-      rate: 100, // Number of requests per second
+      rate: 25, // Number of requests per second
       timeUnit: '1s',
-      duration: '10s', // Test duration
-      preAllocatedVUs: 10, // Initial pool of virtual users
-      maxVUs: 100, // Maximum number of virtual users
+      duration: '60s', // Test duration
+      preAllocatedVUs: 1000, // Initial pool of virtual users
+      maxVUs: 5000, // Maximum number of virtual users
     },
   },
 };
 
 function sendPostRequest() {
   const profileUrlWithUUID = `${BASE_PROFILE_URL}/${generateUUID()}`;
-  const url = 'http://load-testing-index.murmurations.network/v2/nodes';
+  const url = 'http://index.murmurations.developers/v2/nodes';
   const payload = JSON.stringify({
     profile_url: profileUrlWithUUID,
   });
