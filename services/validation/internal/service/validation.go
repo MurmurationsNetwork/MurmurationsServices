@@ -12,6 +12,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/messaging"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilehasher"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
@@ -23,10 +24,15 @@ type ValidationService interface {
 }
 
 type validationService struct {
+	redis redis.Redis
 }
 
-func NewValidationService() ValidationService {
-	return &validationService{}
+func NewValidationService(
+	redis redis.Redis,
+) ValidationService {
+	return &validationService{
+		redis: redis,
+	}
 }
 
 func (svc *validationService) ValidateNode(node *model.Node) {

@@ -19,9 +19,9 @@ func (r *redisImpl) Ping() error {
 func (r *redisImpl) Set(
 	key string,
 	value interface{},
-	_ time.Duration,
+	expiration time.Duration,
 ) error {
-	return r.client.Set(context.Background(), key, value, 0).Err()
+	return r.client.Set(context.Background(), key, value, expiration).Err()
 }
 
 func (r *redisImpl) Get(key string) (string, error) {

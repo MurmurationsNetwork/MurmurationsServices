@@ -17,6 +17,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	midlogger "github.com/MurmurationsNetwork/MurmurationsServices/pkg/middleware/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/natsclient"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/redis"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/controller/event"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/service"
@@ -44,8 +45,18 @@ func NewService() *Service {
 		isRunning: abool.New(),
 	}
 
+	redisClient := redis.NewClient(config.Values.Redis.URL)
+	err := redisClient.Ping()
+	if err != nil {
+		logger.Error("error when trying to ping Redis", err)
+		os.Exit(1)
+	}
+
 	svc.setupServer()
-	svc.nodeHandler = event.NewNodeHandler(service.NewValidationService())
+	svc.nodeHandler = event.NewNodeHandler(
+		redisClient,
+		service.NewValidationService(redisClient),
+	)
 	core.InstallShutdownHandler(svc.Shutdown)
 
 	return svc

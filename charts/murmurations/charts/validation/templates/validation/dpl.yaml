@@ -11,7 +11,7 @@ metadata:
 spec:
   # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
   revisionHistoryLimit: 0
-  replicas: {{ .Values.validation.replicas }}
+  replicas: {{ if $isDev }}1{{ else }}5{{ end }}
   selector:
     matchLabels:
       app: validation-app
@@ -35,7 +35,6 @@ spec:
       containers:
         - name: validation-app
           image: {{ .Values.image }}
-          {{- if $isPretest }}
           resources:
             requests:
               memory: "32Mi"
@@ -43,7 +42,6 @@ spec:
             limits:
               memory: "64Mi"
               cpu: "64m"
-          {{- end }}
           env:
             - name: NATS_CLIENT_ID
               valueFrom:

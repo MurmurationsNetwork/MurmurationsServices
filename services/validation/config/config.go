@@ -12,6 +12,7 @@ type Config struct {
 	Server  ServerConfig
 	Library LibraryConfig
 	NATS    NATSConfig
+	Redis   redisConf
 }
 
 // ServerConfig holds the server related configuration.
@@ -40,4 +41,8 @@ type NATSConfig struct {
 	ClientID string `env:"NATS_CLIENT_ID,required"`
 	// NATS URL
 	URL string `env:"NATS_URL,required"`
+}
+
+type redisConf struct {
+	URL string `env:"REDIS_URL,required"`
 }
