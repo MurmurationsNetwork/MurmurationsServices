@@ -10,9 +10,11 @@ function generateUUID() {
   });
 }
 
-// Define the profile URL as a constant
+// Define the profile URLs as constants
 const POST_URL = 'http://load-testing-index.murmurations.network';
-const BASE_PROFILE_URL = 'http://5.78.90.240/profile';
+const SMALL_PROFILE_URL = 'http://5.78.90.240/profile/small';
+const MEDIUM_PROFILE_URL = 'http://5.78.90.240/profile/medium';
+const LARGE_PROFILE_URL = 'http://5.78.90.240/profile/large';
 
 // Define the options for the test
 export let options = {
@@ -28,8 +30,20 @@ export let options = {
   },
 };
 
+function selectProfileUrl() {
+  const rand = Math.random();
+
+  if (rand < 0.4) {
+    return `${SMALL_PROFILE_URL}/${generateUUID()}`;
+  } else if (rand < 0.7) {
+    return `${MEDIUM_PROFILE_URL}/${generateUUID()}`;
+  } else {
+    return `${LARGE_PROFILE_URL}/${generateUUID()}`;
+  }
+}
+
 function sendPostRequest() {
-  const profileUrlWithUUID = `${BASE_PROFILE_URL}/${generateUUID()}`;
+  const profileUrlWithUUID = selectProfileUrl();
   const url = `${POST_URL}/v2/nodes`;
   const payload = JSON.stringify({
     profile_url: profileUrlWithUUID,
