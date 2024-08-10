@@ -11,7 +11,7 @@ metadata:
 spec:
   # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
   revisionHistoryLimit: 0
-  replicas: {{ if $isDev }}1{{ else }}5{{ end }}
+  replicas: 1
   selector:
     matchLabels:
       app: index-app
@@ -41,7 +41,7 @@ spec:
               cpu: "128m"
             limits:
               memory: "128Mi"
-              cpu: "256m"
+              cpu: "2560m"
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
