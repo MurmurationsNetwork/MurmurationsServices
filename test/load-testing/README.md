@@ -111,10 +111,20 @@ nats stream ls # List all streams and see the number of messages remaining in ea
 
 ## 8. Summary
 
-1. A validation server with 64Mi memory and 128m CPU handles about 4 requests per second. Increasing CPU and memory, or adding more index servers, won't significantly improve this.
-2. Ensure the number of index servers matches the validation services. If fewer, the write queue may drop.
-3. An index server with 256Mi memory can handle:
+1. **Validation Server Capacity:** A validation server with 64Mi memory and 128m CPU can process up to 4 requests per second. Increasing the server's CPU or memory, or adding more index servers, won’t significantly improve this rate.
+   
+2. **Balancing Index and Validation Servers:** The number of index servers should match the number of validation services to prevent performance issues. If the index servers are fewer, it may lead to a drop in the write queue.
+
+3. **Index Server Performance:** An index server with 256Mi memory can handle requests at the following rates, depending on its CPU allocation:
    - 10 requests per second with 256m CPU.
    - 20 requests per second with 512m CPU.
    - 30 requests per second with 1024m CPU.
-   - Read limits are mostly constrained by the total CPU of a single server.
+   
+   The read performance is mainly limited by the total CPU capacity of the server.
+
+### Example Configurations
+
+- **20 Write Requests Per Second:** Deploy 5 index servers and 5 validation services.
+- **60 Read Requests Per Second:** You have two configuration options:
+  1. Use 6 index servers, each with 256Mi memory and 256m CPU.
+  2. Use 2 index servers, each with 1024Mi memory and 1024m CPU.
