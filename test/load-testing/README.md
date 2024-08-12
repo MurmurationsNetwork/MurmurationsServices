@@ -1,32 +1,60 @@
-# How to Perform Load Testing
+# Load Testing Guide
 
 ## Table of Contents
-1. [Update the Hosts](#1-update-the-hosts)
+1. [Update Hosts](#1-update-hosts)
 2. [Install k6](#2-install-k6)
-3. [Write a Script](#3-write-a-script)
+3. [Modify Settings](#3-modify-settings)
 4. [Run the Test](#4-run-the-test)
 5. [Check the Results](#5-check-the-results)
-6. [Note](#6-note)
-7. [Debug](#7-debug)
+6. [Adjust Rate Limits](#6-adjust-rate-limits)
+7. [Debugging](#7-debugging)
+8. [Summary](#8-summary)
 
-## 1. Update the Hosts
+## 1. Update Hosts
+
+Update the `/etc/hosts` file with the following:
 
 ```bash
-echo -e "\n142.132.160.156 load-testing-index.murmurations.network\n142.132.160.156 load-testing-library.murmurations.network\n142.132.160.156 load-testing-data-proxy.murmurations.network" | sudo tee -a /etc/hosts
+echo -e "\n142.132.160.156 load-testing-index.murmurations.network" | sudo tee -a /etc/hosts
+echo -e "142.132.160.156 load-testing-library.murmurations.network" | sudo tee -a /etc/hosts
+echo -e "142.132.160.156 load-testing-data-proxy.murmurations.network" | sudo tee -a /etc/hosts
 ```
 
 ## 2. Install k6
+
+Install k6 using Homebrew:
 
 ```bash
 brew install k6
 ```
 
-## 3. Write a Script
+## 3. Modify Settings
 
-- Use the constant-arrival-rate executor for load testing. Adjust the rate to increase requests per second.
-- Virtual users (VUs) are similar to the number of threads executing the function. If the rate exceeds maxVUs, the desired rate won't be achieved.
+### For Servers
+
+You have three options to modify:
+
+1. **Replicas**: Adjust the number of replicas.
+2. **CPU Limits**: Set the maximum CPU usage for the server.
+3. **Memory Limits**: Set the maximum memory usage for the server.
+
+To make these changes, update the following files:
+
+- `charts/murmurations/charts/index/templates/index/dpl.yaml`
+- `charts/murmurations/charts/validation/templates/validation/dpl.yaml`
+
+### For Scripts
+
+You can modify **the number of requests per second**.
+
+To do this, edit these files:
+
+- `test/load-testing/read_load_test.js`
+- `test/load-testing/write_load_test.js`
 
 ## 4. Run the Test
+
+Run the load test scripts:
 
 ```bash
 k6 run test/load-testing/read_load_test.js
@@ -35,55 +63,58 @@ k6 run test/load-testing/write_load_test.js
 
 ## 5. Check the Results
 
-![image](https://github.com/user-attachments/assets/30cca494-c2f8-486f-b686-544da231b4e3)
+Review the test results. Key metrics to focus on:
 
-### Key Metrics
+- **http_req_duration**: Measures response times. Target: < 500 milliseconds.
+- **http_req_failed**: Measures request reliability. Target: 0% failures.
+- **Process Rate for Adding New Nodes**: Check `http://load-testing-index.murmurations.network/v2/nodes` to ensure `number_of_results` matches the total requests. If not, go back to step 3 to adjust settings.
 
-- **http_req_duration**: Provides a comprehensive view of response times. Aim for < 500 milliseconds.
-- **http_req_failed**: Ensures request reliability. Aim for 0%.
+## 6. Adjust Rate Limits
 
-## 6. Note
-
-If you hit the rate limit, please update the rate settings.
-
-Update the rate limit in the config file `charts/murmurations/charts/index/templates/index/config.yaml`:
+If you hit the rate limit, update the rate settings in `charts/murmurations/charts/index/templates/index/config.yaml`:
 
 ```yaml
 GET_RATE_LIMIT_PERIOD: "<some-big-number>-M"
 POST_RATE_LIMIT_PERIOD: "<some-big-number>-M"
 ```
 
-Remember to manually deploy the index server after updating.
+**Note:** Remember to manually deploy the index server after making these changes.
 
-## 7. Debug
+## 7. Debugging
 
 ### Access Kibana
 
-```sh
+```bash
 kubectl port-forward service/index-kibana 5601:5601
 ```
 
+Access Kibana at `http://localhost:5601`
+
 ### Access MongoDB
 
-```sh
+```bash
 kubectl port-forward service/index-mongo 27017:27017
 ```
 
 ### Access Validation Redis
 
-```sh
+```bash
 kubectl port-forward service/validation-redis 6379:6379
 ```
 
 ### Access NATS
 
-```sh
+```bash
 kubectl port-forward svc/nats 4222:4222 -n murm-queue
-nats stream ls
-nats stream info nodes
+nats stream ls # List all streams and see the number of messages remaining in each
 ```
 
-```
-while true; do kubectl logs validation-app-5b76b595d6-nf954 --tail=100; sleep 1; done
-while true; do kubectl logs index-app-6f8f86bb8-m8p2s --tail=100; sleep 1; done
-```
+## 8. Summary
+
+1. A validation server with 64Mi memory and 128m CPU handles about 4 requests per second. Increasing CPU and memory, or adding more index servers, won't significantly improve this.
+2. Ensure the number of index servers matches the validation services. If fewer, the write queue may drop.
+3. An index server with 256Mi memory can handle:
+   - 10 requests per second with 256m CPU.
+   - 20 requests per second with 512m CPU.
+   - 30 requests per second with 1024m CPU.
+   - Read limits are mostly constrained by the total CPU of a single server.

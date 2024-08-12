@@ -11,7 +11,7 @@ metadata:
 spec:
   # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
   revisionHistoryLimit: 0
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: index-app
@@ -37,7 +37,7 @@ spec:
           image: {{ .Values.image }}
           resources:
             requests:
-              memory: "32Mi"
+              memory: "128Mi"
               cpu: "32m"
             limits:
               memory: "256Mi"

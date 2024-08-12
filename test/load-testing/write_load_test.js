@@ -21,7 +21,7 @@ export let options = {
   scenarios: {
     constant_request_rate: {
       executor: 'constant-arrival-rate',
-      rate: 15, // Number of requests per second
+      rate: 12, // Number of requests per second
       timeUnit: '1s',
       duration: '1m', // Test duration
       preAllocatedVUs: 1000, // Initial pool of virtual users
