@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"sync/atomic"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/cryptoutil"
@@ -144,9 +143,6 @@ func (s *nodeService) SetNodeInvalid(node *model.Node) error {
 	return s.elasticRepo.DeleteByID(node.ID)
 }
 
-// Temp counter for debugging.
-var counter uint64
-
 // AddNode adds a new node to the system.
 func (s *nodeService) AddNode(
 	node *model.Node,
@@ -176,12 +172,6 @@ func (s *nodeService) AddNode(
 	if err := s.mongoRepo.Add(node); err != nil {
 		return nil, err
 	}
-
-	// Increment the counter
-	atomic.AddUint64(&counter, 1)
-	logger.Info(
-		fmt.Sprintf("@@Publish NodeCreated event request no: %d", counter),
-	)
 
 	err = messaging.Publish(messaging.NodeCreated, messaging.NodeCreatedData{
 		ProfileURL: node.ProfileURL,
