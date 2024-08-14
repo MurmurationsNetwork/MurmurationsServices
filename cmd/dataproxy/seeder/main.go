@@ -139,7 +139,7 @@ func importData(
 	url := "https://api.ofdb.io/v0/entries/" + oid
 	res, err := httputil.Get(url)
 	if err != nil {
-		return false, fmt.Errorf("Can't get data from " + url)
+		return false, fmt.Errorf("can't get data from " + url)
 	}
 	defer res.Body.Close()
 
