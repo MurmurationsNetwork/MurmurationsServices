@@ -32,8 +32,8 @@ data:
   TAGS_STRING_LENGTH: "100"
   TAGS_FUZZINESS: "3"
   # Rate limit
-  GET_RATE_LIMIT_PERIOD: "600000-M"
-  POST_RATE_LIMIT_PERIOD: "600000-M"
+  GET_RATE_LIMIT_PERIOD: "6000-M"
+  POST_RATE_LIMIT_PERIOD: "6000-M"
   # Delete TTL, notice: need to modify the value in nodecleaner service as well
   {{ if $isProd }}
   DELETED_TTL: "1209600" # 2 weeks = 14 days * 24 hrs * 60 mins * 60 secs

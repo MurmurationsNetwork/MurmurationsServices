@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sync/atomic"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -47,9 +46,6 @@ func (handler *nodeHandler) NewNodeCreatedListener() error {
 	)
 }
 
-// Temp counter for debugging.
-var counter uint64
-
 // newNodeCreatedHandler handles the logic for node-created messages.
 func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 	defer func() {
@@ -67,10 +63,6 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 			logger.Error("Error when acknowledging message", err)
 		}
 	}()
-
-	// Increment the counter.
-	atomic.AddUint64(&counter, 1)
-	logger.Info(fmt.Sprintf("Receiving new node created event no: %d", counter))
 
 	var nodeCreatedData messaging.NodeCreatedData
 	if err := json.Unmarshal(msg.Data, &nodeCreatedData); err != nil {

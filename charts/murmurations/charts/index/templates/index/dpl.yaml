@@ -11,7 +11,7 @@ metadata:
 spec:
   # Limit old ReplicaSets to reduce clutter. 0 means only keep the current one.
   revisionHistoryLimit: 0
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: index-app
