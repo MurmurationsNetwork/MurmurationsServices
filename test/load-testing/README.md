@@ -1,6 +1,7 @@
 # Load Testing Guide
 
 ## Table of Contents
+
 1. [Update Hosts](#1-update-hosts)
 2. [Install k6](#2-install-k6)
 3. [Modify Settings](#3-modify-settings)
@@ -112,14 +113,14 @@ nats stream ls # List all streams and see the number of messages remaining in ea
 ## 8. Summary
 
 1. **Validation Server Capacity:** A validation server with 64Mi memory and 128m CPU can process up to 4 requests per second. Increasing the server's CPU or memory, or adding more index servers, won’t significantly improve this rate.
-   
+
 2. **Balancing Index and Validation Servers:** The number of index servers should match the number of validation services to prevent performance issues. If the index servers are fewer, it may lead to a drop in the write queue.
 
 3. **Index Server Performance:** An index server with 256Mi memory can handle requests at the following rates, depending on its CPU allocation:
    - 10 requests per second with 256m CPU.
    - 20 requests per second with 512m CPU.
    - 30 requests per second with 1024m CPU.
-   
+
    The read performance is mainly limited by the total CPU capacity of the server.
 
 ### Example Configurations
