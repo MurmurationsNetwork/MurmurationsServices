@@ -75,18 +75,14 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 		nodeCreatedData.ProfileURL,
 		nodeCreatedData.Version,
 	)
-	exists, err := handler.redis.Get(nodeKey)
-	if err != nil {
-		logger.Error("Error getting key from Redis", err)
-		return
-	}
+	exists, _ := handler.redis.Get(nodeKey)
 
 	if exists == "" {
 		handler.validationService.ValidateNode(&model.Node{
 			ProfileURL: nodeCreatedData.ProfileURL,
 			Version:    nodeCreatedData.Version,
 		})
-		err := handler.redis.Set(nodeKey, "processed", 1*time.Hour)
+		err := handler.redis.Set(nodeKey, "processed", 10*time.Second)
 		if err != nil {
 			logger.Error("Error setting key in Redis", err)
 		}
