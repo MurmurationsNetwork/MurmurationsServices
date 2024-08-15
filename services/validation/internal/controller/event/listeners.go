@@ -75,7 +75,11 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 		nodeCreatedData.ProfileURL,
 		nodeCreatedData.Version,
 	)
-	exists, _ := handler.redis.Get(nodeKey)
+	exists, err := handler.redis.Get(nodeKey)
+	if err != nil {
+		logger.Error("Error getting key from Redis", err)
+		return
+	}
 
 	if exists == "" {
 		handler.validationService.ValidateNode(&model.Node{
@@ -86,6 +90,7 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 		if err != nil {
 			logger.Error("Error setting key in Redis", err)
 		}
+		logger.Info(fmt.Sprintf("Successfully processed profile with URL: %s", nodeCreatedData.ProfileURL))
 	} else {
 		logger.Info(fmt.Sprintf("Duplicate node created event: %s", nodeKey))
 	}
