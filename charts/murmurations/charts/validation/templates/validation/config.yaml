@@ -10,3 +10,4 @@ data:
   NATS_CLUSTER_ID: "murmurations"
   NATS_URL: "http://nats.murm-queue.svc.cluster.local:4222"
   LIBRARY_URL: "http://library-app:8080"
+  REDIS_URL: "validation-redis:6379"
