@@ -688,7 +688,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -789,7 +789,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);",
+                                    "setTimeout(function(){}, 1000);",
                                     ""
                                 ],
                                 "type": "text/javascript"
@@ -918,7 +918,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -978,6 +978,111 @@
                                     ""
                                 ],
                                 "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node00}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Accepts profile with an unreadable URL",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"node00\", jsonData.data.node_id)",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+                                    "    pm.expect(jsonData.data.node_id).to.eq(\"f8bc91021bd43664c7da04caf4823b5083c8c78e98ac7b8c6d48af0ce39ad206\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"http://10.255.255.1\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?primar123y_url=third.ic3.dev",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "primar123y_url",
+                                    "value": "third.ic3.dev"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cannot delete profile with an unreachable URL",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Response should have errors array`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.errors).to.be.an(\"array\");",
+                                    "    pm.expect(jsonData.errors.length).to.be.above(0);",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Error should have expected status, title, and detail`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    const error = jsonData.errors[0];",
+                                    "",
+                                    "    pm.expect(error.status).to.eql(400);",
+                                    "    pm.expect(error.title).to.eql(\"HTTP Request Failed\");",
+                                    "    pm.expect(error.detail).to.contain(\"Error making HTTP request to http://10.255.255.1\");",
+                                    "    pm.expect(error.detail).to.contain(\"Client.Timeout exceeded while awaiting headers\");",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
@@ -1113,7 +1218,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1256,7 +1361,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 2000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -2913,6 +3018,97 @@
                                 {
                                     "key": "schema",
                                     "value": "test_schema-v2.1"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by invalid query parameters",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Response should have errors array`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.errors).to.be.an(\"array\");",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Errors should contain expected details`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    const expectedErrors = [",
+                                    "        {",
+                                    "            status: 400,",
+                                    "            source: {",
+                                    "                parameter: \"invalid_parameters2\"",
+                                    "            },",
+                                    "            title: \"Invalid Query Parameter\",",
+                                    "            detail: \"The following query parameter is not valid: invalid_parameters2\"",
+                                    "        },",
+                                    "        {",
+                                    "            status: 400,",
+                                    "            source: {",
+                                    "                parameter: \"invalid_parameters1\"",
+                                    "            },",
+                                    "            title: \"Invalid Query Parameter\",",
+                                    "            detail: \"The following query parameter is not valid: invalid_parameters1\"",
+                                    "        }",
+                                    "    ];",
+                                    "",
+                                    "    expectedErrors.forEach(expectedError => {",
+                                    "        const match = jsonData.errors.find(error => ",
+                                    "            error.status === expectedError.status &&",
+                                    "            error.source.parameter === expectedError.source.parameter &&",
+                                    "            error.title === expectedError.title &&",
+                                    "            error.detail === expectedError.detail",
+                                    "        );",
+                                    "",
+                                    "        pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Should match expected error detail for ${expectedError.source.parameter}`, () => {",
+                                    "            pm.expect(match).to.be.an(\"object\");",
+                                    "        });",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    ""
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?invalid_parameters1=123&invalid_parameters2=456",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "invalid_parameters1",
+                                    "value": "123"
+                                },
+                                {
+                                    "key": "invalid_parameters2",
+                                    "value": "456"
                                 }
                             ]
                         }
