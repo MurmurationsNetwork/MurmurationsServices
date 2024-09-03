@@ -1037,18 +1037,12 @@
                             }
                         },
                         "url": {
-                            "raw": "{{indexBaseUrl}}/nodes?primar123y_url=third.ic3.dev",
+                            "raw": "{{indexBaseUrl}}/nodes",
                             "host": [
                                 "{{indexBaseUrl}}"
                             ],
                             "path": [
                                 "nodes"
-                            ],
-                            "query": [
-                                {
-                                    "key": "primar123y_url",
-                                    "value": "third.ic3.dev"
-                                }
                             ]
                         }
                     },
@@ -1810,6 +1804,79 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Profile with fields exceed size limits",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "var jsonData = pm.response.json();",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return errors array`, () => {",
+                                    "    pm.expect(jsonData.errors).to.be.an('array').and.not.to.be.empty;",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - all errors should have status 400`, () => {",
+                                    "    jsonData.errors.forEach(error => {",
+                                    "        pm.expect(error.status).to.equal(400);",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - all errors should have \"title\" property`, () => {",
+                                    "    jsonData.errors.forEach(error => {",
+                                    "        pm.expect(error).to.have.property(\"title\");",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should include specific error titles`, () => {",
+                                    "    const expectedTitles = [",
+                                    "        \"Invalid Length, max length is 100\",",
+                                    "        \"Invalid Length, max length is 3\",",
+                                    "        \"Too Many Tags\",",
+                                    "        \"Tag Too Long\",",
+                                    "        \"Invalid Length, max length is 200\"",
+                                    "    ];",
+                                    "    ",
+                                    "    expectedTitles.forEach(title => {",
+                                    "        pm.expect(jsonData.errors.some(error => error.title === title)).to.be.true;",
+                                    "    });",
+                                    "});",
+                                    ""
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"linked_schemas\": [\n        \"test_schema-v2.0.0\"\n    ],\n    \"latitude\": 30,\n    \"longitude\": 50,\n    \"name\": \"This is a very long name that exceeds the 200 character limit. It goes on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on.\",\n    \"locality\": \"This locality name is too long and exceeds the 100 character limit. It just keeps going and going and going and going and going.\",\n    \"country_name\": \"This country name is way too long and exceeds the 100 character limit. It continues on and on and on and on and on and on.\",\n    \"country_iso_3166\": \"USAKR\",\n    \"tags\": [\n        \"This tag is way too long and exceeds the 100 character limit. It just keeps going and going and going and going and going and going.\",\n        \"tag2\",\n        \"tag3\",\n        \"tag4\",\n        \"tag5\",\n        \"tag6\",\n        \"tag7\",\n        \"tag8\",\n        \"tag9\",\n        \"tag10\",\n        \"tag11\",\n        \"tag12\",\n        \"tag13\",\n        \"tag14\",\n        \"tag15\",\n        \"tag16\",\n        \"tag17\",\n        \"tag18\",\n        \"tag19\",\n        \"tag20\",\n        \"tag21\",\n        \"tag22\",\n        \"tag23\",\n        \"tag24\",\n        \"tag25\",\n        \"tag26\",\n        \"tag27\",\n        \"tag28\",\n        \"tag29\",\n        \"tag30\",\n        \"tag31\",\n        \"tag32\",\n        \"tag33\",\n        \"tag34\",\n        \"tag35\",\n        \"tag36\",\n        \"tag37\",\n        \"tag38\",\n        \"tag39\",\n        \"tag40\",\n        \"tag41\",\n        \"tag42\",\n        \"tag43\",\n        \"tag44\",\n        \"tag45\",\n        \"tag46\",\n        \"tag47\",\n        \"tag48\",\n        \"tag49\",\n        \"tag50\",\n        \"tag51\",\n        \"tag52\",\n        \"tag53\",\n        \"tag54\",\n        \"tag55\",\n        \"tag56\",\n        \"tag57\",\n        \"tag58\",\n        \"tag59\",\n        \"tag60\",\n        \"tag61\",\n        \"tag62\",\n        \"tag63\",\n        \"tag64\",\n        \"tag65\",\n        \"tag66\",\n        \"tag67\",\n        \"tag68\",\n        \"tag69\",\n        \"tag70\",\n        \"tag71\",\n        \"tag72\",\n        \"tag73\",\n        \"tag74\",\n        \"tag75\",\n        \"tag76\",\n        \"tag77\",\n        \"tag78\",\n        \"tag79\",\n        \"tag80\",\n        \"tag81\",\n        \"tag82\",\n        \"tag83\",\n        \"tag84\",\n        \"tag85\",\n        \"tag86\",\n        \"tag87\",\n        \"tag88\",\n        \"tag89\",\n        \"tag90\",\n        \"tag91\",\n        \"tag92\",\n        \"tag93\",\n        \"tag94\",\n        \"tag95\",\n        \"tag96\",\n        \"tag97\",\n        \"tag98\",\n        \"tag99\",\n        \"tag100\",\n        \"tag101\"\n    ],\n    \"primary_url\": \"https://example.com/this-url-is-way-too-long-and-exceeds-the-2000-character-limit-it-just-keeps-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
