@@ -45,11 +45,14 @@ spec:
           - name: dataproxyrefresher-app
             image: {{ .Values.image }}
             imagePullPolicy: IfNotPresent
+            {{- if not $isDev }}
+            # Resources configuration only for non-development environments
             resources:
               limits:
                 cpu: "500m"
               requests:
                 cpu: "100m"
+            {{- end }}
             envFrom:
             - configMapRef:
                 name: dataproxyrefresher-app-config

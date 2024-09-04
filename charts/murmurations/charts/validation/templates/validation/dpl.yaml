@@ -35,6 +35,8 @@ spec:
       containers:
         - name: validation-app
           image: {{ .Values.image }}
+          {{- if not $isDev }}
+          # Resources configuration only for non-development environments
           resources:
             requests:
               memory: "16Mi"
@@ -42,6 +44,7 @@ spec:
             limits:
               memory: "64Mi"
               cpu: "128m"
+          {{- end }}
           env:
             - name: NATS_CLIENT_ID
               valueFrom:

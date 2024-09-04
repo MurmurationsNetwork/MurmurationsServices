@@ -35,6 +35,8 @@ spec:
       containers:
         - name: index-app
           image: {{ .Values.image }}
+          {{- if not $isDev }}
+          # Resources configuration only for non-development environments
           resources:
             requests:
               memory: "128Mi"
@@ -42,6 +44,7 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "256m"
+          {{- end }}
           env:
             - name: NATS_CLIENT_ID
               valueFrom:
