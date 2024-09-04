@@ -688,7 +688,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -789,7 +789,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);",
+                                    "setTimeout(function(){}, 1000);",
                                     ""
                                 ],
                                 "type": "text/javascript"
@@ -918,7 +918,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -978,6 +978,105 @@
                                     ""
                                 ],
                                 "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes/:node_id",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes",
+                                ":node_id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "node_id",
+                                    "value": "{{node00}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Accepts profile with an unreadable URL",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 200`, () => {",
+                                    "    pm.response.to.have.status(200)",
+                                    "})",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"node00\", jsonData.data.node_id)",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct hash of profile_url`, () => {",
+                                    "    pm.expect(jsonData.data.node_id).to.eq(\"f8bc91021bd43664c7da04caf4823b5083c8c78e98ac7b8c6d48af0ce39ad206\")",
+                                    "})"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"profile_url\":\"http://10.255.255.1\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cannot delete profile with an unreachable URL",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Response should have errors array`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.errors).to.be.an(\"array\");",
+                                    "    pm.expect(jsonData.errors.length).to.be.above(0);",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Error should have expected status, title, and detail`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    const error = jsonData.errors[0];",
+                                    "",
+                                    "    pm.expect(error.status).to.eql(400);",
+                                    "    pm.expect(error.title).to.eql(\"HTTP Request Failed\");",
+                                    "    pm.expect(error.detail).to.contain(\"Error making HTTP request to http://10.255.255.1\");",
+                                    "    pm.expect(error.detail).to.contain(\"Client.Timeout exceeded while awaiting headers\");",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
@@ -1113,7 +1212,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 3000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1256,7 +1355,7 @@
                             "listen": "prerequest",
                             "script": {
                                 "exec": [
-                                    "setTimeout(function(){}, 5000);"
+                                    "setTimeout(function(){}, 2000);"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -1705,6 +1804,79 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\"linked_schemas\":[\"test_schema-v1.0.0\"],\"name\":\"IC3 Dev\",\"geolocation\":{\"lat\":11.111111,\"lon\":12.121212}}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/validate",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "validate"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Profile with fields exceed size limits",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "var jsonData = pm.response.json();",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return errors array`, () => {",
+                                    "    pm.expect(jsonData.errors).to.be.an('array').and.not.to.be.empty;",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - all errors should have status 400`, () => {",
+                                    "    jsonData.errors.forEach(error => {",
+                                    "        pm.expect(error.status).to.equal(400);",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - all errors should have \"title\" property`, () => {",
+                                    "    jsonData.errors.forEach(error => {",
+                                    "        pm.expect(error).to.have.property(\"title\");",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should include specific error titles`, () => {",
+                                    "    const expectedTitles = [",
+                                    "        \"Invalid Length, max length is 100\",",
+                                    "        \"Invalid Length, max length is 3\",",
+                                    "        \"Too Many Tags\",",
+                                    "        \"Tag Too Long\",",
+                                    "        \"Invalid Length, max length is 200\"",
+                                    "    ];",
+                                    "    ",
+                                    "    expectedTitles.forEach(title => {",
+                                    "        pm.expect(jsonData.errors.some(error => error.title === title)).to.be.true;",
+                                    "    });",
+                                    "});",
+                                    ""
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"linked_schemas\": [\n        \"test_schema-v2.0.0\"\n    ],\n    \"latitude\": 30,\n    \"longitude\": 50,\n    \"name\": \"This is a very long name that exceeds the 200 character limit. It goes on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on.\",\n    \"locality\": \"This locality name is too long and exceeds the 100 character limit. It just keeps going and going and going and going and going.\",\n    \"country_name\": \"This country name is way too long and exceeds the 100 character limit. It continues on and on and on and on and on and on.\",\n    \"country_iso_3166\": \"USAKR\",\n    \"tags\": [\n        \"This tag is way too long and exceeds the 100 character limit. It just keeps going and going and going and going and going and going.\",\n        \"tag2\",\n        \"tag3\",\n        \"tag4\",\n        \"tag5\",\n        \"tag6\",\n        \"tag7\",\n        \"tag8\",\n        \"tag9\",\n        \"tag10\",\n        \"tag11\",\n        \"tag12\",\n        \"tag13\",\n        \"tag14\",\n        \"tag15\",\n        \"tag16\",\n        \"tag17\",\n        \"tag18\",\n        \"tag19\",\n        \"tag20\",\n        \"tag21\",\n        \"tag22\",\n        \"tag23\",\n        \"tag24\",\n        \"tag25\",\n        \"tag26\",\n        \"tag27\",\n        \"tag28\",\n        \"tag29\",\n        \"tag30\",\n        \"tag31\",\n        \"tag32\",\n        \"tag33\",\n        \"tag34\",\n        \"tag35\",\n        \"tag36\",\n        \"tag37\",\n        \"tag38\",\n        \"tag39\",\n        \"tag40\",\n        \"tag41\",\n        \"tag42\",\n        \"tag43\",\n        \"tag44\",\n        \"tag45\",\n        \"tag46\",\n        \"tag47\",\n        \"tag48\",\n        \"tag49\",\n        \"tag50\",\n        \"tag51\",\n        \"tag52\",\n        \"tag53\",\n        \"tag54\",\n        \"tag55\",\n        \"tag56\",\n        \"tag57\",\n        \"tag58\",\n        \"tag59\",\n        \"tag60\",\n        \"tag61\",\n        \"tag62\",\n        \"tag63\",\n        \"tag64\",\n        \"tag65\",\n        \"tag66\",\n        \"tag67\",\n        \"tag68\",\n        \"tag69\",\n        \"tag70\",\n        \"tag71\",\n        \"tag72\",\n        \"tag73\",\n        \"tag74\",\n        \"tag75\",\n        \"tag76\",\n        \"tag77\",\n        \"tag78\",\n        \"tag79\",\n        \"tag80\",\n        \"tag81\",\n        \"tag82\",\n        \"tag83\",\n        \"tag84\",\n        \"tag85\",\n        \"tag86\",\n        \"tag87\",\n        \"tag88\",\n        \"tag89\",\n        \"tag90\",\n        \"tag91\",\n        \"tag92\",\n        \"tag93\",\n        \"tag94\",\n        \"tag95\",\n        \"tag96\",\n        \"tag97\",\n        \"tag98\",\n        \"tag99\",\n        \"tag100\",\n        \"tag101\"\n    ],\n    \"primary_url\": \"https://example.com/this-url-is-way-too-long-and-exceeds-the-2000-character-limit-it-just-keeps-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going-and-going\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -2913,6 +3085,97 @@
                                 {
                                     "key": "schema",
                                     "value": "test_schema-v2.1"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by invalid query parameters",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Response should have errors array`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.errors).to.be.an(\"array\");",
+                                    "});",
+                                    "",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Errors should contain expected details`, () => {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    const expectedErrors = [",
+                                    "        {",
+                                    "            status: 400,",
+                                    "            source: {",
+                                    "                parameter: \"invalid_parameters2\"",
+                                    "            },",
+                                    "            title: \"Invalid Query Parameter\",",
+                                    "            detail: \"The following query parameter is not valid: invalid_parameters2\"",
+                                    "        },",
+                                    "        {",
+                                    "            status: 400,",
+                                    "            source: {",
+                                    "                parameter: \"invalid_parameters1\"",
+                                    "            },",
+                                    "            title: \"Invalid Query Parameter\",",
+                                    "            detail: \"The following query parameter is not valid: invalid_parameters1\"",
+                                    "        }",
+                                    "    ];",
+                                    "",
+                                    "    expectedErrors.forEach(expectedError => {",
+                                    "        const match = jsonData.errors.find(error => ",
+                                    "            error.status === expectedError.status &&",
+                                    "            error.source.parameter === expectedError.source.parameter &&",
+                                    "            error.title === expectedError.title &&",
+                                    "            error.detail === expectedError.detail",
+                                    "        );",
+                                    "",
+                                    "        pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - Should match expected error detail for ${expectedError.source.parameter}`, () => {",
+                                    "            pm.expect(match).to.be.an(\"object\");",
+                                    "        });",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    ""
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{indexBaseUrl}}/nodes?invalid_parameters1=123&invalid_parameters2=456",
+                            "host": [
+                                "{{indexBaseUrl}}"
+                            ],
+                            "path": [
+                                "nodes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "invalid_parameters1",
+                                    "value": "123"
+                                },
+                                {
+                                    "key": "invalid_parameters2",
+                                    "value": "456"
                                 }
                             ]
                         }
