@@ -74,12 +74,12 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 		return err
 	}
 
-	// Update Elastic Search.
 	profile := model.NewProfile(node.ProfileStr)
 	if err := profile.Update(node.ProfileURL, node.LastUpdated); err != nil {
 		return err
 	}
 
+	// Update Elastic Search.
 	if err := s.elasticRepo.IndexByID(node.ID, profile.GetJSON()); err != nil {
 		errMsg := fmt.Sprintf("Error indexing node ID '%s' in Elastic repository.", node.ID)
 		logger.Error(errMsg, err)
