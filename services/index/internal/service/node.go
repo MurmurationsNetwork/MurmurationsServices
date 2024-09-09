@@ -52,62 +52,46 @@ func NewNodeService(
 // SetNodeValid sets a node as valid, updates its status, and indexes it in the
 // repositories.
 func (s *nodeService) SetNodeValid(node *model.Node) error {
-	// Generate and set node ID using SHA256 hash of the ProfileURL.
+	// Prepare the node.
 	node.ID = cryptoutil.ComputeSHA256(node.ProfileURL)
-	// Set node status to validated and reset failure reasons.
 	node.SetStatusValidated()
 	node.ResetFailureReasons()
 
-	// Retrieve the old node from the repository.
+	// Retrieve the old node from the database.
 	oldNode, err := s.mongoRepo.GetByID(node.ID)
 	if err != nil && !errors.As(err, &index.NotFoundError{}) {
 		return err
 	}
 
-	// Check if the profile hash is unchanged for existing nodes.
 	if s.isProfileHashUnchanged(node, oldNode) {
-		logger.Info(
-			fmt.Sprintf(
-				"Node with profile hash '%s' is unchanged.",
-				*node.ProfileHash,
-			),
-		)
-		// Clear the LastUpdated field since the profile hasn't changed.
-		node.ClearLastUpdated()
-		node.SetStatusPosted()
-		return s.mongoRepo.Update(node)
+		logger.Info(fmt.Sprintf("Node with profile hash '%s' is unchanged.", *node.ProfileHash))
+		// Reposted node with no changes has same last_updated timestamp.
+		node.LastUpdated = oldNode.LastUpdated
 	}
 
-	// Update the node profile and handle any errors.
+	// Update the node in MongoDB.
+	if err := s.mongoRepo.Update(node); err != nil {
+		return err
+	}
+
 	profile := model.NewProfile(node.ProfileStr)
 	if err := profile.Update(node.ProfileURL, node.LastUpdated); err != nil {
 		return err
 	}
 
-	// Update the node in the Mongo repository.
-	if err := s.mongoRepo.Update(node); err != nil {
-		return err
-	}
-
-	// Index the node in the Elastic repository.
+	// Update Elastic Search.
 	if err := s.elasticRepo.IndexByID(node.ID, profile.GetJSON()); err != nil {
-		errMsg := fmt.Sprintf(
-			"Error indexing node ID '%s' in Elastic repository", node.ID)
+		errMsg := fmt.Sprintf("Error indexing node ID '%s' in Elastic repository.", node.ID)
 		logger.Error(errMsg, err)
 
 		node.SetStatusPostFailed()
-		mongoErr := s.mongoRepo.Update(node)
-		if mongoErr != nil {
-			logger.Error(
-				"Failed to update node in MongoDB after Elastic indexing failure",
-				err,
-			)
+		if mongoErr := s.mongoRepo.Update(node); mongoErr != nil {
+			logger.Error("Failed to update node in MongoDB after Elastic indexing failure.", mongoErr)
 		}
-
 		return err
 	}
 
-	// Set node status to posted and update in Mongo repository.
+	// Set final status and update.
 	node.SetStatusPosted()
 	return s.mongoRepo.Update(node)
 }
@@ -121,8 +105,10 @@ func (s *nodeService) isProfileHashUnchanged(
 	if oldNode == nil {
 		return false
 	}
+
 	newHash, _ := profilehasher.New(newNode.ProfileURL,
 		config.Values.Library.InternalURL).Hash()
+
 	return newHash != "" && oldNode.ProfileHash != nil &&
 		*oldNode.ProfileHash == newHash
 }
