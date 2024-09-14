@@ -2174,7 +2174,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"profile_url\": \"https://wp.fishboneapps.com/test.json\"\n}",
+                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-2.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
