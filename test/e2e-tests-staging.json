@@ -1866,7 +1866,7 @@
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should include specific error titles`, () => {",
                                     "    const expectedTitles = [",
                                     "        \"Invalid Length, max length is 100\",",
-                                    "        \"Invalid Length, max length is 3\",",
+                                    "        \"Invalid Length, max length is 2\",",
                                     "        \"Too Many Tags\",",
                                     "        \"Tag Too Long\",",
                                     "        \"Invalid Length, max length is 200\"",
