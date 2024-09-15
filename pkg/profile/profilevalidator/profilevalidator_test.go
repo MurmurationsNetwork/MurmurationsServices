@@ -96,12 +96,12 @@ func TestValidate_CustomValidator(t *testing.T) {
 		},
 		{
 			name:    "Valid Country",
-			profile: `{"country_iso_3166": "USA"}`,
+			profile: `{"country_iso_3166": "US"}`,
 			valid:   true,
 		},
 		{
 			name:    "Invalid Country",
-			profile: `{"country_iso_3166": "United States"}`,
+			profile: `{"country_iso_3166": "USA"}`,
 			valid:   false,
 			reason:  "Country ISO code exceeds 3 characters",
 		},
