@@ -134,24 +134,38 @@ func validateLatLon(geoValue map[string]interface{}, vr *ValidationResult) {
 // StringValidator validates string data with a maximum length constraint.
 type StringValidator struct {
 	MaxLength int
+	Path      string
 }
 
 // Validate checks if the given string exceeds the maximum length.
 func (v *StringValidator) Validate(value interface{}) *ValidationResult {
 	vr := NewValidationResult()
-	if strValue, ok := value.(string); ok {
-		if len(strValue) > v.MaxLength {
-			vr.AppendError(
-				fmt.Sprintf("Invalid Length, max length is %d", v.MaxLength),
-				"String length exceeded",
-				nil,
-				http.StatusBadRequest,
-			)
-		}
-	} else {
-		vr.AppendError("Invalid Type", "Should be a string", nil, http.StatusBadRequest)
+
+	// Return an error if the value is not a string
+	strValue, ok := value.(string)
+	if !ok {
+		vr.AppendError("Invalid Type", "Value should be a string", nil, http.StatusBadRequest)
+		return vr
 	}
+
+	// Validate the string length
+	v.validateLength(strValue, vr)
+
 	return vr
+}
+
+// validateLength checks if the string exceeds the maximum length and appends an error if needed.
+func (v *StringValidator) validateLength(strValue string, vr *ValidationResult) {
+	if len(strValue) <= v.MaxLength {
+		return
+	}
+
+	vr.AppendError(
+		fmt.Sprintf("Invalid Length, max length is %d", v.MaxLength),
+		"String length exceeded",
+		[]string{"pointer", "/" + v.Path},
+		http.StatusBadRequest,
+	)
 }
 
 // TagsValidator validates an array of tags.
