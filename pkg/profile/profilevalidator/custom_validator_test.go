@@ -34,13 +34,13 @@ func TestStringValidator_Validate(t *testing.T) {
 		},
 		{
 			name:            "String exceeds max length",
-			input:           "toolongusername",
-			maxLength:       5,
-			path:            "locality",
+			input:           "USA",
+			maxLength:       2,
+			path:            "country_iso_3166",
 			expectedValid:   false,
-			expectedErrMsgs: []string{"Invalid Length, max length is 5"},
+			expectedErrMsgs: []string{"Invalid Length, max length is 2"},
 			expectedDetails: []string{"String length exceeded"},
-			expectedSources: [][]string{{"pointer", "/locality"}},
+			expectedSources: [][]string{{"pointer", "/country_iso_3166"}},
 			expectedStatus:  []int{http.StatusBadRequest},
 		},
 	}

@@ -159,7 +159,7 @@ func (v *ProfileValidator) CustomValidate() *ValidationResult {
 		"locality":         &StringValidator{MaxLength: 100, Path: "locality"},
 		"region":           &StringValidator{MaxLength: 100, Path: "region"},
 		"country_name":     &StringValidator{MaxLength: 100, Path: "country_name"},
-		"country_iso_3166": &StringValidator{MaxLength: 3, Path: "country_iso_3166"},
+		"country_iso_3166": &StringValidator{MaxLength: 2, Path: "country_iso_3166"},
 		"primary_url":      &StringValidator{MaxLength: 2000, Path: "primary_url"},
 		"tags":             &TagsValidator{},
 	}
