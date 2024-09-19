@@ -6,10 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/service"
 )
 
 // TestParseSchemas ensures that schemas are correctly fetched and parsed
@@ -17,11 +18,16 @@ import (
 func TestParseSchemas(t *testing.T) {
 	// Setup a mock server to simulate schema fetching.
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var err error
 		// Simulate different responses for the default schema and custom schemas.
 		if strings.Contains(r.URL.Path, "default-v2.0.0") {
-			w.Write([]byte(`{"default": "schema"}`))
+			_, err = w.Write([]byte(`{"default": "schema"}`))
 		} else {
-			w.Write([]byte(`{"custom": "schema"}`))
+			_, err = w.Write([]byte(`{"custom": "schema"}`))
+		}
+		// Check for errors when writing the response.
+		if err != nil {
+			http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		}
 	}))
 	defer mockServer.Close()
