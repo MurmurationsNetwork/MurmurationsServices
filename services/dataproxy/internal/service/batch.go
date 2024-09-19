@@ -75,7 +75,7 @@ func (s *batchService) Validate(
 	}
 
 	// Fetch JSON schema strings from the library for validation.
-	schemasResponse, err := parseSchemas(schemas)
+	schemasResponse, err := ParseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}
@@ -142,7 +142,7 @@ func (s *batchService) Import(
 	rawProfiles := csvToMap(records)
 
 	// Fetch JSON schema strings from the library for validation.
-	schemasResponse, err := parseSchemas(schemas)
+	schemasResponse, err := ParseSchemas(schemas)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
@@ -276,7 +276,7 @@ func (s *batchService) Edit(
 	rawProfiles := csvToMap(records)
 
 	// Fetch JSON schema strings from the library for validation.
-	schemasResponse, err := parseSchemas(schemas)
+	schemasResponse, err := ParseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}

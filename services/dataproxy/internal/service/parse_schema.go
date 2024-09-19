@@ -15,7 +15,7 @@ type SchemasResponse struct {
 
 // parseSchemas fetches and returns the JSON content for a list of schema names,
 // including a default schema.
-func parseSchemas(schemas []string) (*SchemasResponse, error) {
+func ParseSchemas(schemas []string) (*SchemasResponse, error) {
 	// Include default schema and append provided schemas.
 	schemaNames := append([]string{"default-v2.0.0"}, schemas...)
 	jsonSchemas := make([]string, len(schemaNames))
