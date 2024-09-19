@@ -12,7 +12,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 )
 
-var StrSchema = `{}`
+var JSONSchema = `{}`
 
 func TestValidate_CustomValidator(t *testing.T) {
 	tests := []struct {
@@ -141,7 +141,7 @@ func TestValidate_CustomValidator(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			validator, err := profilevalidator.NewBuilder().
-				WithStrSchemas([]string{StrSchema}).
+				WithJSONSchemas([]string{"test_schema"}, []string{JSONSchema}).
 				WithStrProfile(tt.profile).
 				WithCustomValidation().
 				Build()

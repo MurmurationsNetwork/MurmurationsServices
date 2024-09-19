@@ -2,8 +2,6 @@ package service
 
 import (
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
@@ -77,10 +75,12 @@ func (s *batchService) Validate(
 	}
 
 	// Fetch JSON schema strings from the library for validation.
-	validateJSONSchemas, err := parseSchemas(schemas)
+	schemasResponse, err := parseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}
+	jsonSchemas := schemasResponse.JSONSchemas
+	schemaNames := schemasResponse.SchemaNames
 
 	// Iterate over each profile to validate.
 	rawProfiles := csvToMap(records)
@@ -94,7 +94,7 @@ func (s *batchService) Validate(
 		// Create a validator with the profile and JSON schemas.
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(profile).
-			WithStrSchemas(validateJSONSchemas).
+			WithJSONSchemas(schemaNames, jsonSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
@@ -141,10 +141,13 @@ func (s *batchService) Import(
 
 	rawProfiles := csvToMap(records)
 
-	validateJSONSchemas, err := parseSchemas(schemas)
+	// Fetch JSON schema strings from the library for validation.
+	schemasResponse, err := parseSchemas(schemas)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
+	jsonSchemas := schemasResponse.JSONSchemas
+	schemaNames := schemasResponse.SchemaNames
 
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
@@ -154,7 +157,7 @@ func (s *batchService) Import(
 
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(profile).
-			WithStrSchemas(validateJSONSchemas).
+			WithJSONSchemas(schemaNames, jsonSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
@@ -272,11 +275,13 @@ func (s *batchService) Edit(
 
 	rawProfiles := csvToMap(records)
 
-	// parse schemas to json string schema from library and validate
-	validateJSONSchemas, err := parseSchemas(schemas)
+	// Fetch JSON schema strings from the library for validation.
+	schemasResponse, err := parseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}
+	jsonSchemas := schemasResponse.JSONSchemas
+	schemaNames := schemasResponse.SchemaNames
 
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
@@ -286,7 +291,7 @@ func (s *batchService) Edit(
 
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(profile).
-			WithStrSchemas(validateJSONSchemas).
+			WithJSONSchemas(schemaNames, jsonSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
@@ -660,33 +665,6 @@ func destructValue(value string) interface{} {
 		return value
 	}
 	return integer
-}
-
-// parseSchemas fetches and returns the JSON content for a list of schema names,
-// including a default schema.
-func parseSchemas(schemas []string) ([]string, error) {
-	// Initialize with the default schema.
-	validateSchemas := []string{"default-v2.0.0"}
-	validateSchemas = append(validateSchemas, schemas...)
-
-	// Prepare to store the JSON content of the schemas.
-	validateJSONSchemas := make([]string, len(validateSchemas))
-	libraryURL := config.Conf.Library.InternalURL + "/v2/schemas"
-
-	for i, schema := range validateSchemas {
-		res, err := http.Get(libraryURL + "/" + schema)
-		if err != nil {
-			return nil, err
-		}
-		body, err := io.ReadAll(res.Body)
-		res.Body.Close()
-		if err != nil {
-			return nil, err
-		}
-		validateJSONSchemas[i] = string(body)
-	}
-
-	return validateJSONSchemas, nil
 }
 
 func splitEscapedComma(s string) []string {
