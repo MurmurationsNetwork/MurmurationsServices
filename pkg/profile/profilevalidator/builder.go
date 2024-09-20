@@ -15,16 +15,30 @@ func NewBuilder() *Builder {
 	}
 }
 
-// WithURLSchemas sets the base URL and the schemas for the ProfileValidator to be built.
-func (b *Builder) WithURLSchemas(baseURL string, schemas []string) *Builder {
-	b.profilevalidator.Schemas = schemas
+// WithURLSchemas configures the ProfileValidator to use schema references
+// that are accessible via URLs. The base URL is used to fetch the schemas.
+func (b *Builder) WithURLSchemas(baseURL string, schemaReferences []string) *Builder {
+	// Assign schema references, which will be used to fetch schemas from the base URL.
+	b.profilevalidator.SchemaReferences = schemaReferences
+
+	// Set schema names to match the schema references, as they represent the same identifiers.
+	b.profilevalidator.SchemaNames = schemaReferences
+
+	// Use a URL-based loader for retrieving schema content.
 	b.profilevalidator.SchemaLoader = &URLSchemaLoader{BaseURL: baseURL}
 	return b
 }
 
-// WithStrSchemas sets the schemas for the ProfileValidator to be built.
-func (b *Builder) WithStrSchemas(schemas []string) *Builder {
-	b.profilevalidator.Schemas = schemas
+// WithJSONSchemas configures the ProfileValidator to use preloaded JSON schemas.
+// The schemaNames correspond to the names of the loaded JSON schemas.
+func (b *Builder) WithJSONSchemas(schemaNames []string, loadedSchemas []string) *Builder {
+	// Assign the actual JSON schema content that will be used for validation.
+	b.profilevalidator.LoadedSchemas = loadedSchemas
+
+	// Assign the schema names to provide context for each JSON schema.
+	b.profilevalidator.SchemaNames = schemaNames
+
+	// Use a string-based loader since the schemas are already loaded into memory.
 	b.profilevalidator.SchemaLoader = &StrSchemaLoader{}
 	return b
 }
@@ -52,8 +66,8 @@ func (b *Builder) WithCustomValidation() *Builder {
 // Build validates the builder state and returns the built ProfileValidator.
 func (b *Builder) Build() (*ProfileValidator, error) {
 	// Check that required fields are set.
-	if b.profilevalidator.Schemas == nil {
-		return nil, fmt.Errorf("schemas must be provided")
+	if b.profilevalidator.SchemaNames == nil {
+		return nil, fmt.Errorf("schema names must be provided")
 	}
 	if b.profilevalidator.SchemaLoader == nil {
 		return nil, fmt.Errorf("a schema loader must be provided")
@@ -77,7 +91,7 @@ func (b *Builder) Build() (*ProfileValidator, error) {
 		)
 	}
 
-	b.profilevalidator.JSON = jsonMap
+	b.profilevalidator.ProfileJSON = jsonMap
 
 	return b.profilevalidator, nil
 }

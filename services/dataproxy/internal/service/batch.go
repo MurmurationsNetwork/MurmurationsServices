@@ -2,8 +2,6 @@ package service
 
 import (
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
@@ -15,7 +13,6 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
-	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/validatenode"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/model"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/repository/mongo"
@@ -64,41 +61,50 @@ func (s *batchService) GetBatchesByUserID(
 	return batches, nil
 }
 
+// Validate validates a set of records against specified schemas, returning
+// the first error encountered, if any.
 func (s *batchService) Validate(
 	schemas []string,
 	records [][]string,
 ) (int, []jsonapi.Error, error) {
+	// Limit check: Ensure the CSV file does not exceed 1,000 rows.
 	if len(records) > 1001 {
 		return -1, nil, errors.New(
 			"the CSV file cannot contain more than 1,000 rows",
 		)
 	}
 
-	rawProfiles := csvToMap(records)
-
-	// parse schemas to json string schema from library and validate
-	validateJSONSchemas, _, err := parseSchemas(schemas)
+	// Fetch JSON schema strings from the library for validation.
+	schemasResponse, err := ParseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}
+	jsonSchemas := schemasResponse.JSONSchemas
+	schemaNames := schemasResponse.SchemaNames
 
+	// Iterate over each profile to validate.
+	rawProfiles := csvToMap(records)
 	for line, rawProfile := range rawProfiles {
+		// Map raw profile data to the schema format.
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
 			return line, nil, err
 		}
 
+		// Create a validator with the profile and JSON schemas.
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(profile).
-			WithStrSchemas(validateJSONSchemas).
+			WithJSONSchemas(schemaNames, jsonSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
 			return -1, nil, err
 		}
 
+		// Perform validation and check the result.
 		result := validator.Validate()
 		if !result.Valid {
+			// Return the line number and validation errors if invalid.
 			return line, jsonapi.NewError(
 				result.ErrorMessages,
 				result.Details,
@@ -108,6 +114,7 @@ func (s *batchService) Validate(
 		}
 	}
 
+	// Return success if all profiles are valid.
 	return -1, nil, nil
 }
 
@@ -134,11 +141,13 @@ func (s *batchService) Import(
 
 	rawProfiles := csvToMap(records)
 
-	// parse schemas to json string schema from library and validate
-	validateJSONSchemas, validateSchemas, err := parseSchemas(schemas)
+	// Fetch JSON schema strings from the library for validation.
+	schemasResponse, err := ParseSchemas(schemas)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
+	jsonSchemas := schemasResponse.JSONSchemas
+	schemaNames := schemasResponse.SchemaNames
 
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
@@ -146,12 +155,15 @@ func (s *batchService) Import(
 			return batchID, line, nil, err
 		}
 
-		// Validate data and if needed, respond with error
-		result := validatenode.ValidateAgainstSchemasWithoutURL(
-			validateJSONSchemas,
-			validateSchemas,
-			profile,
-		)
+		validator, err := profilevalidator.NewBuilder().
+			WithMapProfile(profile).
+			WithJSONSchemas(schemaNames, jsonSchemas).
+			WithCustomValidation().
+			Build()
+		if err != nil {
+			return batchID, line, nil, err
+		}
+		result := validator.Validate()
 		if !result.Valid {
 			return batchID, line, jsonapi.NewError(
 				result.ErrorMessages,
@@ -263,11 +275,13 @@ func (s *batchService) Edit(
 
 	rawProfiles := csvToMap(records)
 
-	// parse schemas to json string schema from library and validate
-	validateJSONSchemas, validateSchemas, err := parseSchemas(schemas)
+	// Fetch JSON schema strings from the library for validation.
+	schemasResponse, err := ParseSchemas(schemas)
 	if err != nil {
 		return -1, nil, err
 	}
+	jsonSchemas := schemasResponse.JSONSchemas
+	schemaNames := schemasResponse.SchemaNames
 
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
@@ -275,12 +289,15 @@ func (s *batchService) Edit(
 			return line, nil, err
 		}
 
-		// Validate data and if needed, respond with error
-		result := validatenode.ValidateAgainstSchemasWithoutURL(
-			validateJSONSchemas,
-			validateSchemas,
-			profile,
-		)
+		validator, err := profilevalidator.NewBuilder().
+			WithMapProfile(profile).
+			WithJSONSchemas(schemaNames, jsonSchemas).
+			WithCustomValidation().
+			Build()
+		if err != nil {
+			return line, nil, err
+		}
+		result := validator.Validate()
 		if !result.Valid {
 			return line, jsonapi.NewError(
 				result.ErrorMessages,
@@ -648,27 +665,6 @@ func destructValue(value string) interface{} {
 		return value
 	}
 	return integer
-}
-
-func parseSchemas(schemas []string) ([]string, []string, error) {
-	// validate against the default schema.
-	validateSchemas := []string{"default-v2.0.0"}
-	validateSchemas = append(validateSchemas, schemas...)
-	validateJSONSchemas := make([]string, len(validateSchemas))
-	libraryURL := config.Conf.Library.InternalURL + "/v2/schemas"
-	for i, schema := range validateSchemas {
-		res, err := http.Get(libraryURL + "/" + schema)
-		if err != nil {
-			return nil, nil, err
-		}
-		body, err := io.ReadAll(res.Body)
-		res.Body.Close()
-		if err != nil {
-			return nil, nil, err
-		}
-		validateJSONSchemas[i] = string(body)
-	}
-	return validateJSONSchemas, validateSchemas, nil
 }
 
 func splitEscapedComma(s string) []string {

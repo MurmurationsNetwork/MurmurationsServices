@@ -77,75 +77,74 @@ func (mv *MapProfileLoader) Load() gojsonschema.JSONLoader {
 	return gojsonschema.NewGoLoader(mv.dataMap)
 }
 
-// ProfileValidator is the main struct of this package, which performs
-// the validation against the profile JSON.
+// ProfileValidator is responsible for validating profile JSON data against schemas.
 type ProfileValidator struct {
-	// The loader that fetches the profile data.
-	ProfileLoader ProfileLoader
-	// The Profile JSON data.
-	JSON map[string]interface{}
-	// The schemas to be used for validation.
-	Schemas []string
-	// The loader that fetches the schemas.
-	SchemaLoader Loader
-	// Enable/disable custom validation.
-	CustomValidation bool
+	ProfileLoader    ProfileLoader          // Fetches the profile data.
+	ProfileJSON      map[string]interface{} // The loaded profile JSON data.
+	SchemaNames      []string               // Names of the schemas (for context or errors).
+	SchemaReferences []string               // For URL-based schemas (used to fetch schema content).
+	LoadedSchemas    []string               // For JSON-based schemas (actual content).
+	SchemaLoader     Loader                 // Loader for fetching schema content.
+	CustomValidation bool                   // Enable/disable custom validation.
 }
 
-// Validate validates the data against the schemas and returns the validation result.
+// Validate performs validation of the profile JSON against the provided schemas
+// and returns the aggregated validation result.
 func (v *ProfileValidator) Validate() *ValidationResult {
 	finalResult := NewValidationResult()
 
-	for _, schemaStr := range v.Schemas {
-		schema, err := v.SchemaLoader.Load(schemaStr)
+	// Use either loaded JSON schemas or schema references (both are set during initialization).
+	schemasToValidate := v.LoadedSchemas
+	if len(schemasToValidate) == 0 {
+		schemasToValidate = v.SchemaReferences
+	}
+
+	// Iterate over each schema for validation.
+	for i, schema := range schemasToValidate {
+		// Load the schema using the SchemaLoader.
+		loadedSchema, err := v.SchemaLoader.Load(schema)
 		if err != nil {
 			finalResult.AppendError(
 				"Error loading schema",
-				fmt.Sprintf("Error loading schema (%s): %v", schemaStr, err),
+				fmt.Sprintf("Error loading schema (%s): %v", v.SchemaNames[i], err),
 				[]string{"pointer", "/linked_schemas"},
 				http.StatusNotFound,
 			)
 			continue
 		}
 
-		validationResult, err := schema.Validate(v.ProfileLoader.Load())
+		// Validate the profile JSON against the loaded schema.
+		validationResult, err := loadedSchema.Validate(v.ProfileLoader.Load())
 		if err != nil {
 			finalResult.AppendError(
 				"Cannot Validate Document",
-				fmt.Sprintf(
-					"Error when trying to validate document: %s",
-					err.Error(),
-				),
+				fmt.Sprintf("Error validating document: %s", err.Error()),
 				nil,
 				http.StatusBadRequest,
 			)
 			continue
 		}
 
+		// If validation fails, collect and append the errors.
 		if !validationResult.Valid() {
-			failedTitles, failedDetails, failedSources := parseValidateError(
-				schemaStr,
-				validationResult.Errors(),
-			)
-			statusCodes := make([]int, len(failedTitles))
+			titles, details, sources := parseValidateError(v.SchemaNames[i], validationResult.Errors())
+
+			// Assign the same status code for each validation error.
+			statusCodes := make([]int, len(titles))
 			for i := range statusCodes {
-				// Populate it with the same status code for each error.
 				statusCodes[i] = http.StatusBadRequest
 			}
-			finalResult.AppendErrors(
-				failedTitles,
-				failedDetails,
-				failedSources,
-				statusCodes,
-			)
+
+			// Append all validation errors to the final result.
+			finalResult.AppendErrors(titles, details, sources, statusCodes)
 		}
 	}
 
-	if !finalResult.Valid {
-		return finalResult
-	} else if v.CustomValidation {
+	// If custom validation is enabled, merge its result into the final result.
+	if v.CustomValidation {
 		return finalResult.Merge(v.CustomValidate())
 	}
+
 	return finalResult
 }
 
@@ -165,7 +164,7 @@ func (v *ProfileValidator) CustomValidate() *ValidationResult {
 	}
 
 	for field, validator := range validators {
-		if value, exists := v.JSON[field]; exists {
+		if value, exists := v.ProfileJSON[field]; exists {
 			result := validator.Validate(value)
 			if !result.Valid {
 				finalResult.Merge(result)
@@ -182,7 +181,7 @@ func getSchemaURL(libraryURL string, linkedSchema string) string {
 }
 
 func parseValidateError(
-	schema string,
+	schemaName string,
 	resultErrors []gojsonschema.ResultError,
 ) ([]string, []string, [][]string) {
 	failedTitles := make([]string, 0, len(resultErrors))
@@ -215,29 +214,29 @@ func parseValidateError(
 		switch failedType {
 		case "invalid_type":
 			failedType = "Invalid Type"
-			failedDetail = "Expected: " + expected + " - Given: " + given + " - Schema: " + schema
+			failedDetail = "Expected: " + expected + " - Given: " + given + " - Schema: " + schemaName
 		case "number_gte":
 			failedType = "Invalid Amount"
-			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schema
+			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schemaName
 		case "number_lte":
 			failedType = "Invalid Amount"
-			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schema
+			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schemaName
 		case "required":
 			failedType = "Missing Required Property"
 			if desc.Field() == "(root)" {
-				failedDetail = "The `" + property + "` property is required - Schema: " + schema
+				failedDetail = "The `" + property + "` property is required - Schema: " + schemaName
 			} else {
-				failedDetail = "The `" + desc.Field() + "/" + property + "` property is required - Schema: " + schema
+				failedDetail = "The `" + desc.Field() + "/" + property + "` property is required - Schema: " + schemaName
 			}
 		case "array_min_items":
 			failedType = "Not Enough Items"
-			failedDetail = "There are not enough items in the array - Schema: " + schema
+			failedDetail = "There are not enough items in the array - Schema: " + schemaName
 		case "array_max_items":
 			failedType = "Too Many Items"
-			failedDetail = "There are too many items in the array - Schema: " + schema
+			failedDetail = "There are too many items in the array - Schema: " + schemaName
 		case "pattern":
 			failedType = "Pattern Mismatch"
-			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schema
+			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schemaName
 		}
 
 		// append title and detail
