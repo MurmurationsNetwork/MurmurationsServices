@@ -161,8 +161,8 @@ func (v *StringValidator) validateLength(strValue string, vr *ValidationResult) 
 	}
 
 	vr.AppendError(
+		"String Length Exceeded",
 		fmt.Sprintf("Invalid Length, max length is %d", v.MaxLength),
-		"String length exceeded",
 		[]string{"pointer", "/" + v.Path},
 		http.StatusBadRequest,
 	)
