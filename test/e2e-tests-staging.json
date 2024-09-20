@@ -2175,7 +2175,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-2.json\"}",
+                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/e2e-tests/profile-2.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -3362,7 +3362,8 @@
                                     "})",
                                     "var jsonData = pm.response.json()"
                                 ],
-                                "type": "text/javascript"
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
@@ -3410,7 +3411,8 @@
                                     "var jsonData = pm.response.json()",
                                     "pm.environment.set(\"batch_id\", jsonData.meta.batch_id)"
                                 ],
-                                "type": "text/javascript"
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
