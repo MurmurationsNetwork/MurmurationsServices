@@ -237,6 +237,18 @@ func parseValidateError(
 		case "pattern":
 			failedType = "Pattern Mismatch"
 			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schemaName
+		case "enum":
+			failedType = "Invalid Value"
+			failedDetail = "The submitted data is not a valid value from the list of allowed values - Schema: " + schemaName
+		case "unique":
+			failedType = "Duplicate Value"
+			failedDetail = "The submitted data contains a duplicate value - Schema: " + schemaName
+		case "string_lte":
+			failedType = "Invalid Length"
+			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schemaName
+		case "string_gte":
+			failedType = "Invalid Length"
+			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schemaName
 		}
 
 		// append title and detail

@@ -1865,13 +1865,11 @@
                                     "// Test for specific error titles",
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should include specific error titles`, () => {",
                                     "    const expectedTitles = [",
-                                    "        \"Invalid Length, max length is 100\",",
-                                    "        \"Invalid Length, max length is 2\",",
+                                    "        \"String Length Exceeded\",",
                                     "        \"Too Many Tags\",",
                                     "        \"Tag Too Long\",",
-                                    "        \"Invalid Length, max length is 200\"",
                                     "    ];",
-                                    "    ",
+                                    "",
                                     "    expectedTitles.forEach(title => {",
                                     "        pm.expect(jsonData.errors.some(error => error.title === title)).to.be.true;",
                                     "    });",
@@ -1886,7 +1884,7 @@
                                     "        \"/country_iso_3166\",",
                                     "        \"/tags\"",
                                     "    ];",
-                                    "    ",
+                                    "",
                                     "    expectedPointers.forEach(pointer => {",
                                     "        pm.expect(jsonData.errors.some(error => error.source.pointer === pointer)).to.be.true;",
                                     "    });",
@@ -1895,11 +1893,14 @@
                                     "// Test for specific error details",
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should include specific error details`, () => {",
                                     "    const expectedDetails = [",
-                                    "        \"String length exceeded\",",
+                                    "        \"Invalid Length, max length is 100\",",
+                                    "        \"Invalid Length, max length is 2\",",
+                                    "        \"Invalid Length, max length is 200\",",
                                     "        \"Maximum of 100 tags allowed\",",
                                     "        \"Each tag should be under 100 characters\"",
+                                    "",
                                     "    ];",
-                                    "    ",
+                                    "",
                                     "    expectedDetails.forEach(detail => {",
                                     "        pm.expect(jsonData.errors.some(error => error.detail === detail)).to.be.true;",
                                     "    });",
@@ -2174,7 +2175,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\":\"https://ic3.dev/murmurations/e2e-tests/profile-2.json\"}",
+                            "raw": "{\"profile_url\": \"https://ic3.dev/murmurations/e2e-tests/profile-2.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -3361,7 +3362,8 @@
                                     "})",
                                     "var jsonData = pm.response.json()"
                                 ],
-                                "type": "text/javascript"
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
@@ -3409,7 +3411,8 @@
                                     "var jsonData = pm.response.json()",
                                     "pm.environment.set(\"batch_id\", jsonData.meta.batch_id)"
                                 ],
-                                "type": "text/javascript"
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
