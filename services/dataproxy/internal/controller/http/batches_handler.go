@@ -107,7 +107,7 @@ func (handler *batchesHandler) Validate(c *gin.Context) {
 	}
 	if validationError != nil {
 		meta := jsonapi.NewBatchMeta(
-			"Failed to validate line "+strconv.Itoa(line),
+			"Validation Failed",
 			"",
 		)
 		res := jsonapi.Response(nil, validationError, nil, meta)
@@ -206,7 +206,7 @@ func (handler *batchesHandler) Import(c *gin.Context) {
 	}
 	if validationError != nil {
 		meta := jsonapi.NewBatchMeta(
-			"Failed to validate line "+strconv.Itoa(line),
+			"Validation Failed",
 			batchID,
 		)
 		res := jsonapi.Response(nil, validationError, nil, meta)
@@ -307,7 +307,7 @@ func (handler *batchesHandler) Edit(c *gin.Context) {
 	}
 	if validationError != nil {
 		meta := jsonapi.NewBatchMeta(
-			"Failed to validate line "+strconv.Itoa(line),
+			"Validation Failed",
 			batchID,
 		)
 		res := jsonapi.Response(nil, validationError, nil, meta)

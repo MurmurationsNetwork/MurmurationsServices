@@ -59,33 +59,96 @@ func Response(
 
 // JSON API Internal Data
 
+// NewErrors constructs a slice of Error objects from the provided slices.
+// Each Error object is populated with the corresponding elements from the
+// input slices.
+//
+// Parameters:
+//   - titles: a slice of error titles (required).
+//   - details: a slice of error details (optional).
+//   - sources: a slice of slices, where each inner slice contains key-value
+//     pairs for the Source map in an Error object (optional).
+//   - statuses: a slice of status codes (optional).
+//
+// The function handles cases where the optional slices have fewer elements
+// than the titles slice. If an optional slice is shorter, the missing values
+// are omitted for those Error objects.
+//
+// Example usage:
+//
+//	titles := []string{"Error 1", "Error 2"}
+//	details := []string{"Detail 1", "Detail 2"}
+//	sources := [][]string{
+//	  {"file", "main.go", "line", "42"},
+//	  {"file", "utils.go"},
+//	}
+//	statuses := []int{400, 404}
+//
+//	errors := NewErrors(titles, details, sources, statuses)
+//
+//	// The errors slice will contain:
+//	errors[0] = Error{
+//	  Title:  "Error 1",
+//	  Detail: "Detail 1",
+//	  Status: 400,
+//	  Source: map[string]string{
+//	    "file": "main.go",
+//	    "line": "42",
+//	  },
+//	}
+//	errors[1] = Error{
+//	  Title:  "Error 2",
+//	  Detail: "Detail 2",
+//	  Status: 404,
+//	  Source: map[string]string{
+//	    "file": "utils.go",
+//	  },
+//	}
 func NewError(
 	titles []string,
 	details []string,
 	sources [][]string,
-	status []int,
+	statuses []int,
 ) []Error {
-	var errors []Error
+	errors := make([]Error, len(titles))
 
-	for i := 0; i < len(titles); i++ {
-		newError := Error{
-			Status: status[i],
-			Title:  titles[i],
+	for i, title := range titles {
+		// Initialize the Error object with the title
+		err := Error{
+			Title: title,
 		}
 
+		// Set Status if available
+		if i < len(statuses) {
+			err.Status = statuses[i]
+		}
+
+		// Set Detail if available
 		if i < len(details) {
-			newError.Detail = details[i]
+			err.Detail = details[i]
 		}
 
+		// Set Source if available
 		if i < len(sources) && len(sources[i]) > 0 {
-			newError.Source = make(map[string]string)
-			newError.Source[sources[i][0]] = ""
-			if len(sources[i]) > 1 {
-				newError.Source[sources[i][0]] = sources[i][1]
+			err.Source = make(map[string]string)
+			sourcePairs := sources[i]
+
+			// Iterate over the sourcePairs slice in steps of 2 to get key-value pairs
+			for j := 0; j+1 < len(sourcePairs); j += 2 {
+				key := sourcePairs[j]
+				value := sourcePairs[j+1]
+				err.Source[key] = value
+			}
+
+			// If there's an odd number of elements, assign an empty string to the last key
+			if len(sourcePairs)%2 != 0 {
+				key := sourcePairs[len(sourcePairs)-1]
+				err.Source[key] = ""
 			}
 		}
 
-		errors = append(errors, newError)
+		// Assign the Error object to the errors slice
+		errors[i] = err
 	}
 
 	return errors

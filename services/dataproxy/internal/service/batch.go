@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"sort"
 	"strconv"
@@ -61,176 +62,309 @@ func (s *batchService) GetBatchesByUserID(
 	return batches, nil
 }
 
-// Validate validates a set of records against specified schemas, returning
-// the first error encountered, if any.
-func (s *batchService) Validate(
-	schemas []string,
-	records [][]string,
+// Validate processes and validates CSV records against the provided schemas.
+// It returns the line number where an error occurred (if any), a slice of
+// jsonapi.Errors containing validation errors, and an error if a non-validation
+// issue occurs.
+//
+// Parameters:
+//   - schemaNames: A slice of schema names to validate against.
+//   - csvRecords: CSV records represented as a slice of string slices.
+//
+// Returns:
+//   - int: The line number where an error occurred (-1 if not applicable).
+//   - []jsonapi.Error: A slice of validation errors (if any).
+//   - error: An error object if a non-validation error occurred.
+func (service *batchService) Validate(
+	schemaNames []string,
+	csvRecords [][]string,
 ) (int, []jsonapi.Error, error) {
-	// Limit check: Ensure the CSV file does not exceed 1,000 rows.
-	if len(records) > 1001 {
-		return -1, nil, errors.New(
-			"the CSV file cannot contain more than 1,000 rows",
+	// Maximum number of data rows allowed in the CSV (excluding header).
+	const maxDataRows = 1000
+
+	// Check if the CSV exceeds the maximum allowed data rows.
+	if len(csvRecords) > maxDataRows+1 { // +1 for header row
+		return -1, nil, fmt.Errorf(
+			"the CSV file cannot contain more than %d data rows",
+			maxDataRows,
 		)
 	}
 
-	// Fetch JSON schema strings from the library for validation.
-	schemasResponse, err := ParseSchemas(schemas)
+	// Parse the schemas for validation.
+	parsedSchemas, err := ParseSchemas(schemaNames)
 	if err != nil {
 		return -1, nil, err
 	}
-	jsonSchemas := schemasResponse.JSONSchemas
-	schemaNames := schemasResponse.SchemaNames
+	jsonSchemas := parsedSchemas.JSONSchemas
+	parsedSchemaNames := parsedSchemas.SchemaNames
 
-	// Iterate over each profile to validate.
-	rawProfiles := csvToMap(records)
-	for line, rawProfile := range rawProfiles {
-		// Map raw profile data to the schema format.
-		profile, err := mapToProfile(rawProfile, schemas)
-		if err != nil {
-			return line, nil, err
+	// Convert CSV records to a slice of maps (header to value mapping).
+	profileRecords := csvToMap(csvRecords)
+
+	// Initialize a slice to collect all validation errors.
+	var validationErrors []jsonapi.Error
+
+	// Iterate over each profile record for validation.
+	for lineNumber, profileData := range profileRecords {
+		// Extract the OID (Object Identifier) from the profile data.
+		oid, exists := profileData["oid"]
+		if !exists {
+			return lineNumber, nil, fmt.Errorf(
+				"missing 'oid' in profile at line %d",
+				lineNumber,
+			)
 		}
 
-		// Create a validator with the profile and JSON schemas.
+		// Map raw profile data to the expected schema format.
+		mappedProfile, err := mapToProfile(profileData, schemaNames)
+		if err != nil {
+			return lineNumber, nil, err
+		}
+
+		// Build the profile validator with the mapped profile and JSON schemas.
 		validator, err := profilevalidator.NewBuilder().
-			WithMapProfile(profile).
-			WithJSONSchemas(schemaNames, jsonSchemas).
+			WithMapProfile(mappedProfile).
+			WithJSONSchemas(parsedSchemaNames, jsonSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
 			return -1, nil, err
 		}
 
-		// Perform validation and check the result.
-		result := validator.Validate()
-		if !result.Valid {
-			// Return the line number and validation errors if invalid.
-			return line, jsonapi.NewError(
-				result.ErrorMessages,
-				result.Details,
-				result.Sources,
-				result.ErrorStatus,
-			), nil
+		// Validate the profile.
+		validationResult := validator.Validate()
+
+		// Inject OID into each source entry for better error tracing.
+		for idx := range validationResult.Sources {
+			validationResult.Sources[idx] = append(
+				validationResult.Sources[idx],
+				"oid",
+				oid,
+			)
+		}
+
+		// Collect validation errors if any.
+		if !validationResult.Valid {
+			errors := jsonapi.NewError(
+				validationResult.ErrorMessages,
+				validationResult.Details,
+				validationResult.Sources,
+				validationResult.ErrorStatus,
+			)
+			validationErrors = append(validationErrors, errors...)
 		}
 	}
 
-	// Return success if all profiles are valid.
+	// Return collected validation errors if any.
+	if len(validationErrors) > 0 {
+		return -1, validationErrors, nil
+	}
+
+	// All profiles are valid.
 	return -1, nil, nil
 }
 
-func (s *batchService) Import(
+// Import processes CSV records by first validating all profiles and then importing them
+// into the system if they pass validation. It returns the generated batch ID, the line
+// number where an error occurred (-1 if not applicable), a slice of jsonapi.Errors containing
+// validation errors, and an error if a non-validation issue occurs.
+//
+// Parameters:
+//   - title: The title for the batch import.
+//   - schemaNames: A slice of schema names to validate against.
+//   - csvRecords: CSV records represented as a slice of string slices.
+//   - userID: The ID of the user performing the import.
+//   - metaName: Metadata name to be added to each profile (optional).
+//   - metaURL: Metadata URL to be added to each profile (optional).
+//
+// Returns:
+//   - string: The generated batch ID.
+//   - int: The line number where an error occurred (-1 if not applicable).
+//   - []jsonapi.Error: A slice of validation errors (if any).
+//   - error: An error object if a non-validation error occurred.
+func (service *batchService) Import(
 	title string,
-	schemas []string,
-	records [][]string,
+	schemaNames []string,
+	csvRecords [][]string,
 	userID string,
 	metaName string,
 	metaURL string,
 ) (string, int, []jsonapi.Error, error) {
-	if len(records) > 1001 {
-		return "", -1, nil, errors.New(
-			"the CSV file cannot contain more than 1,000 rows",
+	// Maximum number of data rows allowed in the CSV (excluding header).
+	const maxDataRows = 1000
+
+	// Check if the CSV exceeds the maximum allowed data rows.
+	if len(csvRecords) > maxDataRows+1 { // +1 for header row
+		return "", -1, nil, fmt.Errorf(
+			"the CSV file cannot contain more than %d data rows",
+			maxDataRows,
 		)
 	}
 
-	// Generate `batch_id` using cuid and save it to MongoDB
+	// Generate a new batch ID.
 	batchID := cuid.New()
-	err := s.batchRepo.SaveUser(userID, title, batchID, schemas)
+
+	// Parse the schemas for validation.
+	parsedSchemas, err := ParseSchemas(schemaNames)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
+	jsonSchemas := parsedSchemas.JSONSchemas
+	parsedSchemaNames := parsedSchemas.SchemaNames
 
-	rawProfiles := csvToMap(records)
+	// Convert CSV records to a slice of maps (header to value mapping).
+	profileRecords := csvToMap(csvRecords)
 
-	// Fetch JSON schema strings from the library for validation.
-	schemasResponse, err := ParseSchemas(schemas)
-	if err != nil {
-		return batchID, -1, nil, err
-	}
-	jsonSchemas := schemasResponse.JSONSchemas
-	schemaNames := schemasResponse.SchemaNames
+	// Initialize a slice to collect all validation errors.
+	var validationErrors []jsonapi.Error
 
-	for line, rawProfile := range rawProfiles {
-		profile, err := mapToProfile(rawProfile, schemas)
-		if err != nil {
-			return batchID, line, nil, err
+	// Prepare a slice to hold valid profiles for later processing.
+	validProfiles := make([]map[string]interface{}, 0, len(profileRecords))
+
+	// First pass: Validate all profiles and collect validation errors.
+	for lineNumber, profileData := range profileRecords {
+		// Extract the OID (Object Identifier) from the profile data.
+		oid, exists := profileData["oid"]
+		if !exists {
+			errMsg := fmt.Sprintf("missing 'oid' in profile at line %d", lineNumber)
+			validationErrors = append(validationErrors, jsonapi.Error{
+				Title:  "Validation Error",
+				Detail: errMsg,
+				Source: map[string]string{"line": fmt.Sprintf("%d", lineNumber)},
+			})
+			continue
 		}
 
+		// Map raw profile data to the expected schema format.
+		mappedProfile, err := mapToProfile(profileData, schemaNames)
+		if err != nil {
+			validationErrors = append(validationErrors, jsonapi.Error{
+				Title:  "Mapping Error",
+				Detail: err.Error(),
+				Source: map[string]string{"line": fmt.Sprintf("%d", lineNumber), "oid": oid},
+			})
+			continue
+		}
+
+		// Build the profile validator with the mapped profile and JSON schemas.
 		validator, err := profilevalidator.NewBuilder().
-			WithMapProfile(profile).
-			WithJSONSchemas(schemaNames, jsonSchemas).
+			WithMapProfile(mappedProfile).
+			WithJSONSchemas(parsedSchemaNames, jsonSchemas).
 			WithCustomValidation().
 			Build()
 		if err != nil {
-			return batchID, line, nil, err
-		}
-		result := validator.Validate()
-		if !result.Valid {
-			return batchID, line, jsonapi.NewError(
-				result.ErrorMessages,
-				result.Details,
-				result.Sources,
-				result.ErrorStatus,
-			), nil
+			validationErrors = append(validationErrors, jsonapi.Error{
+				Title:  "Validator Building Error",
+				Detail: err.Error(),
+				Source: map[string]string{"line": fmt.Sprintf("%d", lineNumber), "oid": oid},
+			})
+			continue
 		}
 
-		// TODO
-		profileHash, err := jsonutil.Hash(profile)
-		if err != nil {
-			return batchID, line, nil, err
-		}
-		profile["source_data_hash"] = profileHash
+		// Validate the profile.
+		validationResult := validator.Validate()
 
-		// Add metadata
-		if metaName != "" || metaURL != "" {
-			source := make(map[string]interface{})
-			if metaName != "" {
-				source["name"] = metaName
-			}
-			if metaURL != "" {
-				source["url"] = metaURL
-			}
-
-			metadata := map[string]interface{}{
-				"sources": []map[string]interface{}{
-					source,
-				},
-			}
-			profile["metadata"] = metadata
-		}
-
-		profile["batch_id"] = batchID
-
-		// Generate cuid for profile
-		profileCuid := cuid.New()
-		profile["cuid"] = profileCuid
-
-		// Import profile to MongoDB
-		err = s.batchRepo.SaveProfile(profile)
-		if err != nil {
-			return batchID, line, nil, err
-		}
-
-		// Import profile to Index
-		postNodeURL := config.Conf.Index.URL + "/v2/nodes"
-		profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
-		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
-		if err != nil {
-			return batchID, line, nil, errors.New(
-				"Import to MurmurationsServices Index failed: " + err.Error(),
+		// Inject OID and line number into each source entry for better error tracing.
+		for idx := range validationResult.Sources {
+			validationResult.Sources[idx] = append(
+				validationResult.Sources[idx],
+				"oid",
+				oid,
 			)
 		}
 
-		// Save `node_id` to MongoDB
-		profile["node_id"] = nodeID
-		profile["is_posted"] = true
-		err = s.batchRepo.SaveNodeID(profileCuid, profile)
+		// Collect validation errors if the profile is invalid.
+		if !validationResult.Valid {
+			errors := jsonapi.NewError(
+				validationResult.ErrorMessages,
+				validationResult.Details,
+				validationResult.Sources,
+				validationResult.ErrorStatus,
+			)
+			validationErrors = append(validationErrors, errors...)
+			continue
+		}
+
+		// If the profile is valid, add it to the validProfiles slice for later processing.
+		validProfiles = append(validProfiles, mappedProfile)
+	}
+
+	// If there are any validation errors, return them without proceeding further.
+	if len(validationErrors) > 0 {
+		return batchID, -1, validationErrors, nil
+	}
+
+	// Save the batch information to the database.
+	err = service.batchRepo.SaveUser(userID, title, batchID, schemaNames)
+	if err != nil {
+		return batchID, -1, nil, err
+	}
+
+	// Second pass: Process valid profiles and save them to the database.
+	for _, mappedProfile := range validProfiles {
+		// Generate a new CUID for the profile and set "cuid".
+		profileCUID := cuid.New()
+		mappedProfile["cuid"] = profileCUID
+
+		// Compute a hash of the profile and store it in "source_data_hash".
+		profileHash, err := jsonutil.Hash(mappedProfile)
 		if err != nil {
-			return batchID, line, nil, errors.New(
-				"Save node_id to Mongo failed: " + err.Error(),
+			return batchID, -1, nil, err
+		}
+		mappedProfile["source_data_hash"] = profileHash
+
+		// Add metadata if provided.
+		if metaName != "" || metaURL != "" {
+			sourceInfo := make(map[string]interface{})
+			if metaName != "" {
+				sourceInfo["name"] = metaName
+			}
+			if metaURL != "" {
+				sourceInfo["url"] = metaURL
+			}
+			metadata := map[string]interface{}{
+				"sources": []map[string]interface{}{
+					sourceInfo,
+				},
+			}
+			mappedProfile["metadata"] = metadata
+		}
+
+		// Set "batch_id" to associate the profile with the batch.
+		mappedProfile["batch_id"] = batchID
+
+		// Save the profile to the database.
+		err = service.batchRepo.SaveProfile(mappedProfile)
+		if err != nil {
+			return batchID, -1, nil, err
+		}
+
+		// Post the profile to the index service.
+		postNodeURL := config.Conf.Index.URL + "/v2/nodes"
+		profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCUID
+		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
+		if err != nil {
+			return batchID, -1, nil, fmt.Errorf(
+				"import to index service failed: %v",
+				err,
+			)
+		}
+
+		// Update the profile with the node ID and mark it as posted.
+		mappedProfile["node_id"] = nodeID
+		mappedProfile["is_posted"] = true
+
+		// Save the node ID to the database.
+		err = service.batchRepo.SaveNodeID(profileCUID, mappedProfile)
+		if err != nil {
+			return batchID, -1, nil, fmt.Errorf(
+				"failed to save node ID to database: %v",
+				err,
 			)
 		}
 	}
 
+	// All profiles have been successfully imported.
 	return batchID, -1, nil, nil
 }
 
