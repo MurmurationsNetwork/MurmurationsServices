@@ -75,7 +75,7 @@ func (s *batchService) GetBatchesByUserID(
 //   - int: The line number where an error occurred (-1 if not applicable).
 //   - []jsonapi.Error: A slice of validation errors (if any).
 //   - error: An error object if a non-validation error occurred.
-func (service *batchService) Validate(
+func (s *batchService) Validate(
 	schemaNames []string,
 	csvRecords [][]string,
 ) (int, []jsonapi.Error, error) {
@@ -182,7 +182,7 @@ func (service *batchService) Validate(
 //   - int: The line number where an error occurred (-1 if not applicable).
 //   - []jsonapi.Error: A slice of validation errors (if any).
 //   - error: An error object if a non-validation error occurred.
-func (service *batchService) Import(
+func (s *batchService) Import(
 	title string,
 	schemaNames []string,
 	csvRecords [][]string,
@@ -295,7 +295,7 @@ func (service *batchService) Import(
 	}
 
 	// Save the batch information to the database.
-	err = service.batchRepo.SaveUser(userID, title, batchID, schemaNames)
+	err = s.batchRepo.SaveUser(userID, title, batchID, schemaNames)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
@@ -334,7 +334,7 @@ func (service *batchService) Import(
 		mappedProfile["batch_id"] = batchID
 
 		// Save the profile to the database.
-		err = service.batchRepo.SaveProfile(mappedProfile)
+		err = s.batchRepo.SaveProfile(mappedProfile)
 		if err != nil {
 			return batchID, -1, nil, err
 		}
@@ -355,7 +355,7 @@ func (service *batchService) Import(
 		mappedProfile["is_posted"] = true
 
 		// Save the node ID to the database.
-		err = service.batchRepo.SaveNodeID(profileCUID, mappedProfile)
+		err = s.batchRepo.SaveNodeID(profileCUID, mappedProfile)
 		if err != nil {
 			return batchID, -1, nil, fmt.Errorf(
 				"failed to save node ID to database: %v",

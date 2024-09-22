@@ -110,6 +110,10 @@ func NewError(
 	sources [][]string,
 	statuses []int,
 ) []Error {
+	if len(titles) == 0 {
+		return nil
+	}
+
 	errors := make([]Error, len(titles))
 
 	for i, title := range titles {
