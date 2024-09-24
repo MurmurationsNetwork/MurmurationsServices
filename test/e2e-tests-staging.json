@@ -3468,6 +3468,116 @@
                     "response": []
                 },
                 {
+                    "name": "Import Batch With Validation Errors",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "// Check if the status code is 400, as the response contains errors",
+                                    "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return status code 400`, () => {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "",
+                                    "var jsonData = pm.response.json();",
+                                    "",
+                                    "// Ensure the response contains a \"meta\" field and set the batch_id in the environment",
+                                    "pm.test(\"Response should contain meta information and batch_id\", () => {",
+                                    "    pm.expect(jsonData).to.have.property(\"meta\");",
+                                    "    pm.expect(jsonData.meta).to.have.property(\"batch_id\");",
+                                    "    pm.environment.set(\"batch_id\", jsonData.meta.batch_id);",
+                                    "});",
+                                    "",
+                                    "// Validate that \"errors\" is an array and not empty",
+                                    "pm.test(\"Response should contain an errors array\", () => {",
+                                    "    pm.expect(jsonData.errors).to.be.an(\"array\").that.is.not.empty;",
+                                    "});",
+                                    "",
+                                    "// Loop through each error and validate its structure",
+                                    "jsonData.errors.forEach((error, index) => {",
+                                    "    pm.test(`Error ${index + 1} should have required fields`, () => {",
+                                    "        pm.expect(error).to.have.property(\"status\");",
+                                    "        pm.expect(error).to.have.property(\"source\");",
+                                    "        pm.expect(error.source).to.have.property(\"oid\");",
+                                    "        pm.expect(error.source).to.have.property(\"pointer\");",
+                                    "        pm.expect(error).to.have.property(\"title\");",
+                                    "        pm.expect(error).to.have.property(\"detail\");",
+                                    "",
+                                    "        // Additional checks for specific conditions",
+                                    "        if (error.pointer === \"/primary_url\") {",
+                                    "            pm.expect(error.title).to.equal(\"Pattern Mismatch\");",
+                                    "        }",
+                                    "",
+                                    "        if (error.pointer === \"/geolocation/lon\") {",
+                                    "            pm.expect(error.title).to.equal(\"Invalid Amount\");",
+                                    "        }",
+                                    "",
+                                    "        if (error.pointer === \"/geolocation/Longitude\") {",
+                                    "            pm.expect(error.title).to.equal(\"Invalid Longitude\");",
+                                    "        }",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "// Log the batch_id for debugging purposes",
+                                    "console.log(`Batch ID: ${jsonData.meta.batch_id}`);"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "title",
+                                    "value": "Test",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": "test/organizations_schema-v1.0.0-example-import-with-errors.csv"
+                                },
+                                {
+                                    "key": "schemas",
+                                    "value": "[\"organizations_schema-v1.0.0\"]",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "user_id",
+                                    "value": "cl6xpncg5000009l8dbpld1re",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "meta_name",
+                                    "value": "Organization",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "meta_url",
+                                    "value": "https://example.com",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{dataProxyBaseUrl}}/batch/import",
+                            "host": [
+                                "{{dataProxyBaseUrl}}"
+                            ],
+                            "path": [
+                                "batch",
+                                "import"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "Get User Batches",
                     "event": [
                         {
