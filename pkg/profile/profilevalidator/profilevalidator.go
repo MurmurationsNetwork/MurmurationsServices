@@ -85,7 +85,6 @@ type ProfileValidator struct {
 	SchemaReferences []string               // For URL-based schemas (used to fetch schema content).
 	LoadedSchemas    []string               // For JSON-based schemas (actual content).
 	SchemaLoader     Loader                 // Loader for fetching schema content.
-	CustomValidation bool                   // Enable/disable custom validation.
 }
 
 // Validate performs validation of the profile JSON against the provided schemas
@@ -137,38 +136,6 @@ func (v *ProfileValidator) Validate() *ValidationResult {
 
 			// Append all validation errors to the final result.
 			finalResult.AppendErrors(titles, details, sources, statusCodes)
-		}
-	}
-
-	// If custom validation is enabled, merge its result into the final result.
-	if v.CustomValidation {
-		return finalResult.Merge(v.CustomValidate())
-	}
-
-	return finalResult
-}
-
-// CustomValidate performs custom validation on the JSON data.
-func (v *ProfileValidator) CustomValidate() *ValidationResult {
-	finalResult := NewValidationResult()
-
-	validators := map[string]CustomValidator{
-		"geolocation":      &GeolocationValidator{},
-		"name":             &StringValidator{MaxLength: 200, Path: "name"},
-		"locality":         &StringValidator{MaxLength: 100, Path: "locality"},
-		"region":           &StringValidator{MaxLength: 100, Path: "region"},
-		"country_name":     &StringValidator{MaxLength: 100, Path: "country_name"},
-		"country_iso_3166": &StringValidator{MaxLength: 2, Path: "country_iso_3166"},
-		"primary_url":      &StringValidator{MaxLength: 2000, Path: "primary_url"},
-		"tags":             &TagsValidator{},
-	}
-
-	for field, validator := range validators {
-		if value, exists := v.ProfileJSON[field]; exists {
-			result := validator.Validate(value)
-			if !result.Valid {
-				finalResult.Merge(result)
-			}
 		}
 	}
 

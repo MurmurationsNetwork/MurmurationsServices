@@ -57,12 +57,6 @@ func (b *Builder) WithMapProfile(
 	return b
 }
 
-// WithCustomValidation enables to custom validation.
-func (b *Builder) WithCustomValidation() *Builder {
-	b.profilevalidator.CustomValidation = true
-	return b
-}
-
 // Build validates the builder state and returns the built ProfileValidator.
 func (b *Builder) Build() (*ProfileValidator, error) {
 	// Check that required fields are set.

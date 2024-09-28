@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -13,24 +14,28 @@ type SchemasResponse struct {
 	SchemaNames []string
 }
 
-// parseSchemas fetches and returns the JSON content for a list of schema names,
+// DefaultSchema defines the default schema version to be fetched.
+const DefaultSchema = "default-v2.0.0"
+
+// ParseSchemas fetches and returns the JSON content for a list of schema names,
 // including a default schema.
 func ParseSchemas(schemas []string) (*SchemasResponse, error) {
 	// Include default schema and append provided schemas.
-	schemaNames := append([]string{"default-v2.0.0"}, schemas...)
+	schemaNames := append([]string{DefaultSchema}, schemas...)
 	jsonSchemas := make([]string, len(schemaNames))
-	baseURL := config.Conf.Library.InternalURL + "/v2/schemas"
+	baseURL := fmt.Sprintf("%s/v2/schemas", config.Conf.Library.InternalURL)
 
 	for i, schema := range schemaNames {
-		resp, err := http.Get(baseURL + "/" + schema)
+		schemaURL := fmt.Sprintf("%s/%s", baseURL, schema)
+		resp, err := http.Get(schemaURL)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to fetch schema '%s': %w", schema, err)
 		}
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read schema '%s': %w", schema, err)
 		}
 		jsonSchemas[i] = string(body)
 	}

@@ -209,7 +209,6 @@ func (svc *validationService) validateAgainstLinkedSchemas(
 	validator, err := profilevalidator.NewBuilder().
 		WithStrProfile(profileStr).
 		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
-		WithCustomValidation().
 		Build()
 	if err != nil {
 		logger.Error("Failed to build schema validator", err)
