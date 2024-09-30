@@ -197,10 +197,10 @@ func parseValidateError(
 			}
 		case "array_min_items":
 			failedType = "Not Enough Items"
-			failedDetail = "There are not enough items in the array - Schema: " + schemaName
+			failedDetail = "There are not enough items in the array - Minimum is " + min + " - Schema: " + schemaName
 		case "array_max_items":
 			failedType = "Too Many Items"
-			failedDetail = "There are too many items in the array - Schema: " + schemaName
+			failedDetail = "There are too many items in the array - Maximum is " + max + " - Schema: " + schemaName
 		case "pattern":
 			failedType = "Pattern Mismatch"
 			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schemaName
