@@ -216,6 +216,11 @@ func parseValidateError(
 		case "string_gte":
 			failedType = "Invalid Length"
 			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schemaName
+		// condition_else and condition_then are not errors, they are conditions - no need to report them
+		case "condition_else":
+			continue
+		case "condition_then":
+			continue
 		}
 
 		// append title and detail
