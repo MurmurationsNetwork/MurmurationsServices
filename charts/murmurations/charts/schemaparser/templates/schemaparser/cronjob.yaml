@@ -10,9 +10,9 @@ metadata:
   name: schemaparser-app
 spec:
   {{- if or $isProd $isStaging $isPretest }}
-  schedule: "*/1 * * * *"  # every minute
-  {{- else }}
   schedule: "*/2 * * * *"  # every two minutes
+  {{- else }}
+  schedule: "*/1 * * * *"  # every minute
   {{- end }}
   # Keep the latest successful job.
   successfulJobsHistoryLimit: 1

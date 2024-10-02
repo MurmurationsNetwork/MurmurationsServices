@@ -85,7 +85,6 @@ type ProfileValidator struct {
 	SchemaReferences []string               // For URL-based schemas (used to fetch schema content).
 	LoadedSchemas    []string               // For JSON-based schemas (actual content).
 	SchemaLoader     Loader                 // Loader for fetching schema content.
-	CustomValidation bool                   // Enable/disable custom validation.
 }
 
 // Validate performs validation of the profile JSON against the provided schemas
@@ -137,38 +136,6 @@ func (v *ProfileValidator) Validate() *ValidationResult {
 
 			// Append all validation errors to the final result.
 			finalResult.AppendErrors(titles, details, sources, statusCodes)
-		}
-	}
-
-	// If custom validation is enabled, merge its result into the final result.
-	if v.CustomValidation {
-		return finalResult.Merge(v.CustomValidate())
-	}
-
-	return finalResult
-}
-
-// CustomValidate performs custom validation on the JSON data.
-func (v *ProfileValidator) CustomValidate() *ValidationResult {
-	finalResult := NewValidationResult()
-
-	validators := map[string]CustomValidator{
-		"geolocation":      &GeolocationValidator{},
-		"name":             &StringValidator{MaxLength: 200, Path: "name"},
-		"locality":         &StringValidator{MaxLength: 100, Path: "locality"},
-		"region":           &StringValidator{MaxLength: 100, Path: "region"},
-		"country_name":     &StringValidator{MaxLength: 100, Path: "country_name"},
-		"country_iso_3166": &StringValidator{MaxLength: 2, Path: "country_iso_3166"},
-		"primary_url":      &StringValidator{MaxLength: 2000, Path: "primary_url"},
-		"tags":             &TagsValidator{},
-	}
-
-	for field, validator := range validators {
-		if value, exists := v.ProfileJSON[field]; exists {
-			result := validator.Validate(value)
-			if !result.Valid {
-				finalResult.Merge(result)
-			}
 		}
 	}
 
@@ -230,10 +197,10 @@ func parseValidateError(
 			}
 		case "array_min_items":
 			failedType = "Not Enough Items"
-			failedDetail = "There are not enough items in the array - Schema: " + schemaName
+			failedDetail = "There are not enough items in the array - Minimum is " + min + " - Schema: " + schemaName
 		case "array_max_items":
 			failedType = "Too Many Items"
-			failedDetail = "There are too many items in the array - Schema: " + schemaName
+			failedDetail = "There are too many items in the array - Maximum is " + max + " - Schema: " + schemaName
 		case "pattern":
 			failedType = "Pattern Mismatch"
 			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schemaName
@@ -249,6 +216,11 @@ func parseValidateError(
 		case "string_gte":
 			failedType = "Invalid Length"
 			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schemaName
+		// condition_else and condition_then are not errors, they are conditions - no need to report them
+		case "condition_else":
+			continue
+		case "condition_then":
+			continue
 		}
 
 		// append title and detail

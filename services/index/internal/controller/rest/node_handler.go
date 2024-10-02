@@ -425,7 +425,6 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	validator, err := profilevalidator.NewBuilder().
 		WithURLSchemas(config.Values.Library.InternalURL, linkedSchemas).
 		WithStrProfile(string(jsonString)).
-		WithCustomValidation().
 		Build()
 	if err != nil {
 		// Log the error for internal debugging and auditing.

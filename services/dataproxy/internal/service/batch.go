@@ -125,7 +125,6 @@ func (s *batchService) Validate(
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(mappedProfile).
 			WithJSONSchemas(parsedSchemaNames, jsonSchemas).
-			WithCustomValidation().
 			Build()
 		if err != nil {
 			return -1, nil, err
@@ -250,7 +249,6 @@ func (s *batchService) Import(
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(mappedProfile).
 			WithJSONSchemas(parsedSchemaNames, jsonSchemas).
-			WithCustomValidation().
 			Build()
 		if err != nil {
 			validationErrors = append(validationErrors, jsonapi.Error{
@@ -426,7 +424,6 @@ func (s *batchService) Edit(
 		validator, err := profilevalidator.NewBuilder().
 			WithMapProfile(profile).
 			WithJSONSchemas(schemaNames, jsonSchemas).
-			WithCustomValidation().
 			Build()
 		if err != nil {
 			return line, nil, err
