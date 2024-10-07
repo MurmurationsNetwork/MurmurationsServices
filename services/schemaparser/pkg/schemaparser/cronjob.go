@@ -40,6 +40,16 @@ func NewCronJob() *SchemaCron {
 
 // Run start loading the schema.
 func (sc *SchemaCron) Run() error {
+	// Check for update schema error
+	errorMessage, err := sc.svc.GetUpdateError()
+	if err != nil {
+		logger.Error("Failed to retrieve update error from Redis", err)
+		return err
+	}
+	if errorMessage != "" {
+		return fmt.Errorf("Existing error detected, waiting for manual resolution: " + errorMessage)
+	}
+
 	if err := sc.connectToMongoDB(); err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
