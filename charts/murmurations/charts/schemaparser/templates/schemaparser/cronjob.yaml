@@ -22,8 +22,8 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      # Retry the Job 3 times before marking it as failed.
-      backoffLimit: 3
+      # Retry the Job 1 time before marking it as failed.
+      backoffLimit: 1
       # Delete the Job and its pods 24 hours after completion.
       ttlSecondsAfterFinished: 86400
       template:
