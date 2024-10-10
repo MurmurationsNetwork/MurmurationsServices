@@ -54,11 +54,10 @@ declare -a services=("index" "library" "validation" "dataproxy"
                      "nodecleaner" "revalidatenode" "schemaparser"
                      "dataproxyupdater" "dataproxyrefresher")
 
-for service in "${services[@]}"; do
-    if [[ " ${exclude_services[@]} " =~ " maintenance " ]]; then
-        echo "Skipping check for maintenance, as it's not in services list."
-    fi
+# remove maintenance service from the list of services to deploy
+exclude_services=("${exclude_services[@]/maintenance}")
 
+for service in "${services[@]}"; do
     if [[ ! " ${exclude_services[@]} " =~ " ${service} " ]]; then
         echo "Deploying $service..."
         # Replace with actual deployment command
