@@ -52,7 +52,10 @@ make deploy-nats DEPLOY_ENV=$DEPLOY_ENV
 # Deployment logic for each service.
 declare -a services=("index" "library" "validation" "dataproxy"
                      "nodecleaner" "revalidatenode" "schemaparser"
-                     "dataproxyupdater" "dataproxyrefresher" "maintenance")
+                     "dataproxyupdater" "dataproxyrefresher")
+
+# Remove maintenance service from the list of services to deploy
+exclude_services=("${exclude_services[@]/maintenance}")
 
 for service in "${services[@]}"; do
     if [[ ! " ${exclude_services[@]} " =~ " ${service} " ]]; then
