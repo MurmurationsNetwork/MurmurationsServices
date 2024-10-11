@@ -54,7 +54,7 @@ declare -a services=("index" "library" "validation" "dataproxy"
                      "nodecleaner" "revalidatenode" "schemaparser"
                      "dataproxyupdater" "dataproxyrefresher")
 
-# remove maintenance service from the list of services to deploy
+# Remove maintenance service from the list of services to deploy
 exclude_services=("${exclude_services[@]/maintenance}")
 
 for service in "${services[@]}"; do
