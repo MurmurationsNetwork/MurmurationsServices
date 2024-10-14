@@ -71,6 +71,7 @@ var validationFields = []string{
 	"primary_url",
 	"page",
 	"page_size",
+	"expires",
 }
 
 func (handler *nodeHandler) getNodeID(
