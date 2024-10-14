@@ -24,6 +24,13 @@ func (q *EsQuery) Build() *elastic.Query {
 		)
 	}
 
+	if q.Expires != nil {
+		filters = append(
+			filters,
+			elastic.NewRangeQuery("expires").Lte(*q.Expires),
+		)
+	}
+
 	query.Must(subQueries...).Filter(filters...)
 
 	return &elastic.Query{

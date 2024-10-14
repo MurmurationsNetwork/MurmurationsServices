@@ -171,6 +171,26 @@ func (c *esClient) Update(
 	return nil
 }
 
+func (c *esClient) UpdateMany(index string, q *Query, update map[string]interface{}) error {
+	ctx := context.Background()
+	_, err := c.client.UpdateByQuery(index).
+		Query(q.Query).
+		Script(elastic.NewScriptInline("ctx._source.putAll(params)").
+			Params(update)).
+		Do(ctx)
+	if err != nil {
+		logger.Error(
+			fmt.Sprintf(
+				"Error when trying to update documents in Index: %s",
+				index,
+			),
+			err,
+		)
+		return err
+	}
+	return nil
+}
+
 func (c *esClient) Delete(index string, id string) error {
 	ctx := context.Background()
 	_, err := c.client.Delete().
