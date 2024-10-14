@@ -109,7 +109,8 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 	var expires *int64
 	if exp, ok := updatedProfileJSON["expires"]; ok {
 		if expFloat, ok := exp.(float64); ok {
-			expires = int64(expFloat)
+			expiresValue := int64(expFloat)
+			expires = &expiresValue
 		} else {
 			errors := jsonapi.NewError(
 				[]string{"Invalid Expires Field"},
