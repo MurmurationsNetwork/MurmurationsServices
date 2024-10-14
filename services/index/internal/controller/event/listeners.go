@@ -84,6 +84,7 @@ func (handler *nodeHandler) processValidatedNode(msg *natsio.Msg) {
 		ProfileStr:  data.ProfileStr,
 		LastUpdated: &data.LastUpdated,
 		Version:     &data.Version,
+		Expires:     data.Expires,
 	}); err != nil {
 		logger.Error(
 			"Failed to set node valid",
