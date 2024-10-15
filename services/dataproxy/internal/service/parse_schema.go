@@ -15,7 +15,7 @@ type SchemasResponse struct {
 }
 
 // DefaultSchema defines the default schema version to be fetched.
-const DefaultSchema = "default-v2.0.0"
+const DefaultSchema = "default-v3.0.0"
 
 // ParseSchemas fetches and returns the JSON content for a list of schema names,
 // including a default schema.
