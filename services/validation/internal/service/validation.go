@@ -111,6 +111,18 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		if expFloat, ok := exp.(float64); ok {
 			expiresValue := int64(expFloat)
 			expires = &expiresValue
+
+			// Compare expires with the current time
+			if expiresValue < dateutil.GetNowUnix() {
+				errors := jsonapi.NewError(
+					[]string{"Invalid Expires Field"},
+					[]string{"The profile has outdated expiration date. Please update the expires field."},
+					nil,
+					[]int{http.StatusBadRequest},
+				)
+				svc.sendNodeValidationFailedEvent(node, &errors)
+				return
+			}
 		} else {
 			errors := jsonapi.NewError(
 				[]string{"Invalid Expires Field"},
