@@ -36,7 +36,7 @@ type Node struct {
 	// ProfileStr stores the node's profile in string format.
 	// It won't be stored in MongoDB.
 	ProfileStr string `bson:"-"`
-	
+
 	// Expires stores the Unix timestamp when the node expires.
 	Expires *int64 `bson:"expires,omitempty"`
 }
