@@ -17,7 +17,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
 
-const DefaultSchema = "default-v3.0.0"
+const DefaultSchema = "default-v2.1.0"
 
 type ValidationService interface {
 	ValidateNode(node *model.Node)
