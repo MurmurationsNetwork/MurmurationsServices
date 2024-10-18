@@ -52,6 +52,14 @@ func (*mockClient) Update(
 	return nil
 }
 
+func (*mockClient) UpdateMany(
+	_ string,
+	_ *Query,
+	_ map[string]interface{},
+) error {
+	return nil
+}
+
 func (*mockClient) Delete(_ string, _ string) error {
 	return nil
 }
