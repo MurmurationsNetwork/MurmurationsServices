@@ -5,7 +5,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MurmurationsNetwork/MurmurationsServices/main.yaml?branch=main&style=flat-square)](https://github.com/MurmurationsNetwork/MurmurationsServices/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MurmurationsNetwork/MurmurationsServices?style=flat-square)](https://goreportcard.com/report/github.com/MurmurationsNetwork/MurmurationsServices)
 
-## Run in production
+## Run in Production
 
 We are utilizing [Rancher](https://www.rancher.com/) to orchestrate the deployment of Murmurations services in Kubernetes clusters. For detailed instructions on setting up a Kubernetes cluster with Rancher and guidance on launching the index, library and other services that implement the Murmurations protocol, please refer to the [Rancher-managed Kubernetes documentation](docs/rancher/README.md).
 
@@ -13,7 +13,7 @@ We are utilizing [Rancher](https://www.rancher.com/) to orchestrate the deployme
 
 For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/README.md).
 
-## Run locally
+## Run Locally
 
 ### Setup
 
@@ -42,13 +42,13 @@ For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/RE
     127.0.0.1   data-proxy.murmurations.developers
     ```
 
-### After completing the setup
+### After Completing the Setup
 
 1. Run `make dev` to start services
 
 2. Try `index.murmurations.developers/v2/ping`, `library.murmurations.developers/v2/ping` and `data-proxy.murmurations.developers/v1/ping`
 
-## Setting up Pre-commit and custom git hooks for development
+## Setting Up Pre-commit and Custom Git Hooks for Development
 
 > Note: [Pre-commit](https://pre-commit.com) is a linter to ensure consistent style, etc. Please use it before submitting pull requests to this repository.
 
@@ -91,11 +91,9 @@ For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/RE
 
 Now, pre-commit will run automatically on `git commit`. If you want to manually run all pre-commit hooks on a repository, run `pre-commit run --all-files`.
 
-## Running E2E Tests Locally
+## Testing
 
-1. Ensure that you have [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating) and [Newman](https://github.com/postmanlabs/newman) (`npm install -g newman`) installed.
-2. Execute the command `make dev` to set up the servers.
-3. Run the command `make newman-test` to initiate the end-to-end (E2E) tests.
+- [Testing Murmurations Services](docs/testing/README.md)
 
 ## Optional
 

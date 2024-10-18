@@ -24,9 +24,9 @@ Navigate to the Longhorn backup page to see a comprehensive list of all availabl
 
 2. Select the backups you wish to recover.
 
-Note: If you want to recover an entire service, you must choose all the related backups.
+    Note: If you want to recover an entire service, you must choose all the related backups.
 
-![Recover Backup - Selection](./assets/images/longhorn-recover-backup-selection.png)
+    ![Recover Backup - Selection](./assets/images/longhorn-recover-backup-selection.png)
 
 3. For "Recovery Options", select "Read-Write" mode, then click "OK".
 
