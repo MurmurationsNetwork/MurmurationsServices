@@ -5,9 +5,11 @@ This was necessitated by [issue #210](https://github.com/MurmurationsNetwork/Mur
 ## Close/open K8s ingress
 
 1. Change makefile
-    ```
+
+    ```bash
     ENV ?= staging
     ```
+
 2. change ingress.yaml
    - test-index.murmurations.network -> test-index1.murmurations.network
    - test-library.murmurations.network -> test-library1.murmurations.network
@@ -26,7 +28,7 @@ This was necessitated by [issue #210](https://github.com/MurmurationsNetwork/Mur
 
 Copy the commands into ElasticSearch Dev Tool and execute one by one.
 
-```
+```elasticsearch
 # Create a temporary index called nodes2 with the new mappings
 PUT /nodes2
 {

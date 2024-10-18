@@ -6,7 +6,7 @@ This was necessitated by [issue #228](https://github.com/MurmurationsNetwork/Mur
 
 Copy the commands into ElasticSearch Dev Tool and execute one by one.
 
-```
+```elasticsearch
 # Create a temporary index called nodes2 with the new mappings
 PUT /nodes2
 {

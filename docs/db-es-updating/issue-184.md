@@ -4,9 +4,9 @@ This was necessitated by [issue #184](https://github.com/MurmurationsNetwork/Mur
 
 ## Update ElasticSearch
 
-Copy the commands into ElasticSearch Dev Tool and execute one by one. 
+Copy the commands into ElasticSearch Dev Tool and execute one by one.
 
-```
+```elasticsearch
 # Create a temporary index called nodes2 with the new mappings
 
 PUT /nodes2
@@ -149,16 +149,22 @@ DELETE /nodes2
 ## Update MongoDB
 
 1. Connect to the cluster.
+
 2. Get the index-mongo-name.
-```
-kubectl get pods
-```
+
+   ```bash
+   kubectl get pods
+   ```
+
 3. Connect to index-mongo directly. (Replace the index-mongo-name with the name you get in previous step.)
-```
-kubectl exec -it "index-mongo-name" -- /bin/bash
-```
+
+   ```bash
+   kubectl exec -it "index-mongo-name" -- /bin/bash
+   ```
+
 4. Execute the commands line by line to update index-mongo.
-```
+
+```bash
 mongo -u index-admin -p password
 use murmurationsIndex
 db.nodes.updateMany({}, {$rename: { "last_validated": "last_updated" }})
