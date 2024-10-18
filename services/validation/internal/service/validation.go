@@ -17,7 +17,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/validation/internal/model"
 )
 
-const DefaultSchema = "default-v2.0.0"
+const DefaultSchema = "default-v2.1.0"
 
 type ValidationService interface {
 	ValidateNode(node *model.Node)
@@ -105,6 +105,36 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		updatedProfileJSON["primary_url"] = normalizedURL
 	}
 
+	// Check if "expires" field exists and extract it
+	var expires *int64
+	if exp, ok := updatedProfileJSON["expires"]; ok {
+		if expFloat, ok := exp.(float64); ok {
+			expiresValue := int64(expFloat)
+			expires = &expiresValue
+
+			// Compare expires with the current time
+			if expiresValue < dateutil.GetNowUnix() {
+				errors := jsonapi.NewError(
+					[]string{"Invalid Expires Field"},
+					[]string{"The profile has an outdated expiration date. Please update the `expires` field to a date/time in the future."},
+					nil,
+					[]int{http.StatusBadRequest},
+				)
+				svc.sendNodeValidationFailedEvent(node, &errors)
+				return
+			}
+		} else {
+			errors := jsonapi.NewError(
+				[]string{"Invalid Expires Field"},
+				[]string{"The `expires` field must be a valid integer timestamp."},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			svc.sendNodeValidationFailedEvent(node, &errors)
+			return
+		}
+	}
+
 	err = messaging.Publish(
 		messaging.NodeValidated,
 		messaging.NodeValidatedData{
@@ -114,6 +144,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 			ProfileStr:  jsonutil.ToString(updatedProfileJSON),
 			LastUpdated: dateutil.GetNowUnix(),
 			Version:     node.Version,
+			Expires:     expires,
 		},
 	)
 	if err != nil {
