@@ -116,7 +116,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 			if expiresValue < dateutil.GetNowUnix() {
 				errors := jsonapi.NewError(
 					[]string{"Invalid Expires Field"},
-					[]string{"The profile has outdated expiration date. Please update the expires field."},
+					[]string{"The profile has an outdated expiration date. Please update the `expires` field to a date/time in the future."},
 					nil,
 					[]int{http.StatusBadRequest},
 				)
@@ -126,7 +126,7 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		} else {
 			errors := jsonapi.NewError(
 				[]string{"Invalid Expires Field"},
-				[]string{"The expires field must be a valid integer timestamp."},
+				[]string{"The `expires` field must be a valid integer timestamp."},
 				nil,
 				[]int{http.StatusBadRequest},
 			)

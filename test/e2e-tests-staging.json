@@ -1958,7 +1958,7 @@
                                     "    pm.expect(jsonData.errors[0].title).to.contain('Invalid Expires Field')",
                                     "})",
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return correct failure detail`, () => {",
-                                    "    pm.expect(jsonData.errors[0].detail).to.contain('The `expires` field has already passed.')",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('The `expires` date/time has already passed.')",
                                     "})"
                                 ],
                                 "type": "text/javascript",

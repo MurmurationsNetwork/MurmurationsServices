@@ -468,7 +468,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 		if expireTime.Before(time.Now()) {
 			errors := jsonapi.NewError(
 				[]string{"Invalid Expires Field"},
-				[]string{"The `expires` field has already passed."},
+				[]string{"The `expires` date/time has already passed."},
 				nil,
 				[]int{http.StatusBadRequest},
 			)
