@@ -1,8 +1,16 @@
 # Maintenance Mode
 
-## Turn on maintenance mode
+When you are performing maintenance on a cluster, you can turn on maintenance mode to display a maintenance message in the returned payload sent to any of the API endpoints.
 
-1. Deploy the Maintenance Service: Use the following command to deploy the maintenance service to your desired environment (e.g., production, staging, or pretest). Replace <YOUR_DEPLOY_ENV> with your target environment.
+```json
+{
+  "message": "The service is currently under maintenance. Please try again later."
+}
+```
+
+## Turn On Maintenance Mode
+
+1. Deploy the Maintenance Service: Use the following command to deploy the maintenance service to your desired environment (e.g., `production`, `staging`, or `pretest`). Replace `<YOUR_DEPLOY_ENV>` with your target environment.
 
     ```bash
     make manually-deploy-maintenance DEPLOY_ENV=<YOUR_DEPLOY_ENV>
@@ -22,9 +30,9 @@
     make manually-deploy-ingress DEPLOY_ENV=<YOUR_DEPLOY_ENV>
     ```
 
-## Turn off maintenance mode
+## Turn Off Maintenance Mode
 
-1. Restore the Original Service in the Ingress Configuration: Revert the changes in [ingress.yaml](./charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) by setting backend.service.name back to your original service (e.g., index-app):
+1. Restore the Original Service in the Ingress Configuration: Revert the changes in [ingress.yaml](./charts/murmurations/charts/ingress/templates/ingress/ingress.yaml) by setting backend.service.name back to your original service (e.g., `index-app`):
 
    ```yaml
    backend:

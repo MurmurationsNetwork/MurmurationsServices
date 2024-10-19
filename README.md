@@ -21,7 +21,7 @@ For troubleshooting, please refer to [Debugging Guide](./docs/debugging-guide/RE
 
 2. Install [Helm](https://helm.sh/docs/intro/install/)
 
-3. Install [NGINX Ingress Controller](docs/ingress-nginx)
+3. Install [NGINX Ingress Controller](./docs/devops/install-ingress-nginx.md)
 
 4. Install [Skaffold](https://skaffold.dev/docs/install/)
 
