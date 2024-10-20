@@ -1,11 +1,11 @@
 # Murmurations Allocator
 
-The Murmurations Allocator is another service designed to support the Murmurations Map. Through the Allocator, the Map service can retrieve data via the `/profiles` route in the format of `[longitude, latitude, profile_url]`.
+[Murmurations Allocator](https://github.com/MurmurationsNetwork/MurmurationsAllocator/) is a service designed to support the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap). Through the Allocator, the Map service can retrieve data via the `/profiles` route in the format of `[longitude, latitude, profile_url]`.
 
 ## Dependencies
 
-1. Kubernetes: Access to a Kubernetes cluster for managing service's deployment.
-2. MongoDB: An existing MongoDB instance for data storage, we're hosting MongoDB on DigitalOcean.
+1. Kubernetes: Access to a Kubernetes cluster for managing the service's deployment.
+2. MongoDB: An existing MongoDB instance for data storage, currently hosted in our production and test Kubernetes clusters.
 3. Domain Name: A registered domain name for the service endpoint.
 
 ## Deployment Guide
@@ -32,4 +32,4 @@ In the Kubernetes environment, the monitoring service will highlight errors or f
 
 ## Migration Notice
 
-Kubernetes Service Migration: migrating this service does not need extra data migration, because the data is hosted on a DigitalOcean managed MongoDB instance.
+Kubernetes Service Migration: Migrating this service does not need extra data migration, because the data is hosted in a locally-managed MongoDB instance in the Kubernetes cluster.

@@ -1,6 +1,8 @@
 # GoatCounter
 
-GoatCounter is an open-source web analytics platform designed to provide insights into your website's traffic without compromising on privacy. This guide covers how to deploy GoatCounter on a Kubernetes cluster and how to migrate your data from an old service to a new one.
+[GoatCounter](https://github.com/MurmurationsNetwork/helm-goatcounter) is an open-source web analytics platform designed to provide insights into your website's traffic without compromising on user privacy. We use it to track the number of visitors to the Murmurations websites.
+
+This guide covers how to deploy GoatCounter on a Kubernetes cluster and how to migrate your data from an old service to a new one.
 
 ## Kubernetes Deployment
 
@@ -21,7 +23,7 @@ GoatCounter is an open-source web analytics platform designed to provide insight
     --from-literal=POSTGRES_PASSWORD="password"
     ```
 
-2. Deployment: Run `make deploy` to deploy the deployment in the Kubernetes environment.
+2. Deployment: Run `make deploy` to deploy the service in the Kubernetes environment.
 
 ## Migration
 
