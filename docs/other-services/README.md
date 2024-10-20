@@ -4,11 +4,11 @@ This directory contains guides and other information about other Murmurations se
 
 The [Murmurations Tools](https://github.com/MurmurationsNetwork/MurmurationsTools) application relies on the following service:
 
-- [Front-End MongoDB](/docs/other-services/front-end-mongodb.md)
+- [Mongo Operator](/docs/other-services/mongo-operator.md)
 
 And the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap) relies on the following services:
 
-- [Front-End MongoDB](/docs/other-services/front-end-mongodb.md)
+- [Mongo Operator](/docs/other-services/mongo-operator.md)
 - [Synchronizer](/docs/other-services/synchronizer.md)
 - [Allocator](/docs/other-services/allocator.md)
 
