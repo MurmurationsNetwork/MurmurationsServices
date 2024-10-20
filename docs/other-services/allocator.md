@@ -1,6 +1,6 @@
 # Murmurations Allocator
 
-The Murmurations Allocator is A service designed to support the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap). Through the Allocator, the Map service can retrieve data via the `/profiles` route in the format of `[longitude, latitude, profile_url]`.
+[Murmurations Allocator](https://github.com/MurmurationsNetwork/MurmurationsAllocator/) is a service designed to support the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap). Through the Allocator, the Map service can retrieve data via the `/profiles` route in the format of `[longitude, latitude, profile_url]`.
 
 ## Dependencies
 

@@ -1,6 +1,6 @@
 # Murmurations Synchronizer
 
-Murmurations Synchronizer is a service designed to support the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap). It addresses the challenge posed by Elasticsearch, which limits data retrieval to 10,000 records per query. By enabling effective data synchronization from the index service to [`mapdata`](/docs/other-services/front-end-mongodb.md) profiles, the Synchronizer guarantees extensive and current data access beyond the Elasticsearch constraint.
+[Murmurations Synchronizer](https://github.com/MurmurationsNetwork/MurmurationsSynchronizer/) is a service designed to support the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap). It addresses the challenge posed by Elasticsearch, which limits data retrieval to 10,000 records per query. By enabling effective data synchronization from the index service to [`mapdata`](/docs/other-services/front-end-mongodb.md) profiles, the Synchronizer guarantees extensive and current data access beyond the Elasticsearch constraint.
 
 ## Features
 

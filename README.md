@@ -11,11 +11,11 @@ We are utilizing [Rancher](https://www.rancher.com/) to orchestrate the deployme
 
 ## Run in Local Development
 
-Please refer to [Running a Local Development Environment](/docs/devops/run-local-dev.md).
+- [Running a Local Development Environment](/docs/devops/run-local-dev.md)
 
 ## Troubleshooting
 
-For troubleshooting, please refer to [Debugging Guide](/docs/debugging-guide/README.md).
+- [Debugging Guide](/docs/debugging-guide/README.md)
 
 ## Testing
 

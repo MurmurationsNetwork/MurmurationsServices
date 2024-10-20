@@ -1,6 +1,6 @@
 # How to Reset the Library and Index Databases
 
-This guide provides instructions on how to reset the library and index databases, which can be useful when wanting to clear the data for development or testing purposes in a deployed Kubernetescluster.
+This guide provides instructions on how to reset the library and index databases, which can be useful when wanting to clear the data for development or testing purposes in a deployed Kubernetes cluster.
 
 ## Reset Library Service
 
