@@ -1,6 +1,8 @@
 # GoatCounter
 
-GoatCounter is an open-source web analytics platform designed to provide insights into your website's traffic without compromising on privacy. This guide covers how to deploy GoatCounter on a Kubernetes cluster and how to migrate your data from an old service to a new one.
+GoatCounter is an open-source web analytics platform designed to provide insights into your website's traffic without compromising on user privacy. We use it to track the number of visitors to the Murmurations websites.
+
+This guide covers how to deploy GoatCounter on a Kubernetes cluster and how to migrate your data from an old service to a new one.
 
 ## Kubernetes Deployment
 

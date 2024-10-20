@@ -1,17 +1,17 @@
 # Murmurations Synchronizer
 
-Murmurations Synchronizer is a service designed to support the Murmurations Map. Hosted on Vercel, it addresses the challenge posed by Elasticsearch, which limits data retrieval to 10,000 records per query. By enabling effective data synchronization from the Index service to `mapdata` profiles, the Synchronizer guarantees extensive and current data access beyond the Elasticsearch constraint.
+Murmurations Synchronizer is a service designed to support the [Murmurations Map](https://github.com/MurmurationsNetwork/MurmurationsMap). It addresses the challenge posed by Elasticsearch, which limits data retrieval to 10,000 records per query. By enabling effective data synchronization from the index service to [`mapdata`](/docs/other-services/front-end-mongodb.md) profiles, the Synchronizer guarantees extensive and current data access beyond the Elasticsearch constraint.
 
 ## Features
 
-1. Data Synchronization: Execute the `/export` route from the Index service to synchronize and update profiles data within `mapdata` profiles.
+1. Data Synchronization: Execute the `/export` route from the index service to synchronize and update profiles data within `mapdata` profiles.
 2. `sort` Field: Utilizes a `sort` field within the settings collection to track and manage the order of data synchronization, guaranteeing that the most recent updates are always reflected.
 
 ## Dependencies
 
 1. Vercel: Requires a Vercel account for deployment.
 2. Kubernetes: Access to a Kubernetes cluster for scheduling cronjobs.
-3. MongoDB: An existing MongoDB instance for data storage, we're hosting MongoDB on DigitalOcean.
+3. MongoDB: An existing MongoDB instance for data storage, currently hosted in our production and test Kubernetes clusters.
 
 ## Architecture
 
