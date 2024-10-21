@@ -71,6 +71,7 @@ var validationFields = []string{
 	"primary_url",
 	"page",
 	"page_size",
+	"expires",
 }
 
 func (handler *nodeHandler) getNodeID(
@@ -419,7 +420,7 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 	}
 
 	// Validate against the default schema.
-	linkedSchemas = append(linkedSchemas, "default-v2.0.0")
+	linkedSchemas = append(linkedSchemas, "default-v2.1.0")
 
 	// Validate against schemes specify inside the profile data.
 	validator, err := profilevalidator.NewBuilder().
@@ -459,6 +460,22 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 		res := jsonapi.Response(nil, errors, nil, nil)
 		c.JSON(errors[0].Status, res)
 		return
+	}
+
+	// Validate the "expires" field
+	if expires, ok := node.(map[string]interface{})["expires"].(float64); ok {
+		expireTime := time.Unix(int64(expires), 0)
+		if expireTime.Before(time.Now()) {
+			errors := jsonapi.NewError(
+				[]string{"Invalid Expires Field"},
+				[]string{"The `expires` date/time has already passed."},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			res := jsonapi.Response(nil, errors, nil, nil)
+			c.JSON(errors[0].Status, res)
+			return
+		}
 	}
 
 	meta := jsonapi.NewMeta(

@@ -45,6 +45,9 @@ type Query struct {
 	// PrimaryURL is used to match profiles based on the "primary_url" field.
 	PrimaryURL *string `form:"primary_url"`
 
+	// Expires is used to filter profiles based on the "expires" field.
+	Expires *int64 `form:"expires"`
+
 	// Page and PageSize are used to control the pagination of the search
 	// results.
 	Page     int64 `form:"page,default=0"`
@@ -63,6 +66,7 @@ func (q *Query) Build(isMap bool) *elastic.Query {
 	builder.BuildMatchQuery("status", q.Status)
 	builder.BuildMatchQuery("primary_url", q.PrimaryURL)
 	builder.BuildGeoQuery(q.Lat, q.Lon, q.Range)
+	builder.BuildRangeQueryLte("expires", q.Expires)
 
 	if q.Tags != nil {
 		tagQuery := elastic.NewMatchQuery("tags", *q.Tags)

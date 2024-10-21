@@ -15,6 +15,7 @@ const (
 	StatusField      = "status"
 	CreatedAtField   = "createdAt"
 	LastUpdatedField = "last_updated"
+	ExpiresField     = "expires"
 )
 
 // NodeRepository defines the operations available for manipulating nodes in a MongoDB repository.
@@ -25,6 +26,11 @@ type NodeRepository interface {
 		timeBefore int64,
 	) error
 	RemoveByLastUpdated(
+		ctx context.Context,
+		status string,
+		timeBefore int64,
+	) error
+	UpdateStatusByExpiration(
 		ctx context.Context,
 		status string,
 		timeBefore int64,
@@ -83,6 +89,40 @@ func (r *nodeRepository) removeNodes(
 	if result.DeletedCount > 0 {
 		fmt.Printf("Deleted %d nodes with %s status that were %s before %d\n",
 			result.DeletedCount, status, timeField, timeBefore)
+	}
+
+	return nil
+}
+
+// UpdateStatusByExpiration updates the status of nodes with expired status before the given time.
+func (r *nodeRepository) UpdateStatusByExpiration(
+	ctx context.Context,
+	status string,
+	timeBefore int64,
+) error {
+	filter := bson.M{
+		StatusField: status,
+		ExpiresField: bson.M{
+			"$lt": timeBefore,
+		},
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			StatusField: constant.NodeStatus.Deleted,
+		},
+	}
+
+	result, err := r.client.Database(config.Conf.Mongo.DBName).
+		Collection(constant.MongoIndex.Node).
+		UpdateMany(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("error updating nodes status: %v", err)
+	}
+
+	if result.ModifiedCount > 0 {
+		fmt.Printf("Updated %d nodes with expired status to %s before %d\n",
+			result.ModifiedCount, status, timeBefore)
 	}
 
 	return nil

@@ -32,6 +32,7 @@ var AllowedFields = map[string]bool{
 	"region":         true,
 	"status":         true,
 	"tags":           true,
+	"expires":        true,
 }
 
 // Profile represents the profile data for a node.
