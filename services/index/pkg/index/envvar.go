@@ -80,7 +80,8 @@ func setupElasticsearch() {
 							"type": "keyword"
 						},
 						"expires": {
-							"type": "long"
+							"type": "date",
+							"format": "epoch_second"
 						}
 					}
 				}
