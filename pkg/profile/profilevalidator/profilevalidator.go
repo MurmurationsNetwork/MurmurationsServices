@@ -168,9 +168,9 @@ func parseValidateError(
 			case "given":
 				given = value.(string)
 			case "min":
-				min = fmt.Sprint(value)
+				min = fmt.Sprintf("%.0f", value)
 			case "max":
-				max = fmt.Sprint(value)
+				max = fmt.Sprintf("%.0f", value)
 			case "property":
 				property = value.(string)
 			case "pattern":
