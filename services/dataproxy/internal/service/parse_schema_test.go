@@ -20,7 +20,7 @@ func TestParseSchemas(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		// Simulate different responses for the default schema and custom schemas.
-		if strings.Contains(r.URL.Path, "default-v2.0.0") {
+		if strings.Contains(r.URL.Path, "default-v2.1.0") {
 			_, err = w.Write([]byte(`{"default": "schema"}`))
 		} else {
 			_, err = w.Write([]byte(`{"custom": "schema"}`))
@@ -48,7 +48,7 @@ func TestParseSchemas(t *testing.T) {
 			wantErr: false,
 			want: &service.SchemasResponse{
 				JSONSchemas: []string{`{"default": "schema"}`, `{"custom": "schema"}`, `{"custom": "schema"}`},
-				SchemaNames: []string{"default-v2.0.0", "custom-schema-1", "custom-schema-2"},
+				SchemaNames: []string{"default-v2.1.0", "custom-schema-1", "custom-schema-2"},
 			},
 		},
 		{
@@ -57,7 +57,7 @@ func TestParseSchemas(t *testing.T) {
 			wantErr: false,
 			want: &service.SchemasResponse{
 				JSONSchemas: []string{`{"default": "schema"}`},
-				SchemaNames: []string{"default-v2.0.0"},
+				SchemaNames: []string{"default-v2.1.0"},
 			},
 		},
 	}
