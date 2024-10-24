@@ -2,6 +2,7 @@ package profilevalidator
 
 import (
 	"fmt"
+	"math/big"
 	"net/http"
 	"strings"
 
@@ -168,9 +169,19 @@ func parseValidateError(
 			case "given":
 				given = value.(string)
 			case "min":
-				min = fmt.Sprint(value)
+				if bigFloat, ok := value.(*big.Float); ok {
+					minFloat64, _ := bigFloat.Float64()
+					min = fmt.Sprintf("%.0f", minFloat64)
+				} else {
+					min = fmt.Sprintf("%v", value)
+				}
 			case "max":
-				max = fmt.Sprint(value)
+				if bigFloat, ok := value.(*big.Float); ok {
+					maxFloat64, _ := bigFloat.Float64()
+					max = fmt.Sprintf("%.0f", maxFloat64)
+				} else {
+					max = fmt.Sprintf("%v", value)
+				}
 			case "property":
 				property = value.(string)
 			case "pattern":
