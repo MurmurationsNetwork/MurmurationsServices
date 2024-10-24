@@ -40,7 +40,8 @@ func setupElasticsearch() {
 							"profile_url",
 							"status",
 							"tags",
-							"primary_url"
+							"primary_url",
+							"expires"
 						]
 					},
 					"properties": {
@@ -77,6 +78,10 @@ func setupElasticsearch() {
 						},
 						"primary_url": {
 							"type": "keyword"
+						},
+						"expires": {
+							"type": "date",
+							"format": "epoch_second"
 						}
 					}
 				}

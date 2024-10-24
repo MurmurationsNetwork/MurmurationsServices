@@ -61,6 +61,11 @@ func (nc *NodeCleaner) Run(ctx context.Context) error {
 		return err
 	}
 
+	// Set nodes with expired status to deleted
+	if err := svc.SetExpiredToDeleted(ctx); err != nil {
+		return err
+	}
+
 	nc.cleanup()
 	return nil
 }

@@ -21,6 +21,7 @@ type esClientInterface interface {
 	IndexWithID(string, string, interface{}) (*elastic.IndexResponse, error)
 	Search(string, *Query) (*elastic.SearchResult, error)
 	Update(string, string, map[string]interface{}) error
+	UpdateMany(string, *Query, map[string]interface{}) error
 	Delete(string, string) error
 	DeleteMany(string, *Query) error
 	Export(string, *Query, []interface{}) (*elastic.SearchResult, error)

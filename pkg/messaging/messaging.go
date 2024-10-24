@@ -24,6 +24,10 @@ type NodeValidatedData struct {
 	// Version is the version vector of the node.
 	// https://en.wikipedia.org/wiki/Version_vector
 	Version int32 `json:"version"`
+
+	// Expires is a string representing the expiration date of the node.
+	// It's optional and can be empty if the node doesn't have an expiration date.
+	Expires *int64 `json:"expires,omitempty"`
 }
 
 type NodeValidationFailedData struct {
