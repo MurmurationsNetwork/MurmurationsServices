@@ -53,6 +53,13 @@ func (b *QueryBuilder) BuildRangeQuery(field string, value *int64) {
 	}
 }
 
+// BuildRangeQueryLte generates a range query with the given field and value.
+func (b *QueryBuilder) BuildRangeQueryLte(field string, value *int64) {
+	if value != nil {
+		b.AddSubQuery(NewRangeQuery(field).Lte(*value))
+	}
+}
+
 // BuildMatchQuery generates a match query with the given field.
 func (b *QueryBuilder) BuildMatchQuery(field string, value *string) {
 	if value != nil {

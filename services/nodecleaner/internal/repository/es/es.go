@@ -15,6 +15,8 @@ type NodeRepository interface {
 	// Remove deletes nodes with the specified status and creation time earlier
 	// than the given timeBefore.
 	Remove(ctx context.Context, status string, timeBefore int64) error
+	// UpdateStatusByExpiration updates the status of nodes with expired status before the given time.
+	UpdateStatusByExpiration(ctx context.Context, status string, timeBefore int64) error
 }
 
 type nodeRepository struct {
@@ -39,6 +41,31 @@ func (r *nodeRepository) Remove(
 	if err != nil {
 		return fmt.Errorf(
 			"error removing nodes with status %s and timeBefore %d from Elasticsearch: %v",
+			status,
+			timeBefore,
+			err,
+		)
+	}
+
+	return nil
+}
+
+// UpdateStatusByExpiration updates the status of nodes with expired status before the given time.
+func (r *nodeRepository) UpdateStatusByExpiration(
+	_ context.Context,
+	status string,
+	timeBefore int64,
+) error {
+	q := query.EsQuery{Status: &status, Expires: &timeBefore}
+
+	update := map[string]interface{}{
+		"status": "deleted",
+	}
+
+	err := elastic.Client.UpdateMany(constant.ESIndex.Node, q.Build(), update)
+	if err != nil {
+		return fmt.Errorf(
+			"error updating nodes status with status %s and expiresBefore %d in Elasticsearch: %v",
 			status,
 			timeBefore,
 			err,
