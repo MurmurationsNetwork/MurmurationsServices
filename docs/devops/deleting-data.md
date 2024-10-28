@@ -1,14 +1,16 @@
-# Data Deletion Process in ElasticSearch and MongoDB
+# Deleting Data in ElasticSearch and MongoDB
+
+This guide provides a step-by-step process for deleting data from ElasticSearch and MongoDB. In particular, it describes how to remove node data from the index related to a schema that has been removed from the library.
 
 ## Step 1: Define the Query in ElasticSearch
 
-Before proceeding with data deletion, we need to find the data which we want to delete in the search queries. Here are two scenarios for defining the search query based on linked_schemas:
+Before proceeding with data deletion, we need to find the data which we want to delete in the search queries. Here are two scenarios for defining the search query based on `linked_schemas`:
 
 ### Scenario 1: Deleting Nodes Containing a Specific Schema
 
-To delete nodes that contain a specific schema (e.g., test_schema-v2.1.0), use the following search query. This query identifies all nodes linked to the specified schema.
+To delete nodes that contain at least one specific schema (e.g., `test_schema-v2.1.0`, but it could have other linked schemas), use the following search query. This query identifies all nodes linked to the specified schema.
 
-```json
+```elasticsearch
 GET /nodes/_search
 {
   "query": {
@@ -22,9 +24,9 @@ GET /nodes/_search
 
 ### Scenario 2: Deleting Nodes Containing Only One Specific Schema
 
-If the requirement is to delete nodes that contain only one schema, and that schema matches the specified one (e.g., test_schema-v2.1.0), use the below search query. This query filters the nodes to ensure that only those with exactly one linked schema matching the query are showed.
+If the requirement is to delete nodes that contain only one schema, and that schema matches the specified one (e.g., `test_schema-v2.1.0`), use the below search query. This query filters the nodes to ensure that only those with exactly that one linked schema matching the query are shown.
 
-```json
+```elasticsearch
 GET /nodes/_search
 {
   "query": {
@@ -52,10 +54,10 @@ GET /nodes/_search
 }
 ```
 
-## Step 2: Processing the Search Results
+## Step 2: Process the Search Results
 
 1. After executing the search query in Elasticsearch, you will receive a JSON response containing the hits section. This section lists the nodes that match the search criteria.
-    Note: **The number of hits (hits.total.value) as this number should match** in the following deletion process in both ElasticSearch and MongoDB.
+    **Note the number of hits (hits.total.value) as this number should match the results returned in the deletion process in both ElasticSearch and MongoDB described below.**
     Example Result:
 
     ```json
@@ -81,7 +83,7 @@ GET /nodes/_search
     }
     ```
 
-2. To extract the `profile_url` from the search results, create a file named transform.js. Replace the placeholder hits array in the script below with the actual hits received from your Elasticsearch query.
+2. To extract the `profile_url` from the search results, create a file named `transform.js`. Replace the placeholder hits array in the script below with the actual hits received from your Elasticsearch query.
 
     ```javascript
     const hits = [
@@ -131,7 +133,7 @@ GET /nodes/_search
     });
     ```
 
-2. Replace the placeholder array in the $in operator with the array of profile_urls obtained from the step 2. Using the above example, the command should be as the following:
+2. Replace the placeholder array in the `$in` operator with the array of `profile_urls` obtained from the step 2. Using the above example, the command should be:
 
     ```javascript
     db.nodes.deleteMany({
@@ -144,7 +146,7 @@ GET /nodes/_search
     });
     ```
 
-3. Execute the above command in MongoDB, the deletedCount should as same as `hits.total.value` in step 2.
+3. Execute the above command in MongoDB. The `deletedCount` should be the same as `hits.total.value` in step 2.
 
 ## Step 4: Deleting Data from ElasticSearch
 
@@ -170,4 +172,4 @@ POST /nodes/_delete_by_query
 }
 ```
 
-Note: After executing the delete command, ElasticSearch will return a response with a field name called "deleted". Verify that this number matches the `hits.total.value` from the ElasticSearch query results in Step 2.
+Note: After executing the delete command, ElasticSearch will return a response with a field name called `deleted`. Verify that this number matches the `hits.total.value` from the ElasticSearch query results in Step 2.

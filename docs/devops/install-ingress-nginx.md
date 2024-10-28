@@ -1,8 +1,8 @@
 # How to Install Nginx Controller
 
-## Installation
+## Production
 
-Follow [Official Installation Guide](https://kubernetes.github.io/ingress-nginx/deploy/) for more information.
+Read the official [Installation Guide](https://kubernetes.github.io/ingress-nginx/deploy/) to install in a production environment.
 
 ## Development
 

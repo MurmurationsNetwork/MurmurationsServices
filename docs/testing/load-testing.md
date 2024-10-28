@@ -1,5 +1,9 @@
 # Load Testing Guide
 
+This guide explains how to run basic load tests on the Murmurations Services.
+
+See the [summary](#8-summary) at the end of this guide for the key takeaways from our initial testing.
+
 ## Table of Contents
 
 1. [Update Hosts](#1-update-hosts)
@@ -129,3 +133,5 @@ nats stream ls # List all streams and see the number of messages remaining in ea
 - **60 Read Requests Per Second:** You have two configuration options:
   1. Use 6 index servers, each with 256Mi memory and 256m CPU.
   2. Use 2 index servers, each with 1024Mi memory and 1024m CPU.
+
+You can also review this [GitHub issue](https://github.com/MurmurationsNetwork/MurmurationsServices/issues/780) for further context.
