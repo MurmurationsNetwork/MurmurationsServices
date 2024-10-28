@@ -23,6 +23,19 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/index/config.yaml") . | sha256sum }}
     spec:
+      {{- if $isDev }}
+      # In development, give pods more time before being evicted when node issues occur
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300  # 5 mins
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300  # 5 mins
+      {{- else }}
+      # Original tolerations for non-dev environments
       tolerations:
       - key: "node.kubernetes.io/unreachable"
         operator: "Exists"
@@ -32,6 +45,7 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      {{- end }}
       containers:
         - name: index-app
           image: {{ .Values.image }}

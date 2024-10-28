@@ -24,6 +24,17 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/library/config.yaml") . | sha256sum }}
     spec:
+      {{- if $isDev }}
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300  # 5 mins
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300  # 5 mins
+      {{- else }}
       tolerations:
       - key: "node.kubernetes.io/unreachable"
         operator: "Exists"
@@ -33,6 +44,7 @@ spec:
         operator: "Exists"
         effect: "NoExecute"
         tolerationSeconds: 60
+      {{- end }}
       containers:
         - name: library-app
           image: {{ .Values.image }}
