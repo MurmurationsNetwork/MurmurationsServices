@@ -2,7 +2,7 @@
 
 Sometimes it is useful to simulate a service being offline to test the fallback mechanisms in your code.
 
-To simulate a service being offline, you can use the `scale deployments` command.
+To simulate a service being offline, you can use the `kubectl scale deployments` command.
 
 ```bash
 kubectl scale deployments index-app --replicas=0
