@@ -288,3 +288,49 @@ func DeleteIndex(deleteNodeURL string, nodeID string) error {
 	}
 	return nil
 }
+
+func GetSchemaMetadata(schemaName string, libraryURL string) (map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/v2/schemas/%s", libraryURL, schemaName)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get schema: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to get schema: %s", resp.Status)
+	}
+
+	var schema map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&schema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode schema: %v", err)
+	}
+
+	if metadata, ok := schema["metadata"].(map[string]interface{}); ok {
+		return metadata, nil
+	}
+
+	return nil, fmt.Errorf("metadata field not found in schema")
+}
+
+func GetJsonldContext(contextURL string) (map[string]interface{}, error) {
+	resp, err := http.Get(contextURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get context: %v", err)
+	}
+	defer resp.Body.Close()
+
+	var contextData map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&contextData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode context: %v", err)
+	}
+
+	context, ok := contextData["@context"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("@context field not found or is not a valid object")
+	}
+
+	return context, nil
+}

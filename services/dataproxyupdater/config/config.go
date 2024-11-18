@@ -10,12 +10,17 @@ var Conf = config{}
 
 type config struct {
 	Index     indexConf
+	Library   libraryConf
 	DataProxy dataProxyConf
 	Mongo     mongoConf
 }
 
 type indexConf struct {
 	URL string `env:"INDEX_HOST,required"`
+}
+
+type libraryConf struct {
+	URL string `env:"LIBRARY_URL,required"`
 }
 
 type dataProxyConf struct {

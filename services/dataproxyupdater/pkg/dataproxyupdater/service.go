@@ -107,11 +107,40 @@ func Run() {
 		removeError(schemaName, svc)
 	}
 
-	// if the last error didn't solve, don't run
+	// If the last error didn't solve, don't run
 	if update.HasError {
 		logger.Info("last error didn't solve, can't continue the cronjob")
 		logger.Info("last error: " + update.ErrorMessage)
 		cleanUp()
+	}
+
+	// Get schema from Library
+	schemaMetadata, err := importutil.GetSchemaMetadata(schemaName, config.Conf.Library.URL)
+	if err != nil {
+		errStr := "get schema failed: " + err.Error()
+		logger.Error("get schema failed", err)
+		cleanUpWithError(schemaName, svc, errStr)
+	}
+
+	// Check for @type and @context in schema metadata
+	if schemaMetadata["@type"] == nil || schemaMetadata["@context"] == nil {
+		errStr := "metadata missing @type or @context"
+		cleanUpWithError(schemaName, svc, errStr)
+	}
+
+	// Get JSON-LD context
+	contextURL, ok := schemaMetadata["@context"].(string)
+	if !ok {
+		errStr := "failed to parse @context URL from schema metadata"
+		logger.Error(errStr, nil)
+		cleanUpWithError(schemaName, svc, errStr)
+	}
+
+	contextData, err := importutil.GetJsonldContext(contextURL)
+	if err != nil {
+		errStr := "failed to fetch and decode @context from URL: " + err.Error()
+		logger.Error(errStr, err)
+		cleanUpWithError(schemaName, svc, errStr)
 	}
 
 	mapping, err := importutil.GetMapping(schemaName)
@@ -165,6 +194,10 @@ func Run() {
 				continue
 			}
 
+			// Add JSON-LD information
+			profileJSON["@context"] = contextData
+			profileJSON["@type"] = schemaMetadata["@type"]
+
 			// validate data
 			validateURL := config.Conf.Index.URL + "/v2/validate"
 			isValid, failureReasons, err := importutil.Validate(
@@ -191,6 +224,8 @@ func Run() {
 			}
 			if count <= 0 {
 				profileJSON["cuid"] = cuid.New()
+				// JSON-LD @id
+				profileJSON["@id"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
 				err := profileSvc.Add(profileJSON)
 				if err != nil {
 					errStr := "can't add a profile, profile id is " + oid
