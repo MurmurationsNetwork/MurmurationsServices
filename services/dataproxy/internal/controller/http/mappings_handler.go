@@ -83,7 +83,7 @@ func (handler *mappingsHandler) Create(c *gin.Context) {
 	properties := make(map[string]string)
 	schemaProperties := schemas["properties"].(map[string]interface{})
 	for index := range schemaProperties {
-		if index == "linked_schemas" {
+		if index == "linked_schemas" || index == "@id" || index == "@context" || index == "@type" {
 			continue
 		}
 		properties[index] = ""
