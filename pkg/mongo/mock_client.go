@@ -70,3 +70,7 @@ func (c *mockClient) GetClient() *mongo.Client {
 
 func (c *mockClient) setClient(_ *mongo.Client, _ string) {
 }
+
+func (c *mockClient) CreateUniqueIndex(_ string, _ string, _ ...*options.CreateIndexesOptions) error {
+	return nil
+}

@@ -30,4 +30,11 @@ func mongoInit() {
 		logger.Error("error when trying to ping the MongoDB", err)
 		os.Exit(1)
 	}
+
+	// Create an index on the `cuid` field in the `profiles` collection
+	err = mongo.Client.CreateUniqueIndex("profiles", "cuid")
+	if err != nil {
+		logger.Error("error when trying to create index on `cuid` field in `profiles` collection", err)
+		os.Exit(1)
+	}
 }
