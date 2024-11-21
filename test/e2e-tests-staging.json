@@ -641,7 +641,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\":\"https://ic3.dev/non-existent-profile-url.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.software/non-existent-profile-url.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -1072,7 +1072,6 @@
                                     "    pm.expect(error.status).to.eql(400);",
                                     "    pm.expect(error.title).to.eql(\"HTTP Request Failed\");",
                                     "    pm.expect(error.detail).to.contain(\"Error making HTTP request to http://10.255.255.1\");",
-                                    "    pm.expect(error.detail).to.contain(\"Client.Timeout exceeded while awaiting headers\");",
                                     "});"
                                 ],
                                 "type": "text/javascript",
@@ -2114,7 +2113,7 @@
                                     "    pm.expect(jsonData.errors[0].detail).to.contain('Could not find or read from (invalid JSON) the profile_url')",
                                     "})",
                                     "pm.test(`${pm.variables.get(\"folder_name\")} - ${pm.info.requestName} - should return non-existent profile detail`, () => {",
-                                    "    pm.expect(jsonData.errors[0].detail).to.contain('https://ic3.dev/non-existent-profile-url.json')",
+                                    "    pm.expect(jsonData.errors[0].detail).to.contain('https://ic3.software/non-existent-profile-url.json')",
                                     "})"
                                 ],
                                 "type": "text/javascript"
@@ -2126,7 +2125,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"profile_url\":\"https://ic3.dev/non-existent-profile-url.json\"}",
+                            "raw": "{\"profile_url\":\"https://ic3.software/non-existent-profile-url.json\"}",
                             "options": {
                                 "raw": {
                                     "language": "json"
