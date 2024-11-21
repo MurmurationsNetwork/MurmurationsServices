@@ -134,3 +134,16 @@ func (c *mongoClient) setClient(client *mongo.Client, dbName string) {
 	c.client = client
 	c.db = client.Database(dbName)
 }
+
+func (c *mongoClient) CreateUniqueIndex(collection, indexName string, opts ...*options.CreateIndexesOptions) error {
+	coll := c.db.Collection(collection)
+	indexModel := mongo.IndexModel{
+		Keys:    bson.M{indexName: 1},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err := coll.Indexes().CreateOne(context.Background(), indexModel, opts...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
