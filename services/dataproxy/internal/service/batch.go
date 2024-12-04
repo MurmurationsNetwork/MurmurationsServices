@@ -338,8 +338,12 @@ func (s *batchService) Import(
 		mappedProfile["batch_id"] = batchID
 
 		// Add JSON-LD information to profile
-		mappedProfile["@context"] = contextData
-		mappedProfile["@type"] = contextType
+		if contextData != nil {
+			mappedProfile["@context"] = *contextData
+		}
+		if contextType != nil {
+			mappedProfile["@type"] = *contextType
+		}
 		mappedProfile["@id"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileCUID
 
 		// Save the profile to the database.
@@ -482,8 +486,12 @@ func (s *batchService) Edit(
 		}
 
 		// Add JSON-LD context and type
-		profile["@context"] = contextData
-		profile["@type"] = contextType
+		if contextData != nil {
+			profile["@context"] = *contextData
+		}
+		if contextType != nil {
+			profile["@type"] = *contextType
+		}
 
 		// Check if profile exists in MongoDB
 		oid := profile["oid"].(string)
@@ -850,35 +858,33 @@ func splitEscapedComma(s string) []string {
 	return result
 }
 
-func fetchJsonldContextAndType(schemaNames []string) (map[string]interface{}, string, error) {
+func fetchJsonldContextAndType(schemaNames []string) (*map[string]interface{}, *string, error) {
 	var (
-		contextData map[string]interface{}
-		contextType string
+		contextData *map[string]interface{}
+		contextType *string
 	)
 
 	for _, schemaName := range schemaNames {
 		schemaMetadata, err := importutil.GetSchemaMetadata(schemaName, config.Conf.Library.InternalURL)
 		if err != nil {
-			return nil, "", fmt.Errorf("get schema failed: %v", err)
+			return nil, nil, fmt.Errorf("get schema failed: %v", err)
 		}
 
-		if schemaMetadata["@type"] == nil || schemaMetadata["@context"] == nil {
-			return nil, "", fmt.Errorf("metadata missing @type or @context")
+		if schemaMetadata["@type"] != nil {
+			if ct, ok := schemaMetadata["@type"].(string); ok {
+				contextType = &ct
+			}
 		}
 
-		contextURL, ok := schemaMetadata["@context"].(string)
-		if !ok {
-			return nil, "", fmt.Errorf("failed to parse @context URL from schema metadata")
-		}
-
-		contextData, err = importutil.GetJsonldContext(contextURL)
-		if err != nil {
-			return nil, "", fmt.Errorf("failed to fetch and decode @context from URL: %v", err)
-		}
-
-		contextType, ok = schemaMetadata["@type"].(string)
-		if !ok {
-			return nil, "", fmt.Errorf("failed to parse @type from schema metadata")
+		if schemaMetadata["@context"] != nil {
+			contextURL, ok := schemaMetadata["@context"].(string)
+			if ok {
+				cd, err := importutil.GetJsonldContext(contextURL)
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to fetch and decode @context from URL: %v", err)
+				}
+				contextData = &cd
+			}
 		}
 	}
 
