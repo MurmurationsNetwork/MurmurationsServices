@@ -298,6 +298,12 @@ func (s *batchService) Import(
 		return batchID, -1, nil, err
 	}
 
+	// Fetch schema metadata and JSON-LD context
+	contextData, contextType, err := fetchJsonldContextAndType(schemaNames)
+	if err != nil {
+		return "", -1, nil, err
+	}
+
 	// Second pass: Process valid profiles and save them to the database.
 	for _, mappedProfile := range validProfiles {
 		// Generate a new CUID for the profile and set "cuid".
@@ -330,6 +336,15 @@ func (s *batchService) Import(
 
 		// Set "batch_id" to associate the profile with the batch.
 		mappedProfile["batch_id"] = batchID
+
+		// Add JSON-LD information to profile
+		if contextData != nil {
+			mappedProfile["@context"] = *contextData
+		}
+		if contextType != nil {
+			mappedProfile["@type"] = *contextType
+		}
+		mappedProfile["@id"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileCUID
 
 		// Save the profile to the database.
 		err = s.batchRepo.SaveProfile(mappedProfile)
@@ -415,6 +430,12 @@ func (s *batchService) Edit(
 	jsonSchemas := schemasResponse.JSONSchemas
 	schemaNames := schemasResponse.SchemaNames
 
+	// Fetch schema metadata and JSON-LD context
+	contextData, contextType, err := fetchJsonldContextAndType(schemas)
+	if err != nil {
+		return -1, nil, err
+	}
+
 	for line, rawProfile := range rawProfiles {
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
@@ -464,6 +485,14 @@ func (s *batchService) Edit(
 			profile["metadata"] = metadata
 		}
 
+		// Add JSON-LD context and type
+		if contextData != nil {
+			profile["@context"] = *contextData
+		}
+		if contextType != nil {
+			profile["@type"] = *contextType
+		}
+
 		// Check if profile exists in MongoDB
 		oid := profile["oid"].(string)
 		_, ok := profileOidsAndHashes[oid]
@@ -475,6 +504,10 @@ func (s *batchService) Edit(
 				delete(profileOidsAndHashes, oid)
 				continue
 			}
+
+			// Add JSON-LD @id
+			profile["@id"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
+
 			// Otherwise update the profile in MongoDB
 			err = s.batchRepo.UpdateProfile(profileCuid, profile)
 			if err != nil {
@@ -486,6 +519,9 @@ func (s *batchService) Edit(
 			// If profile doesn't have cuid, generate one
 			profileCuid = cuid.New()
 			profile["cuid"] = profileCuid
+
+			// Add JSON-LD @id
+			profile["@id"] = config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
 
 			// Import profile to MongoDB
 			err = s.batchRepo.SaveProfile(profile)
@@ -820,4 +856,37 @@ func splitEscapedComma(s string) []string {
 	}
 	result = append(result, current.String())
 	return result
+}
+
+func fetchJsonldContextAndType(schemaNames []string) (*map[string]interface{}, *string, error) {
+	var (
+		contextData *map[string]interface{}
+		contextType *string
+	)
+
+	for _, schemaName := range schemaNames {
+		schemaMetadata, err := importutil.GetSchemaMetadata(schemaName, config.Conf.Library.InternalURL)
+		if err != nil {
+			return nil, nil, fmt.Errorf("get schema failed: %v", err)
+		}
+
+		if schemaMetadata["@type"] != nil {
+			if ct, ok := schemaMetadata["@type"].(string); ok {
+				contextType = &ct
+			}
+		}
+
+		if schemaMetadata["@context"] != nil {
+			contextURL, ok := schemaMetadata["@context"].(string)
+			if ok {
+				cd, err := importutil.GetJsonldContext(contextURL)
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to fetch and decode @context from URL: %v", err)
+				}
+				contextData = &cd
+			}
+		}
+	}
+
+	return contextData, contextType, nil
 }
