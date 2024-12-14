@@ -478,6 +478,22 @@ func (handler *nodeHandler) Validate(c *gin.Context) {
 		}
 	}
 
+	// Validate the "expires_at" field
+	if expiresAt, ok := node.(map[string]interface{})["expires_at"].(float64); ok {
+		expireTime := time.Unix(int64(expiresAt), 0)
+		if expireTime.Before(time.Now()) {
+			errors := jsonapi.NewError(
+				[]string{"Invalid Expires At Field"},
+				[]string{"The `expires_at` date/time has already passed."},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			res := jsonapi.Response(nil, errors, nil, nil)
+			c.JSON(errors[0].Status, res)
+			return
+		}
+	}
+
 	meta := jsonapi.NewMeta(
 		"The submitted profile was validated successfully to its linked schemas.",
 		"",
