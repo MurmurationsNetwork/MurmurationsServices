@@ -1,10 +1,7 @@
 {
 	"info": {
-		"_postman_id": "5a751040-a246-4d98-b63f-78a265d44791",
 		"name": "Murmurations Services API Tests",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26148428",
-		"_collection_link": "https://ic3network.postman.co/workspace/Murmurations~a621deb5-92bc-4d76-a95a-a01f322954c8/collection/10168004-5a751040-a246-4d98-b63f-78a265d44791?action=share&source=collection_link&creator=26148428"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
