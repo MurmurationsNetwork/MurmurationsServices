@@ -28,7 +28,7 @@ func NewNodeService(mongoRepo mongo.NodeRepository) NodeService {
 // RevalidateNodes processes nodes with specific statuses and sends them for re-validation.
 func (svc *nodeService) RevalidateNodes() error {
 	statuses := []string{
-		constant.NodeStatus.Received,
+		// constant.NodeStatus.Received,
 		constant.NodeStatus.PostFailed,
 	}
 
