@@ -121,8 +121,8 @@ func (r *nodeRepository) UpdateStatusByExpiration(
 	}
 
 	if result.ModifiedCount > 0 {
-		fmt.Printf("Updated %d nodes with expired status to %s before %d\n",
-			result.ModifiedCount, status, timeBefore)
+		fmt.Printf("Updated %d nodes with %s status to %s which expired before %d\n",
+			result.ModifiedCount, status, constant.NodeStatus.Deleted, timeBefore)
 	}
 
 	return nil
