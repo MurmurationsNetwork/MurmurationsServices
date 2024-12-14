@@ -105,28 +105,28 @@ func (svc *validationService) ValidateNode(node *model.Node) {
 		updatedProfileJSON["primary_url"] = normalizedURL
 	}
 
-	// Check if "expires" field exists and extract it
+	// Check if "expires" or "expires_at" field exists and extract it
 	var expires *int64
 	if exp, ok := updatedProfileJSON["expires"]; ok {
-		if expFloat, ok := exp.(float64); ok {
-			expiresValue := int64(expFloat)
-			expires = &expiresValue
-
-			// Compare expires with the current time
-			if expiresValue < dateutil.GetNowUnix() {
-				errors := jsonapi.NewError(
-					[]string{"Invalid Expires Field"},
-					[]string{"The profile has an outdated expiration date. Please update the `expires` field to a date/time in the future."},
-					nil,
-					[]int{http.StatusBadRequest},
-				)
-				svc.sendNodeValidationFailedEvent(node, &errors)
-				return
-			}
-		} else {
+		var err error
+		expires, err = validateExpirationField("expires", exp)
+		if err != nil {
 			errors := jsonapi.NewError(
 				[]string{"Invalid Expires Field"},
-				[]string{"The `expires` field must be a valid integer timestamp."},
+				[]string{err.Error()},
+				nil,
+				[]int{http.StatusBadRequest},
+			)
+			svc.sendNodeValidationFailedEvent(node, &errors)
+			return
+		}
+	} else if expAt, ok := updatedProfileJSON["expires_at"]; ok {
+		var err error
+		expires, err = validateExpirationField("expires_at", expAt)
+		if err != nil {
+			errors := jsonapi.NewError(
+				[]string{"Invalid Expires Field"},
+				[]string{err.Error()},
 				nil,
 				[]int{http.StatusBadRequest},
 			)
@@ -297,4 +297,15 @@ func getLinkedSchemas(profileStr string) ([]string, error) {
 	}
 
 	return linkedSchemas, nil
+}
+
+func validateExpirationField(fieldName string, fieldValue interface{}) (*int64, error) {
+	if expFloat, ok := fieldValue.(float64); ok {
+		expiresValue := int64(expFloat)
+		if expiresValue < dateutil.GetNowUnix() {
+			return nil, fmt.Errorf("the profile has an outdated expiration date. Please update the `%s` field to a date/time in the future", fieldName)
+		}
+		return &expiresValue, nil
+	}
+	return nil, fmt.Errorf("the `%s` field must be a valid integer timestamp", fieldName)
 }

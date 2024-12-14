@@ -79,8 +79,13 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 		return err
 	}
 
+	profileJSON := profile.GetJSON()
+	if node.Expires != nil {
+		profileJSON["expires"] = *node.Expires
+	}
+
 	// Update Elastic Search.
-	if err := s.elasticRepo.IndexByID(node.ID, profile.GetJSON()); err != nil {
+	if err := s.elasticRepo.IndexByID(node.ID, profileJSON); err != nil {
 		errMsg := fmt.Sprintf("Error indexing node ID '%s' in Elastic repository.", node.ID)
 		logger.Error(errMsg, err)
 
@@ -144,8 +149,7 @@ func (s *nodeService) AddNode(
 		return nil, err
 	}
 
-	// If oldNode is not nil and its status is 'Deleted', check if ProfileURL is
-	// valid.
+	// If oldNode is not nil and its status is 'Deleted', check if ProfileURL is valid.
 	if oldNode != nil && oldNode.Status == constant.NodeStatus.Deleted {
 		if !httputil.IsValidURL(node.ProfileURL) {
 			return oldNode, nil
