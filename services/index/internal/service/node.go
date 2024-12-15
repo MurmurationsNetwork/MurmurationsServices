@@ -111,7 +111,7 @@ func (s *nodeService) isProfileHashUnchanged(
 		return false
 	}
 
-	newHash, _ := profilehasher.New(newNode.ProfileURL,
+	newHash, _ := profilehasher.NewFromString(newNode.ProfileStr,
 		config.Values.Library.InternalURL).Hash()
 
 	return newHash != "" && oldNode.ProfileHash != nil &&
