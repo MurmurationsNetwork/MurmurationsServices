@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -98,14 +99,20 @@ func (s *Service) connectToMongoDB() error {
 func (s *Service) middlewares() []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		gin.Recovery(),
-		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Values.Server.PostRateLimitPeriod,
-			Method: "POST",
-		}),
-		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Values.Server.GetRateLimitPeriod,
-			Method: "GET",
-		}),
+		func(c *gin.Context) {
+			clientIP := c.ClientIP()
+			if !strings.HasPrefix(clientIP, "10.") {
+				limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
+					Period: config.Values.Server.PostRateLimitPeriod,
+					Method: "POST",
+				})(c)
+				limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
+					Period: config.Values.Server.GetRateLimitPeriod,
+					Method: "GET",
+				})(c)
+			}
+			c.Next()
+		},
 		midlogger.NewLogger(),
 		// CORS for all origins, allowing:
 		// - GET and POST methods

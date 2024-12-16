@@ -1,6 +1,7 @@
 package dataproxy
 
 import (
+	"strings"
 	"time"
 
 	corslib "github.com/gin-contrib/cors"
@@ -14,14 +15,20 @@ import (
 func getMiddlewares() []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		gin.Recovery(),
-		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Conf.Server.PostRateLimitPeriod,
-			Method: "POST",
-		}),
-		limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
-			Period: config.Conf.Server.GetRateLimitPeriod,
-			Method: "GET",
-		}),
+		func(c *gin.Context) {
+			clientIP := c.ClientIP()
+			if !strings.HasPrefix(clientIP, "10.") {
+				limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
+					Period: config.Conf.Server.PostRateLimitPeriod,
+					Method: "POST",
+				})(c)
+				limiter.NewRateLimitWithOptions(limiter.RateLimitOptions{
+					Period: config.Conf.Server.GetRateLimitPeriod,
+					Method: "GET",
+				})(c)
+			}
+			c.Next()
+		},
 		logger.NewLogger(),
 		cors(),
 	}
