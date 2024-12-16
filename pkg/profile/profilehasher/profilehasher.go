@@ -83,9 +83,7 @@ func (p *ProfileHash) Hash() (string, error) {
 
 	err = p.populateFieldsForHashing()
 	if err != nil {
-		if err != nil {
-			return "", core.ProfileFetchError{Reason: err.Error()}
-		}
+		return "", core.ProfileFetchError{Reason: err.Error()}
 	}
 
 	filteredProfile := p.filterProfileFields()
