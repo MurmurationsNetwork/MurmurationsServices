@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
 
   lint:
     name: Lint Code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
 
   check-exclusions:
     name: Check Exclusions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       exclude_matrix: ${{ steps.determine-exclusions.outputs.exclude_matrix }}
     steps:
@@ -65,7 +65,7 @@ jobs:
       - test
       - lint
       - check-exclusions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         service:
@@ -101,7 +101,7 @@ jobs:
       - lint
       - check-exclusions
       - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
@@ -122,7 +122,7 @@ jobs:
       - check-exclusions
       - build
       - deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
