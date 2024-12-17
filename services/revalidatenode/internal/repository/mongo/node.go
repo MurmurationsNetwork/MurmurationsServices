@@ -40,7 +40,7 @@ func (r *nodeRepository) FindByStatuses(
 	skip := (page - 1) * pageSize
 	opts := options.Find().SetSkip(int64(skip)).SetLimit(int64(pageSize))
 
-	cur, err := r.client.Database(config.Conf.Mongo.DBName).
+	cur, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Node).
 		Find(ctx, filter, opts)
 	if err != nil {

@@ -1,4 +1,4 @@
-package http
+package rest
 
 import (
 	"encoding/json"
@@ -47,7 +47,7 @@ func (handler *mappingsHandler) Create(c *gin.Context) {
 	// download mapping from cdn
 	url := fmt.Sprintf(
 		"%s/v2/schemas/%s",
-		config.Conf.Library.InternalURL,
+		config.Values.Library.InternalURL,
 		schema,
 	)
 	//var schemas map[string]interface{}

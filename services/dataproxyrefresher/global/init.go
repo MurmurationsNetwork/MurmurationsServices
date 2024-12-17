@@ -15,12 +15,12 @@ func Init() {
 
 func mongoInit() {
 	uri := mongo.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
+		config.Values.Mongo.USERNAME,
+		config.Values.Mongo.PASSWORD,
+		config.Values.Mongo.HOST,
 	)
 
-	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
+	err := mongo.NewClient(uri, config.Values.Mongo.DBName)
 	if err != nil {
 		logger.Error("error when trying to connect to MongoDB", err)
 		os.Exit(1)

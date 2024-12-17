@@ -45,6 +45,12 @@ func NewRateLimitWithOptions(options RateLimitOptions) gin.HandlerFunc {
 			options.Method == defaultMethod {
 			ip := c.ClientIP()
 
+			// If IP starts with "10", bypass rate limiting
+			if len(ip) >= 3 && ip[:3] == "10." {
+				c.Next()
+				return
+			}
+
 			context, err := ipRateLimiter.Get(c, ip)
 			if err != nil {
 				logger.Error(

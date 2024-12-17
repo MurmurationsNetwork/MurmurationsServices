@@ -24,11 +24,11 @@ func NewCronJob() *NodeCleaner {
 	config.Init()
 
 	uri := mongodb.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
+		config.Values.Mongo.USERNAME,
+		config.Values.Mongo.PASSWORD,
+		config.Values.Mongo.HOST,
 	)
-	if err := mongodb.NewClient(uri, config.Conf.Mongo.DBName); err != nil {
+	if err := mongodb.NewClient(uri, config.Values.Mongo.DBName); err != nil {
 		logger.Error("Failed to connect to MongoDB", err)
 		os.Exit(1)
 	}
@@ -38,7 +38,7 @@ func NewCronJob() *NodeCleaner {
 		os.Exit(1)
 	}
 
-	if err := elastic.NewClient(config.Conf.ES.URL); err != nil {
+	if err := elastic.NewClient(config.Values.ES.URL); err != nil {
 		logger.Error("Failed to connect to Elasticsearch", err)
 		os.Exit(1)
 	}

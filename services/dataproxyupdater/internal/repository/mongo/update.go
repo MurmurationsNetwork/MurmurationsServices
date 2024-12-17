@@ -37,7 +37,7 @@ type updateRepository struct {
 func (r *updateRepository) Get(schemaName string) *model.Update {
 	filter := bson.M{"schema": schemaName}
 
-	result := r.client.Database(config.Conf.Mongo.DBName).
+	result := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Update).
 		FindOne(context.Background(), filter)
 
@@ -59,7 +59,7 @@ func (r *updateRepository) Save(
 		"api_entry":    apiEntry,
 	}
 
-	_, err := r.client.Database(config.Conf.Mongo.DBName).
+	_, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Update).
 		InsertOne(context.Background(), filter)
 
@@ -75,7 +75,7 @@ func (r *updateRepository) Update(schemaName string, lastUpdated int64) error {
 	update := bson.M{"$set": bson.M{"last_updated": lastUpdated}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).
+	result := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Update).
 		FindOneAndUpdate(context.Background(), filter, update, opt)
 
@@ -102,7 +102,7 @@ func (r *updateRepository) SaveError(
 	}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).
+	result := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Update).
 		FindOneAndUpdate(context.Background(), filter, update, opt)
 

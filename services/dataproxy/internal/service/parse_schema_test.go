@@ -33,7 +33,7 @@ func TestParseSchemas(t *testing.T) {
 	defer mockServer.Close()
 
 	// Mock the config to use the test server's URL.
-	config.Conf.Library.InternalURL = mockServer.URL
+	config.Values.Library.InternalURL = mockServer.URL
 
 	// Define test cases.
 	tests := []struct {

@@ -24,11 +24,11 @@ func NewCronJob() *NodeRevalidationCron {
 
 	// Initialize MongoDB client.
 	uri := mongodb.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
+		config.Values.Mongo.USERNAME,
+		config.Values.Mongo.PASSWORD,
+		config.Values.Mongo.HOST,
 	)
-	if err := mongodb.NewClient(uri, config.Conf.Mongo.DBName); err != nil {
+	if err := mongodb.NewClient(uri, config.Values.Mongo.DBName); err != nil {
 		logger.Error("error when trying to connect to MongoDB", err)
 		os.Exit(1)
 	}
@@ -47,7 +47,7 @@ func NewCronJob() *NodeRevalidationCron {
 
 // setupNATS initializes Nats service.
 func setupNATS() {
-	err := natsclient.Initialize(config.Conf.Nats.URL)
+	err := natsclient.Initialize(config.Values.Nats.URL)
 	if err != nil {
 		logger.Error("Failed to create Nats client", err)
 		os.Exit(1)
