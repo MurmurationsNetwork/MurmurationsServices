@@ -166,7 +166,7 @@ func Run() {
 			}
 
 			// validate data
-			validateURL := config.Conf.Index.URL + "/v2/validate"
+			validateURL := config.Values.Index.URL + "/v2/validate"
 			isValid, failureReasons, err := importutil.Validate(
 				validateURL,
 				profileJSON,
@@ -208,8 +208,8 @@ func Run() {
 			}
 
 			// post update to Index
-			postNodeURL := config.Conf.Index.URL + "/v2/nodes"
-			profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
+			postNodeURL := config.Values.Index.URL + "/v2/nodes"
+			profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileJSON["cuid"].(string)
 			nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 			if err != nil {
 				errStr := "failed to post profile to Index, profile url is " + profileURL + ". error message: " + err.Error()
@@ -262,7 +262,7 @@ func Run() {
 	}
 
 	for _, notPostedProfile := range notPostedProfiles {
-		getNodeURL := config.Conf.Index.URL + "/v2/nodes/" + notPostedProfile.NodeID
+		getNodeURL := config.Values.Index.URL + "/v2/nodes/" + notPostedProfile.NodeID
 		res, err := http.Get(getNodeURL)
 		if err != nil {
 			errStr := "failed to get not posted nodes, node id is " + notPostedProfile.NodeID + err.Error()

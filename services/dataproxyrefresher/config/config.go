@@ -6,7 +6,7 @@ import (
 	env "github.com/caarlos0/env/v10"
 )
 
-var Conf = config{}
+var Values = config{}
 
 type config struct {
 	Index      indexConf
@@ -31,7 +31,7 @@ type mongoConf struct {
 }
 
 func Init() {
-	err := env.Parse(&Conf)
+	err := env.Parse(&Values)
 	if err != nil {
 		log.Fatalf("Failed to decode environment variables: %s", err)
 	}

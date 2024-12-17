@@ -85,7 +85,7 @@ func (r *DataproxyRefresher) getProfiles(
 	schemaName string,
 ) ([]model.Profile, error) {
 	curTime := time.Now().Unix()
-	refreshBefore := curTime - config.Conf.RefreshTTL
+	refreshBefore := curTime - config.Values.RefreshTTL
 
 	profiles, err := r.svc.FindLessThan(schemaName, refreshBefore)
 	if err != nil {
@@ -289,7 +289,7 @@ func (r *DataproxyRefresher) updateProfileIfValid(
 func (r *DataproxyRefresher) validateProfile(
 	profileJSON map[string]interface{},
 ) (bool, string, error) {
-	validateURL := config.Conf.Index.URL + APIValidatePath
+	validateURL := config.Values.Index.URL + APIValidatePath
 
 	isValid, failureReasons, err := importutil.Validate(
 		validateURL,
@@ -340,8 +340,8 @@ func (r *DataproxyRefresher) UpdateProfile(
 	}
 
 	// Post the update to the Index
-	postNodeURL := config.Conf.Index.URL + APINodesPath
-	profileURL := config.Conf.DataProxy.URL + APIProfilesPath + "/" +
+	postNodeURL := config.Values.Index.URL + APINodesPath
+	profileURL := config.Values.DataProxy.URL + APIProfilesPath + "/" +
 		profileJSON["cuid"].(string)
 	nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 	if err != nil {
@@ -389,7 +389,7 @@ func (r *DataproxyRefresher) deleteProfile(profile model.Profile) error {
 	}
 
 	// Delete from the Index service.
-	deleteNodeURL := config.Conf.Index.URL + APINodesPath + "/" + profile.NodeID
+	deleteNodeURL := config.Values.Index.URL + APINodesPath + "/" + profile.NodeID
 
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodDelete, deleteNodeURL, nil)

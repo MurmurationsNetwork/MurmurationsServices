@@ -1,4 +1,0 @@
-package dataproxy
-
-func cleanup() {
-}

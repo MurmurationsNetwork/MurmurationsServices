@@ -23,7 +23,7 @@ func ParseSchemas(schemas []string) (*SchemasResponse, error) {
 	// Include default schema and append provided schemas.
 	schemaNames := append([]string{DefaultSchema}, schemas...)
 	jsonSchemas := make([]string, len(schemaNames))
-	baseURL := fmt.Sprintf("%s/v2/schemas", config.Conf.Library.InternalURL)
+	baseURL := fmt.Sprintf("%s/v2/schemas", config.Values.Library.InternalURL)
 
 	for i, schema := range schemaNames {
 		schemaURL := fmt.Sprintf("%s/%s", baseURL, schema)

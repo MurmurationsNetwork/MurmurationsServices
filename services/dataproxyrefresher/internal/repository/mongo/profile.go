@@ -39,7 +39,7 @@ type profileRepository struct {
 func (r *profileRepository) Count(profileID string) (int64, error) {
 	filter := bson.M{"oid": profileID}
 
-	count, err := r.client.Database(config.Conf.Mongo.DBName).
+	count, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		CountDocuments(context.Background(), filter)
 	if err != nil {
@@ -49,7 +49,7 @@ func (r *profileRepository) Count(profileID string) (int64, error) {
 }
 
 func (r *profileRepository) Add(profileJSON map[string]interface{}) error {
-	_, err := r.client.Database(config.Conf.Mongo.DBName).
+	_, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		InsertOne(context.Background(), profileJSON)
 
@@ -68,7 +68,7 @@ func (r *profileRepository) Update(
 	update := bson.M{"$set": profileJSON}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).
+	result := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		FindOneAndUpdate(context.Background(), filter, update, opt)
 
@@ -93,7 +93,7 @@ func (r *profileRepository) UpdateNodeID(
 	update := bson.M{"$set": bson.M{"node_id": nodeID, "is_posted": false}}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).
+	result := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		FindOneAndUpdate(context.Background(), filter, update, opt)
 
@@ -118,7 +118,7 @@ func (r *profileRepository) FindLessThan(
 	}
 
 	var profiles []model.Profile
-	cursor, err := r.client.Database(config.Conf.Mongo.DBName).
+	cursor, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		Find(context.Background(), filter)
 	if err != nil {
@@ -140,7 +140,7 @@ func (r *profileRepository) UpdateAccessTime(profileID string) error {
 	}
 	opt := options.FindOneAndUpdate().SetUpsert(true)
 
-	result := r.client.Database(config.Conf.Mongo.DBName).
+	result := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		FindOneAndUpdate(context.Background(), filter, update, opt)
 
@@ -154,7 +154,7 @@ func (r *profileRepository) UpdateAccessTime(profileID string) error {
 func (r *profileRepository) Delete(profileID string) error {
 	filter := bson.M{"cuid": profileID}
 
-	_, err := r.client.Database(config.Conf.Mongo.DBName).
+	_, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Profile).
 		DeleteOne(context.Background(), filter)
 	if err != nil {

@@ -79,7 +79,7 @@ func (r *nodeRepository) removeNodes(
 		},
 	}
 
-	result, err := r.client.Database(config.Conf.Mongo.DBName).
+	result, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Node).
 		DeleteMany(ctx, filter)
 	if err != nil {
@@ -113,7 +113,7 @@ func (r *nodeRepository) UpdateStatusByExpiration(
 		},
 	}
 
-	result, err := r.client.Database(config.Conf.Mongo.DBName).
+	result, err := r.client.Database(config.Values.Mongo.DBName).
 		Collection(constant.MongoIndex.Node).
 		UpdateMany(ctx, filter, update)
 	if err != nil {

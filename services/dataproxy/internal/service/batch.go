@@ -338,8 +338,8 @@ func (s *batchService) Import(
 		}
 
 		// Post the profile to the index service.
-		postNodeURL := config.Conf.Index.URL + "/v2/nodes"
-		profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCUID
+		postNodeURL := config.Values.Index.URL + "/v2/nodes"
+		profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileCUID
 		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 		if err != nil {
 			return batchID, -1, nil, fmt.Errorf(
@@ -495,8 +495,8 @@ func (s *batchService) Edit(
 		}
 
 		// Import profile to Index
-		postNodeURL := config.Conf.Index.URL + "/v2/nodes"
-		profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profileCuid
+		postNodeURL := config.Values.Index.URL + "/v2/nodes"
+		profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileCuid
 		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 		if err != nil {
 			return line, nil, errors.New(
@@ -533,7 +533,7 @@ func (s *batchService) Edit(
 			// Delete profiles from Index
 			if profile["is_posted"].(bool) {
 				nodeID := profile["node_id"].(string)
-				deleteNodeURL := config.Conf.Index.URL + "/v2/nodes/" + nodeID
+				deleteNodeURL := config.Values.Index.URL + "/v2/nodes/" + nodeID
 				err := importutil.DeleteIndex(deleteNodeURL, nodeID)
 				if err != nil {
 					return -1, nil, errors.New(
@@ -573,7 +573,7 @@ func (s *batchService) Delete(userID string, batchID string) error {
 	for _, profile := range profiles {
 		if profile["is_posted"].(bool) {
 			nodeID := profile["node_id"].(string)
-			deleteNodeURL := config.Conf.Index.URL + "/v2/nodes/" + nodeID
+			deleteNodeURL := config.Values.Index.URL + "/v2/nodes/" + nodeID
 			err := importutil.DeleteIndex(deleteNodeURL, nodeID)
 			if err != nil {
 				return errors.New(

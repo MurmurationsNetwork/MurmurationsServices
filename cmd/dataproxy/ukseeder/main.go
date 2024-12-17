@@ -30,12 +30,12 @@ func Init() {
 
 func mongoInit() {
 	uri := mongo.GetURI(
-		config.Conf.Mongo.USERNAME,
-		config.Conf.Mongo.PASSWORD,
-		config.Conf.Mongo.HOST,
+		config.Values.Mongo.USERNAME,
+		config.Values.Mongo.PASSWORD,
+		config.Values.Mongo.HOST,
 	)
 
-	err := mongo.NewClient(uri, config.Conf.Mongo.DBName)
+	err := mongo.NewClient(uri, config.Values.Mongo.DBName)
 	if err != nil {
 		fmt.Println("Error when trying to connect to MongoDB.", err)
 		os.Exit(1)
@@ -214,7 +214,7 @@ func importData(row int, file *excelize.File) (bool, error) {
 	profile["metadata"] = metadata
 
 	// Validate data
-	validateURL := config.Conf.Index.URL + "/v2/validate"
+	validateURL := config.Values.Index.URL + "/v2/validate"
 	isValid, failureReasons, err := importutil.Validate(validateURL, profile)
 	if err != nil {
 		return false, fmt.Errorf(
@@ -240,8 +240,8 @@ func importData(row int, file *excelize.File) (bool, error) {
 	}
 
 	// Post to index service
-	postNodeURL := config.Conf.Index.URL + "/v2/nodes"
-	profileURL := config.Conf.DataProxy.URL + "/v1/profiles/" + profile["cuid"].(string)
+	postNodeURL := config.Values.Index.URL + "/v2/nodes"
+	profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profile["cuid"].(string)
 	nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 	if err != nil {
 		return false, fmt.Errorf(

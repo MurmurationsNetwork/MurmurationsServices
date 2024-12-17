@@ -1,13 +1,10 @@
 package config
 
 import (
-	"log"
 	"time"
-
-	env "github.com/caarlos0/env/v10"
 )
 
-var Conf = config{}
+var Values = config{}
 
 type config struct {
 	Server    serverConf
@@ -43,11 +40,4 @@ type mongoConf struct {
 	PASSWORD string `env:"MONGO_PASSWORD,required"`
 	HOST     string `env:"MONGO_HOST,required"`
 	DBName   string `env:"MONGO_DB_NAME,required"`
-}
-
-func Init() {
-	err := env.Parse(&Conf)
-	if err != nil {
-		log.Fatalf("Failed to decode environment variables: %s", err)
-	}
 }

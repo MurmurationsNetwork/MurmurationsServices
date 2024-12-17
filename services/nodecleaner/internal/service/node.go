@@ -43,7 +43,7 @@ func NewNodeService(
 // before a calculated time from the MongoDB repository.
 func (svc *nodesService) RemoveValidationFailed(ctx context.Context) error {
 	timeBefore := dateutil.NowSubtract(
-		time.Duration(config.Conf.TTL.ValidationFailedTTL) * time.Second,
+		time.Duration(config.Values.TTL.ValidationFailedTTL) * time.Second,
 	)
 	return svc.mongoRepo.RemoveByCreatedAt(
 		ctx,
@@ -55,7 +55,7 @@ func (svc *nodesService) RemoveValidationFailed(ctx context.Context) error {
 // RemoveDeleted removes nodes with Deleted status updated before the calculated time.
 func (svc *nodesService) RemoveDeleted(ctx context.Context) error {
 	timeBefore := dateutil.NowSubtract(
-		time.Duration(config.Conf.TTL.DeletedTTL) * time.Second,
+		time.Duration(config.Values.TTL.DeletedTTL) * time.Second,
 	)
 
 	err := svc.mongoRepo.RemoveByLastUpdated(

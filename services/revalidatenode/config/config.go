@@ -7,7 +7,7 @@ import (
 )
 
 // Conf holds the configuration settings for the application.
-var Conf = config{}
+var Values = config{}
 
 type config struct {
 	// Mongo holds the configuration for MongoDB.
@@ -38,7 +38,7 @@ type natsConf struct {
 
 // Init initializes the Conf variable by parsing environment variables.
 func Init() {
-	if err := env.Parse(&Conf); err != nil {
+	if err := env.Parse(&Values); err != nil {
 		log.Fatalf("Failed to decode environment variables: %s", err)
 	}
 }
