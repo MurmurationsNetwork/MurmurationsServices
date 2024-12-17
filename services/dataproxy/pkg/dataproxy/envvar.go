@@ -3,8 +3,9 @@ package dataproxy
 import (
 	"log"
 
-	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	env "github.com/caarlos0/env/v10"
+
+	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 )
 
 func init() {
