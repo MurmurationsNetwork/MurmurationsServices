@@ -10,7 +10,7 @@ import (
 
 	corslib "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/tevino/abool"
+	"github.com/tevino/abool/v2"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/core"

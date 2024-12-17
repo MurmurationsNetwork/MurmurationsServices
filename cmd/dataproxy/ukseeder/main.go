@@ -24,7 +24,6 @@ const (
 )
 
 func Init() {
-	config.Init()
 	mongoInit()
 }
 
