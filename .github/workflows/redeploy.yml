@@ -7,7 +7,7 @@ on:
 jobs:
   check-comment-and-trigger-build:
     if: contains(github.event.comment.body, '/rebuild')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Trigger Build Job
         run: echo "Triggering Build Job"
@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build Docker Image - ${{ matrix.service }}
     needs: check-comment-and-trigger-build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         service:
@@ -47,7 +47,7 @@ jobs:
   deploy:
     name: Deploy Services
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
@@ -66,7 +66,7 @@ jobs:
     name: E2E Test
     needs:
       - deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
