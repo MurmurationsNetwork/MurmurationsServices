@@ -3,7 +3,6 @@ module github.com/MurmurationsNetwork/MurmurationsServices
 go 1.21
 
 require (
-	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/gin-contrib/cors v1.7.2
