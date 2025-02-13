@@ -161,7 +161,7 @@ func parseValidateError(
 		failedType := desc.Type()
 
 		// details
-		var expected, given, min, max, property, pattern, failedDetail, failedField string
+		var expected, given, minValue, maxValue, property, pattern, failedDetail, failedField string
 		for index, value := range desc.Details() {
 			switch index {
 			case "expected":
@@ -171,16 +171,16 @@ func parseValidateError(
 			case "min":
 				if bigFloat, ok := value.(*big.Float); ok {
 					minFloat64, _ := bigFloat.Float64()
-					min = fmt.Sprintf("%.0f", minFloat64)
+					minValue = fmt.Sprintf("%.0f", minFloat64)
 				} else {
-					min = fmt.Sprintf("%v", value)
+					minValue = fmt.Sprintf("%v", value)
 				}
 			case "max":
 				if bigFloat, ok := value.(*big.Float); ok {
 					maxFloat64, _ := bigFloat.Float64()
-					max = fmt.Sprintf("%.0f", maxFloat64)
+					maxValue = fmt.Sprintf("%.0f", maxFloat64)
 				} else {
-					max = fmt.Sprintf("%v", value)
+					maxValue = fmt.Sprintf("%v", value)
 				}
 			case "property":
 				property = value.(string)
@@ -195,10 +195,10 @@ func parseValidateError(
 			failedDetail = "Expected: " + expected + " - Given: " + given + " - Schema: " + schemaName
 		case "number_gte":
 			failedType = "Invalid Amount"
-			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schemaName
+			failedDetail = "Amount must be greater than or equal to " + minValue + " - Schema: " + schemaName
 		case "number_lte":
 			failedType = "Invalid Amount"
-			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schemaName
+			failedDetail = "Amount must be less than or equal to " + maxValue + " - Schema: " + schemaName
 		case "required":
 			failedType = "Missing Required Property"
 			if desc.Field() == "(root)" {
@@ -208,10 +208,10 @@ func parseValidateError(
 			}
 		case "array_min_items":
 			failedType = "Not Enough Items"
-			failedDetail = "There are not enough items in the array - Minimum is " + min + " - Schema: " + schemaName
+			failedDetail = "There are not enough items in the array - Minimum is " + minValue + " - Schema: " + schemaName
 		case "array_max_items":
 			failedType = "Too Many Items"
-			failedDetail = "There are too many items in the array - Maximum is " + max + " - Schema: " + schemaName
+			failedDetail = "There are too many items in the array - Maximum is " + maxValue + " - Schema: " + schemaName
 		case "pattern":
 			failedType = "Pattern Mismatch"
 			failedDetail = "The submitted data does not match the required pattern: '" + pattern + "' - Schema: " + schemaName
@@ -223,10 +223,10 @@ func parseValidateError(
 			failedDetail = "The submitted data contains a duplicate value - Schema: " + schemaName
 		case "string_lte":
 			failedType = "Invalid Length"
-			failedDetail = "Amount must be less than or equal to " + max + " - Schema: " + schemaName
+			failedDetail = "Amount must be less than or equal to " + maxValue + " - Schema: " + schemaName
 		case "string_gte":
 			failedType = "Invalid Length"
-			failedDetail = "Amount must be greater than or equal to " + min + " - Schema: " + schemaName
+			failedDetail = "Amount must be greater than or equal to " + minValue + " - Schema: " + schemaName
 		// condition_else and condition_then are not errors, they are conditions - no need to report them
 		case "condition_else":
 			continue

@@ -6,7 +6,7 @@ run:
 linters:
   enable:
     - dogsled
-    - exportloopref
+    - copyloopvar
     - godot
     - gofmt
     - revive
