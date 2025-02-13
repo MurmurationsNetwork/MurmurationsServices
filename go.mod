@@ -2,8 +2,6 @@ module github.com/MurmurationsNetwork/MurmurationsServices
 
 go 1.22.0
 
-toolchain go1.23.6
-
 require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/cenkalti/backoff/v4 v4.3.0
