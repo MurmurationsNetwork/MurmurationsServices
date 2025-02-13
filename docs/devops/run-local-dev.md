@@ -13,8 +13,8 @@
 5. Download large docker files
 
     ```sh
-    docker pull elasticsearch:7.17.5
-    docker pull kibana:7.17.5
+    docker pull elasticsearch:7.17.27
+    docker pull kibana:7.17.27
     ```
 
 6. [Create secrets](/docs/rancher/07-run-murmuration-services/secrets.md) for each service

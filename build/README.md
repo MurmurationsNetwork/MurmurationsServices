@@ -17,8 +17,8 @@ be used to deploy the service.
 This is a Dockerfile that defines a development environment for a service. 
 
 The `FROM` command specifies the base image to use, which in this case is
-`golang:1.21-alpine`. Alpine is a lightweight Linux distribution, which makes
-it a good choice for Docker images. The `golang:1.21-alpine` image is an image
+`golang:1.22-alpine`. Alpine is a lightweight Linux distribution, which makes
+it a good choice for Docker images. The `golang:1.22-alpine` image is an image
 that contains the Go programming language.
 
 The `RUN` command updates the package index inside the container using the `apk`
