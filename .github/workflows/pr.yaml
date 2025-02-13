@@ -14,7 +14,7 @@ jobs:
       - name: Set Up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22.12'
       - name: Execute Tests
         run: make test
 
@@ -27,7 +27,7 @@ jobs:
       - name: Set Up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22.12'
       - name: Run Linter
         uses: golangci/golangci-lint-action@v6
         with:
