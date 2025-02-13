@@ -25,7 +25,7 @@ spec:
         tolerationSeconds: 60
       containers:
         - name: index-kibana
-          image: docker.elastic.co/kibana/kibana:7.17.5
+          image: docker.elastic.co/kibana/kibana:7.17.27
           #resources:
           #  requests:
           #    memory: 512Mi
