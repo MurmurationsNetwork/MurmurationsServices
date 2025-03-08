@@ -1,6 +1,7 @@
 module github.com/MurmurationsNetwork/MurmurationsServices
 
 go 1.22.0
+toolchain go1.23.7
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
@@ -21,7 +22,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
 	golang.org/x/net v0.35.0
-	golang.org/x/sync v0.11.0
+	golang.org/x/sync v0.12.0
 )
 
 require (
