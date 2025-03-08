@@ -15,8 +15,10 @@ jobs:
       - name: Set Up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: 1.23
           cache: false
+      - name: Install Dependencies
+        run: go mod tidy
       - name: Execute Tests
         run: make test
 
@@ -29,8 +31,10 @@ jobs:
       - name: Set Up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: 1.23
           cache: true
+      - name: Install Dependencies
+        run: go mod tidy
       - name: Run Linter
         uses: golangci/golangci-lint-action@v6
         with:
