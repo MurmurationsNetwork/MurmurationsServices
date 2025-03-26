@@ -242,9 +242,9 @@ func parseValidateError(
 		if desc.Field() == "(root)" && property != "" {
 			failedField = "/" + property
 		} else if property != "" {
-			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1) + "/" + property
+			failedField = "/" + strings.ReplaceAll(desc.Field(), ".", "/") + "/" + property
 		} else {
-			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1)
+			failedField = "/" + strings.ReplaceAll(desc.Field(), ".", "/")
 		}
 		failedSources = append(failedSources, []string{"pointer", failedField})
 	}

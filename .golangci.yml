@@ -1,59 +1,68 @@
----
-run:
-  # timeout: Set a timeout of 5 minutes.
-  timeout: 5m
-
+version: "2"
 linters:
   enable:
-    - dogsled
     - copyloopvar
+    - dogsled
     - godot
-    - gofmt
-    - revive
-    - govet
     - misspell
     - nakedret
     - nolintlint
     - prealloc
-    - staticcheck
+    - revive
     - unconvert
     - whitespace
+  settings:
+    # Recommended settings from https://github.com/mgechev/revive#recommended-configuration.
+    revive:
+      confidence: 0.8
+      severity: warning
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
     - goimports
-
-linters-settings:
-  # Recommended settings from https://github.com/mgechev/revive#recommended-configuration.
-  revive:
-    ignore-generated-header: false
-    severity: "warning"
-    confidence: 0.8
-    rules:
-      - name: blank-imports
-      - name: context-as-argument
-      - name: context-keys-type
-      - name: dot-imports
-      - name: error-return
-      - name: error-strings
-      - name: error-naming
-      - name: exported
-      - name: if-return
-      - name: increment-decrement
-      - name: var-naming
-      - name: var-declaration
-      - name: package-comments
-      - name: range
-      - name: receiver-naming
-      - name: time-naming
-      - name: unexported-return
-      - name: indent-error-flow
-      - name: errorf
-      - name: empty-block
-      - name: superfluous-else
-      - name: unused-parameter
-      - name: unreachable-code
-      - name: redefines-builtin-id
-  goimports:
-    # This configuration ensures the following import order:
-    # 1. Standard library packages (built-in)
-    # 2. Third-party packages
-    # 3. Packages from the same project
-    local-prefixes: github.com/MurmurationsNetwork/MurmurationsServices
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/MurmurationsNetwork/MurmurationsServices
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

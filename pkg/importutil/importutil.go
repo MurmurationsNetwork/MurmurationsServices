@@ -42,12 +42,12 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf(
-				"Could not find mapping for the following schema: %s",
+				"could not find mapping for the following schema: %s",
 				schemaName,
 			)
 		}
 		return nil, fmt.Errorf(
-			"Error when trying to find schema mapping; error message: %s",
+			"error when trying to find schema mapping; error message: %s",
 			result.Err(),
 		)
 	}
@@ -55,7 +55,7 @@ func GetMapping(schemaName string) (map[string]string, error) {
 	err := result.Decode(schemaRaw)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"Error when trying to parse database response; error message: %s",
+			"error when trying to parse database response; error message: %s",
 			err,
 		)
 	}
