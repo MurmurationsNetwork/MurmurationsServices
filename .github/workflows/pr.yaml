@@ -37,7 +37,7 @@ jobs:
       - name: Run Linter
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64.4
+          version: v2.0
 
   check-exclusions:
     name: Check Exclusions
