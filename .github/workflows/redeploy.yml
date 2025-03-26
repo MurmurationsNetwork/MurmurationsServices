@@ -1,12 +1,14 @@
 name: Redeploy on Specific Review Comment by Authorized User
 
 on:
-  pull_request_review_comment:
+  issue_comment:
     types: [created]
 
 jobs:
   check-comment-and-trigger-build:
-    if: contains(github.event.comment.body, '/rebuild')
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/rebuild')
     runs-on: ubuntu-22.04
     steps:
       - name: Trigger Build Job
