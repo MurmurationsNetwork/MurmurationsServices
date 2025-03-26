@@ -39,7 +39,10 @@ type mongoClientInterface interface {
 	GetClient() *mongo.Client
 	setClient(*mongo.Client, string)
 
-	CreateUniqueIndex(collection, indexName string, opts ...*options.CreateIndexesOptions) error
+	CreateUniqueIndex(
+		collection, indexName string,
+		opts ...*options.CreateIndexesOptions,
+	) error
 }
 
 func init() {

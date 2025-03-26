@@ -64,7 +64,12 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 	}
 
 	if s.isProfileHashUnchanged(node, oldNode) {
-		logger.Info(fmt.Sprintf("Node with profile hash '%s' is unchanged.", *node.ProfileHash))
+		logger.Info(
+			fmt.Sprintf(
+				"Node with profile hash '%s' is unchanged.",
+				*node.ProfileHash,
+			),
+		)
 		// Reposted node with no changes has same last_updated timestamp.
 		node.LastUpdated = oldNode.LastUpdated
 	}
@@ -86,12 +91,18 @@ func (s *nodeService) SetNodeValid(node *model.Node) error {
 
 	// Update Elastic Search.
 	if err := s.elasticRepo.IndexByID(node.ID, profileJSON); err != nil {
-		errMsg := fmt.Sprintf("Error indexing node ID '%s' in Elastic repository.", node.ID)
+		errMsg := fmt.Sprintf(
+			"Error indexing node ID '%s' in Elastic repository.",
+			node.ID,
+		)
 		logger.Error(errMsg, err)
 
 		node.SetStatusPostFailed()
 		if mongoErr := s.mongoRepo.Update(node); mongoErr != nil {
-			logger.Error("Failed to update node in MongoDB after Elastic indexing failure.", mongoErr)
+			logger.Error(
+				"Failed to update node in MongoDB after Elastic indexing failure.",
+				mongoErr,
+			)
 		}
 		return err
 	}

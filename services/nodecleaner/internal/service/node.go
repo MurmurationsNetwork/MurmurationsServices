@@ -96,7 +96,10 @@ func (svc *nodesService) SetExpiredToDeleted(ctx context.Context) error {
 		timeBefore,
 	)
 	if err != nil {
-		return fmt.Errorf("error updating nodes status in Elasticsearch: %v", err)
+		return fmt.Errorf(
+			"error updating nodes status in Elasticsearch: %v",
+			err,
+		)
 	}
 
 	return nil

@@ -4,7 +4,7 @@ repos:
     rev: v2.0.2
     hooks:
       - id: golangci-lint
-        entry: golangci-lint run --out-format=github-actions
+        entry: golangci-lint run
 
   # golines hook.
   - repo: https://github.com/segmentio/golines

@@ -47,7 +47,9 @@ func (sc *SchemaCron) Run() error {
 		return err
 	}
 	if errorMessage != "" {
-		return fmt.Errorf("Existing error detected, waiting for manual resolution: " + errorMessage)
+		return fmt.Errorf(
+			"Existing error detected, waiting for manual resolution: " + errorMessage,
+		)
 	}
 
 	if err := sc.connectToMongoDB(); err != nil {

@@ -16,7 +16,11 @@ type NodeRepository interface {
 	// than the given timeBefore.
 	Remove(ctx context.Context, status string, timeBefore int64) error
 	// UpdateStatusByExpiration updates the status of nodes with expired status before the given time.
-	UpdateStatusByExpiration(ctx context.Context, status string, timeBefore int64) error
+	UpdateStatusByExpiration(
+		ctx context.Context,
+		status string,
+		timeBefore int64,
+	) error
 }
 
 type nodeRepository struct {

@@ -225,11 +225,16 @@ func (s *batchService) Import(
 		// Extract the OID (Object Identifier) from the profile data.
 		oid, exists := profileData["oid"]
 		if !exists {
-			errMsg := fmt.Sprintf("missing 'oid' in profile at line %d", lineNumber)
+			errMsg := fmt.Sprintf(
+				"missing 'oid' in profile at line %d",
+				lineNumber,
+			)
 			validationErrors = append(validationErrors, jsonapi.Error{
 				Title:  "Validation Error",
 				Detail: errMsg,
-				Source: map[string]string{"line": fmt.Sprintf("%d", lineNumber)},
+				Source: map[string]string{
+					"line": fmt.Sprintf("%d", lineNumber),
+				},
 			})
 			continue
 		}
@@ -240,7 +245,10 @@ func (s *batchService) Import(
 			validationErrors = append(validationErrors, jsonapi.Error{
 				Title:  "Mapping Error",
 				Detail: err.Error(),
-				Source: map[string]string{"line": fmt.Sprintf("%d", lineNumber), "oid": oid},
+				Source: map[string]string{
+					"line": fmt.Sprintf("%d", lineNumber),
+					"oid":  oid,
+				},
 			})
 			continue
 		}
@@ -254,7 +262,10 @@ func (s *batchService) Import(
 			validationErrors = append(validationErrors, jsonapi.Error{
 				Title:  "Validator Building Error",
 				Detail: err.Error(),
-				Source: map[string]string{"line": fmt.Sprintf("%d", lineNumber), "oid": oid},
+				Source: map[string]string{
+					"line": fmt.Sprintf("%d", lineNumber),
+					"oid":  oid,
+				},
 			})
 			continue
 		}

@@ -94,7 +94,10 @@ func (s *Service) connectToMongoDB() error {
 	// Create an index on the `cuid` field in the `profiles` collection
 	err = mongodb.Client.CreateUniqueIndex("profiles", "cuid")
 	if err != nil {
-		logger.Error("error when trying to create index on `cuid` field in `profiles` collection", err)
+		logger.Error(
+			"error when trying to create index on `cuid` field in `profiles` collection",
+			err,
+		)
 		os.Exit(1)
 	}
 	return nil
