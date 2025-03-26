@@ -7,13 +7,13 @@ toolchain go1.24.1
 require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/cenkalti/backoff/v4 v4.3.0
-	github.com/gin-contrib/cors v1.7.3
+	github.com/gin-contrib/cors v1.7.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/nats.go v1.39.1
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/redis/go-redis/v9 v9.7.1
+	github.com/redis/go-redis/v9 v9.7.3
 	github.com/stretchr/testify v1.10.0
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
