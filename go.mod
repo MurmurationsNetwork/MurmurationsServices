@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/cenkalti/backoff/v4 v4.3.0
-	github.com/gin-contrib/cors v1.7.3
+	github.com/gin-contrib/cors v1.7.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/lucsky/cuid v1.2.1
