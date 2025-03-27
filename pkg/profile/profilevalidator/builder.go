@@ -17,7 +17,10 @@ func NewBuilder() *Builder {
 
 // WithURLSchemas configures the ProfileValidator to use schema references
 // that are accessible via URLs. The base URL is used to fetch the schemas.
-func (b *Builder) WithURLSchemas(baseURL string, schemaReferences []string) *Builder {
+func (b *Builder) WithURLSchemas(
+	baseURL string,
+	schemaReferences []string,
+) *Builder {
 	// Assign schema references, which will be used to fetch schemas from the base URL.
 	b.profilevalidator.SchemaReferences = schemaReferences
 
@@ -31,7 +34,10 @@ func (b *Builder) WithURLSchemas(baseURL string, schemaReferences []string) *Bui
 
 // WithJSONSchemas configures the ProfileValidator to use preloaded JSON schemas.
 // The schemaNames correspond to the names of the loaded JSON schemas.
-func (b *Builder) WithJSONSchemas(schemaNames []string, loadedSchemas []string) *Builder {
+func (b *Builder) WithJSONSchemas(
+	schemaNames []string,
+	loadedSchemas []string,
+) *Builder {
 	// Assign the actual JSON schema content that will be used for validation.
 	b.profilevalidator.LoadedSchemas = loadedSchemas
 

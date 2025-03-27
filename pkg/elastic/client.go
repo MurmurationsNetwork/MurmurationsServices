@@ -171,7 +171,11 @@ func (c *esClient) Update(
 	return nil
 }
 
-func (c *esClient) UpdateMany(index string, q *Query, update map[string]interface{}) error {
+func (c *esClient) UpdateMany(
+	index string,
+	q *Query,
+	update map[string]interface{},
+) error {
 	ctx := context.Background()
 	_, err := c.client.UpdateByQuery(index).
 		Query(q.Query).

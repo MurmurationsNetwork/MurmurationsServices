@@ -88,7 +88,11 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 	// Get schema folder list and field folder list.
 	schemaListURL, fieldListURL, err := getSchemaAndFieldFolderURLs(branchSha)
 	if err != nil {
-		setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error getting schema and field URLs: %v", err), 0)
+		setErr := s.redis.Set(
+			"schemas:update:error",
+			fmt.Sprintf("Error getting schema and field URLs: %v", err),
+			0,
+		)
 		if setErr != nil {
 			fmt.Printf("Failed to set Redis error key: %v\n", setErr)
 		}
@@ -98,7 +102,11 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 	// Read field folder list and create a map of field name and field URL.
 	fieldListMap, err := getFieldsURLMap(fieldListURL)
 	if err != nil {
-		setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error getting fields URL map: %v", err), 0)
+		setErr := s.redis.Set(
+			"schemas:update:error",
+			fmt.Sprintf("Error getting fields URL map: %v", err),
+			0,
+		)
 		if setErr != nil {
 			fmt.Printf("Failed to set Redis error key: %v\n", setErr)
 		}
@@ -108,7 +116,11 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 	// Read schema folder list.
 	schemaList, err := getGithubTree(schemaListURL)
 	if err != nil {
-		setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error getting GitHub tree: %v", err), 0)
+		setErr := s.redis.Set(
+			"schemas:update:error",
+			fmt.Sprintf("Error getting GitHub tree: %v", err),
+			0,
+		)
 		if setErr != nil {
 			fmt.Printf("Failed to set Redis error key: %v\n", setErr)
 		}
@@ -135,9 +147,20 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 				parser := schemaparser.NewSchemaParser(fieldListMap)
 				result, err := parser.GetSchema(url)
 				if err != nil {
-					setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error parsing schema from URL %s: %v", url, err), 0)
+					setErr := s.redis.Set(
+						"schemas:update:error",
+						fmt.Sprintf(
+							"Error parsing schema from URL %s: %v",
+							url,
+							err,
+						),
+						0,
+					)
 					if setErr != nil {
-						fmt.Printf("Failed to set Redis error key: %v\n", setErr)
+						fmt.Printf(
+							"Failed to set Redis error key: %v\n",
+							setErr,
+						)
 					}
 					return err
 				}
@@ -148,7 +171,11 @@ func (s *schemaService) UpdateSchemas(branchSha string) error {
 
 	err = g.Wait()
 	if err != nil {
-		setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error waiting for goroutines: %v", err), 0)
+		setErr := s.redis.Set(
+			"schemas:update:error",
+			fmt.Sprintf("Error waiting for goroutines: %v", err),
+			0,
+		)
 		if setErr != nil {
 			fmt.Printf("Failed to set Redis error key: %v\n", setErr)
 		}
@@ -194,7 +221,11 @@ func (s *schemaService) UpdateLocalSchemas(
 	for _, schema := range schemas {
 		result, err := parser.GetLocalSchema(schema, fields)
 		if err != nil {
-			setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error waiting for goroutines: %v", err), 0)
+			setErr := s.redis.Set(
+				"schemas:update:error",
+				fmt.Sprintf("Error waiting for goroutines: %v", err),
+				0,
+			)
 			if setErr != nil {
 				fmt.Printf("Failed to set Redis error key: %v\n", setErr)
 			}
@@ -202,7 +233,11 @@ func (s *schemaService) UpdateLocalSchemas(
 		}
 		err = s.updateSchema(result.Schema, result.FullJSON)
 		if err != nil {
-			setErr := s.redis.Set("schemas:update:error", fmt.Sprintf("Error waiting for goroutines: %v", err), 0)
+			setErr := s.redis.Set(
+				"schemas:update:error",
+				fmt.Sprintf("Error waiting for goroutines: %v", err),
+				0,
+			)
 			if setErr != nil {
 				fmt.Printf("Failed to set Redis error key: %v\n", setErr)
 			}
@@ -355,7 +390,10 @@ func getGithubTree(url string) ([]interface{}, error) {
 func (s *schemaService) GetUpdateError() (string, error) {
 	val, err := s.redis.Get("schemas:update:error")
 	if err != nil {
-		return "", fmt.Errorf("failed to retrieve update error from Redis: %w", err)
+		return "", fmt.Errorf(
+			"failed to retrieve update error from Redis: %w",
+			err,
+		)
 	}
 
 	if val == "" {

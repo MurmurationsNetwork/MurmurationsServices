@@ -299,13 +299,22 @@ func getLinkedSchemas(profileStr string) ([]string, error) {
 	return linkedSchemas, nil
 }
 
-func validateExpirationField(fieldName string, fieldValue interface{}) (*int64, error) {
+func validateExpirationField(
+	fieldName string,
+	fieldValue interface{},
+) (*int64, error) {
 	if expFloat, ok := fieldValue.(float64); ok {
 		expiresValue := int64(expFloat)
 		if expiresValue < dateutil.GetNowUnix() {
-			return nil, fmt.Errorf("the profile has an outdated expiration date. Please update the `%s` field to a date/time in the future", fieldName)
+			return nil, fmt.Errorf(
+				"the profile has an outdated expiration date. Please update the `%s` field to a date/time in the future",
+				fieldName,
+			)
 		}
 		return &expiresValue, nil
 	}
-	return nil, fmt.Errorf("the `%s` field must be a valid integer timestamp", fieldName)
+	return nil, fmt.Errorf(
+		"the `%s` field must be a valid integer timestamp",
+		fieldName,
+	)
 }

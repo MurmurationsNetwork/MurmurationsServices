@@ -199,9 +199,10 @@ func TestGetSchema(t *testing.T) {
 				err         error
 			)
 
-			if r.URL.Path == "/schemas/people_schema-v0.1.0.json" {
+			switch r.URL.Path {
+			case "/schemas/people_schema-v0.1.0.json":
 				schemaBytes, err = json.Marshal(peopleSchema)
-			} else if r.URL.Path == "/fields/name.json" {
+			case "/fields/name.json":
 				schemaBytes, err = json.Marshal(nameSchema)
 			}
 			require.NoError(t, err)

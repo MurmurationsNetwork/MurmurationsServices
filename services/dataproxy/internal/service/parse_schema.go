@@ -29,13 +29,21 @@ func ParseSchemas(schemas []string) (*SchemasResponse, error) {
 		schemaURL := fmt.Sprintf("%s/%s", baseURL, schema)
 		resp, err := http.Get(schemaURL)
 		if err != nil {
-			return nil, fmt.Errorf("failed to fetch schema '%s': %w", schema, err)
+			return nil, fmt.Errorf(
+				"failed to fetch schema '%s': %w",
+				schema,
+				err,
+			)
 		}
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read schema '%s': %w", schema, err)
+			return nil, fmt.Errorf(
+				"failed to read schema '%s': %w",
+				schema,
+				err,
+			)
 		}
 		jsonSchemas[i] = string(body)
 	}

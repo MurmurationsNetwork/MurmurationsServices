@@ -90,7 +90,12 @@ func (handler *nodeHandler) newNodeCreatedHandler(msg *nats.Msg) {
 		if err != nil {
 			logger.Error("Error setting key in Redis", err)
 		}
-		logger.Info(fmt.Sprintf("Successfully processed profile with URL: %s", nodeCreatedData.ProfileURL))
+		logger.Info(
+			fmt.Sprintf(
+				"Successfully processed profile with URL: %s",
+				nodeCreatedData.ProfileURL,
+			),
+		)
 	} else {
 		logger.Info(fmt.Sprintf("Duplicate node created event: %s", nodeKey))
 	}

@@ -106,7 +106,11 @@ func (v *ProfileValidator) Validate() *ValidationResult {
 		if err != nil {
 			finalResult.AppendError(
 				"Error loading schema",
-				fmt.Sprintf("Error loading schema (%s): %v", v.SchemaNames[i], err),
+				fmt.Sprintf(
+					"Error loading schema (%s): %v",
+					v.SchemaNames[i],
+					err,
+				),
 				[]string{"pointer", "/linked_schemas"},
 				http.StatusNotFound,
 			)
@@ -127,7 +131,10 @@ func (v *ProfileValidator) Validate() *ValidationResult {
 
 		// If validation fails, collect and append the errors.
 		if !validationResult.Valid() {
-			titles, details, sources := parseValidateError(v.SchemaNames[i], validationResult.Errors())
+			titles, details, sources := parseValidateError(
+				v.SchemaNames[i],
+				validationResult.Errors(),
+			)
 
 			// Assign the same status code for each validation error.
 			statusCodes := make([]int, len(titles))
@@ -242,9 +249,9 @@ func parseValidateError(
 		if desc.Field() == "(root)" && property != "" {
 			failedField = "/" + property
 		} else if property != "" {
-			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1) + "/" + property
+			failedField = "/" + strings.ReplaceAll(desc.Field(), ".", "/") + "/" + property
 		} else {
-			failedField = "/" + strings.Replace(desc.Field(), ".", "/", -1)
+			failedField = "/" + strings.ReplaceAll(desc.Field(), ".", "/")
 		}
 		failedSources = append(failedSources, []string{"pointer", failedField})
 	}
