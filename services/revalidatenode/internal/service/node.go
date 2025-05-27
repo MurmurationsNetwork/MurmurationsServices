@@ -52,10 +52,9 @@ func (svc *nodeService) RevalidateNodes() error {
 
 		logger.Info(
 			fmt.Sprintf(
-				"Found %d nodes with status %s or %s on page %d, sending them to validation service",
+				"Found %d nodes with status %s on page %d, sending them to validation service",
 				len(nodes),
 				statuses[0],
-				statuses[1],
 				page,
 			),
 		)
