@@ -58,6 +58,7 @@ To prevent this issue, connect to all nodes in your cluster and configure multip
    ```
 
 5. Save and exit the file using `:wq`
+
     ![Longhorn Multipath Setting](./assets/images/longhorn-multipath-setting.png)
 
 6. Repeat this process for **all nodes** in your cluster before proceeding to the next step.
