@@ -15,7 +15,7 @@ This guide provides a comprehensive walkthrough for upgrading Rancher on your ex
 - [Step 5 - Saving Current Settings](#step-5---saving-current-settings)
 - [Step 6 - Viewing Available Charts and Versions](#step-6---viewing-available-charts-and-versions)
 - [Step 7 - Upgrading Rancher](#step-7---upgrading-rancher)
-- [Step 8 - Resolving Version Inconsistency Issues](#step-8---resolving-version-inconsistency-issues)
+- [Step 8 - Resolving Version Inconsistency Issues](#step-8---resolving-version-inconsistency-issue)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
