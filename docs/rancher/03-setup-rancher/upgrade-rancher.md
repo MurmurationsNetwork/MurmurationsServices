@@ -15,6 +15,8 @@ This guide provides a comprehensive walkthrough for upgrading Rancher on your ex
 - [Step 5 - Saving Current Settings](#step-5---saving-current-settings)
 - [Step 6 - Viewing Available Charts and Versions](#step-6---viewing-available-charts-and-versions)
 - [Step 7 - Upgrading Rancher](#step-7---upgrading-rancher)
+- [Step 8 - Resolving Version Inconsistency Issues](#step-8---resolving-version-inconsistency-issue)
+- [Step 9 - Resolving KDM Release Data Error](#step-9---resolving-kdm-release-data-error)
 - [Conclusion](#conclusion)
 
 ## Prerequisites
@@ -84,6 +86,72 @@ helm upgrade rancher rancher-stable/rancher \
   -f values.yaml \
   --version={{desired_version}}
 ```
+
+## Step 8 - Resolving Version Inconsistency Issue
+
+After upgrading Rancher, you may encounter a version inconsistency issue where only the Dashboard shows the latest version while other components remain on the previous version.
+
+1. Navigate to the Rancher About page in your browser:
+
+   ```bash
+   https://<RANCHER_URL>/dashboard/about
+   ```
+
+2. You will notice that only the Dashboard has been upgraded to the latest version, while other components may still show the previous version.
+
+    ![Inconsistent Rancher Version](./assets/images/inconsistent-rancher-version.png)
+
+3. To resolve this issue, you need to delete the current server-version setting and restart the Rancher deployment.
+
+4. Delete the existing server-version setting:
+
+   ```bash
+   kubectl delete settings.management.cattle.io server-version
+   ```
+
+5. Restart the Rancher deployment to regenerate the server-version configuration:
+
+   ```bash
+   kubectl rollout restart deployment rancher -n cattle-system
+   ```
+
+6. Once the restart is complete, navigate back to the About page (https://<RANCHER_URL>/dashboard/about) to confirm that all components now show the consistent upgraded version.
+
+    ![Consistent Rancher Version](./assets/images/consistent-rancher-version.png)
+
+## Step 9 - Resolving KDM Release Data Error
+
+After upgrading Rancher, you may encounter a KDM (Kontainer Driver Metadata) release data error:
+
+   ![Release Data Empty](./assets/images/release-data-empty.png)
+
+To resolve this issue, you need to update the KDM (Kontainer Driver Metadata) configuration to match your current Rancher version:
+
+1. Navigate to **Global Settings** in the Rancher dashboard, select **rke-metadata-config**, and Click **Edit Setting** to modify the configuration:
+
+    ![Update RKE Metadata Config](./assets/images/update-rke-metadata-config.png)
+
+2. Update the URL to match your current Rancher version. For example, if you're running Rancher 2.11 but the URL still shows v2.10, change it from:
+
+   ```bash
+   https://releases.rancher.com/kontainer-driver-metadata/release-v2.10/data.json
+   ```
+
+   to:
+
+   ```bash
+   https://releases.rancher.com/kontainer-driver-metadata/release-v2.11/data.json
+   ```
+
+3. Save the changes.
+
+4. Restart the Rancher deployment to apply the new configuration and prevent all Kubernetes versions from showing as "experimental":
+
+   ```bash
+   kubectl rollout restart deployment rancher -n cattle-system
+   ```
+
+5. Wait for the deployment to complete and verify that the KDM release data error is resolved.
 
 ## Conclusion
 
