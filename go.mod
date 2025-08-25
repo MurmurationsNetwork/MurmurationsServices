@@ -14,7 +14,7 @@ require (
 	github.com/nats-io/nats.go v1.45.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/redis/go-redis/v9 v9.12.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
 	github.com/xeipuuv/gojsonschema v1.2.0
