@@ -138,7 +138,7 @@ func importData(
 	url := "https://api.ofdb.io/v0/entries/" + oid
 	res, err := httputil.Get(url)
 	if err != nil {
-		return false, fmt.Errorf("can't get data from " + url)
+		return false, fmt.Errorf("can't get data from %s", url)
 	}
 	defer res.Body.Close()
 
@@ -146,11 +146,11 @@ func importData(
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&oldProfiles)
 	if err != nil {
-		return false, fmt.Errorf("can't parse data from " + url)
+		return false, fmt.Errorf("can't parse data from %s", url)
 	}
 
 	if len(oldProfiles) == 0 {
-		return true, fmt.Errorf("profile doesn't exist. OID: " + oid)
+		return true, fmt.Errorf("profile doesn't exist. OID: %s", oid)
 	}
 
 	profileJSON, err := importutil.MapProfile(

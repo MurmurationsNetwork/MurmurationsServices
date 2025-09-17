@@ -337,7 +337,9 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 	res, err := httputil.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"Can't get data from " + url + "with the error message: " + err.Error(),
+			"can't get data from %s with the error message: %w",
+			url,
+			err,
 		)
 	}
 
@@ -347,7 +349,7 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&bodyJSON)
 	if err != nil {
-		return nil, fmt.Errorf("can't parse data from: " + url)
+		return nil, fmt.Errorf("can't parse data from %s", url)
 	}
 
 	return bodyJSON, nil
