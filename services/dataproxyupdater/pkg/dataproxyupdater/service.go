@@ -349,7 +349,7 @@ func getProfiles(url string) ([]map[string]interface{}, error) {
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&bodyJSON)
 	if err != nil {
-		return nil, fmt.Errorf("can't parse data from %s: %w", url, err)
+		return nil, fmt.Errorf("can't parse data from %s", url)
 	}
 
 	return bodyJSON, nil
