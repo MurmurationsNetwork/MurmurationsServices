@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM golang:1.23-alpine as build
+FROM golang:1.24-alpine as build
 
 # Set the working directory inside the container for the build stage
 WORKDIR /src/validation

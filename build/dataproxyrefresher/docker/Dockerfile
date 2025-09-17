@@ -1,5 +1,5 @@
 # Using the official golang image based on Alpine for the build stage.
-FROM golang:1.23-alpine as build
+FROM golang:1.24-alpine as build
 
 WORKDIR /src/dataproxyrefresher
 
