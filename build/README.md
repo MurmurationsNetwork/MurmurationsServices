@@ -14,11 +14,11 @@ be used to deploy the service.
 
 ## `<service_name>/docker/Dockerfile-dev`
 
-This is a Dockerfile that defines a development environment for a service. 
+This is a Dockerfile that defines a development environment for a service.
 
 The `FROM` command specifies the base image to use, which in this case is
-`golang:1.23-alpine`. Alpine is a lightweight Linux distribution, which makes
-it a good choice for Docker images. The `golang:1.23-alpine` image is an image
+`golang:1.24-alpine`. Alpine is a lightweight Linux distribution, which makes
+it a good choice for Docker images. The `golang:1.24-alpine` image is an image
 that contains the Go programming language.
 
 The `RUN` command updates the package index inside the container using the `apk`
@@ -50,7 +50,7 @@ this case, it runs `reflex` with the configuration file located at
 
 ## `<service_name>/docker/Dockerfile`
 
-This is a Dockerfile that defines a production environment for a service. 
+This is a Dockerfile that defines a production environment for a service.
 
 The build stage compiles the Go app and creates a fully static binary, which is
 then copied to the runtime stage. The runtime stage sets up the environment for
