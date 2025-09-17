@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -220,15 +219,16 @@ func PostIndex(postNodeURL string, profileURL string) (string, error) {
 			}
 			errorsStr := strings.Join(errors, ",")
 			return "", fmt.Errorf(
-				"Post failed with status code: " + strconv.Itoa(
-					res.StatusCode,
-				) + " at `profile_url`: " + postProfile["profile_url"] + " with error: " + errorsStr,
+				"post failed with status code: %d at `profile_url`: %s with error: %s",
+				res.StatusCode,
+				postProfile["profile_url"],
+				errorsStr,
 			)
 		}
 		return "", fmt.Errorf(
-			"Post failed with status code: " + strconv.Itoa(
-				res.StatusCode,
-			) + "at `profile_url`: " + postProfile["profile_url"],
+			"post failed with status code: %d at `profile_url`: %s",
+			res.StatusCode,
+			postProfile["profile_url"],
 		)
 	}
 
@@ -275,15 +275,16 @@ func DeleteIndex(deleteNodeURL string, nodeID string) error {
 			}
 			errorsStr := strings.Join(errors, ",")
 			return fmt.Errorf(
-				"Delete failed with status code: " + strconv.Itoa(
-					res.StatusCode,
-				) + " for `node_id`: " + nodeID + " with error: " + errorsStr,
+				"delete failed with status code: %d for `node_id`: %s with error: %s",
+				res.StatusCode,
+				nodeID,
+				errorsStr,
 			)
 		}
 		return fmt.Errorf(
-			"Delete failed with status code: " + strconv.Itoa(
-				res.StatusCode,
-			) + " for `node_id`: " + nodeID,
+			"delete failed with status code: %d for `node_id`: %s",
+			res.StatusCode,
+			nodeID,
 		)
 	}
 	return nil

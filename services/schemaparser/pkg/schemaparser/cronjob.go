@@ -48,7 +48,8 @@ func (sc *SchemaCron) Run() error {
 	}
 	if errorMessage != "" {
 		return fmt.Errorf(
-			"Existing error detected, waiting for manual resolution: " + errorMessage,
+			"existing error detected, waiting for manual resolution: %s",
+			errorMessage,
 		)
 	}
 
