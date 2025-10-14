@@ -18,7 +18,7 @@ require (
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
 	github.com/xeipuuv/gojsonschema v1.2.0
-	github.com/xuri/excelize/v2 v2.9.1
+	github.com/xuri/excelize/v2 v2.10.0
 	go.mongodb.org/mongo-driver v1.17.4
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
@@ -61,7 +61,7 @@ require (
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.4 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/tiendc/go-deepcopy v1.6.0 // indirect
+	github.com/tiendc/go-deepcopy v1.7.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
@@ -70,7 +70,7 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
-	github.com/xuri/nfp v0.0.1 // indirect
+	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
