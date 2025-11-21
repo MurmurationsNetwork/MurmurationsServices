@@ -1,9 +1,10 @@
 package mongo
 
 import (
+	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/net/context"
 
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/constant"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/mongo"
