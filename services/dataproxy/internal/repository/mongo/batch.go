@@ -33,9 +33,10 @@ type BatchRepository interface {
 	DeleteProfileByCuid(cuid string) error
 	DeleteProfilesByBatchID(batchID string) error
 	DeleteBatchID(batchID string) error
-	UpdateBatchError(batchID string, errorMessage string) error
+	UpdateBatchError(batchID string, status string, errorMessage string) error
 	UpdateBatchProgress(batchID string, progress int) error
 	UpdateBatchStatus(batchID string, status string) error
+	UpdateBatchTotalNodesAndProgress(batchID string, totalNodes int, progress int) error
 }
 
 type batchRepository struct{}
@@ -282,10 +283,11 @@ func (r *batchRepository) DeleteBatchID(batchID string) error {
 
 func (r *batchRepository) UpdateBatchError(
 	batchID string,
+	status string,
 	errorMessage string,
 ) error {
 	filter := bson.M{"batch_id": batchID}
-	update := bson.M{"$set": bson.M{"error": errorMessage}}
+	update := bson.M{"$set": bson.M{"status": "failed", "error": errorMessage}}
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Batch,
 		filter,
@@ -320,6 +322,24 @@ func (r *batchRepository) UpdateBatchStatus(
 ) error {
 	filter := bson.M{"batch_id": batchID}
 	update := bson.M{"$set": bson.M{"status": status}}
+	_, err := mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Batch,
+		filter,
+		update,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *batchRepository) UpdateBatchTotalNodesAndProgress(
+	batchID string,
+	totalNodes int,
+	progress int,
+) error {
+	filter := bson.M{"batch_id": batchID}
+	update := bson.M{"$set": bson.M{"total_nodes": totalNodes, "processed_nodes": progress}}
 	_, err := mongo.Client.FindOneAndUpdate(
 		constant.MongoIndex.Batch,
 		filter,

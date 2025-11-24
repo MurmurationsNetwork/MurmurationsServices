@@ -185,7 +185,7 @@ func (s *batchService) Validate(
 func (s *batchService) Import(
 	title string,
 	schemaNames []string,
-	csvRecords [][]string,
+	records [][]string,
 	userID string,
 	metaName string,
 	metaURL string,
@@ -194,7 +194,7 @@ func (s *batchService) Import(
 	const maxDataRows = 1000
 
 	// Check if the CSV exceeds the maximum allowed data rows.
-	if len(csvRecords) > maxDataRows+1 { // +1 for header row
+	if len(records) > maxDataRows+1 { // +1 for header row
 		return "", -1, nil, fmt.Errorf(
 			"the CSV file cannot contain more than %d data rows",
 			maxDataRows,
@@ -204,99 +204,10 @@ func (s *batchService) Import(
 	// Generate a new batch ID.
 	batchID := cuid.New()
 
-	// Parse the schemas for validation.
-	parsedSchemas, err := ParseSchemas(schemaNames)
+	mappedProfiles, validationErrors, err := s.validateProfiles(records, schemaNames)
+
 	if err != nil {
 		return batchID, -1, nil, err
-	}
-	jsonSchemas := parsedSchemas.JSONSchemas
-	parsedSchemaNames := parsedSchemas.SchemaNames
-
-	// Convert CSV records to a slice of maps (header to value mapping).
-	profileRecords := csvToMap(csvRecords)
-
-	// Initialize a slice to collect all validation errors.
-	var validationErrors []jsonapi.Error
-
-	// Prepare a slice to hold valid profiles for later processing.
-	validProfiles := make([]map[string]interface{}, 0, len(profileRecords))
-
-	// First pass: Validate all profiles and collect validation errors.
-	for lineNumber, profileData := range profileRecords {
-		// Extract the OID (Object Identifier) from the profile data.
-		oid, exists := profileData["oid"]
-		if !exists {
-			errMsg := fmt.Sprintf(
-				"missing 'oid' in profile at line %d",
-				lineNumber,
-			)
-			validationErrors = append(validationErrors, jsonapi.Error{
-				Title:  "Validation Error",
-				Detail: errMsg,
-				Source: map[string]string{
-					"line": fmt.Sprintf("%d", lineNumber),
-				},
-			})
-			continue
-		}
-
-		// Map raw profile data to the expected schema format.
-		mappedProfile, err := mapToProfile(profileData, schemaNames)
-		if err != nil {
-			validationErrors = append(validationErrors, jsonapi.Error{
-				Title:  "Mapping Error",
-				Detail: err.Error(),
-				Source: map[string]string{
-					"line": fmt.Sprintf("%d", lineNumber),
-					"oid":  oid,
-				},
-			})
-			continue
-		}
-
-		// Build the profile validator with the mapped profile and JSON schemas.
-		validator, err := profilevalidator.NewBuilder().
-			WithMapProfile(mappedProfile).
-			WithJSONSchemas(parsedSchemaNames, jsonSchemas).
-			Build()
-		if err != nil {
-			validationErrors = append(validationErrors, jsonapi.Error{
-				Title:  "Validator Building Error",
-				Detail: err.Error(),
-				Source: map[string]string{
-					"line": fmt.Sprintf("%d", lineNumber),
-					"oid":  oid,
-				},
-			})
-			continue
-		}
-
-		// Validate the profile.
-		validationResult := validator.Validate()
-
-		// Inject OID and line number into each source entry for better error tracing.
-		for idx := range validationResult.Sources {
-			validationResult.Sources[idx] = append(
-				validationResult.Sources[idx],
-				"oid",
-				oid,
-			)
-		}
-
-		// Collect validation errors if the profile is invalid.
-		if !validationResult.Valid {
-			errors := jsonapi.NewError(
-				validationResult.ErrorMessages,
-				validationResult.Details,
-				validationResult.Sources,
-				validationResult.ErrorStatus,
-			)
-			validationErrors = append(validationErrors, errors...)
-			continue
-		}
-
-		// If the profile is valid, add it to the validProfiles slice for later processing.
-		validProfiles = append(validProfiles, mappedProfile)
 	}
 
 	// If there are any validation errors, return them without proceeding further.
@@ -310,14 +221,14 @@ func (s *batchService) Import(
 		title,
 		batchID,
 		schemaNames,
-		len(validProfiles),
+		len(mappedProfiles),
 	)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
 
 	// Second pass: Process valid profiles and save them to the database.
-	go s.ProcessImportAsync(batchID, validProfiles, metaName, metaURL)
+	go s.ProcessImportAsync(batchID, mappedProfiles, metaName, metaURL)
 
 	// All profiles have been successfully imported.
 	return batchID, -1, nil, nil
@@ -348,6 +259,7 @@ func (s *batchService) ProcessImportAsync(
 		if err != nil {
 			batchErr := s.batchRepo.UpdateBatchError(
 				batchID,
+				"failed",
 				fmt.Sprintf("Failed to compute hash of profile: %v", err),
 			)
 			if batchErr != nil {
@@ -382,6 +294,7 @@ func (s *batchService) ProcessImportAsync(
 		if err != nil {
 			batchErr := s.batchRepo.UpdateBatchError(
 				batchID,
+				"failed",
 				fmt.Sprintf("Failed to save profile: %v", err),
 			)
 			if batchErr != nil {
@@ -397,6 +310,7 @@ func (s *batchService) ProcessImportAsync(
 		if err != nil {
 			batchErr := s.batchRepo.UpdateBatchError(
 				batchID,
+				"failed",
 				fmt.Sprintf("Failed to post profile to index service: %v", err),
 			)
 			if batchErr != nil {
@@ -414,6 +328,7 @@ func (s *batchService) ProcessImportAsync(
 		if err != nil {
 			batchErr := s.batchRepo.UpdateBatchError(
 				batchID,
+				"failed",
 				fmt.Sprintf("Failed to save node ID to database: %v", err),
 			)
 			if batchErr != nil {
@@ -447,9 +362,12 @@ func (s *batchService) Edit(
 	metaName string,
 	metaURL string,
 ) (int, []jsonapi.Error, error) {
-	if len(records) > 1001 {
-		return -1, nil, errors.New(
-			"the CSV file cannot contain more than 1,000 rows",
+	const maxDataRows = 1000
+
+	if len(records) > maxDataRows+1 {
+		return -1, nil, fmt.Errorf(
+			"the CSV file cannot contain more than %d data rows",
+			maxDataRows,
 		)
 	}
 
@@ -459,7 +377,7 @@ func (s *batchService) Edit(
 		return -1, nil, err
 	}
 	if !isValid {
-		return -1, nil, errors.New(
+		return -1, nil, fmt.Errorf(
 			"the `batch_id` doesn't belong to the specified user",
 		)
 	}
@@ -470,28 +388,49 @@ func (s *batchService) Edit(
 		return -1, nil, err
 	}
 
-	// Get profile `oid`, cuid and hash by `batch_id`
-	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchID(
-		batchID,
-	)
+	mappedProfiles, validationErrors, err := s.validateProfiles(records, schemas)
+
 	if err != nil {
 		return -1, nil, err
 	}
+
+	if len(validationErrors) > 0 {
+		return -1, validationErrors, nil
+	}
+
+	go s.ProcessEditAsync(
+		batchID,
+		mappedProfiles,
+		metaName,
+		metaURL,
+	)
+
+	return -1, nil, nil
+}
+
+func (s *batchService) validateProfiles(
+	records [][]string,
+	schemas []string,
+) ([]map[string]interface{}, []jsonapi.Error, error) {
 
 	rawProfiles := csvToMap(records)
 
-	// Fetch JSON schema strings from the library for validation.
-	schemasResponse, err := ParseSchemas(schemas)
+	parsed, err := ParseSchemas(schemas)
 	if err != nil {
-		return -1, nil, err
+		return nil, nil, err
 	}
-	jsonSchemas := schemasResponse.JSONSchemas
-	schemaNames := schemasResponse.SchemaNames
+
+	jsonSchemas := parsed.JSONSchemas
+	schemaNames := parsed.SchemaNames
+
+	var validationErrors []jsonapi.Error
+	var mappedProfiles []map[string]interface{}
 
 	for line, rawProfile := range rawProfiles {
+
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
-			return line, nil, err
+			return nil, nil, fmt.Errorf("line %d: %v", line, err)
 		}
 
 		validator, err := profilevalidator.NewBuilder().
@@ -499,26 +438,57 @@ func (s *batchService) Edit(
 			WithJSONSchemas(schemaNames, jsonSchemas).
 			Build()
 		if err != nil {
-			return line, nil, err
+			return nil, nil, err
 		}
+
 		result := validator.Validate()
 		if !result.Valid {
-			return line, jsonapi.NewError(
-				result.ErrorMessages,
-				result.Details,
-				result.Sources,
-				result.ErrorStatus,
-			), nil
+			validationErrors = append(validationErrors,
+				jsonapi.NewError(
+					result.ErrorMessages,
+					result.Details,
+					result.Sources,
+					result.ErrorStatus,
+				)...,
+			)
+			continue
 		}
 
-		// TODO
-		profileHash, err := jsonutil.Hash(profile)
-		if err != nil {
-			return line, nil, err
-		}
-		profile["source_data_hash"] = profileHash
-		profile["batch_id"] = batchID
+		mappedProfiles = append(mappedProfiles, profile)
+	}
 
+	if len(validationErrors) > 0 {
+		return nil, validationErrors, nil
+	}
+
+	return mappedProfiles, nil, nil
+}
+
+func (s *batchService) ProcessEditAsync(
+	batchID string,
+	mappedProfiles []map[string]interface{},
+	metaName string,
+	metaURL string,
+) {
+	// update status = processing
+	s.batchRepo.UpdateBatchStatus(batchID, "editing")
+
+	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchID(batchID)
+	if err != nil {
+		s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+		return
+	}
+
+	totalNodes := len(profileOidsAndHashes)
+	err = s.batchRepo.UpdateBatchTotalNodesAndProgress(batchID, totalNodes, 0)
+	if err != nil {
+		s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+		return
+	}
+
+	processed := 0
+
+	for _, profile := range mappedProfiles {
 		// Add metadata
 		if metaName != "" || metaURL != "" {
 			source := make(map[string]interface{})
@@ -537,54 +507,74 @@ func (s *batchService) Edit(
 			profile["metadata"] = metadata
 		}
 
-		// Check if profile exists in MongoDB
+		profileHash, err := jsonutil.Hash(profile)
+		if err != nil {
+			s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+			return
+		}
+		profile["source_data_hash"] = profileHash
+		profile["batch_id"] = batchID
+
 		oid := profile["oid"].(string)
+		var profileCUID string
 		_, ok := profileOidsAndHashes[oid]
-		var profileCuid string
 		if ok {
-			profileCuid = profileOidsAndHashes[oid][0]
+			profileCUID = profileOidsAndHashes[oid][0]
 			// If current profile's `oid` and `profile_hash` match the data in MongoDB, skip it
 			if profileOidsAndHashes[oid][1] == profileHash {
 				delete(profileOidsAndHashes, oid)
+				processed++
+				if processed%10 == 0 || len(mappedProfiles) == processed {
+					err = s.batchRepo.UpdateBatchProgress(batchID, processed)
+					if err != nil {
+						s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+						return
+					}
+				}
 				continue
 			}
 			// Otherwise update the profile in MongoDB
-			err = s.batchRepo.UpdateProfile(profileCuid, profile)
+			err = s.batchRepo.UpdateProfile(profileCUID, profile)
 			if err != nil {
-				return line, nil, err
+				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				return
 			}
 			// Delete `oid` from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
 			delete(profileOidsAndHashes, oid)
 		} else {
-			// If profile doesn't have cuid, generate one
-			profileCuid = cuid.New()
-			profile["cuid"] = profileCuid
-
-			// Import profile to MongoDB
+			profileCUID = cuid.New()
+			profile["cuid"] = profileCUID
 			err = s.batchRepo.SaveProfile(profile)
 			if err != nil {
-				return line, nil, err
+				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				return
 			}
 		}
 
-		// Import profile to Index
+		// post to index
 		postNodeURL := config.Values.Index.URL + "/v2/nodes"
-		profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileCuid
+		profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileCUID
 		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 		if err != nil {
-			return line, nil, errors.New(
-				"Import to Index failed: " + err.Error(),
-			)
+			s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+			return
 		}
 
-		// Save `node_id` to MongoDB
 		profile["node_id"] = nodeID
 		profile["is_posted"] = true
-		err = s.batchRepo.SaveNodeID(profileCuid, profile)
+		err = s.batchRepo.SaveNodeID(profileCUID, profile)
 		if err != nil {
-			return line, nil, errors.New(
-				"Save node_id to MongoDB failed: " + err.Error(),
-			)
+			s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+			return
+		}
+
+		processed++
+		if processed%10 == 0 || len(mappedProfiles) == processed {
+			err = s.batchRepo.UpdateBatchProgress(batchID, processed)
+			if err != nil {
+				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				return
+			}
 		}
 	}
 
@@ -594,13 +584,15 @@ func (s *batchService) Edit(
 			// Get profile by cuid
 			profile, err := s.batchRepo.GetProfileByCuid(cuidAndHash[0])
 			if err != nil {
-				return -1, nil, err
+				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				return
 			}
 
 			// Delete profiles from mongo
 			err = s.batchRepo.DeleteProfileByCuid(cuidAndHash[0])
 			if err != nil {
-				return -1, nil, err
+				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				return
 			}
 
 			// Delete profiles from Index
@@ -609,15 +601,23 @@ func (s *batchService) Edit(
 				deleteNodeURL := config.Values.Index.URL + "/v2/nodes/" + nodeID
 				err := importutil.DeleteIndex(deleteNodeURL, nodeID)
 				if err != nil {
-					return -1, nil, errors.New(
-						"failed to delete from Index : " + err.Error(),
-					)
+					s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+					return
+				}
+			}
+
+			processed++
+			if processed%10 == 0 || totalNodes == processed {
+				err = s.batchRepo.UpdateBatchProgress(batchID, processed)
+				if err != nil {
+					s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+					return
 				}
 			}
 		}
 	}
 
-	return -1, nil, nil
+	s.batchRepo.UpdateBatchStatus(batchID, "completed")
 }
 
 func (s *batchService) Delete(userID string, batchID string) error {
