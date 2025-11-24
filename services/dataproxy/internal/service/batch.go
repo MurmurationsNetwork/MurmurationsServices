@@ -684,16 +684,60 @@ func (s *batchService) Delete(userID string, batchID string) error {
 		return errors.New("batch_id doesn't belong to user")
 	}
 
+	go s.deleteBatchAsync(batchID)
+
+	return nil
+}
+
+func (s *batchService) deleteBatchAsync(batchID string) {
+	err := s.batchRepo.UpdateBatchStatus(batchID, "deleting")
+	if err != nil {
+		logger.Error("Failed to update batch status to deleting", err)
+		return
+	}
+
 	// Get profiles by batch_id
 	profiles, err := s.batchRepo.GetProfilesByBatchID(batchID)
 	if err != nil {
-		return err
+		batchErr := s.batchRepo.UpdateBatchError(
+			batchID,
+			"delete_failed",
+			err.Error(),
+		)
+		if batchErr != nil {
+			logger.Error("Failed to update batch error", batchErr)
+		}
+		return
 	}
+
+	totalNodes := len(profiles)
+	err = s.batchRepo.UpdateBatchTotalNodesAndProgress(batchID, totalNodes, 0)
+	if err != nil {
+		batchErr := s.batchRepo.UpdateBatchError(
+			batchID,
+			"delete_failed",
+			err.Error(),
+		)
+		if batchErr != nil {
+			logger.Error("Failed to update batch error", batchErr)
+		}
+		return
+	}
+
+	processed := 0
 
 	// Delete profiles from MongoDB
 	err = s.batchRepo.DeleteProfilesByBatchID(batchID)
 	if err != nil {
-		return err
+		batchErr := s.batchRepo.UpdateBatchError(
+			batchID,
+			"delete_failed",
+			err.Error(),
+		)
+		if batchErr != nil {
+			logger.Error("Failed to update batch error", batchErr)
+		}
+		return
 	}
 
 	// Delete profiles from Index
@@ -703,9 +747,31 @@ func (s *batchService) Delete(userID string, batchID string) error {
 			deleteNodeURL := config.Values.Index.URL + "/v2/nodes/" + nodeID
 			err := importutil.DeleteIndex(deleteNodeURL, nodeID)
 			if err != nil {
-				return errors.New(
-					"Delete profile from MurmurationsServices Index failed: " + err.Error(),
+				batchErr := s.batchRepo.UpdateBatchError(
+					batchID,
+					"delete_failed",
+					err.Error(),
 				)
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
+				return
+			}
+		}
+
+		processed++
+		if processed%10 == 0 || totalNodes == processed {
+			err = s.batchRepo.UpdateBatchProgress(batchID, processed)
+			if err != nil {
+				batchErr := s.batchRepo.UpdateBatchError(
+					batchID,
+					"delete_failed",
+					err.Error(),
+				)
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
+				return
 			}
 		}
 	}
@@ -713,10 +779,16 @@ func (s *batchService) Delete(userID string, batchID string) error {
 	// Delete batch_id from MongoDB
 	err = s.batchRepo.DeleteBatchID(batchID)
 	if err != nil {
-		return err
+		batchErr := s.batchRepo.UpdateBatchError(
+			batchID,
+			"delete_failed",
+			err.Error(),
+		)
+		if batchErr != nil {
+			logger.Error("Failed to update batch error", batchErr)
+		}
+		return
 	}
-
-	return nil
 }
 
 // Convert csv to one-to-one map[string]string.
