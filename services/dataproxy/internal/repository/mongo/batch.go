@@ -74,11 +74,12 @@ func (r *batchRepository) SaveUser(
 	totalNodes int,
 ) error {
 	doc := model.Batch{
-		UserID:     userID,
-		Title:      batchTitle,
-		BatchID:    batchID,
-		Schemas:    schemas,
-		TotalNodes: totalNodes,
+		UserID:         userID,
+		Title:          batchTitle,
+		BatchID:        batchID,
+		Schemas:        schemas,
+		TotalNodes:     totalNodes,
+		ProcessedNodes: 0,
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)
 	if err != nil {
