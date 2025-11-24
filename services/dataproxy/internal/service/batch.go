@@ -326,6 +326,16 @@ func (s *batchService) Edit(
 		)
 	}
 
+	batchStatus, err := s.batchRepo.GetBatchStatus(batchID)
+	if err != nil {
+		return -1, nil, err
+	}
+	if batchStatus != "completed" {
+		return -1, nil, fmt.Errorf(
+			"batch is not completed. Please wait for the batch to be completed before editing it",
+		)
+	}
+
 	// save current schemas to batch collection
 	schemas, err := s.batchRepo.UpdateBatchTitle(title, batchID)
 	if err != nil {
@@ -682,6 +692,16 @@ func (s *batchService) Delete(userID string, batchID string) error {
 	}
 	if !isValid {
 		return errors.New("batch_id doesn't belong to user")
+	}
+
+	batchStatus, err := s.batchRepo.GetBatchStatus(batchID)
+	if err != nil {
+		return err
+	}
+	if batchStatus != "completed" {
+		return errors.New(
+			"batch is not completed. Please wait for the batch to be completed before deleting it",
+		)
 	}
 
 	go s.deleteBatchAsync(batchID)

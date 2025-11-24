@@ -41,6 +41,7 @@ type BatchRepository interface {
 		totalNodes int,
 		progress int,
 	) error
+	GetBatchStatus(batchID string) (string, error)
 }
 
 type batchRepository struct{}
@@ -355,4 +356,18 @@ func (r *batchRepository) UpdateBatchTotalNodesAndProgress(
 		return err
 	}
 	return nil
+}
+
+func (r *batchRepository) GetBatchStatus(batchID string) (string, error) {
+	filter := bson.M{"batch_id": batchID}
+	doc := mongo.Client.FindOne(constant.MongoIndex.Batch, filter)
+	if doc.Err() != nil {
+		return "", doc.Err()
+	}
+
+	var batch model.Batch
+	if err := doc.Decode(&batch); err != nil {
+		return "", err
+	}
+	return batch.Status, nil
 }
