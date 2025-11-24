@@ -91,68 +91,9 @@ func (s *batchService) Validate(
 		)
 	}
 
-	// Parse the schemas for validation.
-	parsedSchemas, err := ParseSchemas(schemaNames)
+	_, validationErrors, err := s.validateProfiles(csvRecords, schemaNames)
 	if err != nil {
 		return -1, nil, err
-	}
-	jsonSchemas := parsedSchemas.JSONSchemas
-	parsedSchemaNames := parsedSchemas.SchemaNames
-
-	// Convert CSV records to a slice of maps (header to value mapping).
-	profileRecords := csvToMap(csvRecords)
-
-	// Initialize a slice to collect all validation errors.
-	var validationErrors []jsonapi.Error
-
-	// Iterate over each profile record for validation.
-	for lineNumber, profileData := range profileRecords {
-		// Extract the OID (Object Identifier) from the profile data.
-		oid, exists := profileData["oid"]
-		if !exists {
-			return lineNumber, nil, fmt.Errorf(
-				"missing 'oid' in profile at line %d",
-				lineNumber,
-			)
-		}
-
-		// Map raw profile data to the expected schema format.
-		mappedProfile, err := mapToProfile(profileData, schemaNames)
-		if err != nil {
-			return lineNumber, nil, err
-		}
-
-		// Build the profile validator with the mapped profile and JSON schemas.
-		validator, err := profilevalidator.NewBuilder().
-			WithMapProfile(mappedProfile).
-			WithJSONSchemas(parsedSchemaNames, jsonSchemas).
-			Build()
-		if err != nil {
-			return -1, nil, err
-		}
-
-		// Validate the profile.
-		validationResult := validator.Validate()
-
-		// Inject OID into each source entry for better error tracing.
-		for idx := range validationResult.Sources {
-			validationResult.Sources[idx] = append(
-				validationResult.Sources[idx],
-				"oid",
-				oid,
-			)
-		}
-
-		// Collect validation errors if any.
-		if !validationResult.Valid {
-			errors := jsonapi.NewError(
-				validationResult.ErrorMessages,
-				validationResult.Details,
-				validationResult.Sources,
-				validationResult.ErrorStatus,
-			)
-			validationErrors = append(validationErrors, errors...)
-		}
 	}
 
 	// Return collected validation errors if any.
@@ -451,7 +392,7 @@ func (s *batchService) validateProfiles(
 			result.Sources[idx] = append(
 				result.Sources[idx],
 				"oid",
-				strconv.Itoa(line),
+				rawProfile["oid"],
 			)
 		}
 
