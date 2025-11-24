@@ -204,7 +204,10 @@ func (s *batchService) Import(
 	// Generate a new batch ID.
 	batchID := cuid.New()
 
-	mappedProfiles, validationErrors, err := s.validateProfiles(records, schemaNames)
+	mappedProfiles, validationErrors, err := s.validateProfiles(
+		records,
+		schemaNames,
+	)
 
 	if err != nil {
 		return batchID, -1, nil, err
@@ -388,7 +391,10 @@ func (s *batchService) Edit(
 		return -1, nil, err
 	}
 
-	mappedProfiles, validationErrors, err := s.validateProfiles(records, schemas)
+	mappedProfiles, validationErrors, err := s.validateProfiles(
+		records,
+		schemas,
+	)
 
 	if err != nil {
 		return -1, nil, err
@@ -412,7 +418,6 @@ func (s *batchService) validateProfiles(
 	records [][]string,
 	schemas []string,
 ) ([]map[string]interface{}, []jsonapi.Error, error) {
-
 	rawProfiles := csvToMap(records)
 
 	parsed, err := ParseSchemas(schemas)
@@ -424,10 +429,9 @@ func (s *batchService) validateProfiles(
 	schemaNames := parsed.SchemaNames
 
 	var validationErrors []jsonapi.Error
-	var mappedProfiles []map[string]interface{}
+	mappedProfiles := make([]map[string]interface{}, 0, len(rawProfiles))
 
 	for line, rawProfile := range rawProfiles {
-
 		profile, err := mapToProfile(rawProfile, schemas)
 		if err != nil {
 			return nil, nil, fmt.Errorf("line %d: %v", line, err)
@@ -442,6 +446,15 @@ func (s *batchService) validateProfiles(
 		}
 
 		result := validator.Validate()
+
+		for idx := range result.Sources {
+			result.Sources[idx] = append(
+				result.Sources[idx],
+				"oid",
+				strconv.Itoa(line),
+			)
+		}
+
 		if !result.Valid {
 			validationErrors = append(validationErrors,
 				jsonapi.NewError(
@@ -471,18 +484,38 @@ func (s *batchService) ProcessEditAsync(
 	metaURL string,
 ) {
 	// update status = processing
-	s.batchRepo.UpdateBatchStatus(batchID, "editing")
-
-	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchID(batchID)
+	err := s.batchRepo.UpdateBatchStatus(batchID, "editing")
 	if err != nil {
-		s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+		logger.Error("Failed to update batch status to editing", err)
+		return
+	}
+
+	profileOidsAndHashes, err := s.batchRepo.GetProfileOidsAndHashesByBatchID(
+		batchID,
+	)
+	if err != nil {
+		batchErr := s.batchRepo.UpdateBatchError(
+			batchID,
+			"edit_failed",
+			err.Error(),
+		)
+		if batchErr != nil {
+			logger.Error("Failed to update batch error", batchErr)
+		}
 		return
 	}
 
 	totalNodes := len(profileOidsAndHashes)
 	err = s.batchRepo.UpdateBatchTotalNodesAndProgress(batchID, totalNodes, 0)
 	if err != nil {
-		s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+		batchErr := s.batchRepo.UpdateBatchError(
+			batchID,
+			"edit_failed",
+			err.Error(),
+		)
+		if batchErr != nil {
+			logger.Error("Failed to update batch error", batchErr)
+		}
 		return
 	}
 
@@ -509,7 +542,14 @@ func (s *batchService) ProcessEditAsync(
 
 		profileHash, err := jsonutil.Hash(profile)
 		if err != nil {
-			s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				"edit_failed",
+				err.Error(),
+			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
 			return
 		}
 		profile["source_data_hash"] = profileHash
@@ -527,7 +567,17 @@ func (s *batchService) ProcessEditAsync(
 				if processed%10 == 0 || len(mappedProfiles) == processed {
 					err = s.batchRepo.UpdateBatchProgress(batchID, processed)
 					if err != nil {
-						s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+						batchErr := s.batchRepo.UpdateBatchError(
+							batchID,
+							"edit_failed",
+							err.Error(),
+						)
+						if batchErr != nil {
+							logger.Error(
+								"Failed to update batch error",
+								batchErr,
+							)
+						}
 						return
 					}
 				}
@@ -536,7 +586,14 @@ func (s *batchService) ProcessEditAsync(
 			// Otherwise update the profile in MongoDB
 			err = s.batchRepo.UpdateProfile(profileCUID, profile)
 			if err != nil {
-				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				batchErr := s.batchRepo.UpdateBatchError(
+					batchID,
+					"edit_failed",
+					err.Error(),
+				)
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
 				return
 			}
 			// Delete `oid` from profileOidsAndHashes, so that the rest of data in it needs to be deleted later
@@ -546,7 +603,10 @@ func (s *batchService) ProcessEditAsync(
 			profile["cuid"] = profileCUID
 			err = s.batchRepo.SaveProfile(profile)
 			if err != nil {
-				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				batchErr := s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
 				return
 			}
 		}
@@ -556,7 +616,14 @@ func (s *batchService) ProcessEditAsync(
 		profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileCUID
 		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 		if err != nil {
-			s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				"edit_failed",
+				err.Error(),
+			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
 			return
 		}
 
@@ -564,7 +631,14 @@ func (s *batchService) ProcessEditAsync(
 		profile["is_posted"] = true
 		err = s.batchRepo.SaveNodeID(profileCUID, profile)
 		if err != nil {
-			s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				"edit_failed",
+				err.Error(),
+			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
 			return
 		}
 
@@ -572,7 +646,14 @@ func (s *batchService) ProcessEditAsync(
 		if processed%10 == 0 || len(mappedProfiles) == processed {
 			err = s.batchRepo.UpdateBatchProgress(batchID, processed)
 			if err != nil {
-				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				batchErr := s.batchRepo.UpdateBatchError(
+					batchID,
+					"edit_failed",
+					err.Error(),
+				)
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
 				return
 			}
 		}
@@ -584,14 +665,28 @@ func (s *batchService) ProcessEditAsync(
 			// Get profile by cuid
 			profile, err := s.batchRepo.GetProfileByCuid(cuidAndHash[0])
 			if err != nil {
-				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				batchErr := s.batchRepo.UpdateBatchError(
+					batchID,
+					"edit_failed",
+					err.Error(),
+				)
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
 				return
 			}
 
 			// Delete profiles from mongo
 			err = s.batchRepo.DeleteProfileByCuid(cuidAndHash[0])
 			if err != nil {
-				s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+				batchErr := s.batchRepo.UpdateBatchError(
+					batchID,
+					"edit_failed",
+					err.Error(),
+				)
+				if batchErr != nil {
+					logger.Error("Failed to update batch error", batchErr)
+				}
 				return
 			}
 
@@ -601,7 +696,14 @@ func (s *batchService) ProcessEditAsync(
 				deleteNodeURL := config.Values.Index.URL + "/v2/nodes/" + nodeID
 				err := importutil.DeleteIndex(deleteNodeURL, nodeID)
 				if err != nil {
-					s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+					batchErr := s.batchRepo.UpdateBatchError(
+						batchID,
+						"edit_failed",
+						err.Error(),
+					)
+					if batchErr != nil {
+						logger.Error("Failed to update batch error", batchErr)
+					}
 					return
 				}
 			}
@@ -610,14 +712,25 @@ func (s *batchService) ProcessEditAsync(
 			if processed%10 == 0 || totalNodes == processed {
 				err = s.batchRepo.UpdateBatchProgress(batchID, processed)
 				if err != nil {
-					s.batchRepo.UpdateBatchError(batchID, "edit_failed", err.Error())
+					batchErr := s.batchRepo.UpdateBatchError(
+						batchID,
+						"edit_failed",
+						err.Error(),
+					)
+					if batchErr != nil {
+						logger.Error("Failed to update batch error", batchErr)
+					}
 					return
 				}
 			}
 		}
 	}
 
-	s.batchRepo.UpdateBatchStatus(batchID, "completed")
+	err = s.batchRepo.UpdateBatchStatus(batchID, "completed")
+	if err != nil {
+		logger.Error("Failed to update batch status to completed", err)
+		return
+	}
 }
 
 func (s *batchService) Delete(userID string, batchID string) error {
