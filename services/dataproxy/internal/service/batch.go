@@ -13,6 +13,7 @@ import (
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/importutil"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonapi"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/jsonutil"
+	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/logger"
 	"github.com/MurmurationsNetwork/MurmurationsServices/pkg/profile/profilevalidator"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/config"
 	"github.com/MurmurationsNetwork/MurmurationsServices/services/dataproxy/internal/model"
@@ -304,13 +305,40 @@ func (s *batchService) Import(
 	}
 
 	// Save the batch information to the database.
-	err = s.batchRepo.SaveUser(userID, title, batchID, schemaNames)
+	err = s.batchRepo.SaveUser(
+		userID,
+		title,
+		batchID,
+		schemaNames,
+		len(validProfiles),
+	)
 	if err != nil {
 		return batchID, -1, nil, err
 	}
 
 	// Second pass: Process valid profiles and save them to the database.
-	for _, mappedProfile := range validProfiles {
+	go s.ProcessImportAsync(batchID, validProfiles, metaName, metaURL)
+
+	// All profiles have been successfully imported.
+	return batchID, -1, nil, nil
+}
+
+func (s *batchService) ProcessImportAsync(
+	batchID string,
+	validProfiles []map[string]interface{},
+	metaName string,
+	metaURL string,
+) {
+	err := s.batchRepo.UpdateBatchStatus(batchID, "processing")
+	if err != nil {
+		logger.Error("Failed to update batch status to processing", err)
+		return
+	}
+
+	processedNodes := 0
+	totalNodes := len(validProfiles)
+
+	for i, mappedProfile := range validProfiles {
 		// Generate a new CUID for the profile and set "cuid".
 		profileCUID := cuid.New()
 		mappedProfile["cuid"] = profileCUID
@@ -318,7 +346,14 @@ func (s *batchService) Import(
 		// Compute a hash of the profile and store it in "source_data_hash".
 		profileHash, err := jsonutil.Hash(mappedProfile)
 		if err != nil {
-			return batchID, -1, nil, err
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				fmt.Sprintf("Failed to compute hash of profile: %v", err),
+			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
+			break
 		}
 		mappedProfile["source_data_hash"] = profileHash
 
@@ -345,7 +380,14 @@ func (s *batchService) Import(
 		// Save the profile to the database.
 		err = s.batchRepo.SaveProfile(mappedProfile)
 		if err != nil {
-			return batchID, -1, nil, err
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				fmt.Sprintf("Failed to save profile: %v", err),
+			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
+			break
 		}
 
 		// Post the profile to the index service.
@@ -353,10 +395,14 @@ func (s *batchService) Import(
 		profileURL := config.Values.DataProxy.URL + "/v1/profiles/" + profileCUID
 		nodeID, err := importutil.PostIndex(postNodeURL, profileURL)
 		if err != nil {
-			return batchID, -1, nil, fmt.Errorf(
-				"import to index service failed: %v",
-				err,
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				fmt.Sprintf("Failed to post profile to index service: %v", err),
 			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
+			break
 		}
 
 		// Update the profile with the node ID and mark it as posted.
@@ -366,15 +412,31 @@ func (s *batchService) Import(
 		// Save the node ID to the database.
 		err = s.batchRepo.SaveNodeID(profileCUID, mappedProfile)
 		if err != nil {
-			return batchID, -1, nil, fmt.Errorf(
-				"failed to save node ID to database: %v",
-				err,
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				fmt.Sprintf("Failed to save node ID to database: %v", err),
 			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
+			break
+		}
+
+		processedNodes++
+
+		if processedNodes%10 == 0 || i == totalNodes-1 {
+			batchErr := s.batchRepo.UpdateBatchProgress(batchID, processedNodes)
+			if batchErr != nil {
+				logger.Error("Failed to update batch progress", batchErr)
+			}
 		}
 	}
 
-	// All profiles have been successfully imported.
-	return batchID, -1, nil, nil
+	err = s.batchRepo.UpdateBatchStatus(batchID, "completed")
+	if err != nil {
+		logger.Error("Failed to update batch status to completed", err)
+		return
+	}
 }
 
 func (s *batchService) Edit(

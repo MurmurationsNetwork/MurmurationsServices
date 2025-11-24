@@ -18,6 +18,7 @@ type BatchRepository interface {
 		batchTitle string,
 		batchID string,
 		schemas []string,
+		totalNodes int,
 	) error
 	UpdateBatchTitle(batchTitle string, batchID string) ([]string, error)
 	SaveProfile(profile map[string]interface{}) error
@@ -32,6 +33,9 @@ type BatchRepository interface {
 	DeleteProfileByCuid(cuid string) error
 	DeleteProfilesByBatchID(batchID string) error
 	DeleteBatchID(batchID string) error
+	UpdateBatchError(batchID string, errorMessage string) error
+	UpdateBatchProgress(batchID string, progress int) error
+	UpdateBatchStatus(batchID string, status string) error
 }
 
 type batchRepository struct{}
@@ -67,12 +71,14 @@ func (r *batchRepository) SaveUser(
 	batchTitle string,
 	batchID string,
 	schemas []string,
+	totalNodes int,
 ) error {
 	doc := model.Batch{
-		UserID:  userID,
-		Title:   batchTitle,
-		BatchID: batchID,
-		Schemas: schemas,
+		UserID:     userID,
+		Title:      batchTitle,
+		BatchID:    batchID,
+		Schemas:    schemas,
+		TotalNodes: totalNodes,
 	}
 	_, err := mongo.Client.InsertOne(constant.MongoIndex.Batch, doc)
 	if err != nil {
@@ -270,5 +276,56 @@ func (r *batchRepository) DeleteBatchID(batchID string) error {
 		return err
 	}
 
+	return nil
+}
+
+func (r *batchRepository) UpdateBatchError(
+	batchID string,
+	errorMessage string,
+) error {
+	filter := bson.M{"batch_id": batchID}
+	update := bson.M{"$set": bson.M{"error": errorMessage}}
+	_, err := mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Batch,
+		filter,
+		update,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *batchRepository) UpdateBatchProgress(
+	batchID string,
+	progress int,
+) error {
+	filter := bson.M{"batch_id": batchID}
+	update := bson.M{"$set": bson.M{"processed_nodes": progress}}
+	_, err := mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Batch,
+		filter,
+		update,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *batchRepository) UpdateBatchStatus(
+	batchID string,
+	status string,
+) error {
+	filter := bson.M{"batch_id": batchID}
+	update := bson.M{"$set": bson.M{"status": status}}
+	_, err := mongo.Client.FindOneAndUpdate(
+		constant.MongoIndex.Batch,
+		filter,
+		update,
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
