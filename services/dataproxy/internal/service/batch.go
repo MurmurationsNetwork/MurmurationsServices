@@ -198,21 +198,6 @@ func (s *batchService) ProcessImportAsync(
 		profileCUID := cuid.New()
 		mappedProfile["cuid"] = profileCUID
 
-		// Compute a hash of the profile and store it in "source_data_hash".
-		profileHash, err := jsonutil.Hash(mappedProfile)
-		if err != nil {
-			batchErr := s.batchRepo.UpdateBatchError(
-				batchID,
-				"failed",
-				fmt.Sprintf("Failed to compute hash of profile: %v", err),
-			)
-			if batchErr != nil {
-				logger.Error("Failed to update batch error", batchErr)
-			}
-			break
-		}
-		mappedProfile["source_data_hash"] = profileHash
-
 		// Add metadata if provided.
 		if metaName != "" || metaURL != "" {
 			sourceInfo := make(map[string]interface{})
@@ -229,6 +214,21 @@ func (s *batchService) ProcessImportAsync(
 			}
 			mappedProfile["metadata"] = metadata
 		}
+
+		// Compute a hash of the profile and store it in "source_data_hash".
+		profileHash, err := jsonutil.Hash(mappedProfile)
+		if err != nil {
+			batchErr := s.batchRepo.UpdateBatchError(
+				batchID,
+				"failed",
+				fmt.Sprintf("Failed to compute hash of profile: %v", err),
+			)
+			if batchErr != nil {
+				logger.Error("Failed to update batch error", batchErr)
+			}
+			break
+		}
+		mappedProfile["source_data_hash"] = profileHash
 
 		// Set "batch_id" to associate the profile with the batch.
 		mappedProfile["batch_id"] = batchID
