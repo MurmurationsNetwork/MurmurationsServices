@@ -180,7 +180,7 @@ func (s *batchService) Import(
 
 func (s *batchService) ProcessImportAsync(
 	batchID string,
-	validProfiles []map[string]interface{},
+	mappedProfiles []map[string]interface{},
 	metaName string,
 	metaURL string,
 ) {
@@ -191,13 +191,9 @@ func (s *batchService) ProcessImportAsync(
 	}
 
 	processedNodes := 0
-	totalNodes := len(validProfiles)
+	totalNodes := len(mappedProfiles)
 
-	for i, mappedProfile := range validProfiles {
-		// Generate a new CUID for the profile and set "cuid".
-		profileCUID := cuid.New()
-		mappedProfile["cuid"] = profileCUID
-
+	for i, mappedProfile := range mappedProfiles {
 		// Add metadata if provided.
 		if metaName != "" || metaURL != "" {
 			sourceInfo := make(map[string]interface{})
@@ -229,6 +225,10 @@ func (s *batchService) ProcessImportAsync(
 			break
 		}
 		mappedProfile["source_data_hash"] = profileHash
+
+		// Generate a new CUID for the profile and set "cuid".
+		profileCUID := cuid.New()
+		mappedProfile["cuid"] = profileCUID
 
 		// Set "batch_id" to associate the profile with the batch.
 		mappedProfile["batch_id"] = batchID
