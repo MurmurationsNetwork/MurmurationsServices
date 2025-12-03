@@ -8,4 +8,4 @@ es:
   replicas: 3
 
 mongo:
-  replicas: 3
+  replicas: 1
