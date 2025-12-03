@@ -6,4 +6,4 @@ library:
     port: 8080
 
 mongo:
-  replicas: 3
+  replicas: 1
