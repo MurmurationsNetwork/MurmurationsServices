@@ -6,5 +6,5 @@ proxy:
     port: 8080
 
 mongo:
-  replicas: 1
+  replicas: 3
 
