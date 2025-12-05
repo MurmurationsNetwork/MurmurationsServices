@@ -8,4 +8,5 @@ es:
   replicas: 3
 
 mongo:
-  replicas: 1
+  enableReplicaSet: false
+  replicas: 3

@@ -10,7 +10,7 @@ metadata:
   name: library-mongo
 spec:
   serviceName: "library-mongo"
-  {{ if or $isProd $isStaging }}
+  {{- if .Values.mongo.enableReplicaSet }}
   replicas: {{ .Values.mongo.replicas }}
   {{- else }}
   replicas: 1
