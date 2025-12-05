@@ -39,11 +39,11 @@ spec:
           # Resources configuration only for non-development environments
           resources:
             requests:
-              memory: "16Mi"
-              cpu: "16m"
+              memory: "128Mi"
+              cpu: "50m"
             limits:
-              memory: "64Mi"
-              cpu: "128m"
+              memory: "256Mi"
+              cpu: "200m"
           {{- end }}
           env:
             - name: NATS_CLIENT_ID
