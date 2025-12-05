@@ -82,7 +82,7 @@ deploy-nats:
 	--install \
 	--atomic \
 	--set global.env=$(DEPLOY_ENV) \
-	--version 1.1.6 \
+	--version 2.12.2 \
 	-f $(VALUES_FILE)
 
 deploy-index:

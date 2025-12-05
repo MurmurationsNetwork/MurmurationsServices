@@ -1,8 +1,13 @@
 config:
   cluster:
     enabled: true
-    port: 6222
     replicas: 3
+    merge:
+      name: nats
+      routes:
+        - nats://nats-0.nats-headless:6222
+        - nats://nats-1.nats-headless:6222
+        - nats://nats-2.nats-headless:6222
 
   # JetStream configuration for NATS.
   jetstream:
@@ -11,8 +16,19 @@ config:
       enabled: true
       pvc:
         enabled: true
-        size: 1Gi
+        size: 5Gi
         storageClassName: longhorn
+
+container:
+  merge:
+    startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8222
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      failureThreshold: 30
+      timeoutSeconds: 5
 
 reloader:
   enabled: false
