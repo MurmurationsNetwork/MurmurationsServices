@@ -67,11 +67,11 @@ check-clean:
 
 deploy-murmurations-core:
 	helm upgrade murmurations-core ./charts/murmurations/charts/core \
-	--set global.env=$(DEPLOY_ENV) --install --atomic
+	--set global.env=$(DEPLOY_ENV) --install --rollback-on-failure
 
 deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress \
-	--set global.env=$(DEPLOY_ENV) --install --atomic
+	--set global.env=$(DEPLOY_ENV) --install --rollback-on-failure
 
 deploy-nats:
 	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
@@ -80,7 +80,7 @@ deploy-nats:
 	--namespace murm-queue \
 	--create-namespace \
 	--install \
-	--atomic \
+	--rollback-on-failure \
 	--set global.env=$(DEPLOY_ENV) \
 	--version 2.12.2 \
 	-f $(VALUES_FILE)
@@ -88,47 +88,47 @@ deploy-nats:
 deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)index:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-validation:
 	helm upgrade murmurations-validation ./charts/murmurations/charts/validation \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)validation:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-library:
 	helm upgrade murmurations-library ./charts/murmurations/charts/library \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)library:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-nodecleaner:
 	helm upgrade murmurations-nodecleaner ./charts/murmurations/charts/nodecleaner \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-schemaparser:
 	helm upgrade murmurations-schemaparser ./charts/murmurations/charts/schemaparser \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)schemaparser:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode ./charts/murmurations/charts/revalidatenode \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater ./charts/murmurations/charts/dataproxyupdater \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 deploy-dataproxyrefresher:
 	helm upgrade murmurations-dataproxyrefresher ./charts/murmurations/charts/dataproxyrefresher \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(TAG) \
-	--install --atomic
+	--install --rollback-on-failure
 
 # ---------------------------------------------------------------
 # Manual Helm deployment targets for individual services with debugging.
@@ -153,11 +153,11 @@ deploy-all-services: $(MANUAL_DEPLOY_TARGETS)
 
 manually-deploy-murmurations-core:
 	helm upgrade murmurations-core ./charts/murmurations/charts/core \
-		--set global.env=$(DEPLOY_ENV) --install --atomic --debug
+		--set global.env=$(DEPLOY_ENV) --install --rollback-on-failure --debug
 
 manually-deploy-ingress:
 	helm upgrade murmurations-ingress ./charts/murmurations/charts/ingress \
-	--set global.env=$(DEPLOY_ENV) --install --atomic --debug
+	--set global.env=$(DEPLOY_ENV) --install --rollback-on-failure --debug
 
 manually-deploy-nats:
 	helm repo add nats https://nats-io.github.io/k8s/helm/charts/ && \
@@ -166,7 +166,7 @@ manually-deploy-nats:
 	--namespace murm-queue \
 	--create-namespace \
 	--install \
-	--atomic \
+	--rollback-on-failure \
 	--set global.env=$(DEPLOY_ENV) \
 	--version 1.1.6 \
 	-f $(VALUES_FILE)
@@ -174,53 +174,53 @@ manually-deploy-nats:
 manually-deploy-index:
 	helm upgrade murmurations-index ./charts/murmurations/charts/index \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)index:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-validation:
 	helm upgrade murmurations-validation \
 	./charts/murmurations/charts/validation \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)validation:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-library:
 	helm upgrade murmurations-library ./charts/murmurations/charts/library \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)library:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-nodecleaner:
 	helm upgrade murmurations-nodecleaner \
 	./charts/murmurations/charts/nodecleaner \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)nodecleaner:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-schemaparser:
 	helm upgrade murmurations-schemaparser \
 	./charts/murmurations/charts/schemaparser \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)schemaparser:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-revalidatenode:
 	helm upgrade murmurations-revalidatenode \
 	./charts/murmurations/charts/revalidatenode \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)revalidatenode:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-dataproxy:
 	helm upgrade murmurations-dataproxy ./charts/murmurations/charts/dataproxy \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxy:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-dataproxyupdater:
 	helm upgrade murmurations-dataproxyupdater \
 	./charts/murmurations/charts/dataproxyupdater \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyupdater:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-dataproxyrefresher:
 	helm upgrade murmurations-dataproxyrefresher \
 	./charts/murmurations/charts/dataproxyrefresher \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)dataproxyrefresher:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-murm-logging:
 	helm upgrade murm-logging ./charts/murm-logging \
@@ -229,9 +229,9 @@ manually-deploy-murm-logging:
 	--set global.env=$(DEPLOY_ENV) \
 	--set elasticsearch.image=docker.elastic.co/elasticsearch/elasticsearch:8.12.1 \
 	--set kibana.image=docker.elastic.co/kibana/kibana:8.12.1 \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
 
 manually-deploy-maintenance:
 	helm upgrade murmurations-maintenance ./charts/murmurations/charts/maintenance \
 	--set global.env=$(DEPLOY_ENV),image=murmurations/$(DOCKER_TAG_PREFIX)maintenance:$(SPECIFIC_TAG) \
-	--install --atomic --debug
+	--install --rollback-on-failure --debug
