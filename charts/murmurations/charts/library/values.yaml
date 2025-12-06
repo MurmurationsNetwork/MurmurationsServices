@@ -6,4 +6,5 @@ library:
     port: 8080
 
 mongo:
+  enableReplicaSet: false
   replicas: 3

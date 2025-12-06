@@ -1,4 +1,4 @@
 image: ""
 
 redis:
-  replicas: 3
+  replicas: 1
