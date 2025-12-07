@@ -73,8 +73,25 @@ func validateURL(rawURL string) (*url.URL, error) {
 		return nil, ErrInvalidURL
 	}
 
-	// If the rawURL does not contain "http", prepend "https://" to it.
-	if !strings.Contains(rawURL, "http") {
+	// Normalize the scheme to lowercase for case-insensitive checking.
+	// Check if the URL starts with "http://" or "https://" (case-insensitive).
+	rawURLLower := strings.ToLower(rawURL)
+	if strings.HasPrefix(rawURLLower, "http://") {
+		// Find the position of "://" in the original URL (case-insensitive)
+		schemeEnd := strings.Index(rawURL, "://")
+		if schemeEnd != -1 {
+			// Normalize http:// to lowercase
+			rawURL = "http://" + rawURL[schemeEnd+3:]
+		}
+	} else if strings.HasPrefix(rawURLLower, "https://") {
+		// Find the position of "://" in the original URL (case-insensitive)
+		schemeEnd := strings.Index(rawURL, "://")
+		if schemeEnd != -1 {
+			// Normalize https:// to lowercase
+			rawURL = "https://" + rawURL[schemeEnd+3:]
+		}
+	} else if !strings.Contains(rawURLLower, "http") {
+		// If the rawURL does not contain "http" (case-insensitive), prepend "https://" to it.
 		rawURL = "https://" + rawURL
 	}
 
