@@ -83,6 +83,31 @@ func TestNormalizeURL(t *testing.T) {
 			expected: "",
 			err:      errors.New("invalid URL"),
 		},
+		{
+			name:     "URL with uppercase HTTP scheme",
+			input:    "HTTP://example.com",
+			expected: "example.com",
+		},
+		{
+			name:     "URL with uppercase HTTPS scheme",
+			input:    "HTTPS://example.com",
+			expected: "example.com",
+		},
+		{
+			name:     "URL with mixed case HTTP scheme",
+			input:    "httP://example.com",
+			expected: "example.com",
+		},
+		{
+			name:     "URL with mixed case HTTPS scheme",
+			input:    "hTTpS://example.com",
+			expected: "example.com",
+		},
+		{
+			name:     "URL with uppercase HTTP scheme and path",
+			input:    "HTTP://www.example.com/path/to/page",
+			expected: "example.com/path/to/page",
+		},
 	}
 
 	for _, tc := range testCases {

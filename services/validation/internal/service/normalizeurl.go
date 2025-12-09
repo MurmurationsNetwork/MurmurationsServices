@@ -67,14 +67,20 @@ func normalizeURL(u *url.URL) string {
 // validateURL function takes a raw URL string as input, validates it, and
 // returns a parsed URL or an error.
 func validateURL(rawURL string) (*url.URL, error) {
+	rawURL = strings.TrimSpace(rawURL)
+
 	// Check if the rawURL is empty or only contains "https://" or "www."
 	// If so, return an error as these are not valid URLs.
 	if rawURL == "" || rawURL == "https://" || rawURL == "www." {
 		return nil, ErrInvalidURL
 	}
 
-	// If the rawURL does not contain "http", prepend "https://" to it.
-	if !strings.Contains(rawURL, "http") {
+	// Normalize the scheme to lowercase for case-insensitive checking.
+	// Check if the URL starts with "http://" or "https://" (case-insensitive).
+	rawURLLower := strings.ToLower(rawURL)
+	if !strings.HasPrefix(rawURLLower, "http://") &&
+		!strings.HasPrefix(rawURLLower, "https://") {
+		// If the rawURL does not contain "http" or "https", prepend "https://" to it.
 		rawURL = "https://" + rawURL
 	}
 
