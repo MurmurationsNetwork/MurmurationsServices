@@ -78,11 +78,8 @@ func validateURL(rawURL string) (*url.URL, error) {
 	// Normalize the scheme to lowercase for case-insensitive checking.
 	// Check if the URL starts with "http://" or "https://" (case-insensitive).
 	rawURLLower := strings.ToLower(rawURL)
-	if strings.HasPrefix(rawURLLower, "http://") {
-		rawURL = "http://" + rawURL[len("http://"):]
-	} else if strings.HasPrefix(rawURLLower, "https://") {
-		rawURL = "https://" + rawURL[len("https://"):]
-	} else {
+	if !strings.HasPrefix(rawURLLower, "http://") &&
+		!strings.HasPrefix(rawURLLower, "https://") {
 		// If the rawURL does not contain "http" or "https", prepend "https://" to it.
 		rawURL = "https://" + rawURL
 	}
