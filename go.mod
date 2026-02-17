@@ -13,7 +13,7 @@ require (
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/nats.go v1.48.0
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/redis/go-redis/v9 v9.17.3
+	github.com/redis/go-redis/v9 v9.18.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
@@ -72,6 +72,7 @@ require (
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.23.0 // indirect
