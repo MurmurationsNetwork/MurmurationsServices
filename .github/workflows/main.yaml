@@ -8,14 +8,14 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
       - name: Set Up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.24
+          go-version: 1.25
           cache: false
       - name: Install Dependencies
         run: go mod tidy
@@ -24,14 +24,14 @@ jobs:
 
   lint:
     name: Lint Code
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
       - name: Set Up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.24
+          go-version: 1.25
           cache: false
       - name: Install Dependencies
         run: go mod tidy
@@ -45,7 +45,7 @@ jobs:
     needs:
       - test
       - lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         service:
@@ -76,7 +76,7 @@ jobs:
       - test
       - lint
       - build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       SERVER_IP: ${{ secrets.PRODUCTION_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}

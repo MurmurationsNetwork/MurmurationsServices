@@ -1,17 +1,17 @@
-FROM golang:1.24-alpine as build
+FROM golang:1.25-alpine as build
 
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy
 RUN CGO_ENABLED=0 go build -o /bin/dataproxy ./cmd/dataproxy/dataproxy
 
-FROM golang:1.24-alpine as seeder-build
+FROM golang:1.25-alpine as seeder-build
 
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy
 RUN CGO_ENABLED=0 go build -o /bin/seeder ./cmd/dataproxy/seeder
 RUN CGO_ENABLED=0 go build -o /bin/ukseeder ./cmd/dataproxy/ukseeder
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /bin/dataproxy /app/dataproxy
