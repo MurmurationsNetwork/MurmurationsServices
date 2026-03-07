@@ -38,7 +38,7 @@ jobs:
       - name: Run Linter
         uses: golangci/golangci-lint-action@v9
         with:
-            version: v2.1.0
+            version: v2.11.1
 
   build:
     name: Build Docker Image - ${{ matrix.service }}
