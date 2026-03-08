@@ -9,7 +9,7 @@ jobs:
     if: |
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '/rebuild')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Trigger Build Job
         run: echo "Triggering Build Job"
@@ -17,7 +17,7 @@ jobs:
   build:
     name: Build Docker Image - ${{ matrix.service }}
     needs: check-comment-and-trigger-build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         service:
@@ -49,7 +49,7 @@ jobs:
   deploy:
     name: Deploy Services
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
@@ -68,7 +68,7 @@ jobs:
     name: E2E Test
     needs:
       - deploy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -76,7 +76,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "18"
+          node-version: 22
 
       - name: Install Newman
         run: |
