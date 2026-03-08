@@ -1,5 +1,5 @@
 # Using the official golang image based on Alpine for the build stage.
-FROM golang:1.24-alpine as build
+FROM golang:1.25-alpine as build
 
 WORKDIR /src/dataproxyrefresher
 
@@ -9,7 +9,7 @@ ADD . /src/dataproxyrefresher
 RUN CGO_ENABLED=0 go build -o /bin/dataproxyrefresher ./cmd/dataproxyrefresher
 
 # Using Ubuntu 22.04 as the base image for the final container.
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Update the package list and install the ca-certificates package for SSL/TLS support.
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates

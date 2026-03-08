@@ -7,14 +7,14 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
       - name: Set Up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.24
+          go-version: 1.25
           cache: false
       - name: Install Dependencies
         run: go mod tidy
@@ -23,25 +23,25 @@ jobs:
 
   lint:
     name: Lint Code
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
       - name: Set Up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.24
+          go-version: 1.25
           cache: false
       - name: Install Dependencies
         run: go mod tidy
       - name: Run Linter
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.1.0
+          version: v2.11.1
 
   check-exclusions:
     name: Check Exclusions
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       exclude_matrix: ${{ steps.determine-exclusions.outputs.exclude_matrix }}
     steps:
@@ -71,7 +71,7 @@ jobs:
       - test
       - lint
       - check-exclusions
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         service:
@@ -107,7 +107,7 @@ jobs:
       - lint
       - check-exclusions
       - build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       SERVER_IP: ${{ secrets.PRETEST_SERVER_IP }}
       KUBECONFIG_PATH: ${{ secrets.KUBECONFIG_PATH }}
@@ -128,7 +128,7 @@ jobs:
       - check-exclusions
       - build
       - deploy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -136,7 +136,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "18"
+          node-version: 22
 
       - name: Install Newman
         run: |

@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM golang:1.24-alpine as build
+FROM golang:1.25-alpine as build
 
 # Set the working directory inside the container for the build stage
 WORKDIR /src/validation
@@ -12,7 +12,7 @@ ADD . /src/validation
 RUN CGO_ENABLED=0 go build -o /bin/validation ./cmd/validation
 
 # --- Runtime Stage ---
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 

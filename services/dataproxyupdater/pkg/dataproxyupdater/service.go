@@ -302,7 +302,7 @@ func Run() {
 			}
 		} else {
 			if nodeData.Errors != nil {
-				var errors []string
+				errors := make([]string, 0, len(nodeData.Errors))
 				for _, item := range nodeData.Errors {
 					errors = append(errors, fmt.Sprintf("%#v", item))
 				}
