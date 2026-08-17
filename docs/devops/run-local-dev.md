@@ -6,7 +6,7 @@
 
 2. Install [Helm](https://helm.sh/docs/intro/install/)
 
-3. Install [NGINX Ingress Controller](/docs/devops/install-ingress-nginx.md)
+3. Install [Traefik Ingress Controller](/docs/devops/install-traefik.md)
 
 4. Install [Skaffold](https://skaffold.dev/docs/install/)
 

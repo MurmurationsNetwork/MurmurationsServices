@@ -15,5 +15,5 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: nginx
+          ingressClassName: {{ .Values.ingress.className }}
 {{- end }}

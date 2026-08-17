@@ -1,0 +1,20 @@
+{{- $env := .Values.global.env }}
+{{- $needsTLS := or (eq $env "production") (eq $env "staging") (eq $env "pretest") }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: body-limit
+spec:
+  buffering:
+    maxRequestBodyBytes: {{ .Values.ingress.maxBodyBytes | int64 }}
+{{- if $needsTLS }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: https-redirect
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}

@@ -1,1 +1,6 @@
 env: ""
+
+ingress:
+  className: traefik
+  # 8m (8 * 1024 * 1024)
+  maxBodyBytes: 8388608
