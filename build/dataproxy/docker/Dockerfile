@@ -1,10 +1,10 @@
-FROM golang:1.25-alpine as build
+FROM golang:1.26-alpine as build
 
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy
 RUN CGO_ENABLED=0 go build -o /bin/dataproxy ./cmd/dataproxy/dataproxy
 
-FROM golang:1.25-alpine as seeder-build
+FROM golang:1.26-alpine as seeder-build
 
 WORKDIR /src/dataproxy
 ADD . /src/dataproxy

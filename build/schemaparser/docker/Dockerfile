@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM golang:1.25-alpine as build
+FROM golang:1.26-alpine as build
 
 # Set the working directory inside the container for the build stage
 WORKDIR /src/schemaparser
