@@ -698,9 +698,9 @@ func (s *batchService) Delete(userID string, batchID string) error {
 	if err != nil {
 		return err
 	}
-	if batchStatus != "completed" {
+	if batchStatus != "completed" && batchStatus != "delete_failed" {
 		return errors.New(
-			"batch is not completed. Please wait for the batch to be completed before deleting it",
+			"batch cannot be deleted unless its status is completed or delete_failed",
 		)
 	}
 

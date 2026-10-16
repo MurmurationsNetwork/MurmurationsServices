@@ -260,7 +260,12 @@ func DeleteIndex(deleteNodeURL string, nodeID string) error {
 	if err != nil {
 		return err
 	}
-	if res.StatusCode != 200 {
+	defer res.Body.Close()
+
+	if res.StatusCode == http.StatusNotFound {
+		return nil
+	}
+	if res.StatusCode != http.StatusOK {
 		var resBody map[string]interface{}
 
 		err = json.NewDecoder(res.Body).Decode(&resBody)
