@@ -11,7 +11,7 @@ require (
 	github.com/lucsky/cuid v1.2.1
 	github.com/nats-io/nats.go v1.56.0
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/redis/go-redis/v9 v9.23.0
+	github.com/redis/go-redis/v9 v9.24.0
 	github.com/stretchr/testify v1.12.1
 	github.com/tevino/abool/v2 v2.1.0
 	github.com/ulule/limiter/v3 v3.11.2
@@ -74,7 +74,7 @@ require (
 	golang.org/x/arch v0.29.0 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
